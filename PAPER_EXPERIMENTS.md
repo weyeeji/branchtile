@@ -1,6 +1,16 @@
 # 论文实验推进台账
 
-Latest continuation, 2026-10-16 22:03: see [the eight-GPU operator report](docs/operator_8gpu_exploration_report_20261016.md).
+Latest continuation, 2026-10-16: see [the owner-task eight-GPU report](docs/operator_owner_8gpu_report_20261016.md).
+Ten complete performance waves now contain 4,532 FP64-qualified configurations,
+74 clean jobs and 25 distinct development input cells across three documents.
+Owner tasks pass 480 dedicated O/LSE phases and show isolated approximately
+5% hot gains, including one of eight fixed-parameter confirming cells; the other
+inputs, topology lifetime and preparation amortization do not establish a net
+paper contribution. Eight proactively stopped compilation jobs remain separate
+and fully charged. Stage diagnostics do not predict fused-kernel speedups.
+The full paper objective remains incomplete.
+
+Historical continuation snapshot, 2026-10-16 22:03: see [the register-bank report](docs/operator_8gpu_exploration_report_20261016.md).
 Seven complete performance waves contain 2,852 qualified configurations and
 50 clean jobs across 17 unique development settings. Static/runtime banks and
 warp-width controls have numerical and compiled-artifact evidence, with no
@@ -42,7 +52,7 @@ The full paper objective remains incomplete.
 | 自然 opportunity 与共同 ready | 官方FP8多文档B3/B4及两文档B8；suffix-only修正与cache核对；同栈自然EOS矩阵 | 开发覆盖扩大，部分完成 | 完整EOS生命周期、连续补入/取消，不把cap256或固定重放当自然任务输出 |
 | E0/E2 强执行 | 原生separate/joint、固定union、官方FI/XQA；corrected replay及两文档自然矩阵 | 部分完成 | 真实模型工作集/准备摊销、跨卡复核、同质量完整成本 |
 | E1 全部固定 partition | corrected B3全部5、B4全部15划分；两模型及多文档强对照 | B<=4开发矩阵完成 | 部署选择与事后oracle分开；B8仅有限强控制，不宣称穷举4140划分 |
-| E3 及 2×2 | 当前全 canonical partial 的 48 点消融 | 部分完成 | packed-active partial、合理 split/直接输出、局部固定组融合强控制 |
+| E3 及 2×2 | canonical partial 48点消融；owner-task packed-active 80case/480phase资格，616/680配置和固定参数384配置对照 | 部分完成，局部约5%热态收益不满足整体推进与摊销门槛 | 同一算术实现的uniform/chunk × rectangular/packed严格2×2，GPU准备与真实拓扑生命周期、融合强控制 |
 | E4 精确层次共享 | corrected B4全部15棵、B3全部3棵精确二叉树，含gather/LSE/merge/准备 | B<=4多文档开发矩阵完成 | 不是完整QUILT；完整应用适用性仍待验证，B8未穷举 |
 | E5/PAT/PageWeaver/Fused3S/BSA | 文献与部分源码审查 | 未完成 | 逐项适用性和强兼容实现；移植不得称作者完整复现 |
 | 原生 BF16/FP8 KV 精度强基线 | unit-scale FP8 clean-exit资格；两文两精度两cold A/A、24记录全EOS | 数值与开发部署通过，质量非劣未证明 | 校准FP8适用性、跨文档/seed正式质量和公平成本；固定池容量增加不等于进程显存减半 |

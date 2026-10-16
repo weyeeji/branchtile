@@ -682,3 +682,12 @@ objective remains unmet.
 Completed seven fresh performance waves (1/2/5/7/9/12/16): 50 clean jobs, 2,852 FP64-qualified configurations, 17 unique real development settings, three documents. All native/fixed/tree controls remain; no candidate wins the measured strong controls. Static banks remove explicit shared-U staging but can spill at B4/N64; runtime bank selection removes the spill but does not yield net speed. Qualification failures and interrupted partial passes are retained separately from clean jobs. See `docs/operator_8gpu_exploration_report_20261016.md`, per-wave independent audits and wave16 PNG/PDF.
 
 Completed-allocation totals: P1 12.9422466370 / P2 5.4192919940 GPUh; reserves remain1/1.05, no unmatched start or anomaly. Owner-task packed-active partials are being prepared as missing E3 strong control, not a claimed new mechanism; CPU descriptor preparation and graph rebuild costs will be reported. No root, only project virtual environments.
+
+
+## 2026-10-16 — owner-task eight-GPU implementation and confirmation
+
+Seven additional eight-GPU batches assign56 jobs:48 normal exits and8 deliberate legacy-compilation aborts. Waves17/19 provide80cases/480 FP64 phases; waves18/20/25 provide616/680/384 fully qualified configurations,1680 total new configurations. Wave23 adds32 complete-result diagnostic checks, counted separately. Across ten complete performance waves the frozen total is4532 configurations/74clean jobs/25distinct real cells/3documents, not74independent documents.
+
+Enlarged chunk grid finds one4.8%hot win; fixedC128/N64 confirmation finds one5.4%hot win among8 correlated rank/layer/step cells, remaining7 do not win and cold has no strict gain. Extra prepare at the original winning cell requires about28296 static reuses, not an observed lifetime. Producer/merge stage measurements are nonadditive diagnostics. Wave22 was stopped because new token shapes retriggered expensive legacy static-v4 compilation; partial16qualified configs and all8negative-exit receipts remain retained, never counted as complete comparisons. Wave25 instead explicitly retains every native/E1-own/E4 candidate with one fixedowner point.
+
+Cumulative allocated P1=13.0348289986/P2=6.0499103399GPUh; planning totals including reserves14.0348289986/7.0999103399, no active/unmatched/anomalous job. No root; projectvirtualenv only. See docs/operator_owner_8gpu_report_20261016.md and results/operator_8gpu_exploration_summary_v2/summary.json. Paper objective and formal quality/application requirements remain unmet.

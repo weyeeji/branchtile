@@ -12,14 +12,19 @@ E0/union and optional joint-support installation have engineering qualifications
 but no candidate has established quality-qualified net application gains or a new
 paper contribution. The original dynamic-row stop decision remains in force.
 
-Current operator continuation: [Chinese eight-GPU report](docs/operator_8gpu_exploration_report_20261016.md).
-Seven performance waves complete 50 clean jobs and 2,852 FP64-qualified
-configurations across 17 unique real development settings. Static and runtime
-register banks remove explicit shared-U staging; all measured candidates still
-lose to strong controls. Independent audits, compiler failures, spills, and the
-same-wave [figure](results/operator_lane_wave16_audit_v1/paired_time_ratios.pdf)
-are retained. Owner-task packed partials are the next missing strong E3 control,
-with CPU proof complete and GPU qualification not yet run.
+Current operator continuation: [Chinese owner-task eight-GPU report](docs/operator_owner_8gpu_report_20261016.md).
+Ten complete performance waves contain 74 clean jobs and 4,532 FP64-qualified
+configurations across 25 distinct real development settings and three documents.
+Owner-task packed partials pass 480 dedicated numerical phases and improve the
+old dynamic operator. An enlarged grid finds one approximately 4.8% hot win;
+fixed-parameter confirmation wins one of eight correlated inputs by about 5.4%.
+Other inputs and preparation amortization still fail the research gate. Eight
+legacy-compilation jobs were stopped early and remain charged as incomplete.
+The [frozen summary](results/operator_8gpu_exploration_summary_v2/summary.json),
+independent audits, all failures and stage diagnostics are retained. The
+[earlier register-bank report](docs/operator_8gpu_exploration_report_20261016.md)
+and same-wave [figure](results/operator_lane_wave16_audit_v1/paired_time_ratios.pdf)
+remain historical evidence; no formal paper or application gain is established.
 
 Scope is single-user multi-agent reuse. The [comparison protocol](docs/operator_comparison_protocol_20261016.md)
 separates identical-work replay from natural-EOS quality and application latency.
