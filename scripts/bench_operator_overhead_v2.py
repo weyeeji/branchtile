@@ -76,7 +76,7 @@ def configuration_grid(batch, include_dynamic, candidate_set, partitions, hierar
         if candidate_set in ("all", "layout"):
             configurations.extend({"method": "dynamic_v4", "version": "v4", "splits": split, "block_n": bn}
                                   for split, bn in itertools.product((32, 64, 128), (32, 64)))
-        if candidate_set == "layout":
+        if candidate_set in ("policy", "layout"):
             configurations.extend({"method": "dynamic_fullcol_guard", "version": "fullcol_guard", "splits": split, "block_n": bn}
                                   for split, bn in itertools.product((32, 64, 128), (32, 64)))
     return configurations
@@ -88,7 +88,7 @@ def required_methods(include_dynamic, candidate_set):
         methods += ("dynamic_v2", "dynamic_v3", "dynamic_emptyguard")
         if candidate_set in ("all", "layout"):
             methods += ("dynamic_v4",)
-        if candidate_set == "layout":
+        if candidate_set in ("policy", "layout"):
             methods += ("dynamic_fullcol_guard",)
     return methods
 
@@ -111,24 +111,30 @@ def cpu_contract_check():
     stop = next(i for i, node in enumerate(original_main.body) if i > start and assigns(node, "rng"))
     original_grid = compile(ast.Module(body=original_main.body[start:stop], type_ignores=[]), str(original_path), "exec")
     rows = []
-    for batch, expected_baseline, expected_layout in ((3, 30, 42), (4, 62, 74)):
+    for batch, expected_baseline, expected_policy, expected_layout in ((3, 30, 36, 42), (4, 62, 68, 74)):
         partitions = scope["all_partitions"](batch)
         hierarchies = scope["binary_hierarchies"](tuple(range(batch)))
         baseline = configuration_grid(batch, True, "baseline", partitions, hierarchies)
+        policy = configuration_grid(batch, True, "policy", partitions, hierarchies)
         layout = configuration_grid(batch, True, "layout", partitions, hierarchies)
-        assert len(baseline) == expected_baseline and len(layout) == expected_layout
+        assert len(baseline) == expected_baseline and len(policy) == expected_policy and len(layout) == expected_layout
         baseline_names = {candidate_name(config) for config in baseline}
         layout_names = {candidate_name(config) for config in layout}
+        policy_names = {candidate_name(config) for config in policy}
         original_scope = dict(scope, b=batch, args=SimpleNamespace(include_dynamic=True, candidate_set="baseline"))
         exec(original_grid, original_scope)
         assert {candidate_name(config) for config in original_scope["configurations"]} == baseline_names
         assert baseline_names <= layout_names and len(layout_names) == len(layout)
+        assert baseline_names < policy_names < layout_names and len(policy_names) == len(policy)
+        assert all(config["method"] != "dynamic_v4" for config in policy)
+        assert sum(config["method"] == "dynamic_fullcol_guard" for config in policy) == 6
         assert sum(config["method"] == "dynamic_v4" for config in layout) == 6
         assert sum(config["method"] == "dynamic_fullcol_guard" for config in layout) == 6
         for config in layout:
             assert all((ROOT / path).is_file() for path in CANDIDATE_SOURCES[config["method"]])
         rows.append({"batch": batch, "partitions": len(partitions), "hierarchies": len(hierarchies),
                      "baseline_configs": len(baseline), "layout_configs": len(layout),
+                     "policy_configs": len(policy),
                      "baseline_retained": True})
     assert "torch" not in sys.modules and "tilelang" not in sys.modules
     return {"status": "cpu_candidate_contract_passed", "rows": rows, "cuda_imported": False}
@@ -149,14 +155,14 @@ def main():
     p.add_argument("--output", required=True)
     p.add_argument("--include-dynamic", action="store_true")
     p.add_argument("--require-ready", action="store_true")
-    p.add_argument("--candidate-set", choices=("baseline", "all", "layout"), default="baseline")
+    p.add_argument("--candidate-set", choices=("baseline", "all", "policy", "layout"), default="baseline")
     p.add_argument("--cpu-check", action="store_true", help="Validate all B3/B4 candidate grids without importing Torch")
     args = p.parse_args()
     assert os.geteuid() != 0 and sys.prefix != sys.base_prefix
     if args.cpu_check:
         print(json.dumps(cpu_contract_check()))
         return
-    assert args.candidate_set != "layout" or args.include_dynamic, "layout requires --include-dynamic"
+    assert args.candidate_set not in ("policy", "layout") or args.include_dynamic, "policy/layout require --include-dynamic"
     import numpy as np
     import torch
     from branchtile.attention import reference, synthetic_owners
@@ -322,11 +328,12 @@ def main():
                 pairs += [("best_control", "best_dynamic"), ("best_control", "dynamic_v2"), ("best_control", "dynamic_v3"), ("best_control", "dynamic_emptyguard")]
                 if args.candidate_set in ("all", "layout"):
                     pairs += [("best_control", "dynamic_v4")]
-                if args.candidate_set == "layout":
+                if args.candidate_set in ("policy", "layout"):
                     pairs += [("best_control", "dynamic_fullcol_guard"),
-                              ("best_layout_control", "dynamic_v4"),
-                              ("dynamic_fullcol_guard", "dynamic_v4"),
                               ("dynamic_emptyguard", "dynamic_fullcol_guard")]
+                if args.candidate_set == "layout":
+                    pairs += [("best_layout_control", "dynamic_v4"),
+                              ("dynamic_fullcol_guard", "dynamic_v4")]
             for numerator, denominator in pairs:
                 values = np.array([[next(r for r in rows if r["block"] == block and r["direction"] == direction)["us"][numerator] /
                                     next(r for r in rows if r["block"] == block and r["direction"] == direction)["us"][denominator]
@@ -340,6 +347,8 @@ def main():
                                 else ("full_union", "best_e1", "e4_native"))
             if args.include_dynamic and args.candidate_set == "layout":
                 planning_methods += ("dynamic_v4", "dynamic_fullcol_guard", "best_layout_control")
+            elif args.include_dynamic and args.candidate_set == "policy":
+                planning_methods += ("dynamic_fullcol_guard",)
             for method in planning_methods:
                 samples = []
                 for _ in range(3):
