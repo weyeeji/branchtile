@@ -585,3 +585,37 @@ supports the geometry, but the checkpoint has no KV scales and vLLM0.31 removed
 calculate_kv_scales. A bounded unit-scale numerical/graph qualification is being
 prepared separately; it is neither a new idea nor a calibrated-FP8 quality result.
 Completed totals are10.49499 P1/4.50629 P2 GPUh, all terminal, no audit anomaly.
+
+
+## 2026-10-16 18:52 — native FP8 qualification and natural quality/cost control
+
+The first unit-scale FP8 job completed all numerical receipts but timed out during
+shutdown; it stays a failed job. One explicitly frozen confirmation with identical
+executable code/inputs/tolerances exits normally.48/48 own-cache FP64 checks pass,
+24 same-input native FULL/eager outputs are bitwise equal, and all three36-logit
+key sets are finite with A/A/teacher-path equality. Both attempts cost0.168649 P1
+GPUh, including the preserved failure. This qualifies actual FP8 cache execution,
+not BF16-quality equivalence or natural answers.
+
+The subsequent four TP2 jobs run concurrently on eight GPUs and all exit0,
+using two reports, two KV precisions and two cold A/A repeats.24 output records
+reach EOS; all within-arm token/APC/scheduled-step comparisons and cross-precision
+APC checks agree. Original report BF16/FP8 cold anchor+generation medians are
+23.604/20.621s, strict1/3 each and rounded2/3 each. New report medians are
+42.486/29.127s, strict0/3 each and rounded2/3 versus1/3. The extra rounded miss
+is FINAL13.92 without the percent sign, while the body retains the same numerical
+answer; preserve the frozen unit-aware score without asserting arithmetic decline.
+
+Different natural outputs (3066/2902 and6732/4932tokens) and GPU pairs prevent
+interpreting these ratios as isolated executor gains or formal noninferiority.
+Actual fixed-pool capacity206528/413072tokens changes while allocated process
+memory remains27170969088bytes/rank. CPU admission identity avoids old graph-time
+GPU prompt readback; residual CPU observations remain charged. The stochastic
+warmup now executes2tokens, ensuring real B3 decode. Explicit native top_k0 matches
+earlier vLLM defaults, distinct from top_k20 in earlier HF/application screens.
+
+Raw/scored outputs, board conditions, a cost-quality figure and independent audit
+are retained. Natural allocation is0.335059 P1 GPUh; cumulative ledger P1/P2 is
+10.998694/4.506292, all jobs terminal with no anomaly. Remaining CPU work audits
+calibrated-loader feasibility and input-only capacity limits. No new candidate,
+long-context GPU job, calibrated-quality result or formal evaluation is claimed.

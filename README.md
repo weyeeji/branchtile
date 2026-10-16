@@ -29,6 +29,16 @@ Recent evidence:
   retains a small positive signal but fails the performance/amortization gate;
   the current joint-E0 application branch is stopped.
 
+- [Official FP8 KV qualification](results/native_fp8_kv_unit_confirmation_v1/README.md) and
+  [natural precision controls](results/native_precision_natural_development_v1/README.md):
+  all four TP2 jobs exit normally, with exact cold A/A trajectories. FP8 has
+  lower descriptive time and different output lengths; one rounded-score loss
+  comes from a missing percent sign. No formal quality noninferiority is shown.
+  The fixed KV pool stores about twice as many tokens without halving process memory.
+- [Post-stop research assessment](docs/post_stop_research_decision_20261016.md):
+  no qualified replacement contribution has emerged; ordinary quantization,
+  index ordering or weighted attention variants are not relabeled as new ideas.
+
 ## Environment
 
 All runs use uid 1000 and a virtual environment; no root or driver permission
