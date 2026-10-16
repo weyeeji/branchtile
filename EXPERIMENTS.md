@@ -522,3 +522,29 @@ system-mechanism checks continue before any larger experiment.
 
 Completed allocation totals are10.05249 P1 and4.47272 P2 GPUh. All starts have
 terminal records, no ledger anomaly; historical uncertainty reserves stay separate.
+
+## 2026-10-16 18:04 — classical control, graph qualification and native mechanism screen
+
+Classical saturated greedy cover improves union over both exchange orders in all
+12 paired 1%-loss cells (19.91–23.83%, median21.08%). Per-cell one-shot CPU times
+are reported separately; no new optimization algorithm is established.
+
+Same-E0 production graph mask installation passes1440 own-mask checks, including
+bitwise epsilon0 restoration after nonzero variants. The preserved inference-mode
+failure and retry cost0.133200 P1 GPUh. All48-layer32K union reductions are only
+6.69–6.92% at0.001 and9.13–9.89% at0.01. Each rank transfers99,975,168 score bytes;
+per-epsilon CPU finalization is approximately2.47–2.88s, before separately charged
+history installation. Reduced logical union does not free source capacity.
+
+Six parallel native-E0 cells pass144 own-mask FP64 checks and retain3840 paired
+records. Including the preserved import-order assertion failures, allocation is
+0.0335759 P2 GPUh. Primary BH/O-only hot speedup spans0.99808–1.01495; three16K
+cold cells show positive conditional signals, with coarse2.048us timing bins.
+Independent CPU review reproduces the block bootstrap. BH complete_layout is a
+view and omits the engine output.copy_; continuous exports/FI0.7.2/external graph
+capture are not production strided-cache/FI0.7.0/shared-plan execution. Partial
+preparation components cannot be summed and called total preparation. One bounded
+real48-layer cost check is being frozen; natural quality expansion remains gated.
+
+Completed allocation totals are10.18569 P1 and4.50629 P2 GPUh; all jobs terminal,
+no audit anomaly. No root privileges were used; all experiments use virtual envs.
