@@ -23,3 +23,11 @@ Mandatory outputs:
 - Source hashes and the failed prior gate status in the report. Do not retrospectively relax that gate because a natural answer looks correct.
 
 The existing `scripts/summarize_vllm_sparse_natural.py` can score the raw outputs using the frozen metric; its `status=completed` denotes data completeness only. The exploratory warning propagates through its limitations. Formal publication claims require separately frozen workloads, multiple independent documents/seeds, actual quality evaluation/noninferiority and replicated timing; this pilot cannot establish them.
+
+## FP32-PV localization result
+
+The independent IEEE FP32-PV branch passed 528 synthetic FP64 checks. Compared with BF16-PV, maximum local output error fell from 0.00406718 to 0.00388986 and mean per-check maximum error fell from 0.00168527 to 0.00152547. However, in the real 16-token model diagnostic, all 4,320 local output shadows passed while the final-logit screen still failed: 13/48 owner vectors were below 0.999, versus 10/48 for BF16-PV. Minimum cosine was 0.927485 and maximum logit difference was 4.21094. E0 AA again matched exactly and all owner top-1 predictions matched.
+
+FP32-PV top-p TV had median zero, mean 0.009429 and maximum 0.094374, compared with BF16-PV mean 0.006933 and maximum 0.109056. Thus higher PV precision did not uniformly reduce differences from the E0 deployment path. The evidence does not isolate BF16 probability rounding as the cause. This numerical-precision branch is now closed; no performance conclusion is drawn from its instrumented runs.
+
+The separate exploratory natural run scheduled by root uses the original frozen `benchmark_vllm_paged_owner_natural.py` plus `configs/paged_owner_natural_exploratory_v1_interpretation.json` to retain the failed gate labels. The newly added `explore_vllm_paged_owner_natural.py` was not used in that run.
