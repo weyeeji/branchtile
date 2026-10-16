@@ -1,0 +1,730 @@
+{
+  "status": "qualified_and_benchmarked_prefix_only",
+  "args": {
+    "output": "results/paged_query_components_gpu_v1/query_components_synthetic_m32_v1.json",
+    "capture": null,
+    "tokens": 8192,
+    "batch": 8,
+    "block_m": 32,
+    "blocks": 20,
+    "replays": 10,
+    "cold": false
+  },
+  "scope": "Bounded original-paged-layout shared-prefix qualification; root assigns GPU.\n\nNative XQA O-only, same-shape BF16-QK control, two-component FP8-QK.\nAll prefix tokens participate; private tails and engine integration are excluded.\nAll timed arms use the same fused physical KV storage and Q tensor. Offline\ncapture reconstruction is initialization, not an online layout transformation.\nFA2 shared-prefix is an additional mature same-page baseline. Tails excluded.\n",
+  "uid": 1000,
+  "python": "/home/qcjz/iscas/.venv-engine/bin/python",
+  "O_tolerance": {
+    "atol": 0.006,
+    "rtol": 0.015
+  },
+  "QK_tolerance": {
+    "atol": 0.0001,
+    "rtol": 0.0001
+  },
+  "checks": [
+    {
+      "stage": "QK_sample",
+      "components": false,
+      "sample_tokens": 1024,
+      "passed": true,
+      "finite": true,
+      "max_abs": 7.902887362298827e-07,
+      "relative_l2": 5.095470664627083e-08,
+      "max_row_l2": 2.6213070462378627e-06
+    },
+    {
+      "stage": "QK_sample",
+      "components": true,
+      "sample_tokens": 1024,
+      "passed": true,
+      "finite": true,
+      "max_abs": 4.677767444505321e-07,
+      "relative_l2": 3.773735278267274e-08,
+      "max_row_l2": 1.983195973860721e-06
+    },
+    {
+      "stage": "complete_prefix_O",
+      "method": "native_xqa_O_only",
+      "passed": true,
+      "finite": true,
+      "max_abs": 0.00034344209136329823,
+      "relative_l2": 0.004001332883613243,
+      "max_row_l2": 0.0010395374524449163
+    },
+    {
+      "stage": "complete_prefix_O",
+      "method": "FA2_shared_prefix",
+      "passed": true,
+      "finite": true,
+      "max_abs": 0.0003373871541934581,
+      "relative_l2": 0.0031939072409761923,
+      "max_row_l2": 0.0008090832737325931
+    },
+    {
+      "stage": "prefix_LSE_log2",
+      "method": "FA2_shared_prefix",
+      "passed": true,
+      "finite": true,
+      "max_abs": 9.318799585322779e-05,
+      "relative_l2": 2.509213278916284e-06,
+      "max_row_l2": 0.0002785834263093583
+    },
+    {
+      "stage": "complete_prefix_O",
+      "method": "BF16_QK_control",
+      "passed": true,
+      "finite": true,
+      "max_abs": 0.000265587252456706,
+      "relative_l2": 0.002248918013539267,
+      "max_row_l2": 0.000560095702114176
+    },
+    {
+      "stage": "prefix_LSE_log2",
+      "method": "BF16_QK_control",
+      "passed": true,
+      "finite": true,
+      "max_abs": 1.1281334995061343e-06,
+      "relative_l2": 3.1705738779223945e-08,
+      "max_row_l2": 3.9581174424962485e-06
+    },
+    {
+      "stage": "complete_prefix_O",
+      "method": "two_FP8_QK",
+      "passed": true,
+      "finite": true,
+      "max_abs": 0.000265587252456706,
+      "relative_l2": 0.002247837033395286,
+      "max_row_l2": 0.000560095702114176
+    },
+    {
+      "stage": "prefix_LSE_log2",
+      "method": "two_FP8_QK",
+      "passed": true,
+      "finite": true,
+      "max_abs": 1.0719678940063204e-06,
+      "relative_l2": 3.0853088376300554e-08,
+      "max_row_l2": 3.700911921130687e-06
+    }
+  ],
+  "timing_blocks": [
+    {
+      "block": 0,
+      "method": "two_FP8_QK",
+      "cuda_us_per_call": 36.75200045108795,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 0,
+      "method": "FA2_shared_prefix",
+      "cuda_us_per_call": 14.953599870204926,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 0,
+      "method": "native_xqa_O_only",
+      "cuda_us_per_call": 16.98880046606064,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 0,
+      "method": "BF16_QK_control",
+      "cuda_us_per_call": 35.06560027599335,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 1,
+      "method": "two_FP8_QK",
+      "cuda_us_per_call": 35.654398798942566,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 1,
+      "method": "native_xqa_O_only",
+      "cuda_us_per_call": 16.90559983253479,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 1,
+      "method": "BF16_QK_control",
+      "cuda_us_per_call": 35.00800132751465,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 1,
+      "method": "FA2_shared_prefix",
+      "cuda_us_per_call": 14.748799800872803,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 2,
+      "method": "native_xqa_O_only",
+      "cuda_us_per_call": 17.01440066099167,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 2,
+      "method": "FA2_shared_prefix",
+      "cuda_us_per_call": 14.720000326633453,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 2,
+      "method": "BF16_QK_control",
+      "cuda_us_per_call": 34.99520123004913,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 2,
+      "method": "two_FP8_QK",
+      "cuda_us_per_call": 35.18719971179962,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 3,
+      "method": "native_xqa_O_only",
+      "cuda_us_per_call": 16.896000504493713,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 3,
+      "method": "BF16_QK_control",
+      "cuda_us_per_call": 35.0816011428833,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 3,
+      "method": "two_FP8_QK",
+      "cuda_us_per_call": 35.16159951686859,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 3,
+      "method": "FA2_shared_prefix",
+      "cuda_us_per_call": 14.643199741840363,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 4,
+      "method": "FA2_shared_prefix",
+      "cuda_us_per_call": 14.825600385665894,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 4,
+      "method": "BF16_QK_control",
+      "cuda_us_per_call": 35.12960076332092,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 4,
+      "method": "two_FP8_QK",
+      "cuda_us_per_call": 35.24479866027832,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 4,
+      "method": "native_xqa_O_only",
+      "cuda_us_per_call": 16.82880073785782,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 5,
+      "method": "native_xqa_O_only",
+      "cuda_us_per_call": 17.01119989156723,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 5,
+      "method": "BF16_QK_control",
+      "cuda_us_per_call": 35.48800051212311,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 5,
+      "method": "two_FP8_QK",
+      "cuda_us_per_call": 35.05919873714447,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 5,
+      "method": "FA2_shared_prefix",
+      "cuda_us_per_call": 14.735999703407288,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 6,
+      "method": "FA2_shared_prefix",
+      "cuda_us_per_call": 14.78080004453659,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 6,
+      "method": "native_xqa_O_only",
+      "cuda_us_per_call": 16.704000532627106,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 6,
+      "method": "BF16_QK_control",
+      "cuda_us_per_call": 35.06239950656891,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 6,
+      "method": "two_FP8_QK",
+      "cuda_us_per_call": 35.123199224472046,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 7,
+      "method": "BF16_QK_control",
+      "cuda_us_per_call": 35.123199224472046,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 7,
+      "method": "two_FP8_QK",
+      "cuda_us_per_call": 35.05600094795227,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 7,
+      "method": "FA2_shared_prefix",
+      "cuda_us_per_call": 14.601600170135498,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 7,
+      "method": "native_xqa_O_only",
+      "cuda_us_per_call": 16.672000288963318,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 8,
+      "method": "FA2_shared_prefix",
+      "cuda_us_per_call": 14.793600142002106,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 8,
+      "method": "two_FP8_QK",
+      "cuda_us_per_call": 35.1936012506485,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 8,
+      "method": "BF16_QK_control",
+      "cuda_us_per_call": 33.99679958820343,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 8,
+      "method": "native_xqa_O_only",
+      "cuda_us_per_call": 16.735999286174774,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 9,
+      "method": "native_xqa_O_only",
+      "cuda_us_per_call": 16.947199404239655,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 9,
+      "method": "two_FP8_QK",
+      "cuda_us_per_call": 35.235199332237244,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 9,
+      "method": "FA2_shared_prefix",
+      "cuda_us_per_call": 14.655999839305878,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 9,
+      "method": "BF16_QK_control",
+      "cuda_us_per_call": 35.00159978866577,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 10,
+      "method": "native_xqa_O_only",
+      "cuda_us_per_call": 16.870400309562683,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 10,
+      "method": "two_FP8_QK",
+      "cuda_us_per_call": 35.19999980926514,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 10,
+      "method": "FA2_shared_prefix",
+      "cuda_us_per_call": 14.732800424098969,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 10,
+      "method": "BF16_QK_control",
+      "cuda_us_per_call": 34.9727988243103,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 11,
+      "method": "BF16_QK_control",
+      "cuda_us_per_call": 35.03040075302124,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 11,
+      "method": "two_FP8_QK",
+      "cuda_us_per_call": 35.21279990673065,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 11,
+      "method": "native_xqa_O_only",
+      "cuda_us_per_call": 16.77439957857132,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 11,
+      "method": "FA2_shared_prefix",
+      "cuda_us_per_call": 14.70080018043518,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 12,
+      "method": "native_xqa_O_only",
+      "cuda_us_per_call": 16.972799599170685,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 12,
+      "method": "two_FP8_QK",
+      "cuda_us_per_call": 35.13599932193756,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 12,
+      "method": "FA2_shared_prefix",
+      "cuda_us_per_call": 14.72959965467453,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 12,
+      "method": "BF16_QK_control",
+      "cuda_us_per_call": 35.094401240348816,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 13,
+      "method": "native_xqa_O_only",
+      "cuda_us_per_call": 17.235200107097626,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 13,
+      "method": "two_FP8_QK",
+      "cuda_us_per_call": 35.26400029659271,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 13,
+      "method": "FA2_shared_prefix",
+      "cuda_us_per_call": 14.646400511264801,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 13,
+      "method": "BF16_QK_control",
+      "cuda_us_per_call": 34.537601470947266,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 14,
+      "method": "FA2_shared_prefix",
+      "cuda_us_per_call": 14.841599762439728,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 14,
+      "method": "two_FP8_QK",
+      "cuda_us_per_call": 35.05919873714447,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 14,
+      "method": "native_xqa_O_only",
+      "cuda_us_per_call": 16.752000153064728,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 14,
+      "method": "BF16_QK_control",
+      "cuda_us_per_call": 35.126399993896484,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 15,
+      "method": "native_xqa_O_only",
+      "cuda_us_per_call": 17.158399522304535,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 15,
+      "method": "two_FP8_QK",
+      "cuda_us_per_call": 35.235199332237244,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 15,
+      "method": "BF16_QK_control",
+      "cuda_us_per_call": 34.50559973716736,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 15,
+      "method": "FA2_shared_prefix",
+      "cuda_us_per_call": 14.643199741840363,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 16,
+      "method": "BF16_QK_control",
+      "cuda_us_per_call": 35.228800773620605,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 16,
+      "method": "native_xqa_O_only",
+      "cuda_us_per_call": 16.838400065898895,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 16,
+      "method": "FA2_shared_prefix",
+      "cuda_us_per_call": 14.51839953660965,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 16,
+      "method": "two_FP8_QK",
+      "cuda_us_per_call": 35.08799970149994,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 17,
+      "method": "native_xqa_O_only",
+      "cuda_us_per_call": 16.963200271129608,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 17,
+      "method": "FA2_shared_prefix",
+      "cuda_us_per_call": 14.720000326633453,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 17,
+      "method": "two_FP8_QK",
+      "cuda_us_per_call": 35.139200091362,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 17,
+      "method": "BF16_QK_control",
+      "cuda_us_per_call": 34.19199883937836,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 18,
+      "method": "two_FP8_QK",
+      "cuda_us_per_call": 35.283198952674866,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 18,
+      "method": "FA2_shared_prefix",
+      "cuda_us_per_call": 14.608000218868256,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 18,
+      "method": "native_xqa_O_only",
+      "cuda_us_per_call": 16.793599724769592,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 18,
+      "method": "BF16_QK_control",
+      "cuda_us_per_call": 34.95039939880371,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 19,
+      "method": "native_xqa_O_only",
+      "cuda_us_per_call": 19.072000682353973,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 19,
+      "method": "FA2_shared_prefix",
+      "cuda_us_per_call": 14.931200444698334,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 19,
+      "method": "BF16_QK_control",
+      "cuda_us_per_call": 35.18399894237518,
+      "replays": 10,
+      "cache": "hot"
+    },
+    {
+      "block": 19,
+      "method": "two_FP8_QK",
+      "cuda_us_per_call": 35.0847989320755,
+      "replays": 10,
+      "cache": "hot"
+    }
+  ],
+  "shape": {
+    "batch": 8,
+    "heads": 2,
+    "GQA": 8,
+    "D": 128,
+    "prefix_tokens": 8192,
+    "kv_scale": 1.0,
+    "prefix_only": true
+  },
+  "paged_alias_contract": {
+    "cache_shape": [
+      531,
+      2,
+      16,
+      256
+    ],
+    "cache_stride": [
+      8192,
+      256,
+      512,
+      1
+    ],
+    "q_shape": [
+      8,
+      16,
+      128
+    ],
+    "q_stride": [
+      2048,
+      128,
+      1
+    ],
+    "original_physical_page_ids_preserved": false,
+    "all_timed_arms_same_cache_storage": true,
+    "candidate_Q_pack_or_KV_copy_in_call": false,
+    "common_page_ids_sha256": "41afe1466f1ee31d056c61cf57d53d0d66236cd781c05afe3d05b69520141af1"
+  },
+  "setup_and_qualification_seconds": 5.786681899800897,
+  "resources": {
+    "control": {
+      "workspace_bytes": 532992,
+      "producer_n_regs": 168,
+      "producer_n_spills": 0,
+      "producer_shared": 16384
+    },
+    "candidate": {
+      "workspace_bytes": 532992,
+      "producer_n_regs": 168,
+      "producer_n_spills": 0,
+      "producer_shared": 16384
+    }
+  },
+  "source_sha256": {
+    "scripts/qualify_paged_query_components_gpu.py": "375013a87d37933585823c622fb5a4ecb0418ac327cde53e8da300eb1c02b008",
+    "src/branchtile/triton_kernel_paged_query_components.py": "798abc6571a5dea6393d9af6f57c71ddb493da7683a005fa9cf404cb6b5e76c5",
+    "src/branchtile/triton_kernel_query_components.py": "51ca430369daaaec793b7f5adf4cd53229515fe417dde4c41cc9acca23dbc212"
+  },
+  "all_numerical_checks_passed": true,
+  "total_seconds": 5.826375129632652
+}
