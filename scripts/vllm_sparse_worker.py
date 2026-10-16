@@ -9,6 +9,7 @@ import json
 from pathlib import Path
 import re
 import time
+from types import SimpleNamespace
 
 import torch
 from scripts.probe_engine_docfinqa import DeploymentWorkerExtension
@@ -34,6 +35,18 @@ class SparseAttentionWorkerExtension(DeploymentWorkerExtension):
             return batch
         self.model_runner.prepare_inputs = prepare
         state['old_prepare'] = old_prepare
+        # The official FI metadata splits prefill/decode and does not expose
+        # FA's common fields. Preserve the actual runner's already-gathered
+        # single-group tables; never rebuild them from assumed request slots.
+        old_tables = self.model_runner.prepare_attn
+        def prepare_tables(*args, **kwargs):
+            result = old_tables(*args, **kwargs)
+            tables, _ = result
+            assert len(tables) == 1, 'Sparse bridge currently requires one KV group'
+            state['runner_block_table'] = tables[0]
+            return result
+        self.model_runner.prepare_attn = prepare_tables
+        state['native_layers'], state['backend_descriptions'] = {}, {}
         for name, parent in self.model_runner.model.named_modules():
             match = re.search(r'(?:^|\.)layers\.(\d+)\.self_attn$', name)
             if not match:
@@ -45,6 +58,9 @@ class SparseAttentionWorkerExtension(DeploymentWorkerExtension):
                 state['positions'][layer] = kwargs.get('positions', args[0] if args else None)
             state['handles'].append(parent.register_forward_pre_hook(before, with_kwargs=True))
             original = parent.attn.impl.forward
+            state['native_layers'][layer] = (parent.attn, original)
+            state['backend_descriptions'][layer] = {'backend': parent.attn.attn_backend.get_name(),
+                'implementation': type(parent.attn.impl).__module__+'.'+type(parent.attn.impl).__name__}
             def forward(attn_layer, query, key, value, kv_cache, attn_metadata, output,
                         output_scale=None, output_block_scale=None, layer=layer, original=original):
                 return self._sparse_forward(layer, original, attn_layer, query, key, value,
@@ -82,7 +98,26 @@ class SparseAttentionWorkerExtension(DeploymentWorkerExtension):
             return actual
         model.compute_logits = logits
         state['old_logits'] = original_logits
-        return {'rank': state['rank'], 'wrapped_layers': len(state['originals']), 'cache_update_preserved': True, 'worker_source_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest()}
+        return {'rank': state['rank'], 'wrapped_layers': len(state['originals']), 'cache_update_preserved': True,
+            'native_backends': state['backend_descriptions'], 'worker_source_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest()}
+
+    def _sparse_metadata(self, meta):
+        if type(meta).__name__ == 'FlashAttentionMetadata':
+            return meta
+        assert type(meta).__name__ == 'FlashInferMetadata', type(meta).__name__
+        assert meta.causal and not meta.use_cascade
+        assert meta.q_data_type_prefill == meta.q_data_type_decode == torch.bfloat16
+        state = self.sparse_state
+        batch = state['batch']
+        assert meta.num_actual_tokens == batch.num_tokens
+        table = state['runner_block_table']
+        # XQA sees this exact view for the decode-first request prefix.
+        if meta.decode is not None and hasattr(meta.decode, 'block_tables'):
+            assert meta.decode.block_tables.data_ptr() == table.data_ptr()
+            assert meta.decode.seq_lens.data_ptr() == batch.seq_lens.data_ptr()
+        return SimpleNamespace(query_start_loc=batch.query_start_loc[:batch.num_reqs+1],
+            seq_lens=batch.seq_lens[:batch.num_reqs], block_table=table,
+            num_actual_tokens=meta.num_actual_tokens)
 
     def _sparse_request_info(self, request_index):
         state, batch = self.sparse_state, self.sparse_state['batch']
@@ -102,6 +137,8 @@ class SparseAttentionWorkerExtension(DeploymentWorkerExtension):
         batch = state.get('batch')
         if not state['config'].get('capture_layer_outputs') or meta is None:
             return
+        if type(meta).__name__ != 'SimpleNamespace':
+            meta = self._sparse_metadata(meta)
         starts = meta.query_start_loc.cpu().tolist()
         positions = state['positions'][layer][:meta.num_actual_tokens].cpu()
         if layer == 0:
@@ -125,14 +162,15 @@ class SparseAttentionWorkerExtension(DeploymentWorkerExtension):
     def _sparse_forward(self, layer, original, attn_layer, query, key, value, cache, meta,
                         output, output_scale, output_block_scale):
         state = self.sparse_state
+        native_meta = meta
         def dense(destination):
-            return original(attn_layer, query, key, value, cache, meta, output=destination,
+            return original(attn_layer, query, key, value, cache, native_meta, output=destination,
                             output_scale=output_scale, output_block_scale=output_block_scale)
         if meta is None:
             result = dense(output)
             self._capture_sparse_layer_output(layer, meta, output)
             return result
-        assert type(meta).__name__ == 'FlashAttentionMetadata'
+        meta = self._sparse_metadata(meta)
         assert output_scale is None and output_block_scale is None
         assert abs(attn_layer.impl.scale - 128**-.5) < 1e-12
         assert getattr(attn_layer.impl, 'alibi_slopes', None) is None

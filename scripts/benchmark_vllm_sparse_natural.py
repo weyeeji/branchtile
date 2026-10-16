@@ -1,7 +1,8 @@
 """Actual native/E0/union generation with shadows/forcing/copies disabled.
 
-Single exploratory document, fixed shared history masks, independent natural
-trajectories. Full JCT includes per-request prefill and every metadata update.
+One selected exploratory document, fixed masks, independent natural trajectories.
+Generation wall includes suffix prefill and metadata updates; the separate cold
+dense anchor must be added for anchor-plus-generation cost.
 One-time model load, dense selector preparation and graph construction are
 reported separately and must be charged in any service break-even argument.
 """
@@ -20,15 +21,21 @@ def main():
     p.add_argument('--steps',type=int,default=8192);p.add_argument('--compile-mode',type=int,default=3)
     p.add_argument('--methods',default='dense,e0,union');p.add_argument('--repeats',type=int,default=1)
     p.add_argument('--budget',default='4096',help='Frozen document token budget, or full')
+    p.add_argument('--manifest',default='data/manifests/docfinqa_exploratory_dev8.json')
+    p.add_argument('--document-id',default='docfinqa-c0f11a67aae850fc')
+    p.add_argument('--max-model-len',type=int,default=98304)
+    p.add_argument('--attention-backend',choices=['FLASH_ATTN','FLASHINFER'],default=None)
     args=p.parse_args();assert os.geteuid()!=0 and sys.prefix!=sys.base_prefix
     from transformers import AutoTokenizer
     from vllm import LLM,SamplingParams
     from capture_model import make_inputs
     from scripts.vllm_batch_admission import generate_ready_group
     model='data/models/Qwen3-30B-A3B-Thinking-2507-FP8'
-    manifest=ROOT/'data/manifests/docfinqa_exploratory_dev8.json'
-    group=next(g for g in json.loads(manifest.read_text())['groups'] if g['document_id']=='docfinqa-c0f11a67aae850fc')
+    manifest=ROOT/args.manifest
+    group=next(g for g in json.loads(manifest.read_text())['groups'] if g['document_id']==args.document_id)
     tokenizer=AutoTokenizer.from_pretrained(model,local_files_only=True);inputs,start,end=make_inputs(tokenizer,group)
+    assert 1<=len(inputs)<=3, 'This bridge only supports natural groups B1/B2/B3'
+    assert max(map(len,inputs))+args.steps<=args.max_model_len, 'Context capacity must cover complete prompt and full generation cap'
     budget=end-start if args.budget=='full' else int(args.budget)
     assert 36<=budget<=end-start and 1<=args.steps<=8192
     out=Path(args.output);out.mkdir(parents=True,exist_ok=True)
@@ -45,11 +52,12 @@ def main():
         'scripts/vllm_shared_plan_graph_worker.py','scripts/vllm_sparse_graph_worker.py',
         'src/vllm_shared_decode_plan.py','src/vllm_shared_union_plan.py')}
     def save():(out/'summary.json').write_text(json.dumps(report,indent=2)+'\n')
-    engine=dict(model=model,tensor_parallel_size=2,dtype='bfloat16',kv_cache_dtype='auto',max_model_len=98304,
-        max_num_seqs=3,max_num_batched_tokens=4096,enable_prefix_caching=True,enforce_eager=False,gpu_memory_utilization=.80,
+    engine=dict(model=model,tensor_parallel_size=2,dtype='bfloat16',kv_cache_dtype='auto',max_model_len=args.max_model_len,
+        max_num_seqs=len(inputs),max_num_batched_tokens=4096,enable_prefix_caching=True,enforce_eager=False,gpu_memory_utilization=.80,
         disable_custom_all_reduce=True,enable_batch_sharded_sampling=False,
-        compilation_config={'mode':args.compile_mode,'cudagraph_mode':'FULL_DECODE_ONLY','cudagraph_capture_sizes':[1,2,3]},
+        compilation_config={'mode':args.compile_mode,'cudagraph_mode':'FULL_DECODE_ONLY','cudagraph_capture_sizes':list(range(1,len(inputs)+1))},
         worker_extension_cls='scripts.vllm_sparse_production_worker.ProductionSparseWorkerExtension',seed=20261016)
+    if args.attention_backend is not None:engine['attention_config']={'backend':args.attention_backend}
     report['engine_configuration']=engine;save();started=time.perf_counter();llm=LLM(**engine)
     report['initialization_wall_seconds']=time.perf_counter()-started;save()
     config={'output':str(out.resolve()),'document_token_range':[start,end],'prompt_tokens':inputs,
@@ -82,7 +90,7 @@ def main():
             started=time.perf_counter()
             generated=generate_ready_group(llm,[{'prompt_token_ids':ids} for ids in inputs],SamplingParams(**report['sampling']))
             wall=time.perf_counter()-started
-            run={'phase':phase,'method':method,'repeat':repeat,'anchor_wall_seconds':anchor_wall,'complete_generate_wall_seconds':wall,
+            run={'phase':phase,'method':method,'repeat':repeat,'anchor_wall_seconds':anchor_wall,'complete_generate_wall_seconds':wall,'anchor_plus_generate_wall_seconds':anchor_wall+wall,
                 'teacher_forced':False,'answers':[{'tokens':list(x.outputs[0].token_ids),'text':x.outputs[0].text,
                 'finish_reason':x.outputs[0].finish_reason,'stop_reason':x.outputs[0].stop_reason,
                 'num_cached_tokens':x.num_cached_tokens,'question_index':i} for i,x in enumerate(generated)]}

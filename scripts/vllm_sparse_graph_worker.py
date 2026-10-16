@@ -83,6 +83,16 @@ class SparseGraphWorkerExtension(SparseAttentionWorkerExtension):
                         'frozen_output_tolerance_passed':bool(torch.isclose(actual.float(),expected.float(),atol=.006,rtol=.015).all()),
                         'query_l2':float(q.float().norm()),'output_l2':float(actual.float().norm()),
                         'reference_method':reference_method})
+                    if state['config'].get('graph_native_full_reference'):
+                        assert state['selector'].budget == state['selector'].doc_end-state['selector'].doc_start
+                        attn_layer,original=state['native_layers'][layer]
+                        native=torch.empty_like(q)
+                        original(attn_layer,q,None,None,state['graph_caches'][layer],
+                            state['graph_native_metadata'],output=native)
+                        checks[-1]['native_full_reference']={'max_abs':float((actual.float()-native.float()).abs().max()),
+                            'frozen_output_tolerance_passed':bool(torch.isclose(actual.float(),native.float(),atol=.006,rtol=.015).all()),
+                            'same_actual_query_cache_full_history':True,
+                            'backend':state['backend_descriptions'][layer]}
                 record['shadow_checks']=checks
                 record['all_shadow_checks_passed']=all(x['frozen_output_tolerance_passed'] for x in checks)
             state['graph_phase_records'].append(record)

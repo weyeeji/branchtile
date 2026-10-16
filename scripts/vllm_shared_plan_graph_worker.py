@@ -38,7 +38,9 @@ class SharedPlanGraphWorkerExtension(SparseGraphWorkerExtension):
         if not all(stop-start==1 and p>=row['prompt_length'] for start,stop,p,row in zip(starts,starts[1:],positions,infos)):
             return
         assert batch.num_tokens_after_padding==b
-        meta=next(iter(metadata.values()))
+        native_meta=next(iter(metadata.values()))
+        meta=self._sparse_metadata(native_meta)
+        state['graph_native_metadata']=native_meta
         questions=[r['question_index'] for r in infos]
         plan=state['shared_plans'][state['method'],b]
         prepared=plan.prepare(meta.block_table[:b],questions,positions,state['shared_history_id'])
@@ -76,10 +78,10 @@ class SharedPlanGraphWorkerExtension(SparseGraphWorkerExtension):
         state['graph_workspace']=workspace
         state['shared_plans']={}
         tables=state['table_cpu'].to(runner.device)
-        assert tables.shape[0]>=3,'Warm the complete ready B3 group before capture'
+        assert tables.shape[0]>=len(prompts),'Warm the complete ready group before capture'
         state['graph_enabled']=False
         for method in methods:
-            for b in (1,2,3):
+            for b in range(1,len(prompts)+1):
                 caches=[state['graph_caches'][l] for l in range(48)]
                 if method=='e0':
                     capacity=max(len(histories[0][q][0]) for q in range(len(prompts)))+8192
@@ -109,6 +111,9 @@ class SharedPlanGraphWorkerExtension(SparseGraphWorkerExtension):
             'descriptors':{m:[str(d) for d in manager.graphs] for m,manager in state['graph_managers'].items()},
             'frozen_history_identity':identity,
             'full_budget_exact_document_mask':selector.budget==selector.doc_end-selector.doc_start,
+            'native_backends':state['backend_descriptions'],
+            'actual_cache_layouts':{str(l):{'shape':list(c.shape),'stride':list(c.stride()),
+                'dtype':str(c.dtype),'storage_offset':c.storage_offset()} for l,c in state['graph_caches'].items()},
             'shared_native_plan':'Each method/B graph owns one native length plan shared by all48 layers. E0 maps indices on GPU; union also packs exact masks and validates shared complete-page physical identity. Union histories are padded to equal lengths across layers/heads.',
             'scope':'Existing native cached/incremental planning control, not a novel method.'}
         (state['output']/'graph_capture.json').write_text(json.dumps(result,indent=2)+'\n')

@@ -42,7 +42,7 @@ def main():
             shadow=run.get('shadow_validation_enabled',True)
             checks=[c for r in replays for c in r.get('shadow_checks',[])]
             method=run['method'];capture=graph['capture_calls']
-            capture_complete=all(capture.get(f'{method}:B{b}:L{l}',0)>=2 for b in (1,2,3) for l in range(48))
+            capture_complete=all(capture.get(f'{method}:B{b}:L{l}',0)>=2 for b in range(1,data['B']+1) for l in range(48))
             row={'rank':rank,'phase':phase,'metadata_file':str(path),'metadata_sha256':hashlib.sha256(path.read_bytes()).hexdigest(),
                 'capture_candidate_calls_complete_B1_B2_B3_all48layers':capture_complete,
                 'actual_graph_replays':len(replays),'actual_replay_batches':[r['batch'] for r in replays],
@@ -57,6 +57,14 @@ def main():
                 'dense_attention_pure_decode_calls':sum(r['dense_attention_executed_for_pure_decode'] for r in replays),
                 'median_metadata_complete_host_ms':1000*statistics.median(r['metadata_complete_host_seconds'] for r in replays),
                 'scope':'Preparation includes required metadata work. Shadow validation is additional work included in application wall time. Host graph submit time is not GPU execution time.'}
+            native_checks=[c['native_full_reference'] for c in checks if 'native_full_reference' in c]
+            if native_checks:
+                row['native_full_same_query_checks']={
+                    'count':len(native_checks),'expected_count':len(checks),
+                    'all_frozen_output_checks_passed':all(c['frozen_output_tolerance_passed'] for c in native_checks),
+                    'max_abs':max(c['max_abs'] for c in native_checks),
+                    'same_actual_query_cache_full_history':all(c['same_actual_query_cache_full_history'] for c in native_checks)}
+                passed &= len(native_checks)==len(checks) and row['native_full_same_query_checks']['all_frozen_output_checks_passed']
             if all('shared_native_prepare' in r for r in replays):
                 row['shared_native_plan']={
                     'one_plan_call_per_step':all(r['shared_native_prepare']['native_plan_calls']==1 for r in replays),
