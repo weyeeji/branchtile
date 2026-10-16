@@ -35,6 +35,9 @@ def main():
                 key = Path(data["model"]).name + "__" + run["arm"]
                 answers = run.get("answers", [""] * group["B"])
                 assert len(answers) == group["B"]
+                input_preparation = run["tokenization_seconds_shared_preparation"] + run.get("arm_tokenization_seconds", 0.)
+                measured_phase_cost = (run.get("composed_serial_cold_pipeline_seconds", run["group_jct_seconds"] + run.get("arm_tokenization_seconds", 0.))
+                                       + run["tokenization_seconds_shared_preparation"])
                 for i, (q, answer) in enumerate(zip(group["questions"], answers)):
                     grouped[key].append({"document_id": group["document_id"], "group_index": run["group_index"],
                         "question_index": i, "question_id": q["question_sha256"],
@@ -42,6 +45,8 @@ def main():
                         "cap_hit": run.get("any_cap_hit"), "group_jct_seconds": run.get("group_jct_seconds"),
                         "composed_serial_cold_pipeline_seconds": run.get("composed_serial_cold_pipeline_seconds"),
                         "composed_serial_cached_index_pipeline_seconds": run.get("composed_serial_cached_index_pipeline_seconds"),
+                        "generation_input_preparation_seconds": input_preparation,
+                        "measured_cold_phases_seconds": measured_phase_cost,
                         "parse_status": run.get("answer_parse_status")})
     output = ROOT / args.output
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -50,7 +55,7 @@ def main():
         "calibration": "results/metric_calibration_qmsum.json",
         "calibration_sha256": hashlib.sha256((ROOT / "results/metric_calibration_qmsum.json").read_bytes()).hexdigest(),
         "calibration_limit": "Published fixture differs by up to 0.011 score points; not claimed bitwise reproduction of unpublished author environment",
-        "timing_limit": "Eager development timing unless source engine says otherwise; RAG composite adds separately measured serial preparation; no integrated pipeline speedup claim",
+        "timing_limit": "Eager unless source says otherwise. measured_cold_phases charges shared full-input tokenization once per document for each standalone arm plus arm preparation, generation, and separately measured RAG preparation. Initialization, warmup, serialization, and harness overhead remain separate; not an integrated pipeline speedup claim. Historical composed_serial fields omitted shared generator-input preparation and are retained with this correction.",
         "arms": {}}
     for key, rows in grouped.items():
         rows.sort(key=lambda x: (x["group_index"], x["question_index"]))
@@ -67,6 +72,7 @@ def main():
             "groups_hitting_cap": sum(bool(r["cap_hit"]) for r in docs.values()),
             "median_group_jct_seconds": statistics.median(r["group_jct_seconds"] for r in docs.values()),
             "total_group_jct_seconds": sum(r["group_jct_seconds"] for r in docs.values()),
+            "total_measured_cold_phases_seconds": sum(r["measured_cold_phases_seconds"] for r in docs.values()),
             "official_bootstrap_average_percent": measured["reported_average_percent"],
             "macro_f1_percent": measured["per_case_macro_f1_percent_from_printed_5dp"], "per_question": rows}
         for cost in ["composed_serial_cold_pipeline_seconds", "composed_serial_cached_index_pipeline_seconds"]:

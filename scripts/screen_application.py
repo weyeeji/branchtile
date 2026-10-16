@@ -207,10 +207,15 @@ def main():
     for group_index in group_indices:
         group = manifest["groups"][group_index]
         prepare_start = time.monotonic()
-        independent, doc_start, doc_end = make_inputs(tokenizer, group)
-        joint = make_joint(tokenizer, group)
+        if arms == ["rag"]:
+            # Retrieval plans already identify the frozen full source. Avoid
+            # tokenizing unused full-document prompts in a RAG-only run.
+            independent, joint, doc_start, doc_end = [], None, None, None
+        else:
+            independent, doc_start, doc_end = make_inputs(tokenizer, group)
+            joint = make_joint(tokenizer, group)
         tokenization_seconds = time.monotonic() - prepare_start
-        b = len(independent)
+        b = group["B"]
         order = arms.copy()
         variants = {}
         if "rag" in order:
@@ -274,6 +279,7 @@ def main():
                         record["retrieval"]["context_sha256"] = [q["context_sha256"] for q in variant["questions"]]
                         record["composed_serial_cold_pipeline_seconds"] = record["group_jct_seconds"] + arm_tokenization_seconds + variant["shared_document_preparation_seconds"] + variant["serial_query_retrieval_seconds"]
                         record["composed_serial_cached_index_pipeline_seconds"] = record["group_jct_seconds"] + arm_tokenization_seconds + variant["serial_query_retrieval_seconds"]
+                        record["composed_serial_cold_pipeline_with_shared_input_preparation_seconds"] = record["composed_serial_cold_pipeline_seconds"] + tokenization_seconds
                 except Exception as exc:
                     record.update(status="failed", error=repr(exc), group_jct_seconds=time.monotonic() - t0)
                     report["runs"].append(record)
@@ -306,7 +312,7 @@ def main():
                     record["answers"] = finals
                     record["answer_parse_status"] = "ok" if all(finals) else "missing_final_answer"
                 record["any_cap_hit"] = any(r["finish_reason"] == "length" for r in record["requests"])
-                trace_path = ROOT / "results/raw/application_steps" / (destination.stem + f"_g{group_index}_{arm}_{repeat}_steps.jsonl")
+                trace_path = ROOT / "results/raw/application_steps" / destination.parent.name / destination.stem / f"g{group_index}_{arm}_{repeat}_steps.jsonl"
                 trace_path.parent.mkdir(parents=True, exist_ok=True)
                 trace_path.write_text("".join(json.dumps(x) + "\n" for x in observations))
                 record["step_observer_trace"] = str(trace_path.relative_to(ROOT))

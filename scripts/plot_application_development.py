@@ -17,12 +17,12 @@ for name in paths:
         rows.append({"model": model, "arm": variant, "documents": arm["documents"], "questions": arm["questions"],
             "rouge1": arm["macro_f1_percent"]["1"], "rouge2": arm["macro_f1_percent"]["2"], "rougeL": arm["macro_f1_percent"]["L"],
             "mean_group_generation_seconds": arm["total_group_jct_seconds"] / arm["documents"],
-            "mean_group_composed_seconds": arm.get("total_composed_serial_cold_pipeline_seconds", arm["total_group_jct_seconds"]) / arm["documents"],
+            "mean_group_composed_seconds": arm["total_measured_cold_phases_seconds"] / arm["documents"],
             "empty_answers": arm["empty_answers"], "groups_hitting_cap": arm["groups_hitting_cap"],
-            "cost_scope": "separately measured serial retrieval plus generation" if variant.startswith("rag_") else "generation JCT including prefill"})
+            "cost_scope": "generation plus measured input preparation and serial retrieval; startup/harness separate" if variant.startswith("rag_") else "generation JCT plus measured input preparation; startup/harness separate"})
 out = ROOT / "results/application_calibrated"
 with (out / "development_grid.csv").open("w") as f:
-    writer = csv.DictWriter(f, fieldnames=list(rows[0]))
+    writer = csv.DictWriter(f, fieldnames=list(rows[0]), lineterminator="\n")
     writer.writeheader()
     writer.writerows(rows)
 plt.rcParams.update({"font.size": 10, "axes.spines.top": False, "axes.spines.right": False})
@@ -38,7 +38,7 @@ for ax, suffix, color in zip(axes, ["Instruct", "Thinking"], ["#176c9c", "#ad512
         ax.scatter([x], [y], marker=marker, s=85, color=color, edgecolors="black", linewidths=.5, label=arm)
         ax.annotate(arm, (x, y), xytext=(5, 7), textcoords="offset points")
     ax.set_title("Qwen3-4B-" + suffix + "-2507")
-    ax.set_xlabel("Mean per-document cost (seconds)\nRAG includes separately measured serial preparation")
+    ax.set_xlabel("Mean measured phases per document (seconds)\nGeneration + input preparation + RAG preparation")
     ax.grid(alpha=.2)
     ax.legend(loc="lower right", fontsize=8)
 axes[0].set_ylabel("Original Perl ROUGE-L, macro F1 (%)")

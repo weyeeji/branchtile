@@ -58,6 +58,8 @@ def main():
                 "conflicting_source_answers": question.get("conflicting_source_answers", False),
                 "generation_status": run["status"], "cap_hit": run.get("any_cap_hit"),
                 "group_jct_seconds": run.get("group_jct_seconds"),
+                "generation_input_preparation_seconds": run["tokenization_seconds_shared_preparation"] + run.get("arm_tokenization_seconds", 0.),
+                "measured_cold_phases_seconds": run.get("composed_serial_cold_pipeline_seconds", (run.get("group_jct_seconds") or 0.) + run.get("arm_tokenization_seconds", 0.)) + run["tokenization_seconds_shared_preparation"],
                 "composed_serial_cold_pipeline_seconds": run.get("composed_serial_cold_pipeline_seconds")})
     expected_indices = [int(x) for x in data["config"]["groups"].split(",")]
     expected_count = sum(manifest["groups"][i]["B"] for i in expected_indices)
@@ -69,6 +71,7 @@ def main():
         "primary": "exact_match", "mandatory_sensitivity": "rounded_match",
         "denominator_rule": "All configured questions including unserviceable context and parse/cap failures. Non-natural finishes score zero even if raw text contains FINAL; joint failure affects all its answers. Gold parse failures remain included.",
         "expected_questions_per_arm": expected_count, "arms": {}}
+    result["cost_scope"] = "measured_cold_phases includes shared generator-input tokenization once per document for a standalone arm, arm tokenization, generation and measured serial RAG preparation. Unserviceable inputs retain preparation cost. Engine initialization/warmup, logging/serialization and harness overhead remain separate; no integrated application latency claim. Historical composed_serial fields omit shared generator-input tokenization."
     for arm, rows in grouped.items():
         assert len(rows) == expected_count
         assert len({(r["document_id"], r["question_id"]) for r in rows}) == len(rows)
@@ -79,6 +82,7 @@ def main():
         scored.update(documents=len(docs), per_question=rows,
             generation_status_question_counts=dict(collections.Counter(r["generation_status"] for r in rows)),
             cap_hit_documents=sum(bool(r["cap_hit"]) for r in docs.values()),
+            total_measured_cold_phases_seconds=sum(r["measured_cold_phases_seconds"] for r in docs.values()),
             serviced_group_jct_seconds=sum(r["group_jct_seconds"] or 0 for r in docs.values()))
         result["arms"][arm] = scored
     destination = ROOT / args.output

@@ -312,3 +312,42 @@ by retroactively loosening tolerances. Eager reference wrappers are not a strong
 production speed baseline. A2 FastKVzip-NVIDIA exact-gate/mask/full-budget
 qualification also passed; its shared query-agnostic development generation
 runs separately. Both A2 and A4 still require factual review and formal testing.
+
+
+## 2026-10-16 16:14 — factual coverage, source annotations and measurement repairs
+
+The completed budget-blind A4 audit has128/128 source-grounded judgments. At
+10/25/50/full retention, factual-pass counts are12/12/13/13 of32; adequate coverage
+is7/10/12/18, and both hold for4/8/8/9. This is one LLM-assisted judge, not human
+validation or a formal noninferiority result. The identity map was joined only
+after all judgments were committed; no verdict was revised during unblinding.
+FastKVzip-NVIDIA global-mask reference also completed128 natural-EOS answers.
+Its full32 answers match A4 token-for-token; only96 novel answers need review.
+Reference masking does not measure physical cache compression or the author's
+optimized chunked-prefill implementation.
+
+The Instruct4B financial RAG grid completed192 natural answers, serving all24
+questions under every setting. Best exact FINAL is6/24; best frozen rounding
+is15/24. Full-report graph dense serves10 questions and joint6, with all failures
+retained in24-question denominators. The best rounded development RAG setting
+is being repeated in native graph mode, explicitly as a development selection.
+An independent source-only audit matched all24 questions to25 official FinQA
+records, retained source ambiguity, and identified8 semantic/unit/text concerns.
+No model output informed that audit and no primary gold or metric was changed.
+
+Cost fields now add the previously omitted shared generator-input tokenization
+to measured cold phases; old composed fields remain defined as before. Startup,
+warmup and harness overhead remain separate, so these are not integrated E2E
+measurements. The revised plot uses the corrected phase sum. Auxiliary FINAL-only
+trace names collided across model directories:70 historical references cannot
+be recovered. Primary JSON answers, token IDs, per-request metrics and JCT are
+intact. Verified traces are archived by hash and future paths include the parent
+report directory; missing traces cannot support step analysis. Even valid FINAL
+completion traces never established attention-ready membership.
+
+
+The pre-specified main-model financial RAG arm finished all24 requests:23 natural
+EOS and one8192-token cap, counted as a failure despite retained raw text. Exact
+FINAL is6/24 and frozen rounding14/24. Measured phases total2620.219s, generation
+2543.329s, allocated1.44117 GPUh. This eager result does not establish speedup;
+native graph repeats are running with the same retrieval variant.
