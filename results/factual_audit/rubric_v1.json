@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "rubric_id": "train8-blind-factual-audit-v1-20261016",
+  "judge_type": "LLM-assisted single judge; not human evaluation",
+  "blinding": "Judge inherits general project context but reads only the anonymous queue and its source documents. No candidate mapping, method/budget results, implementation, or git history is read. No per-method aggregation is performed before unblinding.",
+  "queue": "results/sparse_reference/train8_quality_blind_audit.jsonl",
+  "expected_candidates": 128,
+  "unit_of_judgment": "Each candidate is judged independently against the complete supplied source. Candidates may be grouped by question for efficient reading; repetition across candidates does not establish truth.",
+  "source_policy": "Verify supplied SHA-256; read all document lines in consecutive chunks. Gold supplies question-relevant coverage cues but is not an independent factual authority. Source-supported facts take precedence over gold wording. Search misses alone never establish contradiction.",
+  "major_atomic_claim": "A distinct, checkable proposition material to the answer: actor attribution, action, stated opinion, decision, explanation, chronology, or quantitative detail. Split conjunctions when their facts could differ in support. Repeated equivalent propositions count once. Pure rhetorical restatement is not a separate claim. An evaluative statement explicitly attributed to a participant is checked against that participant's expressed view.",
+  "claim_labels": {
+    "supported": "The source explicitly supports the material proposition or permits a direct, conservative paraphrase. Cite source line ranges and a concise rationale.",
+    "contradicted": "The source explicitly conflicts with the proposition, including materially wrong actor/decision/quantity. Cite the conflicting lines. Mere absence is insufficient.",
+    "unverifiable": "After full-source reading, material support cannot be established, or attribution/interpretation remains ambiguous. Explain uncertainty and any relevant lines; do not convert this to contradiction."
+  },
+  "coverage_scale": {
+    "0": "No substantive relevant key point is correctly conveyed, or the answer is empty/off-topic.",
+    "1": "Some relevant key point is correctly conveyed, but one or more central question-specific points are missing or materially distorted.",
+    "2": "The central question-specific points supported by source are adequately conveyed. Nonessential omissions and different wording are allowed. Additional unsupported claims are scored separately under factuality."
+  },
+  "coverage_keypoints": "Set question-specific key points from question, gold, and complete source before assigning candidate coverage. Gold is a guide, not a requirement to repeat unsupported details.",
+  "answer_factual_pass": "True only when at least one substantive major claim is present and every major claim is supported. Any material contradiction or unverifiable major claim makes this false. Nonmaterial omissions do not make factual_pass false; they may affect coverage. Empty responses fail.",
+  "uncertainty": "Record uncertain=true whenever a material interpretation or attribution remains ambiguous, with a short reason. This is one assisted judge, without inter-rater agreement or human validation.",
+  "required_output": ["item_id", "document_sha256", "complete_source_lines_read", "major_claims", "supported_claims", "contradicted_claims", "unverifiable_claims", "question_coverage", "coverage_rationale", "answer_factual_pass", "uncertain", "rationale"],
+  "aggregation": "Report overall counts, coverage histogram, uncertainty count, and completed/expected counts only. Retain individual records for later unblinding and report/component-paired analysis. No lexical-overlap script substitutes for claim judgment."
+}
