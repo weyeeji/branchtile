@@ -57,10 +57,23 @@ def producer(heads,tokens,rows,dim,regions,splits=64,block_n=64,threads=128):
             if active>=32:
                 for i,d in T.Parallel(8,dim):
                     out[24+i,d]=CU[dq*8+i,d]
-            for i in T.Parallel(M):
-                src=T.if_then_else(i<8,a*8+i,T.if_then_else(i<16,b*8+i-8,T.if_then_else(i<24,c*8+i-16,dq*8+i-24)))
-                maximum[i]=T.if_then_else(i<active,CM[src],-T.infinity("float32"))
-                denominator[i]=T.if_then_else(i<active,CL[src],0)
+            T.fill(maximum,-T.infinity("float32"))
+            T.clear(denominator)
+            for i in T.Parallel(8):
+                maximum[i]=CM[a*8+i]
+                denominator[i]=CL[a*8+i]
+            if active>=16:
+                for i in T.Parallel(8):
+                    maximum[8+i]=CM[b*8+i]
+                    denominator[8+i]=CL[b*8+i]
+            if active>=24:
+                for i in T.Parallel(8):
+                    maximum[16+i]=CM[c*8+i]
+                    denominator[16+i]=CL[c*8+i]
+            if active>=32:
+                for i in T.Parallel(8):
+                    maximum[24+i]=CM[dq*8+i]
+                    denominator[24+i]=CL[dq*8+i]
             for tile in T.serial(T.ceildiv(end-begin,block_n)):
                 for n,d in T.Parallel(block_n,dim):
                     p=begin+tile*block_n+n
@@ -95,11 +108,21 @@ def producer(heads,tokens,rows,dim,regions,splits=64,block_n=64,threads=128):
             if active>=32:
                 for i,d in T.Parallel(8,dim):
                     CU[dq*8+i,d]=out[24+i,d]
-            for i in T.Parallel(M):
-                src=T.if_then_else(i<8,a*8+i,T.if_then_else(i<16,b*8+i-8,T.if_then_else(i<24,c*8+i-16,dq*8+i-24)))
-                if i<active:
-                    CM[src]=maximum[i]
-                    CL[src]=denominator[i]
+            for i in T.Parallel(8):
+                CM[a*8+i]=maximum[i]
+                CL[a*8+i]=denominator[i]
+            if active>=16:
+                for i in T.Parallel(8):
+                    CM[b*8+i]=maximum[8+i]
+                    CL[b*8+i]=denominator[8+i]
+            if active>=24:
+                for i in T.Parallel(8):
+                    CM[c*8+i]=maximum[16+i]
+                    CL[c*8+i]=denominator[16+i]
+            if active>=32:
+                for i in T.Parallel(8):
+                    CM[dq*8+i]=maximum[24+i]
+                    CL[dq*8+i]=denominator[24+i]
 
     @T.prim_func
     def main(Q:T.Tensor((heads,rows,dim),"bfloat16"),
@@ -139,22 +162,24 @@ def producer(heads,tokens,rows,dim,regions,splits=64,block_n=64,threads=128):
                     do_region(Q,K,V,Indices,Offsets,cu,cm,cl,qs,ks,vs,probs,h,s,r,16,16,1,2,0,0)
                 if label == 7:
                     do_region(Q,K,V,Indices,Offsets,cu,cm,cl,qs,ks,vs,probs,h,s,r,24,32,0,1,2,0)
-                if label == 8:
-                    do_region(Q,K,V,Indices,Offsets,cu,cm,cl,qs,ks,vs,probs,h,s,r,8,16,3,0,0,0)
-                if label == 9:
-                    do_region(Q,K,V,Indices,Offsets,cu,cm,cl,qs,ks,vs,probs,h,s,r,16,16,0,3,0,0)
-                if label == 10:
-                    do_region(Q,K,V,Indices,Offsets,cu,cm,cl,qs,ks,vs,probs,h,s,r,16,16,1,3,0,0)
-                if label == 11:
-                    do_region(Q,K,V,Indices,Offsets,cu,cm,cl,qs,ks,vs,probs,h,s,r,24,32,0,1,3,0)
-                if label == 12:
-                    do_region(Q,K,V,Indices,Offsets,cu,cm,cl,qs,ks,vs,probs,h,s,r,16,16,2,3,0,0)
-                if label == 13:
-                    do_region(Q,K,V,Indices,Offsets,cu,cm,cl,qs,ks,vs,probs,h,s,r,24,32,0,2,3,0)
-                if label == 14:
-                    do_region(Q,K,V,Indices,Offsets,cu,cm,cl,qs,ks,vs,probs,h,s,r,24,32,1,2,3,0)
-                if label == 15:
-                    do_region(Q,K,V,Indices,Offsets,cu,cm,cl,qs,ks,vs,probs,h,s,r,32,32,0,1,2,3)
+                if rows==32:
+                    if label == 8:
+                        do_region(Q,K,V,Indices,Offsets,cu,cm,cl,qs,ks,vs,probs,h,s,r,8,16,3,0,0,0)
+                    if label == 9:
+                        do_region(Q,K,V,Indices,Offsets,cu,cm,cl,qs,ks,vs,probs,h,s,r,16,16,0,3,0,0)
+                    if label == 10:
+                        do_region(Q,K,V,Indices,Offsets,cu,cm,cl,qs,ks,vs,probs,h,s,r,16,16,1,3,0,0)
+                    if label == 11:
+                        do_region(Q,K,V,Indices,Offsets,cu,cm,cl,qs,ks,vs,probs,h,s,r,24,32,0,1,3,0)
+                    if label == 12:
+                        do_region(Q,K,V,Indices,Offsets,cu,cm,cl,qs,ks,vs,probs,h,s,r,16,16,2,3,0,0)
+                    if label == 13:
+                        do_region(Q,K,V,Indices,Offsets,cu,cm,cl,qs,ks,vs,probs,h,s,r,24,32,0,2,3,0)
+                    if label == 14:
+                        do_region(Q,K,V,Indices,Offsets,cu,cm,cl,qs,ks,vs,probs,h,s,r,24,32,1,2,3,0)
+                    if label == 15:
+                        do_region(Q,K,V,Indices,Offsets,cu,cm,cl,qs,ks,vs,probs,h,s,r,32,32,0,1,2,3)
+                T.sync_threads()
             for i,d in T.Parallel(rows,dim):
                 U[h,s,i,d]=cu[i,d]
             for i in T.Parallel(rows):

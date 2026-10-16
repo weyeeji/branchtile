@@ -120,7 +120,9 @@ def main():
     compiler_dir.mkdir()
     paths = [Path(__file__), ROOT / "src/branchtile/attention.py",
              ROOT / "src/branchtile/resources.py", ROOT / "scripts/compare_attention.py"]
-    for relative in ("attention_v4.py", "tilelang_kernel_v4.py"):
+    for relative in ("attention_v4.py", "tilelang_kernel_v4.py", "attention_fullcol_guard.py",
+                     "tilelang_kernel_fullcol_guard.py", "attention_emptyguard.py",
+                     "tilelang_kernel_emptyguard.py", "tilelang_kernel_v2.py"):
         candidate = ROOT / "src/branchtile" / relative
         if candidate.exists():
             paths.append(candidate)
