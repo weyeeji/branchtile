@@ -193,3 +193,11 @@ common-max/mean 的最大逐请求 score 损失分别约 23.18%/18.66%，不满�
 本轮检索包含 `KV cache multi-query joint compression union`、`KV cache submodular shared`、`per-request joint selection`、`shared prefix compression joint`、`per-query set cover`、`minimum union attention`、`multi-query weighted coverage retrieval`，并沿论文与作者官方仓库核对。已加入旧审计中缺失的 BumbleBee、经典 robust/submodular cover、跨请求 BFF/CFF、CORE 和多 query 检索覆盖先例。
 
 未找到已核实的“逐请求固定原 KV mask、逐请求真实输出误差预算、在线最小可兑现物理页成本”完整同构实现；也没有完成全球专利、所有未索引论文或所有作者代码分支的穷举。**该有限空缺不是新颖性证明；对于当前 pooled-score v1，经典优化归约已经足以否决仅靠问题措辞和局部交换规则成立的新算法主张。**
+
+## 9. 初稿提交后的分阶段证据补充
+
+初稿独立审查提交为 `2c7fc83`；上文“没有 O/LSE”描述的是被审阅的 CPU exchange v1 本身，不能理解为后续始终没有这一阶段。随后团队另行完成了 [held-out FP64 attention 阶段](../results/joint_attention_fp64_v1/README.md)（`56dd877`）：1% pooled-score loss 对应的最大 retained dense-softmax mass 下降达到 4K 的 6.50 个百分点、16K 的 4.92 个百分点；单 query-head 的 dense-reference 相对 L2 误差增量最大为 +0.133470/+0.044762。平均或中位改善不能抹去个别恶化。该阶段使用 dense-trajectory captures，仍不证明 on-policy 自然质量；它进一步支持本文区分 score floor 与真实误差的结论。本审查只读取其公开结果/README，没有重跑 GPU。
+
+root 新增的 `reverse_delete` 已接受只读约束检查：fixed-k、mandatory、活跃域与 next-best refill 的逻辑成立，最终 `fsum` 检查没有采用 1e-12 放宽验收。初稿指出零松弛分支仅验证 canonical top-k、未证明 strict boundary；团队随后以独立 [boundary_gap_audit.json](../results/joint_support_reverse_delete_v1/boundary_gap_audit.json)（`1af149a`）确认当前 40 个请求/预算/head 边界均为正 gap，关闭这些自然输入的证据缺口。这是后验输入审计，没有静默修改原算法或结果。
+
+本审查员另按预冻结 `e06c531` 完成了第 5 节 E 的 [relaxed-budget 独立最短 top-prefix CPU 控制](../results/joint_support_relaxed_prefix_v1/README.md)：48 cells、160 request checks、0 GPUh，1% 阈值下 union 下降仅 1.95–4.13%，sum selected entries 下降 2.37–4.49%，12 个 head cells 均未得到比两种 exact-k exchange 更小的 union。它保留了“身份协调超出直接剪尾”的代理几何信号，但约束是 ≤k，尚无该 arm 的 O/LSE/自然质量或执行性能证据，也没有改变本文的新颖性否决。
