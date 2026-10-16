@@ -1,0 +1,59 @@
+{
+  "created_utc": "2026-10-16T07:28:39.834817+00:00",
+  "package": "flashinfer-python==0.7.2",
+  "api": "flashinfer.msa_ops.msa_sparse_decode_attention",
+  "official_docs": "https://docs.flashinfer.ai/generated/flashinfer.msa_ops.msa_sparse_decode_attention.html",
+  "source_path": ".venv-latest/lib/python3.12/site-packages/flashinfer/msa_ops/sparse_decode.py",
+  "source_sha256": "16854e133511d892e7c22d9af6750b98184d399b949e160d92a7ffb274dde46d",
+  "supported_shape_facts": {
+    "architectures": [
+      "SM120",
+      "SM121"
+    ],
+    "Q_dtype": [
+      "BF16",
+      "FP16"
+    ],
+    "D": 128,
+    "gqa_max": 16,
+    "arbitrary_number_of_kv_heads": true,
+    "kv_formats": [
+      "ragged flat",
+      "paged fixed128-token pages",
+      "supported fused K/V strided page views"
+    ],
+    "support_unit": "128-token block selected by ascending int32 q2k_indices[Hkv,total_q,topk], -1 tail padded",
+    "lse": "natural logarithm"
+  },
+  "compatibility_decision": "Qwen GQA4/8 BF16 D128 arithmetic is supported. The selected block granularity cannot express current arbitrary token supports on the unchanged physical source. No per-token mask parameter exists. Enlarging a selected block changes attention and is not an exact-mask baseline.",
+  "possible_separate_adapter": "Gather each head/request selected K/V into contiguous ragged histories, then select their packed blocks and preserve exact valid lengths. This would be an E0 adapter with necessary payload copying/preparation timed; it is not a no-copy same-source counterpart. No such GPU performance qualification is claimed here.",
+  "natural_mask_evidence": [
+    {
+      "name": "main30b",
+      "mask_shape": [
+        3,
+        2,
+        86782
+      ],
+      "full_128_token_blocks_per_request_head": 677,
+      "mixed_blocks_total": 1415,
+      "request_head_pairs": 6,
+      "selected_tokens_inside_mixed_blocks": 23728,
+      "source_tail_tokens_not_in_full_block": 126
+    },
+    {
+      "name": "official4b",
+      "mask_shape": [
+        4,
+        8,
+        20896
+      ],
+      "full_128_token_blocks_per_request_head": 163,
+      "mixed_blocks_total": 4311,
+      "request_head_pairs": 32,
+      "selected_tokens_inside_mixed_blocks": 128896,
+      "source_tail_tokens_not_in_full_block": 32
+    }
+  ],
+  "scope": "Read-only API/source and CPU mask-granularity audit. No GPU probe or SM120 performance claim for MSA."
+}
