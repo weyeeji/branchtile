@@ -14,20 +14,28 @@ import torch
 def cache_views(cache, head_dim=128):
     if cache.ndim != 4 or cache.shape[-1] != 2 * head_dim:
         raise ValueError('Expected vLLM fused cache [physical_pages,H,page_tokens,2D]')
-    if cache.dtype != torch.bfloat16 or not cache.is_cuda or not cache.is_contiguous():
-        raise ValueError('Qualification currently requires contiguous CUDA BF16 fused storage')
-    flat = cache.view(-1, 2 * head_dim)
-    k = flat[:, :head_dim].view(-1, 1, 1, head_dim)
-    v = flat[:, head_dim:].view(-1, 1, 1, head_dim)
+    if cache.dtype != torch.bfloat16 or not cache.is_cuda:
+        raise ValueError('Qualification currently requires CUDA BF16 fused storage')
+    row_width = 2 * head_dim
+    if cache.stride(-1) != 1 or any(stride % row_width for stride in cache.stride()[:3]):
+        raise ValueError(f'Unsupported physical cache token alignment: {cache.shape}, {cache.stride()}')
+    # vLLM may interleave all layers between adjacent physical pages. Expose
+    # the address span without copying; physical_supports skips every gap.
+    rows = sum((size - 1) * stride for size, stride in zip(cache.shape[:3], cache.stride()[:3])) // row_width + 1
+    assert (cache.storage_offset() + rows * row_width) * cache.element_size() <= cache.untyped_storage().nbytes()
+    strides = (row_width, row_width, row_width, 1)
+    k = cache.as_strided((rows, 1, 1, head_dim), strides, storage_offset=cache.storage_offset())
+    v = cache.as_strided((rows, 1, 1, head_dim), strides, storage_offset=cache.storage_offset() + head_dim)
     assert k.untyped_storage().data_ptr() == cache.untyped_storage().data_ptr()
     assert v.untyped_storage().data_ptr() == cache.untyped_storage().data_ptr()
     assert k.stride(0) == v.stride(0) == 2 * head_dim
     return k, v
 
 
-def physical_supports(block_tables, logical_supports, heads, page_size):
+def physical_supports(block_tables, logical_supports, heads, page_size, cache_strides=None, head_dim=128):
     """[request][head] sorted unique logical positions -> physical-token IDs."""
     tables = torch.as_tensor(block_tables, dtype=torch.int64, device='cpu')
+    pitches = (heads * page_size, page_size, 1) if cache_strides is None else tuple(stride // (2 * head_dim) for stride in cache_strides[:3])
     result = []
     for request, by_head in enumerate(logical_supports):
         if len(by_head) != heads:
@@ -39,7 +47,7 @@ def physical_supports(block_tables, logical_supports, heads, page_size):
             assert not len(positions) or int(positions.min()) >= 0
             page_ids = tables[request, positions // page_size]
             assert not len(page_ids) or int(page_ids.min()) >= 0
-            mapped.append((page_ids * heads * page_size + head * page_size + positions % page_size).to(torch.int32))
+            mapped.append((page_ids * pitches[0] + head * pitches[1] + (positions % page_size) * pitches[2]).to(torch.int32))
         result.append(mapped)
     return result
 
