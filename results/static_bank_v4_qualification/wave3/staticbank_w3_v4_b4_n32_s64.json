@@ -1,0 +1,134 @@
+{
+  "schema": "static-bank-qualification-v1",
+  "status": "failed",
+  "uid": 1000,
+  "python": "/home/qcjz/iscas/.venv-latest/bin/python",
+  "CUDA_VISIBLE_DEVICES": "3",
+  "started_utc": "2026-10-16T13:14:44.878183+00:00",
+  "arguments": {
+    "batch": 4,
+    "splits": 64,
+    "block_n": 32,
+    "threads": 128,
+    "tokens": 259,
+    "fixtures": "all_masks,unequal,empty,one_token",
+    "module": "branchtile.attention_v4",
+    "capture": "results/captures/main30b_tp2_publicdev6_256_suffix_v2/rank0",
+    "layer": 15,
+    "budget": 32768,
+    "step": 64,
+    "heads": 2,
+    "output": "results/static_bank_v4_qualification/wave3/staticbank_w3_v4_b4_n32_s64.json",
+    "cpu_check": false
+  },
+  "code_sha256": {
+    "scripts/qualify_static_bank.py": "9dc8fda1604b80960bcc194def824acdbae3000a32fe16b7ce2a84adf3d85df8",
+    "src/branchtile/attention.py": "2878475c1273f527f95f629090e275c5a99f9dbad6c67646c40657692c20673d",
+    "src/branchtile/resources.py": "b08fc87f2f690c84d450f7b1ea2c704d73cd2ac2dd66b2f7431791013e761c58",
+    "scripts/compare_attention.py": "a23b40b1139e93fbb2bd7f5e8794b1885e4df8778bc83114e845829fb1a7e2e2",
+    "src/branchtile/attention_v4.py": "b94c60d30d653aa16934081f838f2229f8f38ab84657d5e1e3d98baeaeac9272",
+    "src/branchtile/tilelang_kernel_v4.py": "b70237dc53664762baa66b682078acc4d759914960075bb353dde9cf94fb935e",
+    "src/branchtile/attention_fullcol_guard.py": "fa990cd439eeee4a27624b0c678b159c2f4759de6075f782fd347636895c07ff",
+    "src/branchtile/tilelang_kernel_fullcol_guard.py": "cc3f2ea59cf04515fac0e648afa0a65c2eee9e0ab1a4e51b7681c9be53a293ab",
+    "src/branchtile/attention_emptyguard.py": "a4eb400c270750522ab7ebee891d96df4076fd3cf7e28f47af12193068f2749c",
+    "src/branchtile/tilelang_kernel_emptyguard.py": "80b91f0812a0ddec97c047facb4023d0929af1f9ca24e1ce562f0fc8655562ad",
+    "src/branchtile/tilelang_kernel_v2.py": "7f36322f62d94d047788cce58cf6b4063e7e27b2cd6f96624f7e5f93c9f90525"
+  },
+  "contracts": {
+    "O": {
+      "atol": 0.006,
+      "rtol": 0.015
+    },
+    "natural_log_LSE": {
+      "atol": 0.0003,
+      "rtol": 0.0001
+    }
+  },
+  "scope": "Numerical and graph qualification only; no performance result.",
+  "cases": [
+    {
+      "name": "all_masks",
+      "status": "initializing",
+      "q_shape": [
+        2,
+        32,
+        128
+      ],
+      "k_shape": [
+        2,
+        259,
+        128
+      ],
+      "batch": 4,
+      "provenance": {
+        "kind": "synthetic",
+        "seed": 20261016
+      },
+      "checks": [],
+      "owner_labels": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "region_lengths_by_head": [
+        [
+          17,
+          17,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        [
+          17,
+          16,
+          16,
+          17,
+          16,
+          16,
+          17,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ]
+      ]
+    }
+  ],
+  "gpu_uuid": "d07542ee-9ea8-8590-496e-e3a236cc7c20",
+  "gpu_name": "NVIDIA GeForce RTX 5090",
+  "packages": {
+    "torch": "2.11.0",
+    "tilelang": "0.1.9",
+    "triton": "3.6.0"
+  },
+  "error": "InternalError('Layout infer conflict between denominator and maximum in T.Parallel loop:\\n    loop Fragment([16] -> [2], replicate: 16, thread: 128, forward_thread: _rep % 4 * 32 + _i % 8 * 4 + _rep // 4, forward_index: [_i // 8], thread_range: I.Range(0, 128))\\n    fragment Fragment([16] -> [1], replicate: 16, thread: 128, forward_thread: _rep % 4 * 32 + _i * 4 + _rep // 4 - 32, forward_index: [0], thread_range: I.Range(0, 128))\\n')",
+  "traceback": "Traceback (most recent call last):\n  File \"/home/qcjz/iscas/scripts/qualify_static_bank.py\", line 252, in main\n    run_case(name, q, k, v, owners, a.batch, {\"kind\": \"synthetic\", \"seed\": 20261016})\n  File \"/home/qcjz/iscas/scripts/qualify_static_bank.py\", line 178, in run_case\n    op = Attention(plan, splits=a.splits, block_n=a.block_n, threads=a.threads)\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qcjz/iscas/src/branchtile/attention_v4.py\", line 15, in __init__\n    self.kernel=producer(h,n,r,128,len(plan.labels),splits,block_n,threads)\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qcjz/iscas/src/branchtile/tilelang_kernel_v4.py\", line 188, in producer\n    return tilelang.compile(main,target=\"cuda -arch=sm_120\",out_idx=[])\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qcjz/miniconda3/envs/sglang-vllm-m120/lib/python3.12/site-packages/tilelang/jit/__init__.py\", line 115, in compile\n    return cached(\n           ^^^^^^^\n  File \"/home/qcjz/miniconda3/envs/sglang-vllm-m120/lib/python3.12/site-packages/tilelang/cache/__init__.py\", line 74, in cached\n    return _dispatch_map[execution_backend].cached(\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qcjz/miniconda3/envs/sglang-vllm-m120/lib/python3.12/site-packages/tilelang/cache/kernel_cache.py\", line 345, in cached\n    kernel = JITKernel(\n             ^^^^^^^^^^\n  File \"/home/qcjz/miniconda3/envs/sglang-vllm-m120/lib/python3.12/site-packages/tilelang/jit/kernel.py\", line 136, in __init__\n    adapter = self._compile_and_create_adapter(func, out_idx)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qcjz/miniconda3/envs/sglang-vllm-m120/lib/python3.12/site-packages/tilelang/jit/kernel.py\", line 247, in _compile_and_create_adapter\n    artifact = tilelang.lower(\n               ^^^^^^^^^^^^^^^\n  File \"/home/qcjz/miniconda3/envs/sglang-vllm-m120/lib/python3.12/site-packages/tilelang/engine/lower.py\", line 308, in lower\n    mod = LowerAndLegalize(mod, target)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qcjz/miniconda3/envs/sglang-vllm-m120/lib/python3.12/site-packages/tilelang/engine/phase.py\", line 191, in LowerAndLegalize\n    mod = tilelang.transform.LayoutInference()(mod)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qcjz/miniconda3/envs/sglang-vllm-m120/lib/python3.12/site-packages/tilelang/3rdparty/tvm/python/tvm/ir/transform.py\", line 167, in __call__\n    return _ffi_transform_api.RunPass(self, mod)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"python/tvm_ffi/cython/function.pxi\", line 968, in tvm_ffi.core.Function.__call__\ntvm.error.InternalError: Layout infer conflict between denominator and maximum in T.Parallel loop:\n    loop Fragment([16] -> [2], replicate: 16, thread: 128, forward_thread: _rep % 4 * 32 + _i % 8 * 4 + _rep // 4, forward_index: [_i // 8], thread_range: I.Range(0, 128))\n    fragment Fragment([16] -> [1], replicate: 16, thread: 128, forward_thread: _rep % 4 * 32 + _i * 4 + _rep // 4 - 32, forward_index: [0], thread_range: I.Range(0, 128))\n\n",
+  "wall_seconds": 4.937992954626679,
+  "finished_utc": "2026-10-16T13:14:49.817075+00:00"
+}

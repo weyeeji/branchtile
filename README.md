@@ -12,6 +12,21 @@ E0/union and optional joint-support installation have engineering qualifications
 but no candidate has established quality-qualified net application gains or a new
 paper contribution. The original dynamic-row stop decision remains in force.
 
+Current operator exploration (2026-10-16, user-authorized continuation):
+
+- Scope is single-user multi-agent reuse. The missing old dataset split is not
+  required; use the newly frozen public manifests.
+- [Comparison protocol](docs/operator_comparison_protocol_20261016.md) separates
+  paired replay of the same actual decode work from natural-EOS quality and
+  application latency. Different natural output lengths are retained.
+- [Two broad overhead waves](docs/operator_exploration_status_20261016.md):
+  740/740 configurations pass FP64 O/LSE checks across 14 real-input cells.
+  Skipping empty shards does not beat strong fixed/hierarchical controls.
+- Eight-GPU qualification now tests static lane-local output banks and an
+  independent FullCol warp-policy control. The control passes numerical and
+  mutable graph checks; static-bank compilation is still under qualification.
+  This is ongoing operator research, with no new speed or paper-success claim.
+
 Recent evidence:
 
 - [Physical KV alias control](results/native_physical_alias_v1/README.md):

@@ -1,5 +1,17 @@
 # 论文实验推进台账
 
+Latest continuation, 2026-10-16: the user requested broad eight-GPU operator
+experiments and accepted a single-user multi-agent scope. See
+[operator status](docs/operator_exploration_status_20261016.md),
+[comparison protocol](docs/operator_comparison_protocol_20261016.md), and
+`configs/operator_qualification_wave4_protocol.json`. The new investigation
+retains the previous failed gates; it does not turn earlier negative results
+into paper evidence. Two fresh overhead waves complete 740/740 FP64-qualified
+configurations. Static register-bank code is still being qualified; an isolated
+FullCol control passes numerical and mutable-graph qualification. The paper
+objective remains incomplete.
+
+
 2026-10-16 17:10 语义更正：旧 TP-rank 算子导出在短 question suffix 时误将文档 Q 回填到32。
 历史主模型/B8算子和容量结果保留为不同观察窗变体，不再等同预定 QC-SnapKV；
 实际自然生成 FrozenQCSelector 与 HF 参考本来就是 suffix-only，不受此错误影响。
