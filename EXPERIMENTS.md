@@ -282,3 +282,33 @@ is exploratory development, not a claim that one variant is already optimal
 for financial QA. The complete full-report main-model dense/joint run continues
 on a separate TP2 pair. Both use the frozen strict-FINAL metric with all failure
 and unserviceable questions kept in the denominator.
+
+
+## 2026-10-16 15:49 — main-model complete-report screening and graph attribution
+
+The official FP8 main model completed public DocFinQA development8 dense/joint
+screening at262K context: five documents/17 questions were serviceable and three
+documents/seven questions remained unserviceable. All serviced generations ended
+naturally; no cap hits. Both arms score2/24 under the frozen exact FINAL metric;
+mandatory gold-precision rounding gives7/24 dense and9/24 joint. Full denominator
+and grammar/unit errors are retained. This is neither official program-execution
+accuracy nor adequate evidence of useful application quality. The two arms'
+serviced generation totals are1067.13/1095.43s in eager mode; startup, tokenization
+and1.22863 allocated GPUh are separately recorded. Main-model RAG is ongoing.
+
+Native CUDA-graph TP2 profiling on one86.8K-token B3 document captures32 actual
+decode steps per rank. Attention including split merge accounts for53.14/53.19%
+of summed kernel time; NCCL communication5.03/5.08%. Kernel timeline spans
+474.33/473.31ms. These are instrumented attribution windows, not unprofiled
+latency or an application speedup claim. Both raw traces are hashed, each rank
+is summarized separately, and capped256 tokens are explicitly instrumentation.
+The main graph engine runs successfully; complete natural graph A/A now uses
+three cold repeats plus one warm repeat on the same frozen development cohort.
+
+Full-budget paged sparse execution passed all local output checks and short
+greedy sequences, but logits drift across layers persists in both native SIMT
+and Tensor Core variants. The drift is under investigation and is not accepted
+by retroactively loosening tolerances. Eager reference wrappers are not a strong
+production speed baseline. A2 FastKVzip-NVIDIA exact-gate/mask/full-budget
+qualification also passed; its shared query-agnostic development generation
+runs separately. Both A2 and A4 still require factual review and formal testing.
