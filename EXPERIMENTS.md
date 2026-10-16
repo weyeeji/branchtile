@@ -430,3 +430,15 @@ than the exact combinatorial fixed-partition model. The predeclared stop rule
 ends this layout search. GPU partition/hierarchy enumeration at B8 remains
 incomplete; the existing qualified faster controls suffice for rejection, never
 for a positive competitive claim.
+
+
+## 2026-10-16 17:06 — second assisted judge agreement
+
+The32 preselected unique answers were judged against all4139 source lines by a
+second conversation without first verdicts or identity mapping. Agreement is
+26/32 factual pass,29/32 coverage,24/32 uncertainty,30/32 factual-and-adequate;
+descriptive unweighted kappa is.571/.810/.500/.796. The first origin in the
+frozen mapping defines the primary comparison; other prior versions remain
+explicit. Neither verdict set is changed. Same model-family judges and only
+8 documents/7 higher source groups limit reliability and do not establish human
+or formal noninferiority evidence.
