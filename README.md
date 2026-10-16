@@ -44,8 +44,11 @@ Recent evidence:
   four-condition run preserves every token of the corresponding old implementation.
   Fixed-128 generation is 1.20–1.28× faster than native; natural cold-task ratios
   including phase validation are 1.213/1.039/0.983/0.572, so the second document
-  remains negative. The other three predeclared seeds are running on all eight
-  GPUs. This is an execution control with existing precedents, not a new paper
+  remains negative. All four predeclared seeds have now completed: corresponding
+  summed cold-task ratios including phase validation are 0.979/0.979/0.983/0.783,
+  with every natural output token identical to its own old implementation.
+  The engineering change does not reverse the negative task-level conclusion.
+  This is an execution control with existing precedents, not a new paper
   mechanism. See [audited boundaries](docs/device_cascade_engine_control_20261017.md).
 - **2026-10-17, grouped verification screening:** actual consecutive AR queries
   pass causal full-history checks. Randomized interleaving reproduces about 40%
