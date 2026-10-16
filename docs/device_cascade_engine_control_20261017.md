@@ -38,3 +38,18 @@ Strict FINAL quality is also insufficient for a task-success claim: train7 BF16 
 The complete first-seed audit is `results/dense_cascade_device_natural_audit_v1/audit.json`, produced by `scripts/summarize_dense_cascade_device_natural.py`. It records runtime source hashes, clean-exit ledger receipts, 48-layer checks, dynamic metadata flags, costs, per-question quality, batch survival, and exact historical token comparisons. Per-session correctness/cost auditing is in `scripts/audit_dense_cascade_device_model.py`.
 
 The additional seeds 20261017, 20261018, and 20261019 retain the previously declared BA/AB/BA orders and sampling settings in `configs/dense_cascade_multiseed_natural_v1.json`. The new independent runner `scripts/benchmark_dense_cascade_device_multiseed.py` changes the phase list and seed only, reusing the frozen device worker/plan and inclusive timing contract. `scripts/audit_dense_cascade_device_four_seeds.py` will combine all four seeds without filtering positive/negative timing, caps, or parsing failures. No multi-seed conclusion is asserted before those jobs finish.
+
+## Completed four-seed audit
+
+All eight actual sessions (initial and additional seeds for four conditions) completed with clean exits. The unified audit is `results/dense_cascade_device_four_seed_audit_v1/audit.json`. It verifies the prescribed order and unchanged sampling settings, source hashes, all-layer qualification, device metadata, complete histories, and ledger termination. All 256 natural outputs across both methods stopped without the cap. Every observed natural token sequence remains exactly equal to the corresponding old control with that seed and method.
+
+| Condition | Four-seed generation ratio, including phase validation/export | Four-seed cold ratio, including phase validation/export | Rounded accuracy, native → candidate |
+|---|---:|---:|---:|
+| train1 BF16 | 0.96683 | 0.97889 | 8/32 → 8/32 |
+| train1 FP8 | 0.96680 | 0.97880 | 8/32 → 8/32 |
+| train7 BF16 | 0.97383 | 0.98323 | 13/32 → 10/32 |
+| train7 FP8 | 0.65678 | 0.78319 | 9/32 → 8/32 |
+
+Ratios use summed wall times across the four seeds. Candidate cold wall is approximately 2.16%, 2.17%, 1.71%, and 27.68% higher respectively before separately charging candidate setup. The smaller overhead therefore did not make any of these aggregate natural-task conditions faster. The matching historical trajectories confirm that the observed changes from the old implementation do not arise from altered outputs, but historical timing comparisons still cannot isolate causal speedup from run-to-run system variation.
+
+This closes the hypothesis that removing the prototype's repeated host planning alone is sufficient to produce a natural-task win on these two documents. It does not deny the measured graph execution opportunity or fixed-length generation improvement, and it does not rule out a different mechanism or workload with stronger reuse and better task accuracy. No novelty or ISCAS-ready result is claimed for this engineering control.
