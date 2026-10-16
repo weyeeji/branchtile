@@ -1,0 +1,118 @@
+{
+  "schema": 1,
+  "protocol_id": "thinking-4b-tp1-native-capacity-natural-opportunity-v1",
+  "status": "frozen_not_launched",
+  "model_path": "data/models/Qwen3-4B-Thinking-2507",
+  "model_revision": "768f209d9ea81521153ed38c47d515654e938aea",
+  "manifest": "data/manifests/docfinqa_training_large_group_pilot_v1.json",
+  "documents": [
+    {
+      "document_id": "docfinqa-680456070a0a0714",
+      "document_sha256": "680456070a0a07142bb8ab69842ecd2dd5b80eb36348d7a1ab394dd268d5b36f",
+      "prompt_lengths": [
+        120571,
+        120563,
+        120576,
+        120574,
+        120560,
+        120570,
+        120565,
+        120560
+      ],
+      "prompt_token_hashes": [
+        "5033ca2afc1cfd46f060bd7a57f0adc8211da336e721efa0ed00f2b84ec504c7",
+        "f528e57b38ed764db31bb9b99b439e36bcc426be1a1294d938a7d5d422552843",
+        "e4e2e6bf1181909d6497563f422cc70ae2b3e6e245b95ffad97b7e83cf815f1a",
+        "0ad1471b404de9913c6cada5c8337c6f61eb5102e88e41b9e54fa7445c6c5d2c",
+        "6fdeddd4d741bcaa803d39433afb5137109b80041275ef1068ab14b7e815b290",
+        "d93019830831218280e56c94f233c78b8ce6be52aae71fb3141e5f7b0d53e59d",
+        "a1c37620b37851e55e89145fa121e69848e609c4ca5594e78ce0ba9556225471",
+        "5de3433caca4325cea8582787dbddda805885a9a98045c8608ff1db213e7754d"
+      ],
+      "document_token_range": [
+        34,
+        120540
+      ]
+    }
+  ],
+  "engine": {
+    "tensor_parallel_size": 1,
+    "dtype": "bfloat16",
+    "block_size": 16,
+    "max_model_len": 131072,
+    "max_num_seqs": 8,
+    "max_num_batched_tokens": 4096,
+    "enable_prefix_caching": true,
+    "enforce_eager": false,
+    "gpu_memory_utilization": 0.9,
+    "disable_custom_all_reduce": true,
+    "enable_batch_sharded_sampling": false,
+    "compilation_config": {
+      "mode": 3,
+      "cudagraph_mode": "FULL_DECODE_ONLY",
+      "cudagraph_capture_sizes": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ]
+    },
+    "attention_config": {
+      "backend": "FLASHINFER"
+    },
+    "seed": 20261016,
+    "disable_log_stats": false
+  },
+  "seed": 20261016,
+  "sampling": {
+    "temperature": 0.6,
+    "top_p": 0.95,
+    "seed": 20261016,
+    "max_tokens": 8192,
+    "ignore_eos": false,
+    "top_k": 0,
+    "min_p": 0.0,
+    "repetition_penalty": 1.0
+  },
+  "purpose": "Native-only full-input TP1 capacity and natural EOS task probe, then a separate bounded fixed-output profile; no candidate and no TP2 speedup claim.",
+  "limitations": [
+    "TP1 arithmetic/trajectory may differ from TP2; future candidates must compare to TP1 native at the same resource count.",
+    "One natural run is a capacity/opportunity pilot, not replicated performance or a candidate speedup.",
+    "Eight max-length private tails may exceed the cache pool even when initial requests fit. Preserve preemptions/caps/OOM; do not lower the context or silently drop requests.",
+    "The separate profile uses 128 forced tokens and is excluded from natural task time/quality.",
+    "Native CPU admission/metadata hooks remain charged. GPU event and profiler timing are separately instrumented."
+  ],
+  "scope": "One complete train1 document and all eight original questions. BF16 model/KV, TP1, fixed memory utilization .9, no input/output truncation or prompt edits.",
+  "model_download_identity": {
+    "path": "results/data_4b_download_identity.json",
+    "sha256": "9e2d1ce4af8bee5435e900d8a31e539ce7641fddf958ae332b53953c1fb08347",
+    "status": "previously_SHA256_verified_complete_file_sizes_rechecked"
+  },
+  "model_artifact_sha256": {
+    "config.json": "5beea1a4a34c62782bfb2f911c606741a3bab8f92d80a118fa053c28af12e8ba",
+    "model.safetensors.index.json": "d6c42883a895dfef5b0080ed2116a1bcd764f558406b98923d675978a1abf29c",
+    "tokenizer.json": "aeb13307a71acd8fe81861d94ad54ab689df773318809eed3cbe794b4492dae4",
+    "tokenizer_config.json": "60adcfc35f5f251e19a196ec977b4ca0fcfb534852911b3196d68d5e3b146aa0",
+    "generation_config.json": "2325da0f15bb848e018c5ae071b7943332e9f871d6b60e2ed22ca97d4cb993d2"
+  },
+  "quality_parser": {
+    "thinking": true,
+    "requires_closed_thinking": true,
+    "metric": "strict-final-financial-answer-v1-20261016"
+  },
+  "native_profile": {
+    "max_tokens": 128,
+    "min_tokens": 128,
+    "ignore_eos": true,
+    "delay_iterations": 64,
+    "max_iterations": 32
+  },
+  "source_training_protocol": {
+    "path": "configs/gqa4_thinking_quad_training_v1.json",
+    "sha256": "0820c2c821170a28282a904e90600651df8a17f995727b13fbe4d56fc36067fc"
+  }
+}

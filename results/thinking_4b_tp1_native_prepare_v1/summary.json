@@ -1,0 +1,168 @@
+{
+  "status": "CPU_prepared",
+  "args": {
+    "protocol": "configs/thinking_4b_tp1_native_probe_v1.json",
+    "output": "results/thinking_4b_tp1_native_prepare_v1",
+    "prepare_only": true,
+    "capacity_only": false
+  },
+  "protocol": {
+    "schema": 1,
+    "protocol_id": "thinking-4b-tp1-native-capacity-natural-opportunity-v1",
+    "status": "frozen_not_launched",
+    "model_path": "data/models/Qwen3-4B-Thinking-2507",
+    "model_revision": "768f209d9ea81521153ed38c47d515654e938aea",
+    "manifest": "data/manifests/docfinqa_training_large_group_pilot_v1.json",
+    "documents": [
+      {
+        "document_id": "docfinqa-680456070a0a0714",
+        "document_sha256": "680456070a0a07142bb8ab69842ecd2dd5b80eb36348d7a1ab394dd268d5b36f",
+        "prompt_lengths": [
+          120571,
+          120563,
+          120576,
+          120574,
+          120560,
+          120570,
+          120565,
+          120560
+        ],
+        "prompt_token_hashes": [
+          "5033ca2afc1cfd46f060bd7a57f0adc8211da336e721efa0ed00f2b84ec504c7",
+          "f528e57b38ed764db31bb9b99b439e36bcc426be1a1294d938a7d5d422552843",
+          "e4e2e6bf1181909d6497563f422cc70ae2b3e6e245b95ffad97b7e83cf815f1a",
+          "0ad1471b404de9913c6cada5c8337c6f61eb5102e88e41b9e54fa7445c6c5d2c",
+          "6fdeddd4d741bcaa803d39433afb5137109b80041275ef1068ab14b7e815b290",
+          "d93019830831218280e56c94f233c78b8ce6be52aae71fb3141e5f7b0d53e59d",
+          "a1c37620b37851e55e89145fa121e69848e609c4ca5594e78ce0ba9556225471",
+          "5de3433caca4325cea8582787dbddda805885a9a98045c8608ff1db213e7754d"
+        ],
+        "document_token_range": [
+          34,
+          120540
+        ]
+      }
+    ],
+    "engine": {
+      "tensor_parallel_size": 1,
+      "dtype": "bfloat16",
+      "block_size": 16,
+      "max_model_len": 131072,
+      "max_num_seqs": 8,
+      "max_num_batched_tokens": 4096,
+      "enable_prefix_caching": true,
+      "enforce_eager": false,
+      "gpu_memory_utilization": 0.9,
+      "disable_custom_all_reduce": true,
+      "enable_batch_sharded_sampling": false,
+      "compilation_config": {
+        "mode": 3,
+        "cudagraph_mode": "FULL_DECODE_ONLY",
+        "cudagraph_capture_sizes": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8
+        ]
+      },
+      "attention_config": {
+        "backend": "FLASHINFER"
+      },
+      "seed": 20261016,
+      "disable_log_stats": false
+    },
+    "seed": 20261016,
+    "sampling": {
+      "temperature": 0.6,
+      "top_p": 0.95,
+      "seed": 20261016,
+      "max_tokens": 8192,
+      "ignore_eos": false,
+      "top_k": 0,
+      "min_p": 0.0,
+      "repetition_penalty": 1.0
+    },
+    "purpose": "Native-only full-input TP1 capacity and natural EOS task probe, then a separate bounded fixed-output profile; no candidate and no TP2 speedup claim.",
+    "limitations": [
+      "TP1 arithmetic/trajectory may differ from TP2; future candidates must compare to TP1 native at the same resource count.",
+      "One natural run is a capacity/opportunity pilot, not replicated performance or a candidate speedup.",
+      "Eight max-length private tails may exceed the cache pool even when initial requests fit. Preserve preemptions/caps/OOM; do not lower the context or silently drop requests.",
+      "The separate profile uses 128 forced tokens and is excluded from natural task time/quality.",
+      "Native CPU admission/metadata hooks remain charged. GPU event and profiler timing are separately instrumented."
+    ],
+    "scope": "One complete train1 document and all eight original questions. BF16 model/KV, TP1, fixed memory utilization .9, no input/output truncation or prompt edits.",
+    "model_download_identity": {
+      "path": "results/data_4b_download_identity.json",
+      "sha256": "9e2d1ce4af8bee5435e900d8a31e539ce7641fddf958ae332b53953c1fb08347",
+      "status": "previously_SHA256_verified_complete_file_sizes_rechecked"
+    },
+    "model_artifact_sha256": {
+      "config.json": "5beea1a4a34c62782bfb2f911c606741a3bab8f92d80a118fa053c28af12e8ba",
+      "model.safetensors.index.json": "d6c42883a895dfef5b0080ed2116a1bcd764f558406b98923d675978a1abf29c",
+      "tokenizer.json": "aeb13307a71acd8fe81861d94ad54ab689df773318809eed3cbe794b4492dae4",
+      "tokenizer_config.json": "60adcfc35f5f251e19a196ec977b4ca0fcfb534852911b3196d68d5e3b146aa0",
+      "generation_config.json": "2325da0f15bb848e018c5ae071b7943332e9f871d6b60e2ed22ca97d4cb993d2"
+    },
+    "quality_parser": {
+      "thinking": true,
+      "requires_closed_thinking": true,
+      "metric": "strict-final-financial-answer-v1-20261016"
+    },
+    "native_profile": {
+      "max_tokens": 128,
+      "min_tokens": 128,
+      "ignore_eos": true,
+      "delay_iterations": 64,
+      "max_iterations": 32
+    },
+    "source_training_protocol": {
+      "path": "configs/gqa4_thinking_quad_training_v1.json",
+      "sha256": "0820c2c821170a28282a904e90600651df8a17f995727b13fbe4d56fc36067fc"
+    }
+  },
+  "protocol_sha256": "b66b488f2f2bed12fc59f4e6148aa0660fed96450b79f9c4379537f952442758",
+  "source_sha256": {
+    "scripts/probe_thinking_4b_tp1_native.py": "6348e78097236559567c699a3656b63568e9c17f36a0f1a19aeaf9bba2754429",
+    "scripts/vllm_thinking_tp1_native_worker.py": "7d468598fc9dcafa3f14d10e4508dfe647289276e15bb472c5c3af5733a6b916",
+    "scripts/vllm_gqa4_native_backend_worker.py": "010eda465659d354de72c862635f17b05a7dd17b12a36651f90d73bd45078379",
+    "scripts/vllm_native_opportunity_worker.py": "9c18d4be88eb35c5a6d77ae9d37f18a1d62764c5df38730d10472d574aa96d3c",
+    "scripts/vllm_native_precision_worker.py": "0b48d53b15d17c47f73b99e0399e112bde237f449f874d38f8485a520d60504f",
+    "scripts/vllm_native_backend_worker.py": "08cbe98802c91f42bfd97b6192dab91756e1abdf7688f4e6c3dd388d5e9a7c61",
+    "scripts/probe_engine_docfinqa.py": "d3f177f1345521cdff2c116b8af2a616b2f55f7ae7e7f7ec523f7d8f7bca51ff",
+    "scripts/capture_model.py": "08c18e222c820997e53978cb102ecdcd3a52e77036a4d052b9cac3cd43cdad00",
+    "scripts/vllm_batch_admission.py": "4a28cd560b847e3b83ffbfafa6f1a9586419667503699b560ae1b8a1cbbf2658",
+    "scripts/benchmark_native_raw_pair_general_policy_e2e.py": "ec7e4509ee5c85e68d9dc4694330aa97df267a191d624de16b369fa3121dba89",
+    "scripts/screen_application.py": "b00b3a6591c3c8003ec1714f2ab84b52dfc168a8af65f3d3e2e636238bc8cabc",
+    "src/financial_answer_metric.py": "e8b78be3509734de696567a61885d6abd2a8633d8a840ca9b7205c9849240ec3"
+  },
+  "runs": [],
+  "limits": [
+    "TP1 arithmetic/trajectory may differ from TP2; future candidates must compare to TP1 native at the same resource count.",
+    "One natural run is a capacity/opportunity pilot, not replicated performance or a candidate speedup.",
+    "Eight max-length private tails may exceed the cache pool even when initial requests fit. Preserve preemptions/caps/OOM; do not lower the context or silently drop requests.",
+    "The separate profile uses 128 forced tokens and is excluded from natural task time/quality.",
+    "Native CPU admission/metadata hooks remain charged. GPU event and profiler timing are separately instrumented."
+  ],
+  "input_preparation_seconds": 2.162702798843384,
+  "document_id": "docfinqa-680456070a0a0714",
+  "B": 8,
+  "P": 120528,
+  "manifest_sha256": "c09e8e59b6eec9560fd30678a35500b18e2569a108d7268fb883aca2a9e22a75",
+  "model_attention_shape": [
+    36,
+    32,
+    8,
+    128
+  ],
+  "KV_payload_bytes_per_token": 147456,
+  "initial_shared_group_KV_token_slots": 120880,
+  "initial_shared_group_KV_payload_bytes": 17824481280,
+  "all_eight_cap_KV_token_slots": 186416,
+  "all_eight_cap_KV_payload_bytes": 27488157696,
+  "capacity_estimate_scope": "Logical page-rounded KV payload only, before allocator/graph/workspace overhead. All-cap upper bound is not a prediction of natural output length.",
+  "cuda_initialized": false
+}
