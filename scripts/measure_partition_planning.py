@@ -21,6 +21,7 @@ from branchtile.attention import reference, synthetic_owners
 from partition_baseline import NativePartitionAttention, OwnPartitionAttention
 from cascade_baseline import ExactCascadeAttention
 from flashinfer_baseline import NativeSparseDecode
+from dynamic_baseline import DynamicAttention
 from compare_attention import load_capture, graph_of, elapsed
 
 
@@ -41,6 +42,8 @@ def measure(path):
     ref, ref_lse = reference(q, k, v, owners, b, g)
 
     def build(config):
+        if config["method"].startswith("dynamic_"):
+            return DynamicAttention(q, k, v, owners, b, version=config["version"], splits=config["splits"], block_n=config["block_n"])
         if config["method"] == "e0_native":
             return NativeSparseDecode(q, k, v, supports, use_tensor_cores=config["tensor_cores"], fixed_split_size=config["fixed_split_size"], normalize_lse=True)
         if config["method"] == "e1_native":
@@ -56,7 +59,7 @@ def measure(path):
               "original_gpu_uuid": data["gpu_uuid"], "gpu_uuid": str(pdev.uuid), "cache": {}}
     rng = random.Random(131)
     for cache, repetitions in (("hot", 20), ("cold", 1)):
-        configs = {name: item["config"] for name, item in data["selected"][cache].items() if name != "best_e1"}
+        configs = {name: item["config"] for name, item in data["selected"][cache].items() if name not in ("best_e1", "best_dynamic", "best_control")}
         full_candidates = [row for row in data["tuning"] if row["method"] == "e1_native" and row["status"] == "ok" and row["partition"] == [list(range(b))]]
         best_full = min(full_candidates, key=lambda row: row["tuning_us_by_cache"][cache])
         configs["full_native_union"] = {key: best_full[key] for key in ("method", "partition", "fixed_split_size")}
@@ -95,8 +98,17 @@ def measure(path):
         medians = {name: statistics.median(row["us"][name] for row in measurements) for name in graphs}
         ratios = {}
         draws = np.random.default_rng(137).integers(0, 30, (10000, 30))
-        for numerator, denominator in (("full_native_union", "e4_native"), ("full_union", "e4_native"),
-                                       ("full_native_union", "full_native_union_AA")):
+        pairs = [("full_native_union", "e4_native"), ("full_union", "e4_native"), ("full_native_union", "full_native_union_AA")]
+        if data.get("dynamic_included"):
+            # Reuse only first-card tuning choices; do not reselect on paired measurements.
+            for alias in ("best_control", "best_dynamic"):
+                chosen = data["selected"][cache][alias]["config"]
+                target = next(name for name, config in configs.items() if config == chosen)
+                for row in measurements:
+                    row["us"][alias] = row["us"][target]
+                medians[alias] = medians[target]
+            pairs += [("best_control", "best_dynamic"), ("best_control", "dynamic_v2"), ("best_control", "dynamic_v3")]
+        for numerator, denominator in pairs:
             values = np.array([[next(row for row in measurements if row["block"] == block and row["direction"] == direction)["us"][numerator] /
                                 next(row for row in measurements if row["block"] == block and row["direction"] == direction)["us"][denominator]
                                 for direction in ("random", "reverse")] for block in range(30)])

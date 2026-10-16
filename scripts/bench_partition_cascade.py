@@ -24,6 +24,7 @@ from branchtile.attention import reference, synthetic_owners
 from partition_baseline import all_partitions, NativePartitionAttention, OwnPartitionAttention
 from cascade_baseline import binary_hierarchies, ExactCascadeAttention
 from flashinfer_baseline import NativeSparseDecode
+from dynamic_baseline import DynamicAttention
 from compare_attention import load_capture, graph_of, elapsed
 
 
@@ -40,6 +41,8 @@ def main():
     p.add_argument("--blocks", type=int, default=30)
     p.add_argument("--max-tuning-seconds", type=int, default=900)
     p.add_argument("--output", required=True)
+    p.add_argument("--include-dynamic", action="store_true")
+    p.add_argument("--require-ready", action="store_true")
     args = p.parse_args()
     assert os.geteuid() != 0 and sys.prefix != sys.base_prefix
     torch.set_num_threads(4)
@@ -53,6 +56,17 @@ def main():
         k = torch.randn(args.heads, args.tokens, 128, device="cuda", dtype=torch.bfloat16)
         v = torch.randn_like(k)
         provenance = {"kind": "synthetic", "pattern": args.pattern, "seed": 20261016}
+    if args.capture:
+        meta = json.loads((Path(args.capture) / "metadata.json").read_text())
+        for key in ("tensor_parallel_size", "actual_tp_rank", "document_token_range", "actual_shared_document_token_range", "private_protected_document_tail_tokens", "decode_step_definition", "mask_definition"):
+            if key in meta:
+                provenance[key] = meta[key]
+        export_path = Path(args.capture) / "export_summary.json"
+        if export_path.exists():
+            export = json.loads(export_path.read_text())
+            provenance["ready_group"] = next((item for item in export.get("ready_groups", []) if item["layer"] == args.layer and item["anchor"] == args.step), None)
+        if args.require_ready:
+            assert provenance["ready_lifetime_measured"] and b == meta["B"]
     ref, ref_lse = reference(q, k, v, owners, b, g)
     supports = [[torch.where((owners[h] & (1 << request)) != 0)[0] for request in range(b)] for h in range(k.shape[0])]
     full = (tuple(range(b)),)
@@ -66,11 +80,18 @@ def main():
                           for tree in binary_hierarchies(tuple(range(b))) for split in (None, 128, 256, 512, 1024))
     configurations.extend({"method": "e0_native", "tensor_cores": tc, "fixed_split_size": split}
                           for tc in (False, True) for split in ((None,) if not tc else (None, 128, 256, 512, 1024)))
+    if args.include_dynamic:
+        configurations.extend({"method": "dynamic_v2", "version": "v2", "splits": split, "block_n": bn}
+                              for split, bn in itertools.product((32, 64, 128), (32, 64)))
+        configurations.extend({"method": "dynamic_v3", "version": "v3", "splits": split, "block_n": 64}
+                              for split in (32, 64, 128))
     rng = random.Random(20261016)
     rng.shuffle(configurations)
 
     def build(config):
         method = config["method"]
+        if method.startswith("dynamic_"):
+            return DynamicAttention(q, k, v, owners, b, version=config["version"], splits=config["splits"], block_n=config["block_n"])
         if method == "e0_native":
             return NativeSparseDecode(q, k, v, supports, use_tensor_cores=config["tensor_cores"],
                                       fixed_split_size=config["fixed_split_size"], normalize_lse=True)
@@ -132,6 +153,8 @@ def main():
         print(json.dumps(row), flush=True)
     search_seconds = time.perf_counter() - search_started
     required = ("e0_native", "full_union", "e1_native", "e1_own", "e4_native")
+    if args.include_dynamic:
+        required += ("dynamic_v2", "dynamic_v3")
     missing = {cache: [method for method in required if method not in best[cache]] for cache in best}
     measurements, summary, planning = [], {}, {}
     if not any(missing.values()):
@@ -140,6 +163,11 @@ def main():
             best[cache]["best_e1"] = min((best[cache][m] for m in ("e0_native", "e1_native", "e1_own")),
                                            key=lambda x: x["record"]["tuning_us_by_cache"][cache])
         methods = (*required, "best_e1")
+        if args.include_dynamic:
+            for cache in best:
+                best[cache]["best_dynamic"] = min((best[cache][m] for m in ("dynamic_v2", "dynamic_v3")), key=lambda x: x["record"]["tuning_us_by_cache"][cache])
+                best[cache]["best_control"] = min((best[cache][m] for m in ("best_e1", "e4_native")), key=lambda x: x["record"]["tuning_us_by_cache"][cache])
+            methods += ("best_dynamic", "best_control")
         for cache, repetitions in (("hot", 20), ("cold", 1)):
             graphs = {method: graph_of(best[cache][method]["op"].run, repetitions) for method in methods}
             graphs["full_union_AA"] = graph_of(best[cache]["full_union"]["op"].run, repetitions)
@@ -152,8 +180,10 @@ def main():
             rows = [r for r in measurements if r["cache"] == cache]
             summary[cache] = {"median_us": {m: statistics.median(r["us"][m] for r in rows) for m in graphs}, "paired_ratios": {}}
             draws = np.random.default_rng(71).integers(0, args.blocks, (10000, args.blocks))
-            for numerator, denominator in (("full_union", "best_e1"), ("full_union", "e4_native"),
-                                           ("best_e1", "e4_native"), ("full_union", "full_union_AA")):
+            pairs = [("full_union", "best_e1"), ("full_union", "e4_native"), ("best_e1", "e4_native"), ("full_union", "full_union_AA")]
+            if args.include_dynamic:
+                pairs += [("best_control", "best_dynamic"), ("best_control", "dynamic_v2"), ("best_control", "dynamic_v3")]
+            for numerator, denominator in pairs:
                 values = np.array([[next(r for r in rows if r["block"] == block and r["direction"] == direction)["us"][numerator] /
                                     next(r for r in rows if r["block"] == block and r["direction"] == direction)["us"][denominator]
                                     for direction in ("random", "reverse")] for block in range(args.blocks)])
@@ -162,7 +192,7 @@ def main():
                     "median": float(np.median(values)), "paired_block_bootstrap95": np.quantile(boot, [.025, .975]).tolist()}
             del graphs
             planning[cache] = {}
-            for method in ("full_union", "best_e1", "e4_native"):
+            for method in (("full_union", "best_e1", "e4_native", "best_dynamic") if args.include_dynamic else ("full_union", "best_e1", "e4_native")):
                 samples = []
                 for _ in range(3):
                     torch.cuda.synchronize()
@@ -183,6 +213,7 @@ def main():
               "q_shape": list(q.shape), "k_shape": list(k.shape), "provenance": provenance,
               "numerical_contract": {"output_atol": .006, "output_rtol": .015, "lse_atol": .0003, "lse_rtol": .0001, "lse_base": "natural", "reference": "FP64"},
               "tuning_planned": len(configurations), "tuning_completed": len(tuning), "tuning_complete": len(tuning) == len(configurations),
+              "batch": b, "gqa": g, "dynamic_included": args.include_dynamic,
               "partitions": all_partitions(b), "hierarchies": binary_hierarchies(tuple(range(b))),
               "search_seconds_including_jit_and_failures": search_seconds, "search_seconds_by_family": family_search_seconds,
               "oracle_scope": "Per-capture hindsight latency oracle among the measured grid; not a deployed plan selector.",

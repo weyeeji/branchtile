@@ -12,8 +12,8 @@ import tilelang.language as T
 @lru_cache(maxsize=128)
 def producer(heads, tokens, rows, dim, regions, splits=1, block_n=64,
              threads=128, compact=True, region_partials=False):
-    assert rows == 32 and dim == 128 and block_n == 64
-    assert compact and not region_partials, "v3 qualification is limited to fused B4/GQA8"
+    assert rows in (24, 32) and dim == 128 and block_n == 64
+    assert compact and not region_partials, "v3 qualification is limited to fused B3 or B4/GQA8"
     output_splits = splits * regions if region_partials else splits
     fixed_m = 16 if rows <= 16 else 32
     scale = 1 / math.sqrt(dim)
@@ -103,7 +103,7 @@ def producer(heads, tokens, rows, dim, regions, splits=1, block_n=64,
             probs = T.alloc_shared((32, block_n), "bfloat16")
             cm = T.alloc_shared((rows,), "float32")
             cl = T.alloc_shared((rows,), "float32")
-            canonical_u = T.alloc_fragment((rows, dim), "float32")
+            canonical_u = T.alloc_fragment((fixed_m, dim), "float32")
             T.fill(cm, -T.infinity("float32"))
             T.clear(cl)
             T.clear(canonical_u)
