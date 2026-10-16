@@ -1,5 +1,6 @@
 """Offline compile of isolated shared-prefix experiment; never runs GPU code."""
 import hashlib
+import collections
 import json
 import os
 from pathlib import Path
@@ -25,9 +26,12 @@ def main():
             signature.update({k: 'constexpr' for k in constants})
             compiled = triton.compile(ASTSource(producer, signature, constants), target=GPUTarget('cuda', 120, 32), options={'num_warps': 4, 'num_stages': 1})
             ptx = compiled.asm['ptx']
+            opcodes = collections.Counter(line.strip().split()[0] for line in ptx.splitlines()
+                                          if line.strip().startswith(('cvt.', 'mma.sync.')))
             rows.append({'kernel': 'producer', 'constants': constants, 'metadata': compiled.metadata._asdict(),
                          'cubin_sha256': hashlib.sha256(compiled.asm['cubin']).hexdigest(),
                          'ptx_sha256': hashlib.sha256(ptx.encode()).hexdigest(),
+                         'static_conversion_and_mma_opcodes': dict(opcodes),
                          'mma_instructions': sorted({line.strip() for line in ptx.splitlines() if 'mma.sync' in line}),
                          'static_local_declarations': [line.strip() for line in ptx.splitlines() if '.local' in line]})
     constants = dict(ROWS=64, SPLITS=118, D=128, GROUP=16)
