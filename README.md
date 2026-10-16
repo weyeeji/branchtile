@@ -39,6 +39,20 @@ Different natural output lengths are retained. No formal paper-success claim.
 
 Recent evidence:
 
+- [Real whole-model opportunity intervention](docs/cached_o_opportunity_first_result_20261017.md):
+  fixed actual decode states, with all-layer Q/O, hidden/logits and written KV
+  slots checked bitwise. Replacing attention with its already known output
+  reduces the B3 BF16/FP8 graph by about 41.5%/29.6%, and the longer B8 case by
+  67.3%/59.3%. **These are diagnostic reference points, not deployable speedups
+  or natural request improvements.** B8 natural lifetimes are short relative
+  to the full task; active requests shrink as answers finish. Full engine
+  accounting and real generation remain necessary.
+- [Paged-owner numerical exploration](docs/paged_owner_natural_exploration_protocol_20261017.md):
+  local attention checks pass, but the original whole-model logit-cosine screen
+  fails. A higher-precision PV diagnostic does not fix it. Cosine and actual
+  sampling distributions give different signals, so explicitly exploratory
+  natural generation retains the failure and measures task quality and costs.
+
 - [Physical KV alias control](results/native_physical_alias_v1/README.md):
   eight paired cells, 48 bitwise numerical checks and 384 address-sensitive
   checks pass. Existing sparse E0 benefits from shared addresses by 1.22–1.77×
