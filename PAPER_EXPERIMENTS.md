@@ -21,7 +21,7 @@
 
 | 要求 | 当前权威证据 | 当前判定 | 尚需取得的证据 |
 |---|---|---|---|
-| 主模型身份、TP2 FP8 MoE、BF16 KV | `results/platform/engine_main30b_tp2_docfinqa.json`；官方权重/后端校验 | 单完整文档部署通过 | 其余长度与显存覆盖、正式数据的可服务性；当前不是全数据容量证明 |
+| 主模型身份、TP2 FP8 MoE、BF16 KV | 官方权重/后端校验、完整报告图模式、FI自然扩展及B8 captures | 多份完整文档部署通过 | 正式数据的长度/显存可服务性；开发成功不是全数据容量证明 |
 | DocFinQA 公开来源冻结划分 | public v1 的 development8/evaluation100/training167、身份/泄漏审计 | 新协议已冻结 | 正式统计使用推断身份组件并做敏感性分析，不冒称验证公司或旧公司分布 |
 | QMSum train 开发/test35 边界 | 官方来源及冻结 manifest | 输入准备完成、评价未完成 | test35 的冻结配置自然输出、全部失败分母、质量与完整成本 |
 | DocFinQA 答案解析和独立 fixture | 自定义严格 FINAL 规则，68个独立fixture通过，train/dev格式审计 | 自定义指标已冻结 | 原文执行指标不可等同自由答案精确匹配；正式同时报告精确主指标、固定舍入敏感性和标签冲突 |
@@ -29,18 +29,18 @@
 | A2 KVzip/FastKVzip | 官方4B gate/全局mask资格；train8四预算128自然EOS；full32与A4逐token一致 | 参考质量及单judge盲审完成 | NVIDIA全局mask参考非物理压缩/作者优化prefill；主模型gate不可得；正式成本与质量未完成 |
 | A3 强 RAG | `results/application_calibrated/`：两个4B模型各八配置，512个RAG自然回答；检索准备/重排单独计费 | QMSum开发网格完成 | 事实核查、配置冻结、正式完整费用与DocFinQA覆盖 |
 | A4 query-aware 原生及共享源 | HF参考128条；主模型E0/union FULL图及原生XQA资格；两文档自然矩阵 | 集成资格和有界开发完成，质量未通过 | 正式预算和跨文档质量；全生命周期/完整摊销；HF/vLLM及后端不同不得跨栈归因 |
-| 自然 opportunity 与共同 ready | 原1024快照；官方FP8 TP2的200个cache核对快照、24个同forward ready组 | 部分完成 | 多自然文档及完整EOS生命周期、连续补入/取消，不把cap256当任务输出 |
-| E0/E2 强执行 | 原生 separate/joint 和固定 union，31 组配对 | 部分完成 | 主模型自然矩阵、轮转 capture 缓存、准备摊销、第二卡/卡对复核 |
-| E1 全部固定 partition | 初始B4全部15划分；官方主模型B3全部5划分、原生/自写、准备、第二卡 | 两模型初始自然矩阵完成 | 多文档覆盖、部署选择与事后 oracle 分开 |
+| 自然 opportunity 与共同 ready | 官方FP8多文档B3/B4及两文档B8；suffix-only修正与cache核对；同栈自然EOS矩阵 | 开发覆盖扩大，部分完成 | 完整EOS生命周期、连续补入/取消，不把cap256或固定重放当自然任务输出 |
+| E0/E2 强执行 | 原生separate/joint、固定union、官方FI/XQA；corrected replay及两文档自然矩阵 | 部分完成 | 真实模型工作集/准备摊销、跨卡复核、同质量完整成本 |
+| E1 全部固定 partition | corrected B3全部5、B4全部15划分；两模型及多文档强对照 | B<=4开发矩阵完成 | 部署选择与事后oracle分开；B8仅有限强控制，不宣称穷举4140划分 |
 | E3 及 2×2 | 当前全 canonical partial 的 48 点消融 | 部分完成 | packed-active partial、合理 split/直接输出、局部固定组融合强控制 |
-| E4 精确层次共享 | B4全部15棵、主模型B3全部3棵精确二叉树，含gather/LSE/merge/准备 | 初始自然矩阵完成 | 不是完整QUILT；多文档与完整应用适用性仍待验证 |
+| E4 精确层次共享 | corrected B4全部15棵、B3全部3棵精确二叉树，含gather/LSE/merge/准备 | B<=4多文档开发矩阵完成 | 不是完整QUILT；完整应用适用性仍待验证，B8未穷举 |
 | E5/PAT/PageWeaver/Fused3S/BSA | 文献与部分源码审查 | 未完成 | 逐项适用性和强兼容实现；移植不得称作者完整复现 |
 | 候选独立数据流贡献 | v1/v2/v3 没有目标性能收益 | 未满足 | 新增量的可证伪预测、相对所有适用强对照稳定约15%完整 call 信号 |
 | 全 alive 子集、数值、logit、full-budget | 当前算子 FP64/内存检查；native 小形状 LSE 失败保留 | 部分完成 | 全子集和生命周期、层/logit、稀疏自然生成；开发冻结原生校准容差 |
-| 引擎共享源安全与连续补入 | 仅原生 APC 部署 | 未完成 | COW、reader、取消/抢占、引用/slot generation、图失效和不等待兄弟请求 |
+| 引擎共享源安全与连续补入 | 原生APC、固定cohort共享plan、等长mask安装/identity失效和1440次新mask检查 | 固定cohort资格通过，生命周期未完成 | COW、reader、取消/抢占、引用/slot generation、连续补入和不等待兄弟请求 |
 | 100 报告/三 seed/公司聚类质量 | 无正式评价 | 未完成 | 全分母、公司身份、10000次聚类区间、2pp 非劣界、有限样本保守界 |
 | QMSum 官方 ROUGE/盲审 | 原Perl1.5.5、279条fixture最大0.011点残差；A4A4开发128条及A2新96条完整来源匿名审计 | 评分与单judge开发审计完成 | 绝对预算新56盲审已完成；第二judge32抽样已完成，正式test/人工多评审仍未完成，不能只凭ROUGE或单LLM判断 |
-| 完整应用约5%净改善 | 无候选集成 | 未完成 | 同质量、同资源、冷暖/复用摊销、TP通信、自然长度/失败计费 |
+| 完整应用约5%净改善 | 强E0/union已集成；opt-in joint图资格通过，额外准备成本不利 | 未满足 | 候选同质量、同资源、冷暖/复用摊销、TP通信、自然长度/失败计费的净收益 |
 | 能耗/EDP | NVML 可读，尚无正式配对窗口 | 未完成 | 更新粒度、20–30s同工作量窗口、反序、gross板卡能量、失败分母 |
 | 硬件归因 | cubin资源；NCU权限失败 | 部分完成且有平台限制 | 普通用户可得证据；硬件counter不可用时收缩归因，不使用root或虚构流量 |
 | 可复现 artifact/论文图表 | 第一轮代码、raw JSON、图、台账已推送 | 部分完成 | 新实验配置/冻结协议/全部结果/最终主张一致，最终逐项审计 |

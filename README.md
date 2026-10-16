@@ -6,6 +6,27 @@ proposal's performance threshold for full application integration. See
 [Chinese feasibility report](FEASIBILITY.md), [experiment log](EXPERIMENTS.md), [kernel audit](results/kernel_audit.json), and
 the raw JSON results. Negative results and failed configurations are retained.
 
+The continued paper investigation is tracked in [PAPER_EXPERIMENTS.md](PAPER_EXPERIMENTS.md).
+It is **not complete**: official FP8 main-model serving, native XQA, shared-plan
+E0/union and optional joint-support installation have engineering qualifications,
+but no candidate has established quality-qualified net application gains or a new
+paper contribution. The original dynamic-row stop decision remains in force.
+
+Recent evidence:
+
+- [Corrected suffix-only replay](results/suffix_v2_replay/): 1,156 qualified
+  configurations; dynamic execution loses at all 24 tested hot/cold points.
+- [Native-FI natural development matrix](results/main30b_sparse/fi_natural_expansion_summary.json):
+  two documents, all 36 answers reach EOS; quality varies across budgets and
+  backends, including full-history controls. This is not formal evaluation.
+- [Joint selection and classical controls](results/joint_selection_controls_summary.json),
+  [held-out attention fidelity](results/joint_attention_fp64_v1/README.md), and
+  [native E0 mechanism screen](results/joint_e0_gate_v1/README.md): smaller union
+  is not a task-quality, physical-capacity or deployment-speed guarantee.
+- [Amortization decision](docs/joint_e0_amortization_review_20261016.md) and
+  [current accounting](results/budget_audit.json): preparation, failed runs and
+  all allocated GPU time remain charged. A bounded real-layer check is pending.
+
 ## Environment
 
 All runs use uid 1000 and a virtual environment; no root or driver permission
@@ -57,7 +78,7 @@ CUDA_VISIBLE_DEVICES=0 .venv/bin/python scripts/compare_attention.py \
   --normalize-native-lse --output results/local_comparison.json
 ```
 
-For the strongest current native control, use `.venv-latest/bin/python` and add
+For additional native operator controls, use `.venv-latest/bin/python` and add
 `--include-native-raw --include-native-union` to this command. The native joint
 paged-prefill control expresses the exact union mask without copying KV payload.
 
@@ -72,17 +93,22 @@ conversion to natural log. No application speedup follows from these timings.
 ## Data and weights
 
 Dataset/model revision and SHA256 records live in `results/data_*` and
-`data/manifests/`. The original proposed historical split was unavailable;
-the replacement eight-document development sets are explicitly exploratory.
+`data/manifests/`. The user explicitly excluded the unavailable historical split.
+New public-source development8/evaluation100/training167 manifests are frozen;
+the evaluation set is not used to select the method or its configuration.
 Full documents are retained, including documents that exceed model context.
 Weights, raw corpora, generated tensor captures, virtual environments and JIT
 caches remain local and are excluded from git.
 
 `scripts/prepare_data.py` prepares the source data; `scripts/capture_model.py`
-captures real post-RoPE tensors and question-conditioned supports. Capture
-configs preserve model identity and device assignments. Captures use dense
-generation with a 256-token instrumentation cap and serial question execution;
-they do not establish sparse-generation quality or simultaneous ready lifetime.
+captures real post-RoPE tensors and question-conditioned supports. The early HF
+captures use dense generation with a 256-token instrumentation cap and serial
+question execution. Later official TP2 engine captures establish actual B3/B4/B8
+same-forward readiness and physical cache identity; their bounded capture output
+still does not establish task quality. Separate natural-output experiments retain
+EOS/cap status, complete generated text, preparation and per-request quality.
+Corrected `_suffix_v2` exports exclude document Q from short suffix observation
+windows; historical exports remain a separate observer variant.
 The older BF16 30B diagnostic is explicitly distinguished from the intended
 Thinking-2507 FP8 main model.
 
