@@ -1,0 +1,2026 @@
+{
+  "schema": 1,
+  "status": "CPU_only_existing_trace_audit",
+  "script_sha256": "77f1e394a16c6816fe15d362545609e8a7e42d886377a5b448993aa8dbd3fbd5",
+  "source_sha256": {
+    "results/native_opportunity_wave26/analysis.json": "b6cb37e09109d03931a91bf5b986546d1fdbe8aaf6f6e5a89ae4e94488fac1c0",
+    "results/native_opportunity_b8_v1/analysis.json": "52b4c6437dbc96e0ef665631fe5c6c94f1a6a1eff4bc6f31156bca4dcda7fb85"
+  },
+  "trace_rows": [
+    {
+      "trace": "results/raw/native_opportunity/native_opportunity_w26_new_bf16/native_opportunity_decode_dp0_pp0_tp0_dcp0_ep0_rank0.1792165502877585742.pt.trace.json.gz",
+      "sha256": "ff379941c3383b02801ffbc1a28127df4695256d52bb5c0beb3d9ca14d6c399a",
+      "document_id": "docfinqa-593ec0c33f45ea02",
+      "method": "native_BF16_KV",
+      "B": 3,
+      "steps": 32,
+      "gate_attribution": "Each actual topk predecessor is BF16 GEMM, optionally followed by cuBLAS split-K reduce; same stream/graph/correlation through expert gather.",
+      "mean_trace_span_us_per_step": 9898.347160339355,
+      "MoE_gate_through_gather_span_us_per_step": 3813.2675018310547,
+      "MoE_chain_interkernel_gap_us_per_step": 212.91341400146484,
+      "costs": {
+        "gate_GEMM": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 614.2814375,
+          "interval_union_us_per_step": 614.2819061279297,
+          "exclusive_interval_us_per_step": 614.2819061279297,
+          "union_fraction_of_trace_span": 0.06205903836038719,
+          "names": [
+            "void cutlass::Kernel2<cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x1_tn_align8>(cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x1_tn_align8::Params)"
+          ]
+        },
+        "whole_MoE_chain_kernels": {
+          "count_per_step": 624.0,
+          "kernel_sum_us_per_step": 3600.33425,
+          "interval_union_us_per_step": 3600.35408782959,
+          "exclusive_interval_us_per_step": 3600.35408782959,
+          "union_fraction_of_trace_span": 0.36373285655765536,
+          "names": [
+            "_count_expert_num_tokens",
+            "_fwd_kernel_ep_gather",
+            "_fwd_kernel_ep_scatter_1",
+            "_fwd_kernel_ep_scatter_2",
+            "_silu_mul_quant_fp8_packed_kernel",
+            "void at::native::vectorized_elementwise_kernel<4, at::native::FillFunctor<float>, std::array<char*, 1ul> >(int, at::native::FillFunctor<float>, std::array<char*, 1ul>)",
+            "void at::native::vectorized_elementwise_kernel<4, at::native::FillFunctor<int>, std::array<char*, 1ul> >(int, at::native::FillFunctor<int>, std::array<char*, 1ul>)",
+            "void cutlass::Kernel2<cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x1_tn_align8>(cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x1_tn_align8::Params)",
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 2048u, 384u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 768u, 2048u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+            "void deep_gemm::transpose_and_pack_fp32_into_ue8m0<512u, 48u, 16u, 128u, 1u, false>(float*, unsigned int*, unsigned int, unsigned int const*, unsigned int)",
+            "void per_token_group_quant_8bit_register_kernel<c10::BFloat16, c10::Float8_e4m3fn, false, true, 128>(c10::BFloat16 const*, void*, float*, long, float, float, float, int, int)",
+            "void vllm::moe::topkGating<8, 128, 4, 16, 32, int, __nv_bfloat16, (vllm::moe::ScoringFunc)0>(__nv_bfloat16 const*, bool const*, float*, int, int*, int*, int, int, int, bool, float const*, double, bool const*)"
+          ]
+        },
+        "router_topk": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 142.0088125,
+          "interval_union_us_per_step": 142.01246643066406,
+          "exclusive_interval_us_per_step": 142.01246643066406,
+          "union_fraction_of_trace_span": 0.01434708887557297,
+          "names": [
+            "void vllm::moe::topkGating<8, 128, 4, 16, 32, int, __nv_bfloat16, (vllm::moe::ScoringFunc)0>(__nv_bfloat16 const*, bool const*, float*, int, int*, int*, int, int, int, bool, float const*, double, bool const*)"
+          ]
+        },
+        "MoE_grouped_GEMM": {
+          "count_per_step": 96.0,
+          "kernel_sum_us_per_step": 2072.67875,
+          "interval_union_us_per_step": 2072.678695678711,
+          "exclusive_interval_us_per_step": 2072.678695678711,
+          "union_fraction_of_trace_span": 0.2093964438814097,
+          "names": [
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 2048u, 384u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 768u, 2048u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)"
+          ]
+        },
+        "MoE_scatter_gather_count": {
+          "count_per_step": 192.0,
+          "kernel_sum_us_per_step": 440.90059375,
+          "interval_union_us_per_step": 440.9029312133789,
+          "exclusive_interval_us_per_step": 440.9029312133789,
+          "union_fraction_of_trace_span": 0.044543086241709766,
+          "names": [
+            "_count_expert_num_tokens",
+            "_fwd_kernel_ep_gather",
+            "_fwd_kernel_ep_scatter_1",
+            "_fwd_kernel_ep_scatter_2"
+          ]
+        },
+        "MoE_silu_quant": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 126.96853125,
+          "interval_union_us_per_step": 126.96929168701172,
+          "exclusive_interval_us_per_step": 126.96929168701172,
+          "union_fraction_of_trace_span": 0.012827322544894323,
+          "names": [
+            "_silu_mul_quant_fp8_packed_kernel"
+          ]
+        },
+        "attention_XQA": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 3353.978125,
+          "interval_union_us_per_step": 3353.978096008301,
+          "exclusive_interval_us_per_step": 56.78687286376953,
+          "union_fraction_of_trace_span": 0.33884223716127093,
+          "names": [
+            "kernel_mha(unsigned int, float, float const*, Vec<__nv_bfloat16, 128u>*, Vec<__nv_bfloat16, 128u> const*, float const*, KVCacheList<true>, unsigned int, float, float const*, unsigned int, unsigned int, unsigned int, unsigned int*, void*)"
+          ]
+        },
+        "PDL_packed_quant": {
+          "count_per_step": 96.0,
+          "kernel_sum_us_per_step": 3454.38359375,
+          "interval_union_us_per_step": 3454.382698059082,
+          "exclusive_interval_us_per_step": 157.19147491455078,
+          "union_fraction_of_trace_span": 0.34898580966124165,
+          "names": [
+            "void per_token_group_quant_8bit_packed_register_kernel<c10::BFloat16, c10::Float8_e4m3fn, 128, 16, 1>(c10::BFloat16 const*, void*, unsigned int*, int, int, int, int, int, long, float, float, float)"
+          ]
+        },
+        "NCCL_allreduce": {
+          "count_per_step": 97.0,
+          "kernel_sum_us_per_step": 855.26459375,
+          "interval_union_us_per_step": 855.2657623291016,
+          "exclusive_interval_us_per_step": 855.2657623291016,
+          "union_fraction_of_trace_span": 0.08640490664501806,
+          "names": [
+            "ncclDevKernel_AllReduce_Sum_bf16_RING_LL(ncclDevKernelArgsStorage<4096ul>)"
+          ]
+        }
+      }
+    },
+    {
+      "trace": "results/raw/native_opportunity/native_opportunity_w26_new_bf16/native_opportunity_decode_dp0_pp0_tp1_dcp0_ep1_rank1.1792165502876757356.pt.trace.json.gz",
+      "sha256": "c067f83fe446b30ef36f925f4a96665b031dd530e231d7bdc24b827ea40d57e6",
+      "document_id": "docfinqa-593ec0c33f45ea02",
+      "method": "native_BF16_KV",
+      "B": 3,
+      "steps": 32,
+      "gate_attribution": "Each actual topk predecessor is BF16 GEMM, optionally followed by cuBLAS split-K reduce; same stream/graph/correlation through expert gather.",
+      "mean_trace_span_us_per_step": 9844.526428222656,
+      "MoE_gate_through_gather_span_us_per_step": 3818.6787872314453,
+      "MoE_chain_interkernel_gap_us_per_step": 216.34107971191406,
+      "costs": {
+        "gate_GEMM": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 607.3217500000001,
+          "interval_union_us_per_step": 607.3217544555664,
+          "exclusive_interval_us_per_step": 607.3217544555664,
+          "union_fraction_of_trace_span": 0.06169131231284765,
+          "names": [
+            "void cutlass::Kernel2<cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x1_tn_align8>(cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x1_tn_align8::Params)"
+          ]
+        },
+        "whole_MoE_chain_kernels": {
+          "count_per_step": 624.0,
+          "kernel_sum_us_per_step": 3602.319875,
+          "interval_union_us_per_step": 3602.3377075195312,
+          "exclusive_interval_us_per_step": 3602.3377075195312,
+          "union_fraction_of_trace_span": 0.36592290485322027,
+          "names": [
+            "_count_expert_num_tokens",
+            "_fwd_kernel_ep_gather",
+            "_fwd_kernel_ep_scatter_1",
+            "_fwd_kernel_ep_scatter_2",
+            "_silu_mul_quant_fp8_packed_kernel",
+            "void at::native::vectorized_elementwise_kernel<4, at::native::FillFunctor<float>, std::array<char*, 1ul> >(int, at::native::FillFunctor<float>, std::array<char*, 1ul>)",
+            "void at::native::vectorized_elementwise_kernel<4, at::native::FillFunctor<int>, std::array<char*, 1ul> >(int, at::native::FillFunctor<int>, std::array<char*, 1ul>)",
+            "void cutlass::Kernel2<cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x1_tn_align8>(cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x1_tn_align8::Params)",
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 2048u, 384u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 768u, 2048u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+            "void deep_gemm::transpose_and_pack_fp32_into_ue8m0<512u, 48u, 16u, 128u, 1u, false>(float*, unsigned int*, unsigned int, unsigned int const*, unsigned int)",
+            "void per_token_group_quant_8bit_register_kernel<c10::BFloat16, c10::Float8_e4m3fn, false, true, 128>(c10::BFloat16 const*, void*, float*, long, float, float, float, int, int)",
+            "void vllm::moe::topkGating<8, 128, 4, 16, 32, int, __nv_bfloat16, (vllm::moe::ScoringFunc)0>(__nv_bfloat16 const*, bool const*, float*, int, int*, int*, int, int, int, bool, float const*, double, bool const*)"
+          ]
+        },
+        "router_topk": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 143.17825,
+          "interval_union_us_per_step": 143.18136596679688,
+          "exclusive_interval_us_per_step": 143.18136596679688,
+          "union_fraction_of_trace_span": 0.014544261423923774,
+          "names": [
+            "void vllm::moe::topkGating<8, 128, 4, 16, 32, int, __nv_bfloat16, (vllm::moe::ScoringFunc)0>(__nv_bfloat16 const*, bool const*, float*, int, int*, int*, int, int, int, bool, float const*, double, bool const*)"
+          ]
+        },
+        "MoE_grouped_GEMM": {
+          "count_per_step": 96.0,
+          "kernel_sum_us_per_step": 2073.537875,
+          "interval_union_us_per_step": 2073.537872314453,
+          "exclusive_interval_us_per_step": 2073.537872314453,
+          "union_fraction_of_trace_span": 0.2106285038120226,
+          "names": [
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 2048u, 384u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 768u, 2048u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)"
+          ]
+        },
+        "MoE_scatter_gather_count": {
+          "count_per_step": 192.0,
+          "kernel_sum_us_per_step": 448.6151875,
+          "interval_union_us_per_step": 448.61614990234375,
+          "exclusive_interval_us_per_step": 448.61614990234375,
+          "union_fraction_of_trace_span": 0.045570109763353794,
+          "names": [
+            "_count_expert_num_tokens",
+            "_fwd_kernel_ep_gather",
+            "_fwd_kernel_ep_scatter_1",
+            "_fwd_kernel_ep_scatter_2"
+          ]
+        },
+        "MoE_silu_quant": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 125.14725,
+          "interval_union_us_per_step": 125.14895629882812,
+          "exclusive_interval_us_per_step": 125.14895629882812,
+          "union_fraction_of_trace_span": 0.01271254206195703,
+          "names": [
+            "_silu_mul_quant_fp8_packed_kernel"
+          ]
+        },
+        "attention_XQA": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 3347.5155625,
+          "interval_union_us_per_step": 3347.5155334472656,
+          "exclusive_interval_us_per_step": 56.50727844238281,
+          "union_fraction_of_trace_span": 0.3400382494632228,
+          "names": [
+            "kernel_mha(unsigned int, float, float const*, Vec<__nv_bfloat16, 128u>*, Vec<__nv_bfloat16, 128u> const*, float const*, KVCacheList<true>, unsigned int, float, float const*, unsigned int, unsigned int, unsigned int, unsigned int*, void*)"
+          ]
+        },
+        "PDL_packed_quant": {
+          "count_per_step": 96.0,
+          "kernel_sum_us_per_step": 3448.494875,
+          "interval_union_us_per_step": 3448.493698120117,
+          "exclusive_interval_us_per_step": 157.48544311523438,
+          "union_fraction_of_trace_span": 0.3502955396852658,
+          "names": [
+            "void per_token_group_quant_8bit_packed_register_kernel<c10::BFloat16, c10::Float8_e4m3fn, 128, 16, 1>(c10::BFloat16 const*, void*, unsigned int*, int, int, int, int, int, long, float, float, float)"
+          ]
+        },
+        "NCCL_allreduce": {
+          "count_per_step": 97.0,
+          "kernel_sum_us_per_step": 795.67478125,
+          "interval_union_us_per_step": 795.6747360229492,
+          "exclusive_interval_us_per_step": 795.6747360229492,
+          "union_fraction_of_trace_span": 0.08082407435484953,
+          "names": [
+            "ncclDevKernel_AllReduce_Sum_bf16_RING_LL(ncclDevKernelArgsStorage<4096ul>)"
+          ]
+        }
+      }
+    },
+    {
+      "trace": "results/raw/native_opportunity/native_opportunity_w26_new_fp8/native_opportunity_decode_dp0_pp0_tp0_dcp0_ep0_rank0.1792165490714367105.pt.trace.json.gz",
+      "sha256": "4513db52dc672870581bf08a9f7ff310c39ec397138f3911974e6ba6590e7279",
+      "document_id": "docfinqa-593ec0c33f45ea02",
+      "method": "native_FP8_KV_unit",
+      "B": 3,
+      "steps": 32,
+      "gate_attribution": "Each actual topk predecessor is BF16 GEMM, optionally followed by cuBLAS split-K reduce; same stream/graph/correlation through expert gather.",
+      "mean_trace_span_us_per_step": 8377.175086975098,
+      "MoE_gate_through_gather_span_us_per_step": 3718.0252075195312,
+      "MoE_chain_interkernel_gap_us_per_step": 218.54413604736328,
+      "costs": {
+        "gate_GEMM": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 632.6096875,
+          "interval_union_us_per_step": 632.610221862793,
+          "exclusive_interval_us_per_step": 632.610221862793,
+          "union_fraction_of_trace_span": 0.07551593649348223,
+          "names": [
+            "void cutlass::Kernel2<cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x1_tn_align8>(cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x1_tn_align8::Params)"
+          ]
+        },
+        "whole_MoE_chain_kernels": {
+          "count_per_step": 624.0,
+          "kernel_sum_us_per_step": 3499.46778125,
+          "interval_union_us_per_step": 3499.481071472168,
+          "exclusive_interval_us_per_step": 3499.481071472168,
+          "union_fraction_of_trace_span": 0.4177399941077023,
+          "names": [
+            "_count_expert_num_tokens",
+            "_fwd_kernel_ep_gather",
+            "_fwd_kernel_ep_scatter_1",
+            "_fwd_kernel_ep_scatter_2",
+            "_silu_mul_quant_fp8_packed_kernel",
+            "void at::native::vectorized_elementwise_kernel<4, at::native::FillFunctor<float>, std::array<char*, 1ul> >(int, at::native::FillFunctor<float>, std::array<char*, 1ul>)",
+            "void at::native::vectorized_elementwise_kernel<4, at::native::FillFunctor<int>, std::array<char*, 1ul> >(int, at::native::FillFunctor<int>, std::array<char*, 1ul>)",
+            "void cutlass::Kernel2<cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x1_tn_align8>(cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x1_tn_align8::Params)",
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 2048u, 384u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 768u, 2048u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+            "void deep_gemm::transpose_and_pack_fp32_into_ue8m0<512u, 48u, 16u, 128u, 1u, false>(float*, unsigned int*, unsigned int, unsigned int const*, unsigned int)",
+            "void per_token_group_quant_8bit_register_kernel<c10::BFloat16, c10::Float8_e4m3fn, false, true, 128>(c10::BFloat16 const*, void*, float*, long, float, float, float, int, int)",
+            "void vllm::moe::topkGating<8, 128, 4, 16, 32, int, __nv_bfloat16, (vllm::moe::ScoringFunc)0>(__nv_bfloat16 const*, bool const*, float*, int, int*, int*, int, int, int, bool, float const*, double, bool const*)"
+          ]
+        },
+        "router_topk": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 142.71325,
+          "interval_union_us_per_step": 142.71599578857422,
+          "exclusive_interval_us_per_step": 142.71599578857422,
+          "union_fraction_of_trace_span": 0.017036291387829562,
+          "names": [
+            "void vllm::moe::topkGating<8, 128, 4, 16, 32, int, __nv_bfloat16, (vllm::moe::ScoringFunc)0>(__nv_bfloat16 const*, bool const*, float*, int, int*, int*, int, int, int, bool, float const*, double, bool const*)"
+          ]
+        },
+        "MoE_grouped_GEMM": {
+          "count_per_step": 96.0,
+          "kernel_sum_us_per_step": 1958.39378125,
+          "interval_union_us_per_step": 1958.3938217163086,
+          "exclusive_interval_us_per_step": 1958.3938217163086,
+          "union_fraction_of_trace_span": 0.2337773535092081,
+          "names": [
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 2048u, 384u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 768u, 2048u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)"
+          ]
+        },
+        "MoE_scatter_gather_count": {
+          "count_per_step": 192.0,
+          "kernel_sum_us_per_step": 438.6588125,
+          "interval_union_us_per_step": 438.6570281982422,
+          "exclusive_interval_us_per_step": 438.6570281982422,
+          "union_fraction_of_trace_span": 0.05236335920449721,
+          "names": [
+            "_count_expert_num_tokens",
+            "_fwd_kernel_ep_gather",
+            "_fwd_kernel_ep_scatter_1",
+            "_fwd_kernel_ep_scatter_2"
+          ]
+        },
+        "MoE_silu_quant": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 125.27340625000001,
+          "interval_union_us_per_step": 125.27488708496094,
+          "exclusive_interval_us_per_step": 125.27488708496094,
+          "union_fraction_of_trace_span": 0.014954311660471247,
+          "names": [
+            "_silu_mul_quant_fp8_packed_kernel"
+          ]
+        },
+        "attention_XQA": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 2010.6366875,
+          "interval_union_us_per_step": 2010.636604309082,
+          "exclusive_interval_us_per_step": 60.1387939453125,
+          "union_fraction_of_trace_span": 0.24001367805183357,
+          "names": [
+            "kernel_mha(unsigned int, float, float const*, Vec<__nv_bfloat16, 128u>*, Vec<__nv_bfloat16, 128u> const*, float const*, KVCacheList<true>, unsigned int, float, float const*, unsigned int, unsigned int, unsigned int, unsigned int*, void*)"
+          ]
+        },
+        "PDL_packed_quant": {
+          "count_per_step": 96.0,
+          "kernel_sum_us_per_step": 2107.903875,
+          "interval_union_us_per_step": 2107.903518676758,
+          "exclusive_interval_us_per_step": 157.40570831298828,
+          "union_fraction_of_trace_span": 0.25162462247615475,
+          "names": [
+            "void per_token_group_quant_8bit_packed_register_kernel<c10::BFloat16, c10::Float8_e4m3fn, 128, 16, 1>(c10::BFloat16 const*, void*, unsigned int*, int, int, int, int, int, long, float, float, float)"
+          ]
+        },
+        "NCCL_allreduce": {
+          "count_per_step": 97.0,
+          "kernel_sum_us_per_step": 743.868125,
+          "interval_union_us_per_step": 743.867431640625,
+          "exclusive_interval_us_per_step": 743.867431640625,
+          "union_fraction_of_trace_span": 0.08879693022021186,
+          "names": [
+            "ncclDevKernel_AllReduce_Sum_bf16_RING_LL(ncclDevKernelArgsStorage<4096ul>)"
+          ]
+        }
+      }
+    },
+    {
+      "trace": "results/raw/native_opportunity/native_opportunity_w26_new_fp8/native_opportunity_decode_dp0_pp0_tp1_dcp0_ep1_rank1.1792165490714400775.pt.trace.json.gz",
+      "sha256": "58e6839fcfe4748e22995862e1b895bdecf0dfce06e3064fabd141eed2da0e2b",
+      "document_id": "docfinqa-593ec0c33f45ea02",
+      "method": "native_FP8_KV_unit",
+      "B": 3,
+      "steps": 32,
+      "gate_attribution": "Each actual topk predecessor is BF16 GEMM, optionally followed by cuBLAS split-K reduce; same stream/graph/correlation through expert gather.",
+      "mean_trace_span_us_per_step": 8378.049003601074,
+      "MoE_gate_through_gather_span_us_per_step": 3698.899787902832,
+      "MoE_chain_interkernel_gap_us_per_step": 212.5229949951172,
+      "costs": {
+        "gate_GEMM": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 623.91640625,
+          "interval_union_us_per_step": 623.9164276123047,
+          "exclusive_interval_us_per_step": 623.9164276123047,
+          "union_fraction_of_trace_span": 0.07447037220051247,
+          "names": [
+            "void cutlass::Kernel2<cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x1_tn_align8>(cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x1_tn_align8::Params)"
+          ]
+        },
+        "whole_MoE_chain_kernels": {
+          "count_per_step": 624.0,
+          "kernel_sum_us_per_step": 3486.3631875,
+          "interval_union_us_per_step": 3486.376792907715,
+          "exclusive_interval_us_per_step": 3486.376792907715,
+          "union_fraction_of_trace_span": 0.416132298988606,
+          "names": [
+            "_count_expert_num_tokens",
+            "_fwd_kernel_ep_gather",
+            "_fwd_kernel_ep_scatter_1",
+            "_fwd_kernel_ep_scatter_2",
+            "_silu_mul_quant_fp8_packed_kernel",
+            "void at::native::vectorized_elementwise_kernel<4, at::native::FillFunctor<float>, std::array<char*, 1ul> >(int, at::native::FillFunctor<float>, std::array<char*, 1ul>)",
+            "void at::native::vectorized_elementwise_kernel<4, at::native::FillFunctor<int>, std::array<char*, 1ul> >(int, at::native::FillFunctor<int>, std::array<char*, 1ul>)",
+            "void cutlass::Kernel2<cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x1_tn_align8>(cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x1_tn_align8::Params)",
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 2048u, 384u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 768u, 2048u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+            "void deep_gemm::transpose_and_pack_fp32_into_ue8m0<512u, 48u, 16u, 128u, 1u, false>(float*, unsigned int*, unsigned int, unsigned int const*, unsigned int)",
+            "void per_token_group_quant_8bit_register_kernel<c10::BFloat16, c10::Float8_e4m3fn, false, true, 128>(c10::BFloat16 const*, void*, float*, long, float, float, float, int, int)",
+            "void vllm::moe::topkGating<8, 128, 4, 16, 32, int, __nv_bfloat16, (vllm::moe::ScoringFunc)0>(__nv_bfloat16 const*, bool const*, float*, int, int*, int*, int, int, int, bool, float const*, double, bool const*)"
+          ]
+        },
+        "router_topk": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 142.16896875,
+          "interval_union_us_per_step": 142.17205047607422,
+          "exclusive_interval_us_per_step": 142.17205047607422,
+          "union_fraction_of_trace_span": 0.016969589270123087,
+          "names": [
+            "void vllm::moe::topkGating<8, 128, 4, 16, 32, int, __nv_bfloat16, (vllm::moe::ScoringFunc)0>(__nv_bfloat16 const*, bool const*, float*, int, int*, int*, int, int, int, bool, float const*, double, bool const*)"
+          ]
+        },
+        "MoE_grouped_GEMM": {
+          "count_per_step": 96.0,
+          "kernel_sum_us_per_step": 1954.288625,
+          "interval_union_us_per_step": 1954.2888565063477,
+          "exclusive_interval_us_per_step": 1954.2888565063477,
+          "union_fraction_of_trace_span": 0.23326300140597772,
+          "names": [
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 2048u, 384u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 768u, 2048u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)"
+          ]
+        },
+        "MoE_scatter_gather_count": {
+          "count_per_step": 192.0,
+          "kernel_sum_us_per_step": 440.25684375,
+          "interval_union_us_per_step": 440.2556915283203,
+          "exclusive_interval_us_per_step": 440.2556915283203,
+          "union_fraction_of_trace_span": 0.05254871287325826,
+          "names": [
+            "_count_expert_num_tokens",
+            "_fwd_kernel_ep_gather",
+            "_fwd_kernel_ep_scatter_1",
+            "_fwd_kernel_ep_scatter_2"
+          ]
+        },
+        "MoE_silu_quant": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 124.67603125000001,
+          "interval_union_us_per_step": 124.67784118652344,
+          "exclusive_interval_us_per_step": 124.67784118652344,
+          "union_fraction_of_trace_span": 0.01488148865361543,
+          "names": [
+            "_silu_mul_quant_fp8_packed_kernel"
+          ]
+        },
+        "attention_XQA": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 1993.4533125,
+          "interval_union_us_per_step": 1993.4532012939453,
+          "exclusive_interval_us_per_step": 59.51930236816406,
+          "union_fraction_of_trace_span": 0.23793763923284697,
+          "names": [
+            "kernel_mha(unsigned int, float, float const*, Vec<__nv_bfloat16, 128u>*, Vec<__nv_bfloat16, 128u> const*, float const*, KVCacheList<true>, unsigned int, float, float const*, unsigned int, unsigned int, unsigned int, unsigned int*, void*)"
+          ]
+        },
+        "PDL_packed_quant": {
+          "count_per_step": 96.0,
+          "kernel_sum_us_per_step": 2091.01621875,
+          "interval_union_us_per_step": 2091.015884399414,
+          "exclusive_interval_us_per_step": 157.0819854736328,
+          "union_fraction_of_trace_span": 0.24958267533415576,
+          "names": [
+            "void per_token_group_quant_8bit_packed_register_kernel<c10::BFloat16, c10::Float8_e4m3fn, 128, 16, 1>(c10::BFloat16 const*, void*, unsigned int*, int, int, int, int, int, long, float, float, float)"
+          ]
+        },
+        "NCCL_allreduce": {
+          "count_per_step": 97.0,
+          "kernel_sum_us_per_step": 813.655,
+          "interval_union_us_per_step": 813.6543502807617,
+          "exclusive_interval_us_per_step": 813.6543502807617,
+          "union_fraction_of_trace_span": 0.09711740166845942,
+          "names": [
+            "ncclDevKernel_AllReduce_Sum_bf16_RING_LL(ncclDevKernelArgsStorage<4096ul>)"
+          ]
+        }
+      }
+    },
+    {
+      "trace": "results/raw/native_opportunity/native_opportunity_w26_original_bf16/native_opportunity_decode_dp0_pp0_tp0_dcp0_ep0_rank0.1792165480206897561.pt.trace.json.gz",
+      "sha256": "4feb7dbdb18c62e5fc8d96084bb921e83198ece524572e9c3c65af6efb0f35be",
+      "document_id": "docfinqa-c0f11a67aae850fc",
+      "method": "native_BF16_KV",
+      "B": 3,
+      "steps": 32,
+      "gate_attribution": "Each actual topk predecessor is BF16 GEMM, optionally followed by cuBLAS split-K reduce; same stream/graph/correlation through expert gather.",
+      "mean_trace_span_us_per_step": 9704.331443786621,
+      "MoE_gate_through_gather_span_us_per_step": 3644.6570358276367,
+      "MoE_chain_interkernel_gap_us_per_step": 38.06678771972656,
+      "costs": {
+        "gate_GEMM": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 612.9790937500001,
+          "interval_union_us_per_step": 612.9797592163086,
+          "exclusive_interval_us_per_step": 612.9797592163086,
+          "union_fraction_of_trace_span": 0.06316558361254039,
+          "names": [
+            "void cutlass::Kernel2<cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x1_tn_align8>(cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x1_tn_align8::Params)"
+          ]
+        },
+        "whole_MoE_chain_kernels": {
+          "count_per_step": 624.0,
+          "kernel_sum_us_per_step": 3615.0150625,
+          "interval_union_us_per_step": 3606.59024810791,
+          "exclusive_interval_us_per_step": 3606.59024810791,
+          "union_fraction_of_trace_span": 0.37164747195615383,
+          "names": [
+            "_count_expert_num_tokens",
+            "_fwd_kernel_ep_gather",
+            "_fwd_kernel_ep_scatter_1",
+            "_fwd_kernel_ep_scatter_2",
+            "_silu_mul_quant_fp8_packed_kernel",
+            "void at::native::vectorized_elementwise_kernel<4, at::native::FillFunctor<float>, std::array<char*, 1ul> >(int, at::native::FillFunctor<float>, std::array<char*, 1ul>)",
+            "void at::native::vectorized_elementwise_kernel<4, at::native::FillFunctor<int>, std::array<char*, 1ul> >(int, at::native::FillFunctor<int>, std::array<char*, 1ul>)",
+            "void cutlass::Kernel2<cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x1_tn_align8>(cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x1_tn_align8::Params)",
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 2048u, 384u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 768u, 2048u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+            "void deep_gemm::transpose_and_pack_fp32_into_ue8m0<512u, 48u, 16u, 128u, 1u, false>(float*, unsigned int*, unsigned int, unsigned int const*, unsigned int)",
+            "void per_token_group_quant_8bit_register_kernel<c10::BFloat16, c10::Float8_e4m3fn, false, true, 128>(c10::BFloat16 const*, void*, float*, long, float, float, float, int, int)",
+            "void vllm::moe::topkGating<8, 128, 4, 16, 32, int, __nv_bfloat16, (vllm::moe::ScoringFunc)0>(__nv_bfloat16 const*, bool const*, float*, int, int*, int*, int, int, int, bool, float const*, double, bool const*)"
+          ]
+        },
+        "router_topk": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 143.553875,
+          "interval_union_us_per_step": 143.5567626953125,
+          "exclusive_interval_us_per_step": 141.93212127685547,
+          "union_fraction_of_trace_span": 0.014793060555163478,
+          "names": [
+            "void vllm::moe::topkGating<8, 128, 4, 16, 32, int, __nv_bfloat16, (vllm::moe::ScoringFunc)0>(__nv_bfloat16 const*, bool const*, float*, int, int*, int*, int, int, int, bool, float const*, double, bool const*)"
+          ]
+        },
+        "MoE_grouped_GEMM": {
+          "count_per_step": 96.0,
+          "kernel_sum_us_per_step": 2079.83496875,
+          "interval_union_us_per_step": 2079.834785461426,
+          "exclusive_interval_us_per_step": 2074.9680938720703,
+          "union_fraction_of_trace_span": 0.2143202545697343,
+          "names": [
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 2048u, 384u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 768u, 2048u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)"
+          ]
+        },
+        "MoE_scatter_gather_count": {
+          "count_per_step": 192.0,
+          "kernel_sum_us_per_step": 449.8690625,
+          "interval_union_us_per_step": 449.8713684082031,
+          "exclusive_interval_us_per_step": 447.9203643798828,
+          "union_fraction_of_trace_span": 0.04635779095284731,
+          "names": [
+            "_count_expert_num_tokens",
+            "_fwd_kernel_ep_gather",
+            "_fwd_kernel_ep_scatter_1",
+            "_fwd_kernel_ep_scatter_2"
+          ]
+        },
+        "MoE_silu_quant": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 125.56103125,
+          "interval_union_us_per_step": 125.5623550415039,
+          "exclusive_interval_us_per_step": 122.91563415527344,
+          "union_fraction_of_trace_span": 0.012938794987458672,
+          "names": [
+            "_silu_mul_quant_fp8_packed_kernel"
+          ]
+        },
+        "attention_XQA": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 3318.769125,
+          "interval_union_us_per_step": 3318.769111633301,
+          "exclusive_interval_us_per_step": 38.23985290527344,
+          "union_fraction_of_trace_span": 0.3419884338099565,
+          "names": [
+            "kernel_mha(unsigned int, float, float const*, Vec<__nv_bfloat16, 128u>*, Vec<__nv_bfloat16, 128u> const*, float const*, KVCacheList<true>, unsigned int, float, float const*, unsigned int, unsigned int, unsigned int, unsigned int*, void*)"
+          ]
+        },
+        "PDL_packed_quant": {
+          "count_per_step": 96.0,
+          "kernel_sum_us_per_step": 3436.4908125,
+          "interval_union_us_per_step": 3436.489700317383,
+          "exclusive_interval_us_per_step": 149.40453338623047,
+          "union_fraction_of_trace_span": 0.35411916011150457,
+          "names": [
+            "void per_token_group_quant_8bit_packed_register_kernel<c10::BFloat16, c10::Float8_e4m3fn, 128, 16, 1>(c10::BFloat16 const*, void*, unsigned int*, int, int, int, int, int, long, float, float, float)"
+          ]
+        },
+        "NCCL_allreduce": {
+          "count_per_step": 97.0,
+          "kernel_sum_us_per_step": 1046.75240625,
+          "interval_union_us_per_step": 1046.752815246582,
+          "exclusive_interval_us_per_step": 1046.752815246582,
+          "union_fraction_of_trace_span": 0.10786449548946363,
+          "names": [
+            "ncclDevKernel_AllReduce_Sum_bf16_RING_LL(ncclDevKernelArgsStorage<4096ul>)"
+          ]
+        }
+      }
+    },
+    {
+      "trace": "results/raw/native_opportunity/native_opportunity_w26_original_bf16/native_opportunity_decode_dp0_pp0_tp1_dcp0_ep1_rank1.1792165480198638567.pt.trace.json.gz",
+      "sha256": "da37339d04b78f45abf14bf7be33912b85bf055a80e3fa1fc69d2f44cf30405d",
+      "document_id": "docfinqa-c0f11a67aae850fc",
+      "method": "native_BF16_KV",
+      "B": 3,
+      "steps": 32,
+      "gate_attribution": "Each actual topk predecessor is BF16 GEMM, optionally followed by cuBLAS split-K reduce; same stream/graph/correlation through expert gather.",
+      "mean_trace_span_us_per_step": 9704.70637512207,
+      "MoE_gate_through_gather_span_us_per_step": 3816.5361709594727,
+      "MoE_chain_interkernel_gap_us_per_step": 216.68560028076172,
+      "costs": {
+        "gate_GEMM": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 610.9641875,
+          "interval_union_us_per_step": 610.9644165039062,
+          "exclusive_interval_us_per_step": 610.9644165039062,
+          "union_fraction_of_trace_span": 0.0629554767437486,
+          "names": [
+            "void cutlass::Kernel2<cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x1_tn_align8>(cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x1_tn_align8::Params)"
+          ]
+        },
+        "whole_MoE_chain_kernels": {
+          "count_per_step": 624.0,
+          "kernel_sum_us_per_step": 3599.83065625,
+          "interval_union_us_per_step": 3599.850570678711,
+          "exclusive_interval_us_per_step": 3599.850570678711,
+          "union_fraction_of_trace_span": 0.3709386385874483,
+          "names": [
+            "_count_expert_num_tokens",
+            "_fwd_kernel_ep_gather",
+            "_fwd_kernel_ep_scatter_1",
+            "_fwd_kernel_ep_scatter_2",
+            "_silu_mul_quant_fp8_packed_kernel",
+            "void at::native::vectorized_elementwise_kernel<4, at::native::FillFunctor<float>, std::array<char*, 1ul> >(int, at::native::FillFunctor<float>, std::array<char*, 1ul>)",
+            "void at::native::vectorized_elementwise_kernel<4, at::native::FillFunctor<int>, std::array<char*, 1ul> >(int, at::native::FillFunctor<int>, std::array<char*, 1ul>)",
+            "void cutlass::Kernel2<cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x1_tn_align8>(cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x1_tn_align8::Params)",
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 2048u, 384u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 768u, 2048u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+            "void deep_gemm::transpose_and_pack_fp32_into_ue8m0<512u, 48u, 16u, 128u, 1u, false>(float*, unsigned int*, unsigned int, unsigned int const*, unsigned int)",
+            "void per_token_group_quant_8bit_register_kernel<c10::BFloat16, c10::Float8_e4m3fn, false, true, 128>(c10::BFloat16 const*, void*, float*, long, float, float, float, int, int)",
+            "void vllm::moe::topkGating<8, 128, 4, 16, 32, int, __nv_bfloat16, (vllm::moe::ScoringFunc)0>(__nv_bfloat16 const*, bool const*, float*, int, int*, int*, int, int, int, bool, float const*, double, bool const*)"
+          ]
+        },
+        "router_topk": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 141.4578125,
+          "interval_union_us_per_step": 141.46177673339844,
+          "exclusive_interval_us_per_step": 141.46177673339844,
+          "union_fraction_of_trace_span": 0.01457661584651695,
+          "names": [
+            "void vllm::moe::topkGating<8, 128, 4, 16, 32, int, __nv_bfloat16, (vllm::moe::ScoringFunc)0>(__nv_bfloat16 const*, bool const*, float*, int, int*, int*, int, int, int, bool, float const*, double, bool const*)"
+          ]
+        },
+        "MoE_grouped_GEMM": {
+          "count_per_step": 96.0,
+          "kernel_sum_us_per_step": 2079.792125,
+          "interval_union_us_per_step": 2079.7921295166016,
+          "exclusive_interval_us_per_step": 2079.7921295166016,
+          "union_fraction_of_trace_span": 0.21430757913996556,
+          "names": [
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 2048u, 384u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 768u, 2048u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)"
+          ]
+        },
+        "MoE_scatter_gather_count": {
+          "count_per_step": 192.0,
+          "kernel_sum_us_per_step": 440.5829375,
+          "interval_union_us_per_step": 440.5846252441406,
+          "exclusive_interval_us_per_step": 440.5846252441406,
+          "union_fraction_of_trace_span": 0.045399068061819516,
+          "names": [
+            "_count_expert_num_tokens",
+            "_fwd_kernel_ep_gather",
+            "_fwd_kernel_ep_scatter_1",
+            "_fwd_kernel_ep_scatter_2"
+          ]
+        },
+        "MoE_silu_quant": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 124.95525,
+          "interval_union_us_per_step": 124.9568862915039,
+          "exclusive_interval_us_per_step": 124.9568862915039,
+          "union_fraction_of_trace_span": 0.012875905922494449,
+          "names": [
+            "_silu_mul_quant_fp8_packed_kernel"
+          ]
+        },
+        "attention_XQA": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 3272.21390625,
+          "interval_union_us_per_step": 3272.213966369629,
+          "exclusive_interval_us_per_step": 56.377235412597656,
+          "union_fraction_of_trace_span": 0.3371780494830756,
+          "names": [
+            "kernel_mha(unsigned int, float, float const*, Vec<__nv_bfloat16, 128u>*, Vec<__nv_bfloat16, 128u> const*, float const*, KVCacheList<true>, unsigned int, float, float const*, unsigned int, unsigned int, unsigned int, unsigned int*, void*)"
+          ]
+        },
+        "PDL_packed_quant": {
+          "count_per_step": 96.0,
+          "kernel_sum_us_per_step": 3371.5883125,
+          "interval_union_us_per_step": 3371.587989807129,
+          "exclusive_interval_us_per_step": 155.75125885009766,
+          "union_fraction_of_trace_span": 0.34741782589632647,
+          "names": [
+            "void per_token_group_quant_8bit_packed_register_kernel<c10::BFloat16, c10::Float8_e4m3fn, 128, 16, 1>(c10::BFloat16 const*, void*, unsigned int*, int, int, int, int, int, long, float, float, float)"
+          ]
+        },
+        "NCCL_allreduce": {
+          "count_per_step": 97.0,
+          "kernel_sum_us_per_step": 742.782,
+          "interval_union_us_per_step": 742.7827529907227,
+          "exclusive_interval_us_per_step": 742.7827529907227,
+          "union_fraction_of_trace_span": 0.07653840562295008,
+          "names": [
+            "ncclDevKernel_AllReduce_Sum_bf16_RING_LL(ncclDevKernelArgsStorage<4096ul>)"
+          ]
+        }
+      }
+    },
+    {
+      "trace": "results/raw/native_opportunity/native_opportunity_w26_original_fp8/native_opportunity_decode_dp0_pp0_tp0_dcp0_ep0_rank0.1792165479748761129.pt.trace.json.gz",
+      "sha256": "f409a6e9754295ed3dc49d49af8e93754f92ed503e8960b3354aadafdcf79158",
+      "document_id": "docfinqa-c0f11a67aae850fc",
+      "method": "native_FP8_KV_unit",
+      "B": 3,
+      "steps": 32,
+      "gate_attribution": "Each actual topk predecessor is BF16 GEMM, optionally followed by cuBLAS split-K reduce; same stream/graph/correlation through expert gather.",
+      "mean_trace_span_us_per_step": 8732.123153686523,
+      "MoE_gate_through_gather_span_us_per_step": 3893.313102722168,
+      "MoE_chain_interkernel_gap_us_per_step": 222.36864471435547,
+      "costs": {
+        "gate_GEMM": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 625.90746875,
+          "interval_union_us_per_step": 625.9072799682617,
+          "exclusive_interval_us_per_step": 625.9072799682617,
+          "union_fraction_of_trace_span": 0.07167870504712437,
+          "names": [
+            "void cutlass::Kernel2<cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x1_tn_align8>(cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x1_tn_align8::Params)"
+          ]
+        },
+        "whole_MoE_chain_kernels": {
+          "count_per_step": 624.0,
+          "kernel_sum_us_per_step": 3670.9280937500002,
+          "interval_union_us_per_step": 3670.9444580078125,
+          "exclusive_interval_us_per_step": 3670.9444580078125,
+          "union_fraction_of_trace_span": 0.4203954059509588,
+          "names": [
+            "_count_expert_num_tokens",
+            "_fwd_kernel_ep_gather",
+            "_fwd_kernel_ep_scatter_1",
+            "_fwd_kernel_ep_scatter_2",
+            "_silu_mul_quant_fp8_packed_kernel",
+            "void at::native::vectorized_elementwise_kernel<4, at::native::FillFunctor<float>, std::array<char*, 1ul> >(int, at::native::FillFunctor<float>, std::array<char*, 1ul>)",
+            "void at::native::vectorized_elementwise_kernel<4, at::native::FillFunctor<int>, std::array<char*, 1ul> >(int, at::native::FillFunctor<int>, std::array<char*, 1ul>)",
+            "void cutlass::Kernel2<cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x1_tn_align8>(cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x1_tn_align8::Params)",
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 2048u, 384u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 768u, 2048u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+            "void deep_gemm::transpose_and_pack_fp32_into_ue8m0<512u, 48u, 16u, 128u, 1u, false>(float*, unsigned int*, unsigned int, unsigned int const*, unsigned int)",
+            "void per_token_group_quant_8bit_register_kernel<c10::BFloat16, c10::Float8_e4m3fn, false, true, 128>(c10::BFloat16 const*, void*, float*, long, float, float, float, int, int)",
+            "void vllm::moe::topkGating<8, 128, 4, 16, 32, int, __nv_bfloat16, (vllm::moe::ScoringFunc)0>(__nv_bfloat16 const*, bool const*, float*, int, int*, int*, int, int, int, bool, float const*, double, bool const*)"
+          ]
+        },
+        "router_topk": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 144.084625,
+          "interval_union_us_per_step": 144.08699798583984,
+          "exclusive_interval_us_per_step": 144.08699798583984,
+          "union_fraction_of_trace_span": 0.016500797738406753,
+          "names": [
+            "void vllm::moe::topkGating<8, 128, 4, 16, 32, int, __nv_bfloat16, (vllm::moe::ScoringFunc)0>(__nv_bfloat16 const*, bool const*, float*, int, int*, int*, int, int, int, bool, float const*, double, bool const*)"
+          ]
+        },
+        "MoE_grouped_GEMM": {
+          "count_per_step": 96.0,
+          "kernel_sum_us_per_step": 2123.439875,
+          "interval_union_us_per_step": 2123.4399185180664,
+          "exclusive_interval_us_per_step": 2123.4399185180664,
+          "union_fraction_of_trace_span": 0.24317567230159753,
+          "names": [
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 2048u, 384u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 768u, 2048u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)"
+          ]
+        },
+        "MoE_scatter_gather_count": {
+          "count_per_step": 192.0,
+          "kernel_sum_us_per_step": 447.4955,
+          "interval_union_us_per_step": 447.49755859375,
+          "exclusive_interval_us_per_step": 447.49755859375,
+          "union_fraction_of_trace_span": 0.051247279810159994,
+          "names": [
+            "_count_expert_num_tokens",
+            "_fwd_kernel_ep_gather",
+            "_fwd_kernel_ep_scatter_1",
+            "_fwd_kernel_ep_scatter_2"
+          ]
+        },
+        "MoE_silu_quant": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 125.89990625,
+          "interval_union_us_per_step": 125.90105438232422,
+          "exclusive_interval_us_per_step": 125.90105438232422,
+          "union_fraction_of_trace_span": 0.01441814919080377,
+          "names": [
+            "_silu_mul_quant_fp8_packed_kernel"
+          ]
+        },
+        "attention_XQA": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 2029.01315625,
+          "interval_union_us_per_step": 2029.0130996704102,
+          "exclusive_interval_us_per_step": 60.45735168457031,
+          "union_fraction_of_trace_span": 0.23236194267528196,
+          "names": [
+            "kernel_mha(unsigned int, float, float const*, Vec<__nv_bfloat16, 128u>*, Vec<__nv_bfloat16, 128u> const*, float const*, KVCacheList<true>, unsigned int, float, float const*, unsigned int, unsigned int, unsigned int, unsigned int*, void*)"
+          ]
+        },
+        "PDL_packed_quant": {
+          "count_per_step": 96.0,
+          "kernel_sum_us_per_step": 2128.19475,
+          "interval_union_us_per_step": 2128.193572998047,
+          "exclusive_interval_us_per_step": 159.63782501220703,
+          "union_fraction_of_trace_span": 0.24372005931908636,
+          "names": [
+            "void per_token_group_quant_8bit_packed_register_kernel<c10::BFloat16, c10::Float8_e4m3fn, 128, 16, 1>(c10::BFloat16 const*, void*, unsigned int*, int, int, int, int, int, long, float, float, float)"
+          ]
+        },
+        "NCCL_allreduce": {
+          "count_per_step": 97.0,
+          "kernel_sum_us_per_step": 886.6085,
+          "interval_union_us_per_step": 886.6088027954102,
+          "exclusive_interval_us_per_step": 886.6088027954102,
+          "union_fraction_of_trace_span": 0.10153416153104781,
+          "names": [
+            "ncclDevKernel_AllReduce_Sum_bf16_RING_LL(ncclDevKernelArgsStorage<4096ul>)"
+          ]
+        }
+      }
+    },
+    {
+      "trace": "results/raw/native_opportunity/native_opportunity_w26_original_fp8/native_opportunity_decode_dp0_pp0_tp1_dcp0_ep1_rank1.1792165479737457542.pt.trace.json.gz",
+      "sha256": "e538713e2b1834ca2c7e774c3c9d668304818318816428b7e548875ce9b47f8d",
+      "document_id": "docfinqa-c0f11a67aae850fc",
+      "method": "native_FP8_KV_unit",
+      "B": 3,
+      "steps": 32,
+      "gate_attribution": "Each actual topk predecessor is BF16 GEMM, optionally followed by cuBLAS split-K reduce; same stream/graph/correlation through expert gather.",
+      "mean_trace_span_us_per_step": 8738.013595581055,
+      "MoE_gate_through_gather_span_us_per_step": 3944.191879272461,
+      "MoE_chain_interkernel_gap_us_per_step": 223.77255249023438,
+      "costs": {
+        "gate_GEMM": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 635.842625,
+          "interval_union_us_per_step": 635.8431243896484,
+          "exclusive_interval_us_per_step": 635.8431243896484,
+          "union_fraction_of_trace_span": 0.07276746796448152,
+          "names": [
+            "void cutlass::Kernel2<cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x1_tn_align8>(cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x1_tn_align8::Params)"
+          ]
+        },
+        "whole_MoE_chain_kernels": {
+          "count_per_step": 624.0,
+          "kernel_sum_us_per_step": 3720.40478125,
+          "interval_union_us_per_step": 3720.4193267822266,
+          "exclusive_interval_us_per_step": 3720.4193267822266,
+          "union_fraction_of_trace_span": 0.4257740373239633,
+          "names": [
+            "_count_expert_num_tokens",
+            "_fwd_kernel_ep_gather",
+            "_fwd_kernel_ep_scatter_1",
+            "_fwd_kernel_ep_scatter_2",
+            "_silu_mul_quant_fp8_packed_kernel",
+            "void at::native::vectorized_elementwise_kernel<4, at::native::FillFunctor<float>, std::array<char*, 1ul> >(int, at::native::FillFunctor<float>, std::array<char*, 1ul>)",
+            "void at::native::vectorized_elementwise_kernel<4, at::native::FillFunctor<int>, std::array<char*, 1ul> >(int, at::native::FillFunctor<int>, std::array<char*, 1ul>)",
+            "void cutlass::Kernel2<cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x1_tn_align8>(cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x1_tn_align8::Params)",
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 2048u, 384u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 768u, 2048u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+            "void deep_gemm::transpose_and_pack_fp32_into_ue8m0<512u, 48u, 16u, 128u, 1u, false>(float*, unsigned int*, unsigned int, unsigned int const*, unsigned int)",
+            "void per_token_group_quant_8bit_register_kernel<c10::BFloat16, c10::Float8_e4m3fn, false, true, 128>(c10::BFloat16 const*, void*, float*, long, float, float, float, int, int)",
+            "void vllm::moe::topkGating<8, 128, 4, 16, 32, int, __nv_bfloat16, (vllm::moe::ScoringFunc)0>(__nv_bfloat16 const*, bool const*, float*, int, int*, int*, int, int, int, bool, float const*, double, bool const*)"
+          ]
+        },
+        "router_topk": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 146.842625,
+          "interval_union_us_per_step": 146.84358978271484,
+          "exclusive_interval_us_per_step": 146.84358978271484,
+          "union_fraction_of_trace_span": 0.016805145491759804,
+          "names": [
+            "void vllm::moe::topkGating<8, 128, 4, 16, 32, int, __nv_bfloat16, (vllm::moe::ScoringFunc)0>(__nv_bfloat16 const*, bool const*, float*, int, int*, int*, int, int, int, bool, float const*, double, bool const*)"
+          ]
+        },
+        "MoE_grouped_GEMM": {
+          "count_per_step": 96.0,
+          "kernel_sum_us_per_step": 2148.6665,
+          "interval_union_us_per_step": 2148.6665802001953,
+          "exclusive_interval_us_per_step": 2148.6665802001953,
+          "union_fraction_of_trace_span": 0.2458987453723817,
+          "names": [
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 2048u, 384u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 768u, 2048u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)"
+          ]
+        },
+        "MoE_scatter_gather_count": {
+          "count_per_step": 192.0,
+          "kernel_sum_us_per_step": 453.54546875,
+          "interval_union_us_per_step": 453.54713439941406,
+          "exclusive_interval_us_per_step": 453.54713439941406,
+          "union_fraction_of_trace_span": 0.051905061652545346,
+          "names": [
+            "_count_expert_num_tokens",
+            "_fwd_kernel_ep_gather",
+            "_fwd_kernel_ep_scatter_1",
+            "_fwd_kernel_ep_scatter_2"
+          ]
+        },
+        "MoE_silu_quant": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 128.5813125,
+          "interval_union_us_per_step": 128.58100128173828,
+          "exclusive_interval_us_per_step": 128.58100128173828,
+          "union_fraction_of_trace_span": 0.014715129459945409,
+          "names": [
+            "_silu_mul_quant_fp8_packed_kernel"
+          ]
+        },
+        "attention_XQA": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 2073.78265625,
+          "interval_union_us_per_step": 2073.7825775146484,
+          "exclusive_interval_us_per_step": 61.49034118652344,
+          "union_fraction_of_trace_span": 0.2373288339312486,
+          "names": [
+            "kernel_mha(unsigned int, float, float const*, Vec<__nv_bfloat16, 128u>*, Vec<__nv_bfloat16, 128u> const*, float const*, KVCacheList<true>, unsigned int, float, float const*, unsigned int, unsigned int, unsigned int, unsigned int*, void*)"
+          ]
+        },
+        "PDL_packed_quant": {
+          "count_per_step": 96.0,
+          "kernel_sum_us_per_step": 2178.04553125,
+          "interval_union_us_per_step": 2178.0436782836914,
+          "exclusive_interval_us_per_step": 165.7514419555664,
+          "union_fraction_of_trace_span": 0.24926073351329653,
+          "names": [
+            "void per_token_group_quant_8bit_packed_register_kernel<c10::BFloat16, c10::Float8_e4m3fn, 128, 16, 1>(c10::BFloat16 const*, void*, unsigned int*, int, int, int, int, int, long, float, float, float)"
+          ]
+        },
+        "NCCL_allreduce": {
+          "count_per_step": 97.0,
+          "kernel_sum_us_per_step": 766.27096875,
+          "interval_union_us_per_step": 766.2709274291992,
+          "exclusive_interval_us_per_step": 766.2709274291992,
+          "union_fraction_of_trace_span": 0.08769395000904028,
+          "names": [
+            "ncclDevKernel_AllReduce_Sum_bf16_RING_LL(ncclDevKernelArgsStorage<4096ul>)"
+          ]
+        }
+      }
+    },
+    {
+      "trace": "results/raw/native_opportunity/native_opportunity_b8_train1_auto/native_opportunity_decode_dp0_pp0_tp0_dcp0_ep0_rank0.1792165841643520009.pt.trace.json.gz",
+      "sha256": "f7d4a1e33b563353de9171aa40c0317b0fd789277f29b3019ef3bd57ea7d83af",
+      "document_id": "docfinqa-680456070a0a0714",
+      "method": "native_BF16_KV",
+      "B": 8,
+      "steps": 32,
+      "gate_attribution": "Each actual topk predecessor is BF16 GEMM, optionally followed by cuBLAS split-K reduce; same stream/graph/correlation through expert gather.",
+      "mean_trace_span_us_per_step": 17655.12043762207,
+      "MoE_gate_through_gather_span_us_per_step": 5294.671600341797,
+      "MoE_chain_interkernel_gap_us_per_step": 240.83282470703125,
+      "costs": {
+        "gate_splitk_reduce": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 55.28009375,
+          "interval_union_us_per_step": 55.284271240234375,
+          "exclusive_interval_us_per_step": 55.284271240234375,
+          "union_fraction_of_trace_span": 0.003131344894279322,
+          "names": [
+            "void cublasLt::splitKreduce_kernel<32, 16, int, __nv_bfloat16, __nv_bfloat16, float, __nv_bfloat16, false, __nv_bfloat16, __nv_bfloat16, __nv_bfloat16, true, false, false, false>(cublasLt::cublasSplitKParams<float>, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16*, __nv_bfloat16*, float const*, float const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16*, void*, long, float*, int*, float*, float*, float const*, float const*, float const*, float const*, float const*)"
+          ]
+        },
+        "gate_GEMM": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 130.31171875,
+          "interval_union_us_per_step": 130.31127166748047,
+          "exclusive_interval_us_per_step": 130.31127166748047,
+          "union_fraction_of_trace_span": 0.007380933600984929,
+          "names": [
+            "void cutlass::Kernel2<cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x2_tn_align8>(cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x2_tn_align8::Params)"
+          ]
+        },
+        "whole_MoE_chain_kernels": {
+          "count_per_step": 672.0,
+          "kernel_sum_us_per_step": 5053.81596875,
+          "interval_union_us_per_step": 5053.838775634766,
+          "exclusive_interval_us_per_step": 5053.838775634766,
+          "union_fraction_of_trace_span": 0.28625342962063965,
+          "names": [
+            "_count_expert_num_tokens",
+            "_fwd_kernel_ep_gather",
+            "_fwd_kernel_ep_scatter_1",
+            "_fwd_kernel_ep_scatter_2",
+            "_silu_mul_quant_fp8_packed_kernel",
+            "void at::native::vectorized_elementwise_kernel<4, at::native::FillFunctor<float>, std::array<char*, 1ul> >(int, at::native::FillFunctor<float>, std::array<char*, 1ul>)",
+            "void at::native::vectorized_elementwise_kernel<4, at::native::FillFunctor<int>, std::array<char*, 1ul> >(int, at::native::FillFunctor<int>, std::array<char*, 1ul>)",
+            "void cublasLt::splitKreduce_kernel<32, 16, int, __nv_bfloat16, __nv_bfloat16, float, __nv_bfloat16, false, __nv_bfloat16, __nv_bfloat16, __nv_bfloat16, true, false, false, false>(cublasLt::cublasSplitKParams<float>, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16*, __nv_bfloat16*, float const*, float const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16*, void*, long, float*, int*, float*, float*, float const*, float const*, float const*, float const*, float const*)",
+            "void cutlass::Kernel2<cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x2_tn_align8>(cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x2_tn_align8::Params)",
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 2048u, 384u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 768u, 2048u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+            "void deep_gemm::transpose_and_pack_fp32_into_ue8m0<512u, 48u, 16u, 128u, 1u, false>(float*, unsigned int*, unsigned int, unsigned int const*, unsigned int)",
+            "void per_token_group_quant_8bit_register_kernel<c10::BFloat16, c10::Float8_e4m3fn, false, true, 128>(c10::BFloat16 const*, void*, float*, long, float, float, float, int, int)",
+            "void vllm::moe::topkGating<8, 128, 4, 16, 32, int, __nv_bfloat16, (vllm::moe::ScoringFunc)0>(__nv_bfloat16 const*, bool const*, float*, int, int*, int*, int, int, int, bool, float const*, double, bool const*)"
+          ]
+        },
+        "router_topk": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 146.92418750000002,
+          "interval_union_us_per_step": 146.92525482177734,
+          "exclusive_interval_us_per_step": 146.92525482177734,
+          "union_fraction_of_trace_span": 0.008321962760938627,
+          "names": [
+            "void vllm::moe::topkGating<8, 128, 4, 16, 32, int, __nv_bfloat16, (vllm::moe::ScoringFunc)0>(__nv_bfloat16 const*, bool const*, float*, int, int*, int*, int, int, int, bool, float const*, double, bool const*)"
+          ]
+        },
+        "MoE_grouped_GEMM": {
+          "count_per_step": 96.0,
+          "kernel_sum_us_per_step": 3769.72303125,
+          "interval_union_us_per_step": 3769.722969055176,
+          "exclusive_interval_us_per_step": 3769.722969055176,
+          "union_fraction_of_trace_span": 0.2135200936393562,
+          "names": [
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 2048u, 384u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 768u, 2048u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)"
+          ]
+        },
+        "MoE_scatter_gather_count": {
+          "count_per_step": 192.0,
+          "kernel_sum_us_per_step": 462.41928125,
+          "interval_union_us_per_step": 462.42664337158203,
+          "exclusive_interval_us_per_step": 462.42664337158203,
+          "union_fraction_of_trace_span": 0.02619221120611428,
+          "names": [
+            "_count_expert_num_tokens",
+            "_fwd_kernel_ep_gather",
+            "_fwd_kernel_ep_scatter_1",
+            "_fwd_kernel_ep_scatter_2"
+          ]
+        },
+        "MoE_silu_quant": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 274.53946875,
+          "interval_union_us_per_step": 274.53955078125,
+          "exclusive_interval_us_per_step": 274.53955078125,
+          "union_fraction_of_trace_span": 0.015550137522495833,
+          "names": [
+            "_silu_mul_quant_fp8_packed_kernel"
+          ]
+        },
+        "attention_XQA": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 9346.2953125,
+          "interval_union_us_per_step": 9346.295143127441,
+          "exclusive_interval_us_per_step": 57.072471618652344,
+          "union_fraction_of_trace_span": 0.5293815568208196,
+          "names": [
+            "kernel_mha(unsigned int, float, float const*, Vec<__nv_bfloat16, 128u>*, Vec<__nv_bfloat16, 128u> const*, float const*, KVCacheList<true>, unsigned int, float, float const*, unsigned int, unsigned int, unsigned int, unsigned int*, void*)"
+          ]
+        },
+        "PDL_packed_quant": {
+          "count_per_step": 96.0,
+          "kernel_sum_us_per_step": 9496.42603125,
+          "interval_union_us_per_step": 9496.424201965332,
+          "exclusive_interval_us_per_step": 207.20153045654297,
+          "union_fraction_of_trace_span": 0.5378849855778375,
+          "names": [
+            "void per_token_group_quant_8bit_packed_register_kernel<c10::BFloat16, c10::Float8_e4m3fn, 128, 16, 1>(c10::BFloat16 const*, void*, unsigned int*, int, int, int, int, int, long, float, float, float)"
+          ]
+        },
+        "NCCL_allreduce": {
+          "count_per_step": 97.0,
+          "kernel_sum_us_per_step": 1088.01803125,
+          "interval_union_us_per_step": 1088.0180053710938,
+          "exclusive_interval_us_per_step": 1088.0180053710938,
+          "union_fraction_of_trace_span": 0.06162620126071689,
+          "names": [
+            "ncclDevKernel_AllReduce_Sum_bf16_RING_LL(ncclDevKernelArgsStorage<4096ul>)"
+          ]
+        }
+      }
+    },
+    {
+      "trace": "results/raw/native_opportunity/native_opportunity_b8_train1_auto/native_opportunity_decode_dp0_pp0_tp1_dcp0_ep1_rank1.1792165841642463506.pt.trace.json.gz",
+      "sha256": "c8d48be66abadb09f1790f4d949f46dfd83bae48ad4238129e17803e257b11c9",
+      "document_id": "docfinqa-680456070a0a0714",
+      "method": "native_BF16_KV",
+      "B": 8,
+      "steps": 32,
+      "gate_attribution": "Each actual topk predecessor is BF16 GEMM, optionally followed by cuBLAS split-K reduce; same stream/graph/correlation through expert gather.",
+      "mean_trace_span_us_per_step": 17525.454780578613,
+      "MoE_gate_through_gather_span_us_per_step": 5361.454055786133,
+      "MoE_chain_interkernel_gap_us_per_step": 242.0904769897461,
+      "costs": {
+        "gate_splitk_reduce": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 57.006,
+          "interval_union_us_per_step": 57.00965881347656,
+          "exclusive_interval_us_per_step": 57.00965881347656,
+          "union_fraction_of_trace_span": 0.0032529631628534753,
+          "names": [
+            "void cublasLt::splitKreduce_kernel<32, 16, int, __nv_bfloat16, __nv_bfloat16, float, __nv_bfloat16, false, __nv_bfloat16, __nv_bfloat16, __nv_bfloat16, true, false, false, false>(cublasLt::cublasSplitKParams<float>, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16*, __nv_bfloat16*, float const*, float const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16*, void*, long, float*, int*, float*, float*, float const*, float const*, float const*, float const*, float const*)"
+          ]
+        },
+        "gate_GEMM": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 134.39896875,
+          "interval_union_us_per_step": 134.39720153808594,
+          "exclusive_interval_us_per_step": 134.39720153808594,
+          "union_fraction_of_trace_span": 0.007668685533172152,
+          "names": [
+            "void cutlass::Kernel2<cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x2_tn_align8>(cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x2_tn_align8::Params)"
+          ]
+        },
+        "whole_MoE_chain_kernels": {
+          "count_per_step": 672.0,
+          "kernel_sum_us_per_step": 5119.3465937500005,
+          "interval_union_us_per_step": 5119.363578796387,
+          "exclusive_interval_us_per_step": 5119.363578796387,
+          "union_fraction_of_trace_span": 0.29211017020052293,
+          "names": [
+            "_count_expert_num_tokens",
+            "_fwd_kernel_ep_gather",
+            "_fwd_kernel_ep_scatter_1",
+            "_fwd_kernel_ep_scatter_2",
+            "_silu_mul_quant_fp8_packed_kernel",
+            "void at::native::vectorized_elementwise_kernel<4, at::native::FillFunctor<float>, std::array<char*, 1ul> >(int, at::native::FillFunctor<float>, std::array<char*, 1ul>)",
+            "void at::native::vectorized_elementwise_kernel<4, at::native::FillFunctor<int>, std::array<char*, 1ul> >(int, at::native::FillFunctor<int>, std::array<char*, 1ul>)",
+            "void cublasLt::splitKreduce_kernel<32, 16, int, __nv_bfloat16, __nv_bfloat16, float, __nv_bfloat16, false, __nv_bfloat16, __nv_bfloat16, __nv_bfloat16, true, false, false, false>(cublasLt::cublasSplitKParams<float>, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16*, __nv_bfloat16*, float const*, float const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16*, void*, long, float*, int*, float*, float*, float const*, float const*, float const*, float const*, float const*)",
+            "void cutlass::Kernel2<cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x2_tn_align8>(cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x2_tn_align8::Params)",
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 2048u, 384u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 768u, 2048u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+            "void deep_gemm::transpose_and_pack_fp32_into_ue8m0<512u, 48u, 16u, 128u, 1u, false>(float*, unsigned int*, unsigned int, unsigned int const*, unsigned int)",
+            "void per_token_group_quant_8bit_register_kernel<c10::BFloat16, c10::Float8_e4m3fn, false, true, 128>(c10::BFloat16 const*, void*, float*, long, float, float, float, int, int)",
+            "void vllm::moe::topkGating<8, 128, 4, 16, 32, int, __nv_bfloat16, (vllm::moe::ScoringFunc)0>(__nv_bfloat16 const*, bool const*, float*, int, int*, int*, int, int, int, bool, float const*, double, bool const*)"
+          ]
+        },
+        "router_topk": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 148.48334375000002,
+          "interval_union_us_per_step": 148.48371124267578,
+          "exclusive_interval_us_per_step": 148.48371124267578,
+          "union_fraction_of_trace_span": 0.008472459807846054,
+          "names": [
+            "void vllm::moe::topkGating<8, 128, 4, 16, 32, int, __nv_bfloat16, (vllm::moe::ScoringFunc)0>(__nv_bfloat16 const*, bool const*, float*, int, int*, int*, int, int, int, bool, float const*, double, bool const*)"
+          ]
+        },
+        "MoE_grouped_GEMM": {
+          "count_per_step": 96.0,
+          "kernel_sum_us_per_step": 3817.57709375,
+          "interval_union_us_per_step": 3817.577323913574,
+          "exclusive_interval_us_per_step": 3817.577323913574,
+          "union_fraction_of_trace_span": 0.21783042846592165,
+          "names": [
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 2048u, 384u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 768u, 2048u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)"
+          ]
+        },
+        "MoE_scatter_gather_count": {
+          "count_per_step": 192.0,
+          "kernel_sum_us_per_step": 467.2848125,
+          "interval_union_us_per_step": 467.29019927978516,
+          "exclusive_interval_us_per_step": 467.29019927978516,
+          "union_fraction_of_trace_span": 0.026663513451167475,
+          "names": [
+            "_count_expert_num_tokens",
+            "_fwd_kernel_ep_gather",
+            "_fwd_kernel_ep_scatter_1",
+            "_fwd_kernel_ep_scatter_2"
+          ]
+        },
+        "MoE_silu_quant": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 276.611375,
+          "interval_union_us_per_step": 276.6113510131836,
+          "exclusive_interval_us_per_step": 276.6113510131836,
+          "union_fraction_of_trace_span": 0.01578340502294521,
+          "names": [
+            "_silu_mul_quant_fp8_packed_kernel"
+          ]
+        },
+        "attention_XQA": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 9485.59859375,
+          "interval_union_us_per_step": 9485.598640441895,
+          "exclusive_interval_us_per_step": 57.82599639892578,
+          "union_fraction_of_trace_span": 0.541246932487804,
+          "names": [
+            "kernel_mha(unsigned int, float, float const*, Vec<__nv_bfloat16, 128u>*, Vec<__nv_bfloat16, 128u> const*, float const*, KVCacheList<true>, unsigned int, float, float const*, unsigned int, unsigned int, unsigned int, unsigned int*, void*)"
+          ]
+        },
+        "PDL_packed_quant": {
+          "count_per_step": 96.0,
+          "kernel_sum_us_per_step": 9636.134125,
+          "interval_union_us_per_step": 9636.131240844727,
+          "exclusive_interval_us_per_step": 208.3585968017578,
+          "union_fraction_of_trace_span": 0.5498363016247264,
+          "names": [
+            "void per_token_group_quant_8bit_packed_register_kernel<c10::BFloat16, c10::Float8_e4m3fn, 128, 16, 1>(c10::BFloat16 const*, void*, unsigned int*, int, int, int, int, int, long, float, float, float)"
+          ]
+        },
+        "NCCL_allreduce": {
+          "count_per_step": 97.0,
+          "kernel_sum_us_per_step": 737.48028125,
+          "interval_union_us_per_step": 737.4789962768555,
+          "exclusive_interval_us_per_step": 737.4789962768555,
+          "union_fraction_of_trace_span": 0.04208044843972415,
+          "names": [
+            "ncclDevKernel_AllReduce_Sum_bf16_RING_LL(ncclDevKernelArgsStorage<4096ul>)"
+          ]
+        }
+      }
+    },
+    {
+      "trace": "results/raw/native_opportunity/native_opportunity_b8_train1_fp8_e4m3/native_opportunity_decode_dp0_pp0_tp0_dcp0_ep0_rank0.1792165843754569525.pt.trace.json.gz",
+      "sha256": "d8f7fe2a725d199acdd54808e3a3573eca2bc56b6856f17adc59c0a11812fb13",
+      "document_id": "docfinqa-680456070a0a0714",
+      "method": "native_FP8_KV_unit",
+      "B": 8,
+      "steps": 32,
+      "gate_attribution": "Each actual topk predecessor is BF16 GEMM, optionally followed by cuBLAS split-K reduce; same stream/graph/correlation through expert gather.",
+      "mean_trace_span_us_per_step": 14400.601905822754,
+      "MoE_gate_through_gather_span_us_per_step": 5254.171333312988,
+      "MoE_chain_interkernel_gap_us_per_step": 240.38926696777344,
+      "costs": {
+        "gate_splitk_reduce": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 55.319874999999996,
+          "interval_union_us_per_step": 55.323875427246094,
+          "exclusive_interval_us_per_step": 55.323875427246094,
+          "union_fraction_of_trace_span": 0.0038417752111372778,
+          "names": [
+            "void cublasLt::splitKreduce_kernel<32, 16, int, __nv_bfloat16, __nv_bfloat16, float, __nv_bfloat16, false, __nv_bfloat16, __nv_bfloat16, __nv_bfloat16, true, false, false, false>(cublasLt::cublasSplitKParams<float>, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16*, __nv_bfloat16*, float const*, float const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16*, void*, long, float*, int*, float*, float*, float const*, float const*, float const*, float const*, float const*)"
+          ]
+        },
+        "gate_GEMM": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 135.42771875,
+          "interval_union_us_per_step": 135.4258804321289,
+          "exclusive_interval_us_per_step": 135.4258804321289,
+          "union_fraction_of_trace_span": 0.009404181944462383,
+          "names": [
+            "void cutlass::Kernel2<cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x2_tn_align8>(cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x2_tn_align8::Params)"
+          ]
+        },
+        "whole_MoE_chain_kernels": {
+          "count_per_step": 672.0,
+          "kernel_sum_us_per_step": 5013.76675,
+          "interval_union_us_per_step": 5013.782066345215,
+          "exclusive_interval_us_per_step": 5013.782066345215,
+          "union_fraction_of_trace_span": 0.34816475721878937,
+          "names": [
+            "_count_expert_num_tokens",
+            "_fwd_kernel_ep_gather",
+            "_fwd_kernel_ep_scatter_1",
+            "_fwd_kernel_ep_scatter_2",
+            "_silu_mul_quant_fp8_packed_kernel",
+            "void at::native::vectorized_elementwise_kernel<4, at::native::FillFunctor<float>, std::array<char*, 1ul> >(int, at::native::FillFunctor<float>, std::array<char*, 1ul>)",
+            "void at::native::vectorized_elementwise_kernel<4, at::native::FillFunctor<int>, std::array<char*, 1ul> >(int, at::native::FillFunctor<int>, std::array<char*, 1ul>)",
+            "void cublasLt::splitKreduce_kernel<32, 16, int, __nv_bfloat16, __nv_bfloat16, float, __nv_bfloat16, false, __nv_bfloat16, __nv_bfloat16, __nv_bfloat16, true, false, false, false>(cublasLt::cublasSplitKParams<float>, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16*, __nv_bfloat16*, float const*, float const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16*, void*, long, float*, int*, float*, float*, float const*, float const*, float const*, float const*, float const*)",
+            "void cutlass::Kernel2<cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x2_tn_align8>(cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x2_tn_align8::Params)",
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 2048u, 384u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 768u, 2048u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+            "void deep_gemm::transpose_and_pack_fp32_into_ue8m0<512u, 48u, 16u, 128u, 1u, false>(float*, unsigned int*, unsigned int, unsigned int const*, unsigned int)",
+            "void per_token_group_quant_8bit_register_kernel<c10::BFloat16, c10::Float8_e4m3fn, false, true, 128>(c10::BFloat16 const*, void*, float*, long, float, float, float, int, int)",
+            "void vllm::moe::topkGating<8, 128, 4, 16, 32, int, __nv_bfloat16, (vllm::moe::ScoringFunc)0>(__nv_bfloat16 const*, bool const*, float*, int, int*, int*, int, int, int, bool, float const*, double, bool const*)"
+          ]
+        },
+        "router_topk": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 148.1824375,
+          "interval_union_us_per_step": 148.18303680419922,
+          "exclusive_interval_us_per_step": 148.18303680419922,
+          "union_fraction_of_trace_span": 0.01029005855264166,
+          "names": [
+            "void vllm::moe::topkGating<8, 128, 4, 16, 32, int, __nv_bfloat16, (vllm::moe::ScoringFunc)0>(__nv_bfloat16 const*, bool const*, float*, int, int*, int*, int, int, int, bool, float const*, double, bool const*)"
+          ]
+        },
+        "MoE_grouped_GEMM": {
+          "count_per_step": 96.0,
+          "kernel_sum_us_per_step": 3760.196375,
+          "interval_union_us_per_step": 3760.196563720703,
+          "exclusive_interval_us_per_step": 3760.196563720703,
+          "union_fraction_of_trace_span": 0.26111384706776053,
+          "names": [
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 2048u, 384u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 768u, 2048u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)"
+          ]
+        },
+        "MoE_scatter_gather_count": {
+          "count_per_step": 192.0,
+          "kernel_sum_us_per_step": 461.3404375,
+          "interval_union_us_per_step": 461.3421401977539,
+          "exclusive_interval_us_per_step": 461.3421401977539,
+          "union_fraction_of_trace_span": 0.03203630953864604,
+          "names": [
+            "_count_expert_num_tokens",
+            "_fwd_kernel_ep_gather",
+            "_fwd_kernel_ep_scatter_1",
+            "_fwd_kernel_ep_scatter_2"
+          ]
+        },
+        "MoE_silu_quant": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 237.61775,
+          "interval_union_us_per_step": 237.61809539794922,
+          "exclusive_interval_us_per_step": 237.61809539794922,
+          "union_fraction_of_trace_span": 0.016500566917405757,
+          "names": [
+            "_silu_mul_quant_fp8_packed_kernel"
+          ]
+        },
+        "attention_XQA": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 6442.40628125,
+          "interval_union_us_per_step": 6442.406349182129,
+          "exclusive_interval_us_per_step": 60.58934783935547,
+          "union_fraction_of_trace_span": 0.4473706301524244,
+          "names": [
+            "kernel_mha(unsigned int, float, float const*, Vec<__nv_bfloat16, 128u>*, Vec<__nv_bfloat16, 128u> const*, float const*, KVCacheList<true>, unsigned int, float, float const*, unsigned int, unsigned int, unsigned int, unsigned int*, void*)"
+          ]
+        },
+        "PDL_packed_quant": {
+          "count_per_step": 96.0,
+          "kernel_sum_us_per_step": 6545.01190625,
+          "interval_union_us_per_step": 6545.010032653809,
+          "exclusive_interval_us_per_step": 163.19303131103516,
+          "union_fraction_of_trace_span": 0.45449558813283997,
+          "names": [
+            "void per_token_group_quant_8bit_packed_register_kernel<c10::BFloat16, c10::Float8_e4m3fn, 128, 16, 1>(c10::BFloat16 const*, void*, unsigned int*, int, int, int, int, int, long, float, float, float)"
+          ]
+        },
+        "NCCL_allreduce": {
+          "count_per_step": 97.0,
+          "kernel_sum_us_per_step": 682.66471875,
+          "interval_union_us_per_step": 682.6641387939453,
+          "exclusive_interval_us_per_step": 682.6641387939453,
+          "union_fraction_of_trace_span": 0.04740525036789721,
+          "names": [
+            "ncclDevKernel_AllReduce_Sum_bf16_RING_LL(ncclDevKernelArgsStorage<4096ul>)"
+          ]
+        }
+      }
+    },
+    {
+      "trace": "results/raw/native_opportunity/native_opportunity_b8_train1_fp8_e4m3/native_opportunity_decode_dp0_pp0_tp1_dcp0_ep1_rank1.1792165843751895971.pt.trace.json.gz",
+      "sha256": "cd670e9d917c14f7fc5f4c37d0bddf9c41091b7e00d20b8db81be7bed5f169c8",
+      "document_id": "docfinqa-680456070a0a0714",
+      "method": "native_FP8_KV_unit",
+      "B": 8,
+      "steps": 32,
+      "gate_attribution": "Each actual topk predecessor is BF16 GEMM, optionally followed by cuBLAS split-K reduce; same stream/graph/correlation through expert gather.",
+      "mean_trace_span_us_per_step": 14405.788185119629,
+      "MoE_gate_through_gather_span_us_per_step": 5218.590682983398,
+      "MoE_chain_interkernel_gap_us_per_step": 232.9540252685547,
+      "costs": {
+        "gate_splitk_reduce": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 55.498374999999996,
+          "interval_union_us_per_step": 55.502288818359375,
+          "exclusive_interval_us_per_step": 55.502288818359375,
+          "union_fraction_of_trace_span": 0.0038527769605615973,
+          "names": [
+            "void cublasLt::splitKreduce_kernel<32, 16, int, __nv_bfloat16, __nv_bfloat16, float, __nv_bfloat16, false, __nv_bfloat16, __nv_bfloat16, __nv_bfloat16, true, false, false, false>(cublasLt::cublasSplitKParams<float>, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16*, __nv_bfloat16*, float const*, float const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16*, void*, long, float*, int*, float*, float*, float const*, float const*, float const*, float const*, float const*)"
+          ]
+        },
+        "gate_GEMM": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 135.91040625,
+          "interval_union_us_per_step": 135.90834045410156,
+          "exclusive_interval_us_per_step": 135.90834045410156,
+          "union_fraction_of_trace_span": 0.009434287017664696,
+          "names": [
+            "void cutlass::Kernel2<cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x2_tn_align8>(cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x2_tn_align8::Params)"
+          ]
+        },
+        "whole_MoE_chain_kernels": {
+          "count_per_step": 672.0,
+          "kernel_sum_us_per_step": 4985.62078125,
+          "interval_union_us_per_step": 4985.636657714844,
+          "exclusive_interval_us_per_step": 4985.636657714844,
+          "union_fraction_of_trace_span": 0.34608565624092175,
+          "names": [
+            "_count_expert_num_tokens",
+            "_fwd_kernel_ep_gather",
+            "_fwd_kernel_ep_scatter_1",
+            "_fwd_kernel_ep_scatter_2",
+            "_silu_mul_quant_fp8_packed_kernel",
+            "void at::native::vectorized_elementwise_kernel<4, at::native::FillFunctor<float>, std::array<char*, 1ul> >(int, at::native::FillFunctor<float>, std::array<char*, 1ul>)",
+            "void at::native::vectorized_elementwise_kernel<4, at::native::FillFunctor<int>, std::array<char*, 1ul> >(int, at::native::FillFunctor<int>, std::array<char*, 1ul>)",
+            "void cublasLt::splitKreduce_kernel<32, 16, int, __nv_bfloat16, __nv_bfloat16, float, __nv_bfloat16, false, __nv_bfloat16, __nv_bfloat16, __nv_bfloat16, true, false, false, false>(cublasLt::cublasSplitKParams<float>, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16*, __nv_bfloat16*, float const*, float const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16*, void*, long, float*, int*, float*, float*, float const*, float const*, float const*, float const*, float const*)",
+            "void cutlass::Kernel2<cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x2_tn_align8>(cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x2_tn_align8::Params)",
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 2048u, 384u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 768u, 2048u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+            "void deep_gemm::transpose_and_pack_fp32_into_ue8m0<512u, 48u, 16u, 128u, 1u, false>(float*, unsigned int*, unsigned int, unsigned int const*, unsigned int)",
+            "void per_token_group_quant_8bit_register_kernel<c10::BFloat16, c10::Float8_e4m3fn, false, true, 128>(c10::BFloat16 const*, void*, float*, long, float, float, float, int, int)",
+            "void vllm::moe::topkGating<8, 128, 4, 16, 32, int, __nv_bfloat16, (vllm::moe::ScoringFunc)0>(__nv_bfloat16 const*, bool const*, float*, int, int*, int*, int, int, int, bool, float const*, double, bool const*)"
+          ]
+        },
+        "router_topk": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 146.619125,
+          "interval_union_us_per_step": 146.62061309814453,
+          "exclusive_interval_us_per_step": 146.62061309814453,
+          "union_fraction_of_trace_span": 0.010177895941132565,
+          "names": [
+            "void vllm::moe::topkGating<8, 128, 4, 16, 32, int, __nv_bfloat16, (vllm::moe::ScoringFunc)0>(__nv_bfloat16 const*, bool const*, float*, int, int*, int*, int, int, int, bool, float const*, double, bool const*)"
+          ]
+        },
+        "MoE_grouped_GEMM": {
+          "count_per_step": 96.0,
+          "kernel_sum_us_per_step": 3739.5229375,
+          "interval_union_us_per_step": 3739.5227966308594,
+          "exclusive_interval_us_per_step": 3739.5227966308594,
+          "union_fraction_of_trace_span": 0.25958474111771107,
+          "names": [
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 2048u, 384u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 768u, 2048u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)"
+          ]
+        },
+        "MoE_scatter_gather_count": {
+          "count_per_step": 192.0,
+          "kernel_sum_us_per_step": 454.46693750000003,
+          "interval_union_us_per_step": 454.4686508178711,
+          "exclusive_interval_us_per_step": 454.4686508178711,
+          "union_fraction_of_trace_span": 0.03154764216839671,
+          "names": [
+            "_count_expert_num_tokens",
+            "_fwd_kernel_ep_gather",
+            "_fwd_kernel_ep_scatter_1",
+            "_fwd_kernel_ep_scatter_2"
+          ]
+        },
+        "MoE_silu_quant": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 238.376875,
+          "interval_union_us_per_step": 238.37731170654297,
+          "exclusive_interval_us_per_step": 238.37731170654297,
+          "union_fraction_of_trace_span": 0.01654732866007105,
+          "names": [
+            "_silu_mul_quant_fp8_packed_kernel"
+          ]
+        },
+        "attention_XQA": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 6307.241,
+          "interval_union_us_per_step": 6307.241012573242,
+          "exclusive_interval_us_per_step": 59.937774658203125,
+          "union_fraction_of_trace_span": 0.4378268603927044,
+          "names": [
+            "kernel_mha(unsigned int, float, float const*, Vec<__nv_bfloat16, 128u>*, Vec<__nv_bfloat16, 128u> const*, float const*, KVCacheList<true>, unsigned int, float, float const*, unsigned int, unsigned int, unsigned int, unsigned int*, void*)"
+          ]
+        },
+        "PDL_packed_quant": {
+          "count_per_step": 96.0,
+          "kernel_sum_us_per_step": 6407.7238125,
+          "interval_union_us_per_step": 6407.722091674805,
+          "exclusive_interval_us_per_step": 160.41885375976562,
+          "union_fraction_of_trace_span": 0.44480190943620995,
+          "names": [
+            "void per_token_group_quant_8bit_packed_register_kernel<c10::BFloat16, c10::Float8_e4m3fn, 128, 16, 1>(c10::BFloat16 const*, void*, unsigned int*, int, int, int, int, int, long, float, float, float)"
+          ]
+        },
+        "NCCL_allreduce": {
+          "count_per_step": 97.0,
+          "kernel_sum_us_per_step": 875.7954375,
+          "interval_union_us_per_step": 875.795524597168,
+          "exclusive_interval_us_per_step": 875.795524597168,
+          "union_fraction_of_trace_span": 0.0607946967804105,
+          "names": [
+            "ncclDevKernel_AllReduce_Sum_bf16_RING_LL(ncclDevKernelArgsStorage<4096ul>)"
+          ]
+        }
+      }
+    },
+    {
+      "trace": "results/raw/native_opportunity/native_opportunity_b8_train7_auto/native_opportunity_decode_dp0_pp0_tp0_dcp0_ep0_rank0.1792166088680490557.pt.trace.json.gz",
+      "sha256": "c75c3955cdeb8b1f00eab26921b8d9f7410797baa30876fcff3268e66a08ec3b",
+      "document_id": "docfinqa-f1d5c3003725d29c",
+      "method": "native_BF16_KV",
+      "B": 8,
+      "steps": 32,
+      "gate_attribution": "Each actual topk predecessor is BF16 GEMM, optionally followed by cuBLAS split-K reduce; same stream/graph/correlation through expert gather.",
+      "mean_trace_span_us_per_step": 18900.31184387207,
+      "MoE_gate_through_gather_span_us_per_step": 5015.145835876465,
+      "MoE_chain_interkernel_gap_us_per_step": 42.71522521972656,
+      "costs": {
+        "gate_splitk_reduce": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 56.19571875,
+          "interval_union_us_per_step": 56.19957733154297,
+          "exclusive_interval_us_per_step": 56.19957733154297,
+          "union_fraction_of_trace_span": 0.0029734735487850802,
+          "names": [
+            "void cublasLt::splitKreduce_kernel<32, 16, int, __nv_bfloat16, __nv_bfloat16, float, __nv_bfloat16, false, __nv_bfloat16, __nv_bfloat16, __nv_bfloat16, true, false, false, false>(cublasLt::cublasSplitKParams<float>, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16*, __nv_bfloat16*, float const*, float const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16*, void*, long, float*, int*, float*, float*, float const*, float const*, float const*, float const*, float const*)"
+          ]
+        },
+        "gate_GEMM": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 130.7735625,
+          "interval_union_us_per_step": 130.77294921875,
+          "exclusive_interval_us_per_step": 130.77294921875,
+          "union_fraction_of_trace_span": 0.006919089499634351,
+          "names": [
+            "void cutlass::Kernel2<cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x2_tn_align8>(cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x2_tn_align8::Params)"
+          ]
+        },
+        "whole_MoE_chain_kernels": {
+          "count_per_step": 672.0,
+          "kernel_sum_us_per_step": 4983.370125,
+          "interval_union_us_per_step": 4972.430610656738,
+          "exclusive_interval_us_per_step": 4972.430610656738,
+          "union_fraction_of_trace_span": 0.2630872258474888,
+          "names": [
+            "_count_expert_num_tokens",
+            "_fwd_kernel_ep_gather",
+            "_fwd_kernel_ep_scatter_1",
+            "_fwd_kernel_ep_scatter_2",
+            "_silu_mul_quant_fp8_packed_kernel",
+            "void at::native::vectorized_elementwise_kernel<4, at::native::FillFunctor<float>, std::array<char*, 1ul> >(int, at::native::FillFunctor<float>, std::array<char*, 1ul>)",
+            "void at::native::vectorized_elementwise_kernel<4, at::native::FillFunctor<int>, std::array<char*, 1ul> >(int, at::native::FillFunctor<int>, std::array<char*, 1ul>)",
+            "void cublasLt::splitKreduce_kernel<32, 16, int, __nv_bfloat16, __nv_bfloat16, float, __nv_bfloat16, false, __nv_bfloat16, __nv_bfloat16, __nv_bfloat16, true, false, false, false>(cublasLt::cublasSplitKParams<float>, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16*, __nv_bfloat16*, float const*, float const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16*, void*, long, float*, int*, float*, float*, float const*, float const*, float const*, float const*, float const*)",
+            "void cutlass::Kernel2<cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x2_tn_align8>(cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x2_tn_align8::Params)",
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 2048u, 384u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 768u, 2048u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+            "void deep_gemm::transpose_and_pack_fp32_into_ue8m0<512u, 48u, 16u, 128u, 1u, false>(float*, unsigned int*, unsigned int, unsigned int const*, unsigned int)",
+            "void per_token_group_quant_8bit_register_kernel<c10::BFloat16, c10::Float8_e4m3fn, false, true, 128>(c10::BFloat16 const*, void*, float*, long, float, float, float, int, int)",
+            "void vllm::moe::topkGating<8, 128, 4, 16, 32, int, __nv_bfloat16, (vllm::moe::ScoringFunc)0>(__nv_bfloat16 const*, bool const*, float*, int, int*, int*, int, int, int, bool, float const*, double, bool const*)"
+          ]
+        },
+        "router_topk": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 144.88496875,
+          "interval_union_us_per_step": 144.88731384277344,
+          "exclusive_interval_us_per_step": 143.2330093383789,
+          "union_fraction_of_trace_span": 0.00766586895706429,
+          "names": [
+            "void vllm::moe::topkGating<8, 128, 4, 16, 32, int, __nv_bfloat16, (vllm::moe::ScoringFunc)0>(__nv_bfloat16 const*, bool const*, float*, int, int*, int*, int, int, int, bool, float const*, double, bool const*)"
+          ]
+        },
+        "MoE_grouped_GEMM": {
+          "count_per_step": 96.0,
+          "kernel_sum_us_per_step": 3705.73290625,
+          "interval_union_us_per_step": 3705.73291015625,
+          "exclusive_interval_us_per_step": 3699.143569946289,
+          "union_fraction_of_trace_span": 0.1960672893001888,
+          "names": [
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 2048u, 384u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 768u, 2048u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)"
+          ]
+        },
+        "MoE_scatter_gather_count": {
+          "count_per_step": 192.0,
+          "kernel_sum_us_per_step": 462.56212500000004,
+          "interval_union_us_per_step": 462.56580352783203,
+          "exclusive_interval_us_per_step": 459.8468933105469,
+          "union_fraction_of_trace_span": 0.024473977326348022,
+          "names": [
+            "_count_expert_num_tokens",
+            "_fwd_kernel_ep_gather",
+            "_fwd_kernel_ep_scatter_1",
+            "_fwd_kernel_ep_scatter_2"
+          ]
+        },
+        "MoE_silu_quant": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 270.09984375,
+          "interval_union_us_per_step": 270.09996795654297,
+          "exclusive_interval_us_per_step": 265.49634552001953,
+          "union_fraction_of_trace_span": 0.014290767802549025,
+          "names": [
+            "_silu_mul_quant_fp8_packed_kernel"
+          ]
+        },
+        "attention_XQA": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 11129.15925,
+          "interval_union_us_per_step": 11129.1591796875,
+          "exclusive_interval_us_per_step": 38.991249084472656,
+          "union_fraction_of_trace_span": 0.588834685460274,
+          "names": [
+            "kernel_mha(unsigned int, float, float const*, Vec<__nv_bfloat16, 128u>*, Vec<__nv_bfloat16, 128u> const*, float const*, KVCacheList<true>, unsigned int, float, float const*, unsigned int, unsigned int, unsigned int, unsigned int*, void*)"
+          ]
+        },
+        "PDL_packed_quant": {
+          "count_per_step": 96.0,
+          "kernel_sum_us_per_step": 11315.07784375,
+          "interval_union_us_per_step": 11315.076118469238,
+          "exclusive_interval_us_per_step": 215.4976806640625,
+          "union_fraction_of_trace_span": 0.5986713982255195,
+          "names": [
+            "void per_token_group_quant_8bit_packed_register_kernel<c10::BFloat16, c10::Float8_e4m3fn, 128, 16, 1>(c10::BFloat16 const*, void*, unsigned int*, int, int, int, int, int, long, float, float, float)"
+          ]
+        },
+        "NCCL_allreduce": {
+          "count_per_step": 97.0,
+          "kernel_sum_us_per_step": 1007.83003125,
+          "interval_union_us_per_step": 1007.8305206298828,
+          "exclusive_interval_us_per_step": 1007.8305206298828,
+          "union_fraction_of_trace_span": 0.05332348635065751,
+          "names": [
+            "ncclDevKernel_AllReduce_Sum_bf16_RING_LL(ncclDevKernelArgsStorage<4096ul>)"
+          ]
+        }
+      }
+    },
+    {
+      "trace": "results/raw/native_opportunity/native_opportunity_b8_train7_auto/native_opportunity_decode_dp0_pp0_tp1_dcp0_ep1_rank1.1792166088675347495.pt.trace.json.gz",
+      "sha256": "74230b1f512a07fa33d281f9d58e3a8a464ae01b4c75854c89ed19681781501c",
+      "document_id": "docfinqa-f1d5c3003725d29c",
+      "method": "native_BF16_KV",
+      "B": 8,
+      "steps": 32,
+      "gate_attribution": "Each actual topk predecessor is BF16 GEMM, optionally followed by cuBLAS split-K reduce; same stream/graph/correlation through expert gather.",
+      "mean_trace_span_us_per_step": 18920.26055908203,
+      "MoE_gate_through_gather_span_us_per_step": 5228.042999267578,
+      "MoE_chain_interkernel_gap_us_per_step": 236.2732925415039,
+      "costs": {
+        "gate_splitk_reduce": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 53.907843750000005,
+          "interval_union_us_per_step": 53.91192626953125,
+          "exclusive_interval_us_per_step": 53.91192626953125,
+          "union_fraction_of_trace_span": 0.002849428320565736,
+          "names": [
+            "void cublasLt::splitKreduce_kernel<32, 16, int, __nv_bfloat16, __nv_bfloat16, float, __nv_bfloat16, false, __nv_bfloat16, __nv_bfloat16, __nv_bfloat16, true, false, false, false>(cublasLt::cublasSplitKParams<float>, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16*, __nv_bfloat16*, float const*, float const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16*, void*, long, float*, int*, float*, float*, float const*, float const*, float const*, float const*, float const*)"
+          ]
+        },
+        "gate_GEMM": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 129.34496875,
+          "interval_union_us_per_step": 129.34477996826172,
+          "exclusive_interval_us_per_step": 129.34477996826172,
+          "union_fraction_of_trace_span": 0.006836310713817,
+          "names": [
+            "void cutlass::Kernel2<cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x2_tn_align8>(cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x2_tn_align8::Params)"
+          ]
+        },
+        "whole_MoE_chain_kernels": {
+          "count_per_step": 672.0,
+          "kernel_sum_us_per_step": 4991.7450625,
+          "interval_union_us_per_step": 4991.769706726074,
+          "exclusive_interval_us_per_step": 4991.769706726074,
+          "union_fraction_of_trace_span": 0.26383197478376924,
+          "names": [
+            "_count_expert_num_tokens",
+            "_fwd_kernel_ep_gather",
+            "_fwd_kernel_ep_scatter_1",
+            "_fwd_kernel_ep_scatter_2",
+            "_silu_mul_quant_fp8_packed_kernel",
+            "void at::native::vectorized_elementwise_kernel<4, at::native::FillFunctor<float>, std::array<char*, 1ul> >(int, at::native::FillFunctor<float>, std::array<char*, 1ul>)",
+            "void at::native::vectorized_elementwise_kernel<4, at::native::FillFunctor<int>, std::array<char*, 1ul> >(int, at::native::FillFunctor<int>, std::array<char*, 1ul>)",
+            "void cublasLt::splitKreduce_kernel<32, 16, int, __nv_bfloat16, __nv_bfloat16, float, __nv_bfloat16, false, __nv_bfloat16, __nv_bfloat16, __nv_bfloat16, true, false, false, false>(cublasLt::cublasSplitKParams<float>, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16*, __nv_bfloat16*, float const*, float const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16*, void*, long, float*, int*, float*, float*, float const*, float const*, float const*, float const*, float const*)",
+            "void cutlass::Kernel2<cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x2_tn_align8>(cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x2_tn_align8::Params)",
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 2048u, 384u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 768u, 2048u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+            "void deep_gemm::transpose_and_pack_fp32_into_ue8m0<512u, 48u, 16u, 128u, 1u, false>(float*, unsigned int*, unsigned int, unsigned int const*, unsigned int)",
+            "void per_token_group_quant_8bit_register_kernel<c10::BFloat16, c10::Float8_e4m3fn, false, true, 128>(c10::BFloat16 const*, void*, float*, long, float, float, float, int, int)",
+            "void vllm::moe::topkGating<8, 128, 4, 16, 32, int, __nv_bfloat16, (vllm::moe::ScoringFunc)0>(__nv_bfloat16 const*, bool const*, float*, int, int*, int*, int, int, int, bool, float const*, double, bool const*)"
+          ]
+        },
+        "router_topk": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 144.759375,
+          "interval_union_us_per_step": 144.76165008544922,
+          "exclusive_interval_us_per_step": 144.76165008544922,
+          "union_fraction_of_trace_span": 0.007651144635847062,
+          "names": [
+            "void vllm::moe::topkGating<8, 128, 4, 16, 32, int, __nv_bfloat16, (vllm::moe::ScoringFunc)0>(__nv_bfloat16 const*, bool const*, float*, int, int*, int*, int, int, int, bool, float const*, double, bool const*)"
+          ]
+        },
+        "MoE_grouped_GEMM": {
+          "count_per_step": 96.0,
+          "kernel_sum_us_per_step": 3721.4534375,
+          "interval_union_us_per_step": 3721.453453063965,
+          "exclusive_interval_us_per_step": 3721.453453063965,
+          "union_fraction_of_trace_span": 0.19669144837847422,
+          "names": [
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 2048u, 384u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 768u, 2048u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)"
+          ]
+        },
+        "MoE_scatter_gather_count": {
+          "count_per_step": 192.0,
+          "kernel_sum_us_per_step": 459.846,
+          "interval_union_us_per_step": 459.85205078125,
+          "exclusive_interval_us_per_step": 459.85205078125,
+          "union_fraction_of_trace_span": 0.024304741964058924,
+          "names": [
+            "_count_expert_num_tokens",
+            "_fwd_kernel_ep_gather",
+            "_fwd_kernel_ep_scatter_1",
+            "_fwd_kernel_ep_scatter_2"
+          ]
+        },
+        "MoE_silu_quant": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 270.959125,
+          "interval_union_us_per_step": 270.95934295654297,
+          "exclusive_interval_us_per_step": 270.95934295654297,
+          "union_fraction_of_trace_span": 0.014321121113021782,
+          "names": [
+            "_silu_mul_quant_fp8_packed_kernel"
+          ]
+        },
+        "attention_XQA": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 10990.5009375,
+          "interval_union_us_per_step": 10990.500984191895,
+          "exclusive_interval_us_per_step": 56.897789001464844,
+          "union_fraction_of_trace_span": 0.5808852869584968,
+          "names": [
+            "kernel_mha(unsigned int, float, float const*, Vec<__nv_bfloat16, 128u>*, Vec<__nv_bfloat16, 128u> const*, float const*, KVCacheList<true>, unsigned int, float, float const*, unsigned int, unsigned int, unsigned int, unsigned int*, void*)"
+          ]
+        },
+        "PDL_packed_quant": {
+          "count_per_step": 96.0,
+          "kernel_sum_us_per_step": 11151.32125,
+          "interval_union_us_per_step": 11151.318824768066,
+          "exclusive_interval_us_per_step": 217.71562957763672,
+          "union_fraction_of_trace_span": 0.5893850557684447,
+          "names": [
+            "void per_token_group_quant_8bit_packed_register_kernel<c10::BFloat16, c10::Float8_e4m3fn, 128, 16, 1>(c10::BFloat16 const*, void*, unsigned int*, int, int, int, int, int, long, float, float, float)"
+          ]
+        },
+        "NCCL_allreduce": {
+          "count_per_step": 97.0,
+          "kernel_sum_us_per_step": 779.90465625,
+          "interval_union_us_per_step": 779.9043960571289,
+          "exclusive_interval_us_per_step": 779.9043960571289,
+          "union_fraction_of_trace_span": 0.04122059490786252,
+          "names": [
+            "ncclDevKernel_AllReduce_Sum_bf16_RING_LL(ncclDevKernelArgsStorage<4096ul>)"
+          ]
+        }
+      }
+    },
+    {
+      "trace": "results/raw/native_opportunity/native_opportunity_b8_train7_fp8_e4m3/native_opportunity_decode_dp0_pp0_tp0_dcp0_ep0_rank0.1792165875164858628.pt.trace.json.gz",
+      "sha256": "784e3bc5ae8ce58b5f6c5ec5aceb7db7cffe87bf321b6d0cd84c8919183d503a",
+      "document_id": "docfinqa-f1d5c3003725d29c",
+      "method": "native_FP8_KV_unit",
+      "B": 8,
+      "steps": 32,
+      "gate_attribution": "Each actual topk predecessor is BF16 GEMM, optionally followed by cuBLAS split-K reduce; same stream/graph/correlation through expert gather.",
+      "mean_trace_span_us_per_step": 15653.254898071289,
+      "MoE_gate_through_gather_span_us_per_step": 5220.256217956543,
+      "MoE_chain_interkernel_gap_us_per_step": 235.3193588256836,
+      "costs": {
+        "gate_splitk_reduce": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 55.328,
+          "interval_union_us_per_step": 55.332237243652344,
+          "exclusive_interval_us_per_step": 55.332237243652344,
+          "union_fraction_of_trace_span": 0.0035348710286746874,
+          "names": [
+            "void cublasLt::splitKreduce_kernel<32, 16, int, __nv_bfloat16, __nv_bfloat16, float, __nv_bfloat16, false, __nv_bfloat16, __nv_bfloat16, __nv_bfloat16, true, false, false, false>(cublasLt::cublasSplitKParams<float>, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16*, __nv_bfloat16*, float const*, float const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16*, void*, long, float*, int*, float*, float*, float const*, float const*, float const*, float const*, float const*)"
+          ]
+        },
+        "gate_GEMM": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 136.9984375,
+          "interval_union_us_per_step": 136.9966049194336,
+          "exclusive_interval_us_per_step": 136.9966049194336,
+          "union_fraction_of_trace_span": 0.00875195643407772,
+          "names": [
+            "void cutlass::Kernel2<cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x2_tn_align8>(cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x2_tn_align8::Params)"
+          ]
+        },
+        "whole_MoE_chain_kernels": {
+          "count_per_step": 672.0,
+          "kernel_sum_us_per_step": 4984.91921875,
+          "interval_union_us_per_step": 4984.936859130859,
+          "exclusive_interval_us_per_step": 4984.936859130859,
+          "union_fraction_of_trace_span": 0.3184600833239531,
+          "names": [
+            "_count_expert_num_tokens",
+            "_fwd_kernel_ep_gather",
+            "_fwd_kernel_ep_scatter_1",
+            "_fwd_kernel_ep_scatter_2",
+            "_silu_mul_quant_fp8_packed_kernel",
+            "void at::native::vectorized_elementwise_kernel<4, at::native::FillFunctor<float>, std::array<char*, 1ul> >(int, at::native::FillFunctor<float>, std::array<char*, 1ul>)",
+            "void at::native::vectorized_elementwise_kernel<4, at::native::FillFunctor<int>, std::array<char*, 1ul> >(int, at::native::FillFunctor<int>, std::array<char*, 1ul>)",
+            "void cublasLt::splitKreduce_kernel<32, 16, int, __nv_bfloat16, __nv_bfloat16, float, __nv_bfloat16, false, __nv_bfloat16, __nv_bfloat16, __nv_bfloat16, true, false, false, false>(cublasLt::cublasSplitKParams<float>, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16*, __nv_bfloat16*, float const*, float const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16*, void*, long, float*, int*, float*, float*, float const*, float const*, float const*, float const*, float const*)",
+            "void cutlass::Kernel2<cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x2_tn_align8>(cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x2_tn_align8::Params)",
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 2048u, 384u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 768u, 2048u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+            "void deep_gemm::transpose_and_pack_fp32_into_ue8m0<512u, 48u, 16u, 128u, 1u, false>(float*, unsigned int*, unsigned int, unsigned int const*, unsigned int)",
+            "void per_token_group_quant_8bit_register_kernel<c10::BFloat16, c10::Float8_e4m3fn, false, true, 128>(c10::BFloat16 const*, void*, float*, long, float, float, float, int, int)",
+            "void vllm::moe::topkGating<8, 128, 4, 16, 32, int, __nv_bfloat16, (vllm::moe::ScoringFunc)0>(__nv_bfloat16 const*, bool const*, float*, int, int*, int*, int, int, int, bool, float const*, double, bool const*)"
+          ]
+        },
+        "router_topk": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 146.9934375,
+          "interval_union_us_per_step": 146.99468994140625,
+          "exclusive_interval_us_per_step": 146.99468994140625,
+          "union_fraction_of_trace_span": 0.009390678865104161,
+          "names": [
+            "void vllm::moe::topkGating<8, 128, 4, 16, 32, int, __nv_bfloat16, (vllm::moe::ScoringFunc)0>(__nv_bfloat16 const*, bool const*, float*, int, int*, int*, int, int, int, bool, float const*, double, bool const*)"
+          ]
+        },
+        "MoE_grouped_GEMM": {
+          "count_per_step": 96.0,
+          "kernel_sum_us_per_step": 3705.8263125,
+          "interval_union_us_per_step": 3705.8263626098633,
+          "exclusive_interval_us_per_step": 3705.8263626098633,
+          "union_fraction_of_trace_span": 0.23674477843368383,
+          "names": [
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 2048u, 384u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 768u, 2048u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)"
+          ]
+        },
+        "MoE_scatter_gather_count": {
+          "count_per_step": 192.0,
+          "kernel_sum_us_per_step": 456.6184375,
+          "interval_union_us_per_step": 456.62176513671875,
+          "exclusive_interval_us_per_step": 456.62176513671875,
+          "union_fraction_of_trace_span": 0.029171042579328423,
+          "names": [
+            "_count_expert_num_tokens",
+            "_fwd_kernel_ep_gather",
+            "_fwd_kernel_ep_scatter_1",
+            "_fwd_kernel_ep_scatter_2"
+          ]
+        },
+        "MoE_silu_quant": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 267.7050625,
+          "interval_union_us_per_step": 267.70531463623047,
+          "exclusive_interval_us_per_step": 267.70531463623047,
+          "union_fraction_of_trace_span": 0.01710221397271284,
+          "names": [
+            "_silu_mul_quant_fp8_packed_kernel"
+          ]
+        },
+        "attention_XQA": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 7634.2870625,
+          "interval_union_us_per_step": 7634.287078857422,
+          "exclusive_interval_us_per_step": 60.284393310546875,
+          "union_fraction_of_trace_span": 0.4877124360760316,
+          "names": [
+            "kernel_mha(unsigned int, float, float const*, Vec<__nv_bfloat16, 128u>*, Vec<__nv_bfloat16, 128u> const*, float const*, KVCacheList<true>, unsigned int, float, float const*, unsigned int, unsigned int, unsigned int, unsigned int*, void*)"
+          ]
+        },
+        "PDL_packed_quant": {
+          "count_per_step": 96.0,
+          "kernel_sum_us_per_step": 7736.220875,
+          "interval_union_us_per_step": 7736.219268798828,
+          "exclusive_interval_us_per_step": 162.21658325195312,
+          "union_fraction_of_trace_span": 0.4942243207035518,
+          "names": [
+            "void per_token_group_quant_8bit_packed_register_kernel<c10::BFloat16, c10::Float8_e4m3fn, 128, 16, 1>(c10::BFloat16 const*, void*, unsigned int*, int, int, int, int, int, long, float, float, float)"
+          ]
+        },
+        "NCCL_allreduce": {
+          "count_per_step": 97.0,
+          "kernel_sum_us_per_step": 782.75259375,
+          "interval_union_us_per_step": 782.7524871826172,
+          "exclusive_interval_us_per_step": 782.7524871826172,
+          "union_fraction_of_trace_span": 0.05000573313854768,
+          "names": [
+            "ncclDevKernel_AllReduce_Sum_bf16_RING_LL(ncclDevKernelArgsStorage<4096ul>)"
+          ]
+        }
+      }
+    },
+    {
+      "trace": "results/raw/native_opportunity/native_opportunity_b8_train7_fp8_e4m3/native_opportunity_decode_dp0_pp0_tp1_dcp0_ep1_rank1.1792165875165628755.pt.trace.json.gz",
+      "sha256": "506cd37053247e802af67746ac894225e30ed966d7ed7343b280f0309c19258a",
+      "document_id": "docfinqa-f1d5c3003725d29c",
+      "method": "native_FP8_KV_unit",
+      "B": 8,
+      "steps": 32,
+      "gate_attribution": "Each actual topk predecessor is BF16 GEMM, optionally followed by cuBLAS split-K reduce; same stream/graph/correlation through expert gather.",
+      "mean_trace_span_us_per_step": 15655.947509765625,
+      "MoE_gate_through_gather_span_us_per_step": 5222.5239334106445,
+      "MoE_chain_interkernel_gap_us_per_step": 239.74407196044922,
+      "costs": {
+        "gate_splitk_reduce": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 55.60146875,
+          "interval_union_us_per_step": 55.60536193847656,
+          "exclusive_interval_us_per_step": 55.60536193847656,
+          "union_fraction_of_trace_span": 0.0035517085059075413,
+          "names": [
+            "void cublasLt::splitKreduce_kernel<32, 16, int, __nv_bfloat16, __nv_bfloat16, float, __nv_bfloat16, false, __nv_bfloat16, __nv_bfloat16, __nv_bfloat16, true, false, false, false>(cublasLt::cublasSplitKParams<float>, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16*, __nv_bfloat16*, float const*, float const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16*, void*, long, float*, int*, float*, float*, float const*, float const*, float const*, float const*, float const*)"
+          ]
+        },
+        "gate_GEMM": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 136.36990624999999,
+          "interval_union_us_per_step": 136.36821746826172,
+          "exclusive_interval_us_per_step": 136.36821746826172,
+          "union_fraction_of_trace_span": 0.008710313916369486,
+          "names": [
+            "void cutlass::Kernel2<cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x2_tn_align8>(cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x2_tn_align8::Params)"
+          ]
+        },
+        "whole_MoE_chain_kernels": {
+          "count_per_step": 672.0,
+          "kernel_sum_us_per_step": 4982.76359375,
+          "interval_union_us_per_step": 4982.779861450195,
+          "exclusive_interval_us_per_step": 4982.779861450195,
+          "union_fraction_of_trace_span": 0.3182675375183849,
+          "names": [
+            "_count_expert_num_tokens",
+            "_fwd_kernel_ep_gather",
+            "_fwd_kernel_ep_scatter_1",
+            "_fwd_kernel_ep_scatter_2",
+            "_silu_mul_quant_fp8_packed_kernel",
+            "void at::native::vectorized_elementwise_kernel<4, at::native::FillFunctor<float>, std::array<char*, 1ul> >(int, at::native::FillFunctor<float>, std::array<char*, 1ul>)",
+            "void at::native::vectorized_elementwise_kernel<4, at::native::FillFunctor<int>, std::array<char*, 1ul> >(int, at::native::FillFunctor<int>, std::array<char*, 1ul>)",
+            "void cublasLt::splitKreduce_kernel<32, 16, int, __nv_bfloat16, __nv_bfloat16, float, __nv_bfloat16, false, __nv_bfloat16, __nv_bfloat16, __nv_bfloat16, true, false, false, false>(cublasLt::cublasSplitKParams<float>, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16*, __nv_bfloat16*, float const*, float const*, __nv_bfloat16 const*, __nv_bfloat16 const*, __nv_bfloat16*, void*, long, float*, int*, float*, float*, float const*, float const*, float const*, float const*, float const*)",
+            "void cutlass::Kernel2<cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x2_tn_align8>(cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x2_tn_align8::Params)",
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 2048u, 384u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 768u, 2048u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+            "void deep_gemm::transpose_and_pack_fp32_into_ue8m0<512u, 48u, 16u, 128u, 1u, false>(float*, unsigned int*, unsigned int, unsigned int const*, unsigned int)",
+            "void per_token_group_quant_8bit_register_kernel<c10::BFloat16, c10::Float8_e4m3fn, false, true, 128>(c10::BFloat16 const*, void*, float*, long, float, float, float, int, int)",
+            "void vllm::moe::topkGating<8, 128, 4, 16, 32, int, __nv_bfloat16, (vllm::moe::ScoringFunc)0>(__nv_bfloat16 const*, bool const*, float*, int, int*, int*, int, int, int, bool, float const*, double, bool const*)"
+          ]
+        },
+        "router_topk": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 147.4259375,
+          "interval_union_us_per_step": 147.42694091796875,
+          "exclusive_interval_us_per_step": 147.42694091796875,
+          "union_fraction_of_trace_span": 0.009416673173310594,
+          "names": [
+            "void vllm::moe::topkGating<8, 128, 4, 16, 32, int, __nv_bfloat16, (vllm::moe::ScoringFunc)0>(__nv_bfloat16 const*, bool const*, float*, int, int*, int*, int, int, int, bool, float const*, double, bool const*)"
+          ]
+        },
+        "MoE_grouped_GEMM": {
+          "count_per_step": 96.0,
+          "kernel_sum_us_per_step": 3705.11875,
+          "interval_union_us_per_step": 3705.118766784668,
+          "exclusive_interval_us_per_step": 3705.118766784668,
+          "union_fraction_of_trace_span": 0.23665886491210744,
+          "names": [
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 2048u, 384u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+            "void deep_gemm::sm120_fp8_fp4_gemm_1d1d_impl<0u, 768u, 2048u, 128u, 128u, 128u, 128u, 128u, 64u, 64u, 64u, 128u, 4u, 128u, 256u, 170u, (deep_gemm::GemmType)1, false, cutlass::bfloat16_t, deep_gemm::epilogue::transform::EpilogueIdentity, false, false, false, true, false, 64u, 1u>(cutlass::bfloat16_t*, cutlass::bfloat16_t const*, __nv_fp8_e4m3*, __nv_fp8_e4m3*, int*, CUtensorMap_st*, float*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)"
+          ]
+        },
+        "MoE_scatter_gather_count": {
+          "count_per_step": 192.0,
+          "kernel_sum_us_per_step": 455.27871875,
+          "interval_union_us_per_step": 455.28160858154297,
+          "exclusive_interval_us_per_step": 455.28160858154297,
+          "union_fraction_of_trace_span": 0.02908042507791716,
+          "names": [
+            "_count_expert_num_tokens",
+            "_fwd_kernel_ep_gather",
+            "_fwd_kernel_ep_scatter_1",
+            "_fwd_kernel_ep_scatter_2"
+          ]
+        },
+        "MoE_silu_quant": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 266.96340625,
+          "interval_union_us_per_step": 266.96360778808594,
+          "exclusive_interval_us_per_step": 266.96360778808594,
+          "union_fraction_of_trace_span": 0.01705189721807406,
+          "names": [
+            "_silu_mul_quant_fp8_packed_kernel"
+          ]
+        },
+        "attention_XQA": {
+          "count_per_step": 48.0,
+          "kernel_sum_us_per_step": 7693.26921875,
+          "interval_union_us_per_step": 7693.269073486328,
+          "exclusive_interval_us_per_step": 60.39220428466797,
+          "union_fraction_of_trace_span": 0.4913959419375633,
+          "names": [
+            "kernel_mha(unsigned int, float, float const*, Vec<__nv_bfloat16, 128u>*, Vec<__nv_bfloat16, 128u> const*, float const*, KVCacheList<true>, unsigned int, float, float const*, unsigned int, unsigned int, unsigned int, unsigned int*, void*)"
+          ]
+        },
+        "PDL_packed_quant": {
+          "count_per_step": 96.0,
+          "kernel_sum_us_per_step": 7794.88834375,
+          "interval_union_us_per_step": 7794.886672973633,
+          "exclusive_interval_us_per_step": 162.00980377197266,
+          "union_fraction_of_trace_span": 0.49788661261871625,
+          "names": [
+            "void per_token_group_quant_8bit_packed_register_kernel<c10::BFloat16, c10::Float8_e4m3fn, 128, 16, 1>(c10::BFloat16 const*, void*, unsigned int*, int, int, int, int, int, long, float, float, float)"
+          ]
+        },
+        "NCCL_allreduce": {
+          "count_per_step": 97.0,
+          "kernel_sum_us_per_step": 716.14140625,
+          "interval_union_us_per_step": 716.1413650512695,
+          "exclusive_interval_us_per_step": 716.1413650512695,
+          "union_fraction_of_trace_span": 0.04574244801246082,
+          "names": [
+            "ncclDevKernel_AllReduce_Sum_bf16_RING_LL(ncclDevKernelArgsStorage<4096ul>)"
+          ]
+        }
+      }
+    }
+  ],
+  "limitations": [
+    "Profiled fixed B3/B8 graph window only, not natural B1/B2 tail or production wall latency.",
+    "Interval union removes double counting but neither union, exclusive occupancy, nor kernel sum is a causal removable latency bound.",
+    "PDL may charge producer waiting to a consumer kernel; no independent quantization savings inferred.",
+    "MoE whole-chain includes router, quantization, counts, scatter, packing, grouped GEMMs, activation and gather, excludes preceding RMSNorm and following NCCL.",
+    "No claim of a new mechanism, candidate qualification, GPU experiment, or measured application acceleration."
+  ]
+}
