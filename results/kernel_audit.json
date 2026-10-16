@@ -1,0 +1,3735 @@
+{
+  "schema_version": 1,
+  "audited_at_utc": "2026-10-16T05:19:24.631775+00:00",
+  "auditor": "kernel implementation subagent; self-review, not an independent third-party replication",
+  "mode": "Read-only CPU audit of existing source, generated code, logs and raw timings; no new GPU jobs",
+  "evidence_commit": "623666ce099a992584fefe175c8c6d1ee321b2de",
+  "source_snapshot_sha256": {
+    "proposal-iscas.md": "ec3852ea02812faa7b68211d243d9f6ddf7197ea9c3c7f9d53df36c6fc7a8a54",
+    "src/branchtile/attention.py": "2878475c1273f527f95f629090e275c5a99f9dbad6c67646c40657692c20673d",
+    "src/branchtile/attention_v2.py": "f6a3ef3519ed96a5405afe92dfdadf064575d027aa05502fb9304e37abeed916",
+    "src/branchtile/tilelang_kernel.py": "8f1c5c73e6767c6231e13dfeca1ced455b0236b238ec100916fb67d74db5e6a0",
+    "src/branchtile/tilelang_kernel_v2.py": "7f36322f62d94d047788cce58cf6b4063e7e27b2cd6f96624f7e5f93c9f90525",
+    "src/branchtile/attention_v3.py": "d2a11acd8ef0ece0b202e28fd9897ce501a312de2f0f857a09266a869ffddd0a",
+    "src/branchtile/tilelang_kernel_v3.py": "356546ab35003abcb0c2ed055389dbc4f9e7d899abe837ad6ddc15b36502d0a9",
+    "src/branchtile/resources.py": "b08fc87f2f690c84d450f7b1ea2c704d73cd2ac2dd66b2f7431791013e761c58",
+    "src/flashinfer_baseline.py": "942eb00c9442393871af9cdab140e83de00bb05c30d2c36fa04a1d0735bc50fa",
+    "scripts/compare_attention.py": "cb39cd6269de71579185a0836c7c74432768119ce9e8cf7369459597b6b5c41e",
+    "scripts/compare_v3_bounded.py": "592795eed43d914a132f44228f9a74607e2c8b207cbf854ce539d464b9ff0f10",
+    "tests/test_attention.py": "c3594274197583a6851acdc6819d36d5c9dbed6c3f940f0b7c53f0265488e936",
+    "tests/test_attention_v2.py": "64d72650152921932347d241af9e197ab232392fe53f4b0b262f2646bb2eabc6",
+    "tests/test_attention_v3.py": "066bf8c37d3a45133f35a40b9693128f85495139b409e2185161d26370bba72a",
+    "results/kernel_resources.json": "8a0ae592806b0673f49beba54523cc189bed91dbe6fd52422672eb037672494a",
+    "results/kernel_ablation_v2/summary.json": "5a5ccdb5349e6bde9e6b6c56a9e2a0f38def91b2ed7e04690b2505774eeb7e5f",
+    "results/kernel_ablation_v3/qualification.json": "e2a9a2b165933fe43161990d5a83285a983348aa7543bfee030c7ede1384aa32",
+    "results/validation/fp64_tests.txt": "9bb61ae5d4d46281a308dc67f7b3470389da81c74b39f8f81915c87670af6111",
+    "results/validation/compute_sanitizer_memcheck.txt": "766a24b86c69a9f4339282c0d0432a5b550bb6dec62e4b209b4b9755b11f6b84",
+    "results/validation/v2_memcheck.txt": "091e8678281e1c8fe2ba8d2094329d3d20fe3880f9d272d3c47cb9d80605bf2f",
+    "results/validation/v2_racecheck.txt": "dadd2f09645e4a65c28c871edbcbb04eb9fea3644b8a907ca85c55177f35cb71",
+    "results/validation/branchtile_v3_memcheck.txt": "da827a3080f406d0c8754fda5103cfef9fe1402d3f8ee16c9f05e1238271ee37",
+    "results/validation/branchtile_v3_qualify_bench.txt": "18573417d2f111f7798469505bebca578792769118da27a89b2a7930266e7a52",
+    "results/validation/ncu_permissions.txt": "53f16224b4a62e0c0adaf3d3e07d6d063bb8adb9b144fa8a9d56222b1e82a24b"
+  },
+  "decision": {
+    "status": "stop_current_BranchTile_prototypes_before_full_integration",
+    "confidence_scope": "Strong evidence for the measured SM120 implementations and operator replay shapes; no universal impossibility claim.",
+    "supported_conclusion": "Current v2/v3 dynamic-row implementations do not meet the approximately 15% first-round speed signal against the independently tuned fixed-row E2. Natural diagnostic replay is slower in both cache controls. The conclusion does not rely on native FlashInfer timing or the newer union metadata.",
+    "stage_name_correction": "Proposal section 5.6 names P1 as application qualification and P2 as operator qualification. These experiments do not complete formal P1 or P2. The supported no-go is an economical stop of the present operator/integration direction under section 6, not a completed negative P1 application trial.",
+    "no_additional_GPU_run_needed_to_support_this_scoped_stop": true
+  },
+  "gate_audit": [
+    {
+      "proposal_reference": "proposal-iscas.md:340",
+      "requirement": "Natural captures should show about 15% stable complete-call gain, exceeding twice A/A noise, over fixed-row accumulation, best fixed partition and exact hierarchy before full integration.",
+      "finding": "Necessary fixed-row comparison fails on all four measured old-30B QMSum layer snapshots: fixed/candidate hot ratios 0.7885–0.8095 and cold 0.8421–0.8881. No positive 15% signal exists. All four cases use the same document/step, so they are four layer snapshots, not four independent documents.",
+      "decision": "Sufficient to withhold further integration of this implementation on the measured scope. Not sufficient to claim that the prescribed official-model, six-document natural suite has been completed."
+    },
+    {
+      "proposal_reference": "proposal-iscas.md:342",
+      "requirement": "Record failure if row switching/on-chip traffic, spill or split erase savings.",
+      "finding": "Reduced logical M tiles do not translate into a net producer-plus-merge gain after per-arm split tuning. Compiled SMEM/register footprints substantiate a resource cost. No local-memory spill is present in the recorded cubins. Traffic, stall and occupancy causes are not directly measured.",
+      "decision": "Measured net-cost failure is supported for this implementation. A specific causal claim about bank conflicts, DRAM bandwidth, achieved occupancy or spills is not supported."
+    },
+    {
+      "proposal_reference": "proposal-iscas.md:268 and proposal-iscas.md:256",
+      "requirement": "P1 compares A0–A4 on original eight development reports, main-model TP2, with common-ready, full costs and application upper bounds.",
+      "finding": "No complete P1 application comparison, quality-constrained dominating alternative or removable-attention upper bound is established by the kernel evidence.",
+      "decision": "Formal P1 failure or success remains unevaluated by this audit. Do not substitute kernel replay for application JCT/quality."
+    },
+    {
+      "proposal_reference": "proposal-iscas.md:269",
+      "requirement": "Formal P2 uses main-model six-document snapshots, four prescribed layers and naturally reached 1/16/64/256 steps, all KV heads per rank, E0–E6.",
+      "finding": "Primary audited natural kernel replay covers one old-BF16-model QMSum meeting, four layers, step 1 and two KV heads. Synthetic and bounded-layout tests supplement it.",
+      "decision": "Exploratory operator qualification only; E1 best fixed partition and E4 exact hierarchy are not directly measured. Their absence cannot rescue a required gain that already fails versus E2, but prevents claiming exhaustive baseline coverage."
+    }
+  ],
+  "correctness_audit": [
+    {
+      "topic": "Exact same mask and physical source",
+      "result": "No mismatch found in the execution contract.",
+      "evidence": [
+        "make_plan groups every nonzero owner token once into disjoint regions; active row maps are unique and bounded.",
+        "All tile methods read the same q/k/v tensors and index metadata. Payloads are not duplicated per request by the operators.",
+        "FlashInfer flattens (head,request) and uses page-size-one indices head*N+token; k/v are views of the same physical source.",
+        "Natural replay concatenates system prefix, document and complete per-request suffix once into the common source and marks private suffix ownership. Queries and cached keys retain the captured RoPE transforms."
+      ],
+      "limits": [
+        "Capture construction and model correctness were not independently re-executed in this audit.",
+        "Sequentially collected natural queries do not establish a simultaneous ready window or shared-cache lifetime in an engine."
+      ]
+    },
+    {
+      "topic": "Independent reference and LSE",
+      "result": "FP64 reference is independent of the compact metadata and avoids TF32; eligibility assertions check O and LSE.",
+      "evidence": [
+        "reference defaults to torch.float64 for QK, softmax and PV, using original owner bits directly.",
+        "Candidate/E2 emit natural-log LSE. Native log2 LSE is multiplied by ln(2) for correctness comparisons.",
+        "Empty rows produce O=0 and LSE=-inf. assert_close validates infinities; the diagnostic max-error nan_to_num is not the qualification decision."
+      ],
+      "limits": [
+        "Initial broad screen and 2x2 benchmark use FP32 reference, so their error columns are not FP64 evidence. FP64 unit tests and later paired runs provide the stronger checks.",
+        "Tolerances are atol=0.006, rtol=0.015 for O; no separate artifact proves native-calibrated tolerance freezing and complete layer-output/logit verification prescribed by section 5.7.",
+        "Natural l47 candidate/fixed max absolute error is 0.0037283956; native reaches 0.0090291050 under relative tolerance. Report actual errors, not an unsupported universal sub-1e-3 bound.",
+        "Maximum relative output errors and full-budget equivalence to complete model Dense execution are not recorded."
+      ]
+    },
+    {
+      "topic": "Runtime mapping, layout and precision",
+      "result": "No outstanding semantic or layout defect identified in the accepted results.",
+      "evidence": [
+        "Generated kernels branch on runtime Count into actual M16 versus M32 GEMMs in one CTA; runtime metadata mutation exercises both branches without recompilation.",
+        "v2 preserves canonical FP32 m/l/u across region transitions. v3 preserves u in FP32 registers and stages its exact 32 bits in two BF16-typed scratch cells; there is no numeric BF16 conversion of canonical u.",
+        "An early output-store layout permutation was fixed using explicit output stores before the accepted evidence runs; accepted FP64 tests cover all output columns.",
+        "Strong E2 keeps Q resident in shared memory and m/l/u in registers across regions, without dynamic canonical-state gather/scatter. It is not the weaker fixed-row mode with artificial remapping."
+      ],
+      "limits": [
+        "Coverage includes full/disjoint/cross/tree/mixed/empty, tails, splits, empty rows, B1/B3/B4 and GQA4/8, but does not exhaustively enumerate all alive subsets or all model data distributions.",
+        "Tests validate final results; they do not directly inspect every intermediate canonical state or establish a formal proof."
+      ]
+    },
+    {
+      "topic": "Sanitizers",
+      "result": "Existing accepted logs show no memory errors or reported shared-memory races.",
+      "evidence": {
+        "v1_fp64_tests": 17,
+        "v2_memcheck_tests": 17,
+        "v2_memcheck_errors": 0,
+        "v2_runtime_racecheck_hazards": 0,
+        "v3_memcheck_tests": 5,
+        "v3_memcheck_errors": 0,
+        "v3_runtime_racecheck_hazards": 0
+      },
+      "limits": [
+        "Sanitizers cover the listed tests, not all possible configurations. Passing racecheck is not proof of race freedom."
+      ]
+    }
+  ],
+  "performance_audit": [
+    {
+      "topic": "Whole timed call and preprocessing",
+      "result": "Candidate and E2 timing includes producer, global split partials and merge; no producer-only speedup is used.",
+      "limits": [
+        "CPU metadata construction, allocation, compilation and planning are outside steady-state timing. Plan preparation is separately reported but not amortized into these ratios.",
+        "The natural replay includes private suffix computation, but not selection, model preparation, TP communication, decoding control, queueing or application completion.",
+        "A producer-plus-merge loss is sufficient to stop the current implementation; these numbers are not full-application costs."
+      ]
+    },
+    {
+      "topic": "Native LSE interface timing",
+      "result": "Native correctness is normalized to natural log; native timed run retains log2 LSE.",
+      "severity": "Reporting caveat; does not invalidate the E2-based no-go.",
+      "limits": [
+        "The ln(2) conversion is performed outside the timing interval. If the caller requires natural-log LSE, native timing is a lower bound for that normalized interface.",
+        "Label native timings as its original API or include a timed normalization in any future exact-interface claim. Near-ties against native alone are insufficient."
+      ]
+    },
+    {
+      "topic": "Tuning fairness",
+      "result": "Each arm selects its own qualified best configuration independently for hot and cold cache before the paired measurements.",
+      "evidence": [
+        "v2 synthetic grid: N32/64, splits16/32/64/128, threads128/256, with explicit failed configurations retained.",
+        "Natural diagnostic grid: N32/64, splits16/64/128, threads128.",
+        "Native retries use 512 MiB workspace; cache-retuned runs do not silently exclude the earlier 128 MiB workspace failures.",
+        "v3 bounded candidate is N64/128 threads with splits16/32/64/128; fixed retains N32/64 and native retains its choices."
+      ],
+      "limits": [
+        "Some N32/256-thread compact shapes fail TileLang warp_col_tiles constraints. These are implementation failures, not zero/slow timing samples.",
+        "No two-stage pipeline, hand-CUDA rewrite or exhaustive layout search was performed. The negative result is not a theorem about the best possible implementation.",
+        "Natural tuning is narrower than synthetic tuning; all official P2 shapes and all KV heads were not covered."
+      ]
+    },
+    {
+      "topic": "Pairing, cache and statistical scope",
+      "result": "CPU recomputation confirms stored medians, ratios, A/A and tuning selection for all audited paired files.",
+      "evidence": [
+        "Each cache regime has 30 randomized blocks and a reverse-order repeat, with all methods on the same physical GPU.",
+        "Bootstrap resamples blocks, retaining paired random/reverse measurements. Original raw measurements remain available.",
+        "Hot uses 20 calls per graph; cold uses one call after a flush larger than twice reported L2. Flush is outside timing."
+      ],
+      "limits": [
+        "Cold single-call timing is visibly quantized around 2.048 microseconds; zero-width bootstrap intervals do not imply exact population certainty.",
+        "Artificial flush is a controlled cold-cache condition, not the proposal's natural rotating-capture or identical model-prefix execution.",
+        "These are within-run timing intervals. Many blocks/layers/GPUs are not independent documents or model seeds.",
+        "Multiple physical GPUs are used, but a complete prescribed same-case second-card method-swap matrix and frozen twice-A/A decision statistic are not documented for the entire suite.",
+        "Minor near-ties, including v3 128K, must not be generalized. The large natural E2 gaps and lack of any 15% gain support the scoped stop."
+      ]
+    },
+    {
+      "topic": "2x2 mechanism ablation",
+      "result": "48 raw configurations, zero failures, with full source preserved; useful diagnostic, not a strong E3 comparison.",
+      "limits": [
+        "Region-partial variants write full canonical row slots including inactive zeros; optimized packed-active E3 is not implemented.",
+        "Nine hot samples in fixed method order lack the paired random/reverse protocol; tuning winners are exploratory.",
+        "The 64K fused compact timing (30.27776 us) beats fused fixed (32.44160 us) in this diagnostic slice. Preserve it; it is below the proposed 15% signal and fixed partial is faster (25.24096 us)."
+      ]
+    },
+    {
+      "topic": "Union metadata bug reported by parent",
+      "result": "Three audited newer union raw files include fixed_AA in methods and an extra fixed_AA_over_compact summary. Parent corrected loop-variable shadowing in source and plans a sidecar annotation.",
+      "severity": "Metadata/extra-summary defect only in these files.",
+      "evidence": [
+        "Raw times, fixed/native/union median ratios, per-cache best-config choice and random/reverse order recompute correctly.",
+        "Older v2 natural and v3 files are unaffected. Core no-go does not depend on this union extension."
+      ],
+      "action": "Keep original files and annotate provenance; do not silently rewrite correctly collected measurements."
+    }
+  ],
+  "resource_audit": {
+    "records": "results/kernel_resources.json",
+    "record_count": 7,
+    "fields_verified": "GPU arch, shape, generated-source SHA256, cubin SHA256, registers, static+dynamic shared memory, stack/local bytes",
+    "v3_saved_cubin_and_generated_source_hashes_match": true,
+    "n64_examples": {
+      "v2": {
+        "registers": 190,
+        "shared_bytes": 64768
+      },
+      "v3": {
+        "registers": 240,
+        "shared_bytes": 48384
+      },
+      "fixed_E2": {
+        "registers": 148,
+        "shared_bytes": 47104
+      }
+    },
+    "finding": "v3 reduces SMEM but raises registers and does not recover a stable performance gain. Recorded cubins have zero stack/local-memory allocation.",
+    "limitations": [
+      "Compiler resource counts support capacity arguments, not achieved occupancy or causal traffic attribution.",
+      "Unprivileged Nsight Compute returned ERR_NVGPUCTRPERM; no root access was used. No measured DRAM/L2 bytes, dynamic tensor instructions, bank conflicts or stalls are claimed.",
+      "Plan.statistics reports logical tile estimates; it is not a hardware counter.",
+      "The v1 N64 cubin is a compiled resource-failing configuration and is not a valid performance sample."
+    ]
+  },
+  "remaining_claims_not_supported": [
+    "General infeasibility of dynamic row compaction on other architectures, compilers or layouts.",
+    "Completed official Qwen3-30B-A3B-Thinking-2507-FP8 TP2 deployment/application evaluation.",
+    "Official six-document natural P2 suite, complete E0–E6 comparison or full alive-subset correctness coverage.",
+    "Natural common-ready lifetime, whole-document JCT, quality non-inferiority, capacity or energy improvement.",
+    "A measured specific bank-conflict, DRAM-traffic, occupancy or spill explanation for the latency gap."
+  ],
+  "recommended_report_wording": "On SM120, our numerically validated BranchTile prototypes failed the planned approximately 15% operator signal after independent tuning. On the tested old-model QMSum diagnostic captures they were slower than the fixed-row on-chip control, so we stopped this implementation before full application integration. Formal application qualification and the prescribed official-model natural suite remain incomplete.",
+  "paired_evidence": [
+    {
+      "family": "v2_synthetic_cache_retuned",
+      "path": "results/paired/paired_v2_cache_tuned_cross_n131072_g8_gpu5.json",
+      "sha256": "53638a8d42b618e14612423f46c9f6e8e452cdb42df9d5e520bc764ae55bd95a",
+      "protocol_version": 2,
+      "gpu_uuid": "f073d33b-4145-414a-7580-7c5e18bb0fe9",
+      "q_shape": [
+        2,
+        32,
+        128
+      ],
+      "k_shape": [
+        2,
+        131072,
+        128
+      ],
+      "provenance": {
+        "kind": "synthetic",
+        "pattern": "cross",
+        "seed": 20261016
+      },
+      "summary": {
+        "hot": {
+          "median_us": {
+            "native": 82.74239897727966,
+            "compact": 94.37920153141022,
+            "fixed": 92.47200191020966
+          },
+          "fixed_AA_median_ratio": 0.9994641871471622,
+          "fixed_over_compact": {
+            "median": 0.9794178580258175,
+            "paired_block_bootstrap95": [
+              0.9786937156581004,
+              0.9818214231644171
+            ]
+          },
+          "native_over_compact": {
+            "median": 0.8774533731448428,
+            "paired_block_bootstrap95": [
+              0.8765913521178917,
+              0.8784277562617446
+            ]
+          }
+        },
+        "cold": {
+          "median_us": {
+            "native": 106.49599879980087,
+            "compact": 106.46399855613708,
+            "fixed": 100.35199671983719
+          },
+          "fixed_AA_median_ratio": 1.0,
+          "fixed_over_compact": {
+            "median": 0.9607722813507574,
+            "paired_block_bootstrap95": [
+              0.9601837486632739,
+              0.9610787501325415
+            ]
+          },
+          "native_over_compact": {
+            "median": 1.0004538077687266,
+            "paired_block_bootstrap95": [
+              1.0003005733778345,
+              1.0196078501306785
+            ]
+          }
+        }
+      },
+      "aa_audit": {
+        "hot": {
+          "median_ratio": 0.9994641871471622,
+          "p95_abs_ratio_minus_one_nearest_rank": 0.01545903753994815
+        },
+        "cold": {
+          "median_ratio": 1.0,
+          "p95_abs_ratio_minus_one_nearest_rank": 0.040000014551915486
+        }
+      },
+      "raw_cpu_recomputation": "passed: 30 randomized/reversed paired blocks per cache; positive finite times; exact stored medians/ratios; independently best qualified config per cache",
+      "numerics_by_method": {
+        "compact": {
+          "qualified_config_count": 12,
+          "max_output_abs_error_fp64_over_qualified_configs": 9.037035756174344e-05,
+          "max_lse_error_fp64_over_qualified_configs": 9.366790933995617e-07,
+          "configurations": [
+            {
+              "block_n": 64,
+              "split": 16,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 32,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 32,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 128,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 32,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 64,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 32,
+              "threads_or_tensor_cores": 256
+            }
+          ]
+        },
+        "fixed": {
+          "qualified_config_count": 16,
+          "max_output_abs_error_fp64_over_qualified_configs": 9.037035756174344e-05,
+          "max_lse_error_fp64_over_qualified_configs": 9.366790933995617e-07,
+          "configurations": [
+            {
+              "block_n": 32,
+              "split": 32,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 64,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 32,
+              "split": 128,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 16,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 32,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 64,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 32,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 16,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 32,
+              "split": 32,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 128,
+              "threads_or_tensor_cores": 256
+            }
+          ]
+        },
+        "native": {
+          "qualified_config_count": 6,
+          "max_output_abs_error_fp64_over_qualified_configs": 0.00011424560080881829,
+          "max_lse_error_fp64_over_qualified_configs": 2.4870618844374803e-05,
+          "configurations": [
+            {
+              "block_n": 0,
+              "split": 128,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": null,
+              "threads_or_tensor_cores": 0
+            },
+            {
+              "block_n": 0,
+              "split": 1024,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": 512,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": null,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": 256,
+              "threads_or_tensor_cores": 1
+            }
+          ]
+        }
+      },
+      "failed_configurations_by_reason": {
+        "compact: AssertionError('warp_col_tiles must be greater than 8, got 4')": 4
+      },
+      "raw_methods_metadata_contains_AA": false
+    },
+    {
+      "family": "v2_synthetic_cache_retuned",
+      "path": "results/paired/paired_v2_cache_tuned_cross_n16384_g8_gpu1.json",
+      "sha256": "1418cc8b27b467c5615a415a90145d02f275bb5a9489f2b0d0be4645c2324d01",
+      "protocol_version": 2,
+      "gpu_uuid": "ae92c55e-dadf-1a1d-e921-b36b5a212fa5",
+      "q_shape": [
+        2,
+        32,
+        128
+      ],
+      "k_shape": [
+        2,
+        16384,
+        128
+      ],
+      "provenance": {
+        "kind": "synthetic",
+        "pattern": "cross",
+        "seed": 20261016
+      },
+      "summary": {
+        "hot": {
+          "median_us": {
+            "native": 10.48160009086132,
+            "compact": 16.445600241422653,
+            "fixed": 14.741599559783936
+          },
+          "fixed_AA_median_ratio": 1.0004881657253288,
+          "fixed_over_compact": {
+            "median": 0.895053791506746,
+            "paired_block_bootstrap95": [
+              0.8936231197904603,
+              0.896662436128464
+            ]
+          },
+          "native_over_compact": {
+            "median": 0.6373289313051407,
+            "paired_block_bootstrap95": [
+              0.6366724815682603,
+              0.6378865004848131
+            ]
+          }
+        },
+        "cold": {
+          "median_us": {
+            "native": 24.57600086927414,
+            "compact": 28.672000393271446,
+            "fixed": 26.623999699950218
+          },
+          "fixed_AA_median_ratio": 1.0,
+          "fixed_over_compact": {
+            "median": 0.9275362008490012,
+            "paired_block_bootstrap95": [
+              0.867639352814487,
+              0.9285714053700335
+            ]
+          },
+          "native_over_compact": {
+            "median": 0.80135555866455,
+            "paired_block_bootstrap95": [
+              0.8008342086231703,
+              0.8570630666473619
+            ]
+          }
+        }
+      },
+      "aa_audit": {
+        "hot": {
+          "median_ratio": 1.0004881657253288,
+          "p95_abs_ratio_minus_one_nearest_rank": 0.007786368084814255
+        },
+        "cold": {
+          "median_ratio": 1.0,
+          "p95_abs_ratio_minus_one_nearest_rank": 0.08203118960386968
+        }
+      },
+      "raw_cpu_recomputation": "passed: 30 randomized/reversed paired blocks per cache; positive finite times; exact stored medians/ratios; independently best qualified config per cache",
+      "numerics_by_method": {
+        "compact": {
+          "qualified_config_count": 12,
+          "max_output_abs_error_fp64_over_qualified_configs": 0.00023521413327580454,
+          "max_lse_error_fp64_over_qualified_configs": 9.193948962149534e-07,
+          "configurations": [
+            {
+              "block_n": 64,
+              "split": 16,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 32,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 32,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 128,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 32,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 64,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 32,
+              "threads_or_tensor_cores": 256
+            }
+          ]
+        },
+        "fixed": {
+          "qualified_config_count": 16,
+          "max_output_abs_error_fp64_over_qualified_configs": 0.00023521413327580454,
+          "max_lse_error_fp64_over_qualified_configs": 9.193948962149534e-07,
+          "configurations": [
+            {
+              "block_n": 32,
+              "split": 32,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 64,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 32,
+              "split": 128,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 16,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 32,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 64,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 32,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 16,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 32,
+              "split": 32,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 128,
+              "threads_or_tensor_cores": 256
+            }
+          ]
+        },
+        "native": {
+          "qualified_config_count": 6,
+          "max_output_abs_error_fp64_over_qualified_configs": 0.0002977028947279414,
+          "max_lse_error_fp64_over_qualified_configs": 7.48188161860952e-05,
+          "configurations": [
+            {
+              "block_n": 0,
+              "split": 128,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": null,
+              "threads_or_tensor_cores": 0
+            },
+            {
+              "block_n": 0,
+              "split": 1024,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": 512,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": null,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": 256,
+              "threads_or_tensor_cores": 1
+            }
+          ]
+        }
+      },
+      "failed_configurations_by_reason": {
+        "compact: AssertionError('warp_col_tiles must be greater than 8, got 4')": 4
+      },
+      "raw_methods_metadata_contains_AA": false
+    },
+    {
+      "family": "v2_synthetic_cache_retuned",
+      "path": "results/paired/paired_v2_cache_tuned_cross_n65536_g4_gpu0.json",
+      "sha256": "a103a802b33785c3c6bee98acaed3248f07fca5201bd4834fa3674599cafe0df",
+      "protocol_version": 2,
+      "gpu_uuid": "a968eb06-fbdc-36af-d507-50240e0e50a3",
+      "q_shape": [
+        2,
+        16,
+        128
+      ],
+      "k_shape": [
+        2,
+        65536,
+        128
+      ],
+      "provenance": {
+        "kind": "synthetic",
+        "pattern": "cross",
+        "seed": 20261016
+      },
+      "summary": {
+        "hot": {
+          "median_us": {
+            "native": 26.319201290607452,
+            "compact": 29.836800694465637,
+            "fixed": 26.575200259685516
+          },
+          "fixed_AA_median_ratio": 0.9994599206271907,
+          "fixed_over_compact": {
+            "median": 0.890889576950623,
+            "paired_block_bootstrap95": [
+              0.8894010893645794,
+              0.8919496471181565
+            ]
+          },
+          "native_over_compact": {
+            "median": 0.8810651805564209,
+            "paired_block_bootstrap95": [
+              0.8799956054705722,
+              0.8821070678106249
+            ]
+          }
+        },
+        "cold": {
+          "median_us": {
+            "native": 57.37600103020668,
+            "compact": 59.39200147986412,
+            "fixed": 57.34400078654289
+          },
+          "fixed_AA_median_ratio": 0.9994613478803829,
+          "fixed_over_compact": {
+            "median": 0.965517230564867,
+            "paired_block_bootstrap95": [
+              0.965517230564867,
+              0.9660468783693861
+            ]
+          },
+          "native_over_compact": {
+            "median": 0.9666217659029352,
+            "paired_block_bootstrap95": [
+              0.9660377289812455,
+              1.0
+            ]
+          }
+        }
+      },
+      "aa_audit": {
+        "hot": {
+          "median_ratio": 0.9994599206271907,
+          "p95_abs_ratio_minus_one_nearest_rank": 0.0076621863915082855
+        },
+        "cold": {
+          "median_ratio": 0.9994613478803829,
+          "p95_abs_ratio_minus_one_nearest_rank": 0.03629258998608531
+        }
+      },
+      "raw_cpu_recomputation": "passed: 30 randomized/reversed paired blocks per cache; positive finite times; exact stored medians/ratios; independently best qualified config per cache",
+      "numerics_by_method": {
+        "compact": {
+          "qualified_config_count": 12,
+          "max_output_abs_error_fp64_over_qualified_configs": 0.0001161914343198664,
+          "max_lse_error_fp64_over_qualified_configs": 8.246080902551967e-07,
+          "configurations": [
+            {
+              "block_n": 64,
+              "split": 16,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 32,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 32,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 128,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 32,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 64,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 32,
+              "threads_or_tensor_cores": 256
+            }
+          ]
+        },
+        "fixed": {
+          "qualified_config_count": 12,
+          "max_output_abs_error_fp64_over_qualified_configs": 0.0001161914343198664,
+          "max_lse_error_fp64_over_qualified_configs": 8.246080902551967e-07,
+          "configurations": [
+            {
+              "block_n": 64,
+              "split": 64,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 32,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 32,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 16,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 32,
+              "split": 32,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 128,
+              "threads_or_tensor_cores": 256
+            }
+          ]
+        },
+        "native": {
+          "qualified_config_count": 6,
+          "max_output_abs_error_fp64_over_qualified_configs": 0.0001800178746692166,
+          "max_lse_error_fp64_over_qualified_configs": 3.3356038212417616e-05,
+          "configurations": [
+            {
+              "block_n": 0,
+              "split": 128,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": null,
+              "threads_or_tensor_cores": 0
+            },
+            {
+              "block_n": 0,
+              "split": 1024,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": 512,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": null,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": 256,
+              "threads_or_tensor_cores": 1
+            }
+          ]
+        }
+      },
+      "failed_configurations_by_reason": {
+        "compact: AssertionError('warp_col_tiles must be greater than 8, got 4')": 4,
+        "fixed: AssertionError('warp_col_tiles must be greater than 8, got 4')": 4
+      },
+      "raw_methods_metadata_contains_AA": false
+    },
+    {
+      "family": "v2_synthetic_cache_retuned",
+      "path": "results/paired/paired_v2_cache_tuned_mixed_n65536_g8_gpu6.json",
+      "sha256": "a296cddc8f44485dbed873ad5c5582443512655c02c4a5d5c209471a892a85eb",
+      "protocol_version": 2,
+      "gpu_uuid": "8061d8f4-2930-e7ae-b651-2440160b9eea",
+      "q_shape": [
+        2,
+        32,
+        128
+      ],
+      "k_shape": [
+        2,
+        65536,
+        128
+      ],
+      "provenance": {
+        "kind": "synthetic",
+        "pattern": "mixed",
+        "seed": 20261016
+      },
+      "summary": {
+        "hot": {
+          "median_us": {
+            "native": 27.60159969329834,
+            "compact": 52.983999252319336,
+            "fixed": 39.3887996673584
+          },
+          "fixed_AA_median_ratio": 1.000101764804325,
+          "fixed_over_compact": {
+            "median": 0.7432940100151175,
+            "paired_block_bootstrap95": [
+              0.7428959618595066,
+              0.7443897317277863
+            ]
+          },
+          "native_over_compact": {
+            "median": 0.5209352202500098,
+            "paired_block_bootstrap95": [
+              0.5205855445496081,
+              0.5213460721246135
+            ]
+          }
+        },
+        "cold": {
+          "median_us": {
+            "native": 57.34400078654289,
+            "compact": 77.82399654388428,
+            "fixed": 63.48799914121628
+          },
+          "fixed_AA_median_ratio": 1.0,
+          "fixed_over_compact": {
+            "median": 0.8157894988779707,
+            "paired_block_bootstrap95": [
+              0.8157894988779707,
+              0.8157894988779707
+            ]
+          },
+          "native_over_compact": {
+            "median": 0.7369937004976955,
+            "paired_block_bootstrap95": [
+              0.7368421480925502,
+              0.7627467602839921
+            ]
+          }
+        }
+      },
+      "aa_audit": {
+        "hot": {
+          "median_ratio": 1.000101764804325,
+          "p95_abs_ratio_minus_one_nearest_rank": 0.007155047924070845
+        },
+        "cold": {
+          "median_ratio": 1.0,
+          "p95_abs_ratio_minus_one_nearest_rank": 0.03387182448233106
+        }
+      },
+      "raw_cpu_recomputation": "passed: 30 randomized/reversed paired blocks per cache; positive finite times; exact stored medians/ratios; independently best qualified config per cache",
+      "numerics_by_method": {
+        "compact": {
+          "qualified_config_count": 12,
+          "max_output_abs_error_fp64_over_qualified_configs": 0.00012360250915033344,
+          "max_lse_error_fp64_over_qualified_configs": 9.349172920281035e-07,
+          "configurations": [
+            {
+              "block_n": 64,
+              "split": 16,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 32,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 32,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 128,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 32,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 64,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 32,
+              "threads_or_tensor_cores": 256
+            }
+          ]
+        },
+        "fixed": {
+          "qualified_config_count": 16,
+          "max_output_abs_error_fp64_over_qualified_configs": 0.00012360250915033344,
+          "max_lse_error_fp64_over_qualified_configs": 9.349172920281035e-07,
+          "configurations": [
+            {
+              "block_n": 32,
+              "split": 32,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 64,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 32,
+              "split": 128,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 16,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 32,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 64,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 32,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 16,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 32,
+              "split": 32,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 128,
+              "threads_or_tensor_cores": 256
+            }
+          ]
+        },
+        "native": {
+          "qualified_config_count": 6,
+          "max_output_abs_error_fp64_over_qualified_configs": 0.00013436627484249286,
+          "max_lse_error_fp64_over_qualified_configs": 2.9446883456074602e-05,
+          "configurations": [
+            {
+              "block_n": 0,
+              "split": 128,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": null,
+              "threads_or_tensor_cores": 0
+            },
+            {
+              "block_n": 0,
+              "split": 1024,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": 512,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": null,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": 256,
+              "threads_or_tensor_cores": 1
+            }
+          ]
+        }
+      },
+      "failed_configurations_by_reason": {
+        "compact: AssertionError('warp_col_tiles must be greater than 8, got 4')": 4
+      },
+      "raw_methods_metadata_contains_AA": false
+    },
+    {
+      "family": "v2_natural_diagnostic",
+      "path": "results/natural_paired/natural_old30b_qmsum0_l0_b4096_s1.json",
+      "sha256": "eaf061763af4cc02d275653326dedb76af4406f40f00876c6115cda3d58457d3",
+      "protocol_version": 2,
+      "gpu_uuid": "a968eb06-fbdc-36af-d507-50240e0e50a3",
+      "q_shape": [
+        2,
+        32,
+        128
+      ],
+      "k_shape": [
+        2,
+        6241,
+        128
+      ],
+      "provenance": {
+        "capture": "results/captures/old30b_diagnostic/qmsum0_retry2",
+        "layer": 0,
+        "budget": 4096,
+        "step": 1,
+        "original_active_requests": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "selected_kv_heads": [
+          0,
+          1
+        ],
+        "model": "/home/qcjz/models/Qwen3-30B-A3B",
+        "model_revision": "local-old-bf16-not-2507",
+        "document_sha256": "399061a27b352694a3b198ef2309813c41ca8ee57d168018441f349ced4e02f8",
+        "includes_system_prefix_and_complete_private_suffix": true,
+        "ready_lifetime_measured": false
+      },
+      "summary": {
+        "hot": {
+          "median_us": {
+            "native": 7.927999645471573,
+            "compact": 26.22399926185608,
+            "fixed": 21.221600472927094
+          },
+          "fixed_AA_median_ratio": 0.9991691269872756,
+          "fixed_over_compact": {
+            "median": 0.809538324923615,
+            "paired_block_bootstrap95": [
+              0.8081929014696755,
+              0.8108301816842163
+            ]
+          },
+          "native_over_compact": {
+            "median": 0.3027000554455519,
+            "paired_block_bootstrap95": [
+              0.30224042757720126,
+              0.30322758716762144
+            ]
+          }
+        },
+        "cold": {
+          "median_us": {
+            "native": 18.432000651955605,
+            "compact": 34.81600061058998,
+            "fixed": 30.719999223947525
+          },
+          "fixed_AA_median_ratio": 1.0,
+          "fixed_over_compact": {
+            "median": 0.8823529034119854,
+            "paired_block_bootstrap95": [
+              0.8823529034119854,
+              0.8823529034119854
+            ]
+          },
+          "native_over_compact": {
+            "median": 0.5294117741470037,
+            "paired_block_bootstrap95": [
+              0.5291686998621683,
+              0.5294117741470037
+            ]
+          }
+        }
+      },
+      "aa_audit": {
+        "hot": {
+          "median_ratio": 0.9991691269872756,
+          "p95_abs_ratio_minus_one_nearest_rank": 0.009430422651113934
+        },
+        "cold": {
+          "median_ratio": 1.0,
+          "p95_abs_ratio_minus_one_nearest_rank": 0.06666669091985922
+        }
+      },
+      "raw_cpu_recomputation": "passed: 30 randomized/reversed paired blocks per cache; positive finite times; exact stored medians/ratios; independently best qualified config per cache",
+      "numerics_by_method": {
+        "compact": {
+          "qualified_config_count": 6,
+          "max_output_abs_error_fp64_over_qualified_configs": 0.00011056949638955232,
+          "max_lse_error_fp64_over_qualified_configs": 1.9678805003309208e-06,
+          "configurations": [
+            {
+              "block_n": 32,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            }
+          ]
+        },
+        "fixed": {
+          "qualified_config_count": 6,
+          "max_output_abs_error_fp64_over_qualified_configs": 0.00011056949638955232,
+          "max_lse_error_fp64_over_qualified_configs": 1.9678805003309208e-06,
+          "configurations": [
+            {
+              "block_n": 64,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            }
+          ]
+        },
+        "native": {
+          "qualified_config_count": 6,
+          "max_output_abs_error_fp64_over_qualified_configs": 0.0001444189656732292,
+          "max_lse_error_fp64_over_qualified_configs": 0.0002765210925836925,
+          "configurations": [
+            {
+              "block_n": 0,
+              "split": 128,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": 1024,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": null,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": 512,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": null,
+              "threads_or_tensor_cores": 0
+            },
+            {
+              "block_n": 0,
+              "split": 256,
+              "threads_or_tensor_cores": 1
+            }
+          ]
+        }
+      },
+      "failed_configurations_by_reason": {},
+      "raw_methods_metadata_contains_AA": false
+    },
+    {
+      "family": "v2_natural_diagnostic",
+      "path": "results/natural_paired/natural_old30b_qmsum0_l15_b4096_s1.json",
+      "sha256": "b2f835724e3d65f897a426c23cc0ff3ab4b6f969d0c8a401893ef213a56b494c",
+      "protocol_version": 2,
+      "gpu_uuid": "ae92c55e-dadf-1a1d-e921-b36b5a212fa5",
+      "q_shape": [
+        2,
+        32,
+        128
+      ],
+      "k_shape": [
+        2,
+        6241,
+        128
+      ],
+      "provenance": {
+        "capture": "results/captures/old30b_diagnostic/qmsum0_retry2",
+        "layer": 15,
+        "budget": 4096,
+        "step": 1,
+        "original_active_requests": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "selected_kv_heads": [
+          0,
+          1
+        ],
+        "model": "/home/qcjz/models/Qwen3-30B-A3B",
+        "model_revision": "local-old-bf16-not-2507",
+        "document_sha256": "399061a27b352694a3b198ef2309813c41ca8ee57d168018441f349ced4e02f8",
+        "includes_system_prefix_and_complete_private_suffix": true,
+        "ready_lifetime_measured": false
+      },
+      "summary": {
+        "hot": {
+          "median_us": {
+            "native": 7.949599996209145,
+            "compact": 27.408801019191742,
+            "fixed": 21.612800657749176
+          },
+          "fixed_AA_median_ratio": 0.9999630006487633,
+          "fixed_over_compact": {
+            "median": 0.7886814961223183,
+            "paired_block_bootstrap95": [
+              0.7877617005291784,
+              0.7890684470756917
+            ]
+          },
+          "native_over_compact": {
+            "median": 0.2902188982514132,
+            "paired_block_bootstrap95": [
+              0.2892913412216731,
+              0.29095887720793234
+            ]
+          }
+        },
+        "cold": {
+          "median_us": {
+            "native": 16.383999958634377,
+            "compact": 38.91199827194214,
+            "fixed": 32.76799991726875
+          },
+          "fixed_AA_median_ratio": 1.0,
+          "fixed_over_compact": {
+            "median": 0.8421052984291589,
+            "paired_block_bootstrap95": [
+              0.8421052984291589,
+              0.8533332906477173
+            ]
+          },
+          "native_over_compact": {
+            "median": 0.42139915688482577,
+            "paired_block_bootstrap95": [
+              0.42105264921457947,
+              0.44396175185331466
+            ]
+          }
+        }
+      },
+      "aa_audit": {
+        "hot": {
+          "median_ratio": 0.9999630006487633,
+          "p95_abs_ratio_minus_one_nearest_rank": 0.007825213320373892
+        },
+        "cold": {
+          "median_ratio": 1.0,
+          "p95_abs_ratio_minus_one_nearest_rank": 0.07617188676836406
+        }
+      },
+      "raw_cpu_recomputation": "passed: 30 randomized/reversed paired blocks per cache; positive finite times; exact stored medians/ratios; independently best qualified config per cache",
+      "numerics_by_method": {
+        "compact": {
+          "qualified_config_count": 6,
+          "max_output_abs_error_fp64_over_qualified_configs": 0.0002879063247311492,
+          "max_lse_error_fp64_over_qualified_configs": 1.8127035428250338e-06,
+          "configurations": [
+            {
+              "block_n": 32,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            }
+          ]
+        },
+        "fixed": {
+          "qualified_config_count": 6,
+          "max_output_abs_error_fp64_over_qualified_configs": 0.0002879063247311492,
+          "max_lse_error_fp64_over_qualified_configs": 1.8127035428250338e-06,
+          "configurations": [
+            {
+              "block_n": 64,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            }
+          ]
+        },
+        "native": {
+          "qualified_config_count": 6,
+          "max_output_abs_error_fp64_over_qualified_configs": 0.0002926564357050576,
+          "max_lse_error_fp64_over_qualified_configs": 0.00021342127767987051,
+          "configurations": [
+            {
+              "block_n": 0,
+              "split": 128,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": 1024,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": null,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": 512,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": null,
+              "threads_or_tensor_cores": 0
+            },
+            {
+              "block_n": 0,
+              "split": 256,
+              "threads_or_tensor_cores": 1
+            }
+          ]
+        }
+      },
+      "failed_configurations_by_reason": {},
+      "raw_methods_metadata_contains_AA": false
+    },
+    {
+      "family": "v2_natural_diagnostic",
+      "path": "results/natural_paired/natural_old30b_qmsum0_l31_b4096_s1.json",
+      "sha256": "3c30e64ac29d117f7f1643b7b21b7ce9ee1f7de12f9695cb3136ffeb7baa8ce0",
+      "protocol_version": 2,
+      "gpu_uuid": "f073d33b-4145-414a-7580-7c5e18bb0fe9",
+      "q_shape": [
+        2,
+        32,
+        128
+      ],
+      "k_shape": [
+        2,
+        6241,
+        128
+      ],
+      "provenance": {
+        "capture": "results/captures/old30b_diagnostic/qmsum0_retry2",
+        "layer": 31,
+        "budget": 4096,
+        "step": 1,
+        "original_active_requests": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "selected_kv_heads": [
+          0,
+          1
+        ],
+        "model": "/home/qcjz/models/Qwen3-30B-A3B",
+        "model_revision": "local-old-bf16-not-2507",
+        "document_sha256": "399061a27b352694a3b198ef2309813c41ca8ee57d168018441f349ced4e02f8",
+        "includes_system_prefix_and_complete_private_suffix": true,
+        "ready_lifetime_measured": false
+      },
+      "summary": {
+        "hot": {
+          "median_us": {
+            "native": 7.951200008392334,
+            "compact": 27.01359987258911,
+            "fixed": 21.33840024471283
+          },
+          "fixed_AA_median_ratio": 0.9999252472271014,
+          "fixed_over_compact": {
+            "median": 0.7884861564543731,
+            "paired_block_bootstrap95": [
+              0.7874512768064919,
+              0.7907031298084259
+            ]
+          },
+          "native_over_compact": {
+            "median": 0.2940967249379153,
+            "paired_block_bootstrap95": [
+              0.29375958317785605,
+              0.2944432241773298
+            ]
+          }
+        },
+        "cold": {
+          "median_us": {
+            "native": 16.35199971497059,
+            "compact": 36.83200106024742,
+            "fixed": 32.735999673604965
+          },
+          "fixed_AA_median_ratio": 1.0,
+          "fixed_over_compact": {
+            "median": 0.8880693533705901,
+            "paired_block_bootstrap95": [
+              0.8880207930692464,
+              0.8887923200278345
+            ]
+          },
+          "native_over_compact": {
+            "median": 0.4442030897276326,
+            "paired_block_bootstrap95": [
+              0.44396175185331466,
+              0.4446374978882352
+            ]
+          }
+        }
+      },
+      "aa_audit": {
+        "hot": {
+          "median_ratio": 0.9999252472271014,
+          "p95_abs_ratio_minus_one_nearest_rank": 0.007420771962451056
+        },
+        "cold": {
+          "median_ratio": 1.0,
+          "p95_abs_ratio_minus_one_nearest_rank": 0.07820133887863256
+        }
+      },
+      "raw_cpu_recomputation": "passed: 30 randomized/reversed paired blocks per cache; positive finite times; exact stored medians/ratios; independently best qualified config per cache",
+      "numerics_by_method": {
+        "compact": {
+          "qualified_config_count": 6,
+          "max_output_abs_error_fp64_over_qualified_configs": 0.0010038434139754138,
+          "max_lse_error_fp64_over_qualified_configs": 2.624089260550022e-06,
+          "configurations": [
+            {
+              "block_n": 32,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            }
+          ]
+        },
+        "fixed": {
+          "qualified_config_count": 6,
+          "max_output_abs_error_fp64_over_qualified_configs": 0.0010038434139754138,
+          "max_lse_error_fp64_over_qualified_configs": 2.624089260550022e-06,
+          "configurations": [
+            {
+              "block_n": 64,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            }
+          ]
+        },
+        "native": {
+          "qualified_config_count": 6,
+          "max_output_abs_error_fp64_over_qualified_configs": 0.0028267306400360237,
+          "max_lse_error_fp64_over_qualified_configs": 0.00016804891228971996,
+          "configurations": [
+            {
+              "block_n": 0,
+              "split": 128,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": 1024,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": null,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": 512,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": null,
+              "threads_or_tensor_cores": 0
+            },
+            {
+              "block_n": 0,
+              "split": 256,
+              "threads_or_tensor_cores": 1
+            }
+          ]
+        }
+      },
+      "failed_configurations_by_reason": {},
+      "raw_methods_metadata_contains_AA": false
+    },
+    {
+      "family": "v2_natural_diagnostic",
+      "path": "results/natural_paired/natural_old30b_qmsum0_l47_b4096_s1.json",
+      "sha256": "91b0d9dc1cf8b4fd48106dfb2a0ba0b89215275fa9cc3c167c36b4e065904d72",
+      "protocol_version": 2,
+      "gpu_uuid": "8061d8f4-2930-e7ae-b651-2440160b9eea",
+      "q_shape": [
+        2,
+        32,
+        128
+      ],
+      "k_shape": [
+        2,
+        6241,
+        128
+      ],
+      "provenance": {
+        "capture": "results/captures/old30b_diagnostic/qmsum0_retry2",
+        "layer": 47,
+        "budget": 4096,
+        "step": 1,
+        "original_active_requests": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "selected_kv_heads": [
+          0,
+          1
+        ],
+        "model": "/home/qcjz/models/Qwen3-30B-A3B",
+        "model_revision": "local-old-bf16-not-2507",
+        "document_sha256": "399061a27b352694a3b198ef2309813c41ca8ee57d168018441f349ced4e02f8",
+        "includes_system_prefix_and_complete_private_suffix": true,
+        "ready_lifetime_measured": false
+      },
+      "summary": {
+        "hot": {
+          "median_us": {
+            "native": 7.972799986600876,
+            "compact": 26.8327996134758,
+            "fixed": 21.226400136947632
+          },
+          "fixed_AA_median_ratio": 0.9994352613511888,
+          "fixed_over_compact": {
+            "median": 0.7906414069299691,
+            "paired_block_bootstrap95": [
+              0.7901249335165322,
+              0.7917885216953638
+            ]
+          },
+          "native_over_compact": {
+            "median": 0.2972529302586114,
+            "paired_block_bootstrap95": [
+              0.2967131144904566,
+              0.2975260773482419
+            ]
+          }
+        },
+        "cold": {
+          "median_us": {
+            "native": 16.35199971497059,
+            "compact": 36.86400130391121,
+            "fixed": 32.76799991726875
+          },
+          "fixed_AA_median_ratio": 1.0,
+          "fixed_over_compact": {
+            "median": 0.8881179136719339,
+            "paired_block_bootstrap95": [
+              0.8399081321177595,
+              0.8888888552039012
+            ]
+          },
+          "native_over_compact": {
+            "median": 0.44396175185331466,
+            "paired_block_bootstrap95": [
+              0.44357636546729584,
+              0.4471341747165818
+            ]
+          }
+        }
+      },
+      "aa_audit": {
+        "hot": {
+          "median_ratio": 0.9994352613511888,
+          "p95_abs_ratio_minus_one_nearest_rank": 0.0066927340802356294
+        },
+        "cold": {
+          "median_ratio": 1.0,
+          "p95_abs_ratio_minus_one_nearest_rank": 0.08300781949440506
+        }
+      },
+      "raw_cpu_recomputation": "passed: 30 randomized/reversed paired blocks per cache; positive finite times; exact stored medians/ratios; independently best qualified config per cache",
+      "numerics_by_method": {
+        "compact": {
+          "qualified_config_count": 6,
+          "max_output_abs_error_fp64_over_qualified_configs": 0.003728395584388755,
+          "max_lse_error_fp64_over_qualified_configs": 3.67921994914866e-06,
+          "configurations": [
+            {
+              "block_n": 32,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            }
+          ]
+        },
+        "fixed": {
+          "qualified_config_count": 6,
+          "max_output_abs_error_fp64_over_qualified_configs": 0.003728395584388755,
+          "max_lse_error_fp64_over_qualified_configs": 3.67921994914866e-06,
+          "configurations": [
+            {
+              "block_n": 64,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            }
+          ]
+        },
+        "native": {
+          "qualified_config_count": 6,
+          "max_output_abs_error_fp64_over_qualified_configs": 0.00902910496070497,
+          "max_lse_error_fp64_over_qualified_configs": 0.0002417802968963656,
+          "configurations": [
+            {
+              "block_n": 0,
+              "split": 128,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": 1024,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": null,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": 512,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": null,
+              "threads_or_tensor_cores": 0
+            },
+            {
+              "block_n": 0,
+              "split": 256,
+              "threads_or_tensor_cores": 1
+            }
+          ]
+        }
+      },
+      "failed_configurations_by_reason": {},
+      "raw_methods_metadata_contains_AA": false
+    },
+    {
+      "family": "v2_union_control",
+      "path": "results/union_paired/union_v2_cross_n131072_g8.json",
+      "sha256": "a0471e3b28437c47bd5c7da524426a62e7faf70c114c5c52032e90041f6db85f",
+      "protocol_version": 2,
+      "gpu_uuid": "ae92c55e-dadf-1a1d-e921-b36b5a212fa5",
+      "q_shape": [
+        2,
+        32,
+        128
+      ],
+      "k_shape": [
+        2,
+        131072,
+        128
+      ],
+      "provenance": {
+        "kind": "synthetic",
+        "pattern": "cross",
+        "seed": 20261016
+      },
+      "summary": {
+        "hot": {
+          "median_us": {
+            "native": 83.06640088558197,
+            "union": 91.7055994272232,
+            "compact": 94.53279972076416,
+            "fixed": 92.3112004995346
+          },
+          "fixed_AA_median_ratio": 1.0000096883696483,
+          "native_over_compact": {
+            "median": 0.8797942824089964,
+            "paired_block_bootstrap95": [
+              0.8781454665221065,
+              0.8864880163910992
+            ]
+          },
+          "fixed_AA_over_compact": {
+            "median": 0.9780429460759567,
+            "paired_block_bootstrap95": [
+              0.9752935093133848,
+              0.979365014806717
+            ]
+          },
+          "fixed_over_compact": {
+            "median": 0.9780013909785104,
+            "paired_block_bootstrap95": [
+              0.9761287888299924,
+              0.9793639478315191
+            ]
+          },
+          "union_over_compact": {
+            "median": 0.9731968192221359,
+            "paired_block_bootstrap95": [
+              0.9698467405817134,
+              0.9786525690729457
+            ]
+          }
+        },
+        "cold": {
+          "median_us": {
+            "native": 106.49599879980087,
+            "union": 104.44799810647964,
+            "compact": 106.49599879980087,
+            "fixed": 100.35199671983719
+          },
+          "fixed_AA_median_ratio": 1.0,
+          "native_over_compact": {
+            "median": 1.0,
+            "paired_block_bootstrap95": [
+              0.9974459740967183,
+              1.0003005733778345
+            ]
+          },
+          "fixed_AA_over_compact": {
+            "median": 0.9519370659197814,
+            "paired_block_bootstrap95": [
+              0.9424492884265818,
+              0.9610787501325415
+            ]
+          },
+          "fixed_over_compact": {
+            "median": 0.9425909047265671,
+            "paired_block_bootstrap95": [
+              0.9423076721265966,
+              0.9607722813507574
+            ]
+          },
+          "union_over_compact": {
+            "median": 0.9810640171607454,
+            "paired_block_bootstrap95": [
+              0.9807692240421989,
+              1.0
+            ]
+          }
+        }
+      },
+      "aa_audit": {
+        "hot": {
+          "median_ratio": 1.0000096883696483,
+          "p95_abs_ratio_minus_one_nearest_rank": 0.01399860073867143
+        },
+        "cold": {
+          "median_ratio": 1.0,
+          "p95_abs_ratio_minus_one_nearest_rank": 0.0411483430552817
+        }
+      },
+      "raw_cpu_recomputation": "passed: 30 randomized/reversed paired blocks per cache; positive finite times; exact stored medians/ratios; independently best qualified config per cache",
+      "numerics_by_method": {
+        "compact": {
+          "qualified_config_count": 12,
+          "max_output_abs_error_fp64_over_qualified_configs": 9.037035756174344e-05,
+          "max_lse_error_fp64_over_qualified_configs": 9.366790933995617e-07,
+          "configurations": [
+            {
+              "block_n": 64,
+              "split": 128,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 32,
+              "split": 32,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 16,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 32,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 64,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 32,
+              "threads_or_tensor_cores": 256
+            }
+          ]
+        },
+        "fixed": {
+          "qualified_config_count": 16,
+          "max_output_abs_error_fp64_over_qualified_configs": 9.037035756174344e-05,
+          "max_lse_error_fp64_over_qualified_configs": 9.366790933995617e-07,
+          "configurations": [
+            {
+              "block_n": 64,
+              "split": 32,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 32,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 32,
+              "split": 16,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 32,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 128,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 32,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 32,
+              "split": 64,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 64,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 16,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 32,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 32,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 128,
+              "threads_or_tensor_cores": 256
+            }
+          ]
+        },
+        "native": {
+          "qualified_config_count": 6,
+          "max_output_abs_error_fp64_over_qualified_configs": 0.00011424560080881829,
+          "max_lse_error_fp64_over_qualified_configs": 2.4870618844374803e-05,
+          "configurations": [
+            {
+              "block_n": 0,
+              "split": null,
+              "threads_or_tensor_cores": 0
+            },
+            {
+              "block_n": 0,
+              "split": 128,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": 256,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": 512,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": 1024,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": null,
+              "threads_or_tensor_cores": 1
+            }
+          ]
+        },
+        "union": {
+          "qualified_config_count": 16,
+          "max_output_abs_error_fp64_over_qualified_configs": 7.739172003235276e-05,
+          "max_lse_error_fp64_over_qualified_configs": 1.1061857421168497e-06,
+          "configurations": [
+            {
+              "block_n": 64,
+              "split": 32,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 64,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 128,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 32,
+              "split": 128,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 32,
+              "split": 16,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 32,
+              "split": 32,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 64,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 16,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 32,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 32,
+              "threads_or_tensor_cores": 256
+            }
+          ]
+        }
+      },
+      "failed_configurations_by_reason": {
+        "compact: AssertionError('warp_col_tiles must be greater than 8, got 4')": 4
+      },
+      "raw_methods_metadata_contains_AA": true
+    },
+    {
+      "family": "v2_union_control",
+      "path": "results/union_paired/union_v2_cross_n16384_g8.json",
+      "sha256": "4376b525569a0869e64839ff443163cde3d1befa1d2d9ce5aed87be25806d29a",
+      "protocol_version": 2,
+      "gpu_uuid": "a968eb06-fbdc-36af-d507-50240e0e50a3",
+      "q_shape": [
+        2,
+        32,
+        128
+      ],
+      "k_shape": [
+        2,
+        16384,
+        128
+      ],
+      "provenance": {
+        "kind": "synthetic",
+        "pattern": "cross",
+        "seed": 20261016
+      },
+      "summary": {
+        "hot": {
+          "median_us": {
+            "native": 10.544800013303757,
+            "union": 11.151200160384178,
+            "compact": 16.66640043258667,
+            "fixed": 14.91280049085617
+          },
+          "fixed_AA_median_ratio": 0.998279474411885,
+          "native_over_compact": {
+            "median": 0.6333461840523672,
+            "paired_block_bootstrap95": [
+              0.6325844871668204,
+              0.6339963529239206
+            ]
+          },
+          "fixed_AA_over_compact": {
+            "median": 0.8957513921857683,
+            "paired_block_bootstrap95": [
+              0.8940329247843877,
+              0.8968513409648764
+            ]
+          },
+          "fixed_over_compact": {
+            "median": 0.8947116003708286,
+            "paired_block_bootstrap95": [
+              0.8935760985108436,
+              0.8958512992812548
+            ]
+          },
+          "union_over_compact": {
+            "median": 0.6691296428912517,
+            "paired_block_bootstrap95": [
+              0.6685385148280807,
+              0.6703444213706141
+            ]
+          }
+        },
+        "cold": {
+          "median_us": {
+            "native": 24.57600086927414,
+            "union": 24.57600086927414,
+            "compact": 30.688000842928886,
+            "fixed": 26.623999699950218
+          },
+          "fixed_AA_median_ratio": 1.0,
+          "native_over_compact": {
+            "median": 0.8008342086231703,
+            "paired_block_bootstrap95": [
+              0.7998957481752964,
+              0.8008342086231703
+            ]
+          },
+          "fixed_AA_over_compact": {
+            "median": 0.8675703522109655,
+            "paired_block_bootstrap95": [
+              0.8675703522109655,
+              0.8675703522109655
+            ]
+          },
+          "fixed_over_compact": {
+            "median": 0.8675703522109655,
+            "paired_block_bootstrap95": [
+              0.8675703522109655,
+              0.8675703522109655
+            ]
+          },
+          "union_over_compact": {
+            "median": 0.8008342086231703,
+            "paired_block_bootstrap95": [
+              0.8008342086231703,
+              0.8009379355606598
+            ]
+          }
+        }
+      },
+      "aa_audit": {
+        "hot": {
+          "median_ratio": 0.998279474411885,
+          "p95_abs_ratio_minus_one_nearest_rank": 0.008977205339463445
+        },
+        "cold": {
+          "median_ratio": 1.0,
+          "p95_abs_ratio_minus_one_nearest_rank": 0.0012033786220697618
+        }
+      },
+      "raw_cpu_recomputation": "passed: 30 randomized/reversed paired blocks per cache; positive finite times; exact stored medians/ratios; independently best qualified config per cache",
+      "numerics_by_method": {
+        "compact": {
+          "qualified_config_count": 12,
+          "max_output_abs_error_fp64_over_qualified_configs": 0.00023521413327580454,
+          "max_lse_error_fp64_over_qualified_configs": 9.193948962149534e-07,
+          "configurations": [
+            {
+              "block_n": 64,
+              "split": 128,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 32,
+              "split": 32,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 16,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 32,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 64,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 32,
+              "threads_or_tensor_cores": 256
+            }
+          ]
+        },
+        "fixed": {
+          "qualified_config_count": 16,
+          "max_output_abs_error_fp64_over_qualified_configs": 0.00023521413327580454,
+          "max_lse_error_fp64_over_qualified_configs": 9.193948962149534e-07,
+          "configurations": [
+            {
+              "block_n": 64,
+              "split": 32,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 32,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 32,
+              "split": 16,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 32,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 128,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 32,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 32,
+              "split": 64,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 64,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 16,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 32,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 32,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 128,
+              "threads_or_tensor_cores": 256
+            }
+          ]
+        },
+        "native": {
+          "qualified_config_count": 6,
+          "max_output_abs_error_fp64_over_qualified_configs": 0.0002977028947279414,
+          "max_lse_error_fp64_over_qualified_configs": 7.48188161860952e-05,
+          "configurations": [
+            {
+              "block_n": 0,
+              "split": null,
+              "threads_or_tensor_cores": 0
+            },
+            {
+              "block_n": 0,
+              "split": 128,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": 256,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": 512,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": 1024,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": null,
+              "threads_or_tensor_cores": 1
+            }
+          ]
+        },
+        "union": {
+          "qualified_config_count": 16,
+          "max_output_abs_error_fp64_over_qualified_configs": 0.00023521413327580454,
+          "max_lse_error_fp64_over_qualified_configs": 9.193948962149534e-07,
+          "configurations": [
+            {
+              "block_n": 64,
+              "split": 32,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 64,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 128,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 32,
+              "split": 128,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 32,
+              "split": 16,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 32,
+              "split": 32,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 64,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 16,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 32,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 32,
+              "threads_or_tensor_cores": 256
+            }
+          ]
+        }
+      },
+      "failed_configurations_by_reason": {
+        "compact: AssertionError('warp_col_tiles must be greater than 8, got 4')": 4
+      },
+      "raw_methods_metadata_contains_AA": true
+    },
+    {
+      "family": "v2_union_control",
+      "path": "results/union_paired/union_v2_mixed_n65536_g8.json",
+      "sha256": "38301d4aff304a6f5c7c7900e760948417c2a80ce3bad9e6fc098babe489d291",
+      "protocol_version": 2,
+      "gpu_uuid": "f073d33b-4145-414a-7580-7c5e18bb0fe9",
+      "q_shape": [
+        2,
+        32,
+        128
+      ],
+      "k_shape": [
+        2,
+        65536,
+        128
+      ],
+      "provenance": {
+        "kind": "synthetic",
+        "pattern": "mixed",
+        "seed": 20261016
+      },
+      "summary": {
+        "hot": {
+          "median_us": {
+            "native": 27.52559930086136,
+            "union": 27.900800108909607,
+            "compact": 52.1591991186142,
+            "fixed": 38.94239962100983
+          },
+          "fixed_AA_median_ratio": 1.00018490336861,
+          "native_over_compact": {
+            "median": 0.527643415628033,
+            "paired_block_bootstrap95": [
+              0.5272203281757682,
+              0.5285253512127324
+            ]
+          },
+          "fixed_AA_over_compact": {
+            "median": 0.7463527413569426,
+            "paired_block_bootstrap95": [
+              0.7454592194563119,
+              0.7467680029839308
+            ]
+          },
+          "fixed_over_compact": {
+            "median": 0.7463154365954987,
+            "paired_block_bootstrap95": [
+              0.745269921444224,
+              0.7470046282670224
+            ]
+          },
+          "union_over_compact": {
+            "median": 0.5348939726654915,
+            "paired_block_bootstrap95": [
+              0.5345480532774668,
+              0.5354535411774327
+            ]
+          }
+        },
+        "cold": {
+          "median_us": {
+            "native": 57.34400078654289,
+            "union": 59.36000123620033,
+            "compact": 77.79199630022049,
+            "fixed": 63.45599889755249
+          },
+          "fixed_AA_median_ratio": 1.0,
+          "native_over_compact": {
+            "median": 0.7371452529028408,
+            "paired_block_bootstrap95": [
+              0.7371452529028408,
+              0.7631579476437385
+            ]
+          },
+          "fixed_AA_over_compact": {
+            "median": 0.8156341569038459,
+            "paired_block_bootstrap95": [
+              0.7897984544680069,
+              0.8157894988779707
+            ]
+          },
+          "fixed_over_compact": {
+            "median": 0.8157137226901662,
+            "paired_block_bootstrap95": [
+              0.7897984544680069,
+              0.8157894988779707
+            ]
+          },
+          "union_over_compact": {
+            "median": 0.7630605211250002,
+            "paired_block_bootstrap95": [
+              0.7630605211250002,
+              0.7633149126365399
+            ]
+          }
+        }
+      },
+      "aa_audit": {
+        "hot": {
+          "median_ratio": 1.00018490336861,
+          "p95_abs_ratio_minus_one_nearest_rank": 0.00561181630976082
+        },
+        "cold": {
+          "median_ratio": 1.0,
+          "p95_abs_ratio_minus_one_nearest_rank": 0.03387182448233106
+        }
+      },
+      "raw_cpu_recomputation": "passed: 30 randomized/reversed paired blocks per cache; positive finite times; exact stored medians/ratios; independently best qualified config per cache",
+      "numerics_by_method": {
+        "compact": {
+          "qualified_config_count": 12,
+          "max_output_abs_error_fp64_over_qualified_configs": 0.00012360250915033344,
+          "max_lse_error_fp64_over_qualified_configs": 9.349172920281035e-07,
+          "configurations": [
+            {
+              "block_n": 64,
+              "split": 128,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 32,
+              "split": 32,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 16,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 32,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 64,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 32,
+              "threads_or_tensor_cores": 256
+            }
+          ]
+        },
+        "fixed": {
+          "qualified_config_count": 16,
+          "max_output_abs_error_fp64_over_qualified_configs": 0.00012360250915033344,
+          "max_lse_error_fp64_over_qualified_configs": 9.349172920281035e-07,
+          "configurations": [
+            {
+              "block_n": 64,
+              "split": 32,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 32,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 32,
+              "split": 16,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 32,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 128,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 32,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 32,
+              "split": 64,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 64,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 16,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 32,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 32,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 128,
+              "threads_or_tensor_cores": 256
+            }
+          ]
+        },
+        "native": {
+          "qualified_config_count": 6,
+          "max_output_abs_error_fp64_over_qualified_configs": 0.00013436627484249286,
+          "max_lse_error_fp64_over_qualified_configs": 2.9446883456074602e-05,
+          "configurations": [
+            {
+              "block_n": 0,
+              "split": null,
+              "threads_or_tensor_cores": 0
+            },
+            {
+              "block_n": 0,
+              "split": 128,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": 256,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": 512,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": 1024,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": null,
+              "threads_or_tensor_cores": 1
+            }
+          ]
+        },
+        "union": {
+          "qualified_config_count": 16,
+          "max_output_abs_error_fp64_over_qualified_configs": 0.00012360250915033344,
+          "max_lse_error_fp64_over_qualified_configs": 9.754344478807297e-07,
+          "configurations": [
+            {
+              "block_n": 64,
+              "split": 32,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 64,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 128,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 32,
+              "split": 128,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 32,
+              "split": 16,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 32,
+              "split": 32,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 64,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 16,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 32,
+              "threads_or_tensor_cores": 256
+            },
+            {
+              "block_n": 64,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 32,
+              "threads_or_tensor_cores": 256
+            }
+          ]
+        }
+      },
+      "failed_configurations_by_reason": {
+        "compact: AssertionError('warp_col_tiles must be greater than 8, got 4')": 4
+      },
+      "raw_methods_metadata_contains_AA": true
+    },
+    {
+      "family": "v3_bounded",
+      "path": "results/kernel_ablation_v3/paired_cross_n131072_g8.json",
+      "sha256": "09aef1b330ecf9fdd6abd23d52ebaeb1462fbde8f4b2d763e9bca4eab8672c65",
+      "protocol_version": 2,
+      "gpu_uuid": "e0410d53-efc9-9463-b1d7-423658107962",
+      "q_shape": [
+        2,
+        32,
+        128
+      ],
+      "k_shape": [
+        2,
+        131072,
+        128
+      ],
+      "provenance": {
+        "kind": "synthetic",
+        "pattern": "cross",
+        "seed": 20261016
+      },
+      "summary": {
+        "hot": {
+          "median_us": {
+            "compact": 92.94800162315369,
+            "fixed": 92.27040112018585,
+            "native": 82.77760148048401
+          },
+          "fixed_AA_median_ratio": 1.00116218703378,
+          "fixed_over_compact": {
+            "median": 0.9929046536535443,
+            "paired_block_bootstrap95": [
+              0.992138297902046,
+              0.9941327306653418
+            ]
+          },
+          "native_over_compact": {
+            "median": 0.890930386712008,
+            "paired_block_bootstrap95": [
+              0.8902204136547542,
+              0.8916207826327124
+            ]
+          }
+        },
+        "cold": {
+          "median_us": {
+            "compact": 104.44799810647964,
+            "fixed": 100.35199671983719,
+            "native": 106.49599879980087
+          },
+          "fixed_AA_median_ratio": 1.0,
+          "fixed_over_compact": {
+            "median": 0.9799968667221481,
+            "paired_block_bootstrap95": [
+              0.9615384480843977,
+              0.9803921498693217
+            ]
+          },
+          "native_over_compact": {
+            "median": 1.0196476775096062,
+            "paired_block_bootstrap95": [
+              1.0196078501306785,
+              1.022313826639591
+            ]
+          }
+        }
+      },
+      "aa_audit": {
+        "hot": {
+          "median_ratio": 1.00116218703378,
+          "p95_abs_ratio_minus_one_nearest_rank": 0.0156631090555841
+        },
+        "cold": {
+          "median_ratio": 1.0,
+          "p95_abs_ratio_minus_one_nearest_rank": 0.05660379301163487
+        }
+      },
+      "raw_cpu_recomputation": "passed: 30 randomized/reversed paired blocks per cache; positive finite times; exact stored medians/ratios; independently best qualified config per cache",
+      "numerics_by_method": {
+        "compact": {
+          "qualified_config_count": 4,
+          "max_output_abs_error_fp64_over_qualified_configs": 9.037035756174344e-05,
+          "max_lse_error_fp64_over_qualified_configs": 9.366790933995617e-07,
+          "configurations": [
+            {
+              "block_n": 64,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 32,
+              "threads_or_tensor_cores": 128
+            }
+          ]
+        },
+        "fixed": {
+          "qualified_config_count": 8,
+          "max_output_abs_error_fp64_over_qualified_configs": 9.037035756174344e-05,
+          "max_lse_error_fp64_over_qualified_configs": 9.366790933995617e-07,
+          "configurations": [
+            {
+              "block_n": 64,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 32,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 32,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            }
+          ]
+        },
+        "native": {
+          "qualified_config_count": 6,
+          "max_output_abs_error_fp64_over_qualified_configs": 0.00011424560080881829,
+          "max_lse_error_fp64_over_qualified_configs": 2.4870618844374803e-05,
+          "configurations": [
+            {
+              "block_n": 0,
+              "split": null,
+              "threads_or_tensor_cores": 0
+            },
+            {
+              "block_n": 0,
+              "split": 128,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": 1024,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": 512,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": 256,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": null,
+              "threads_or_tensor_cores": 1
+            }
+          ]
+        }
+      },
+      "failed_configurations_by_reason": {
+        "compact: AssertionError()": 4
+      },
+      "raw_methods_metadata_contains_AA": false
+    },
+    {
+      "family": "v3_bounded",
+      "path": "results/kernel_ablation_v3/paired_cross_n16384_g8.json",
+      "sha256": "92627b83b7e245fd944a9705c077f5e6679f775e15177fa9e7e9a67bdb34de6e",
+      "protocol_version": 2,
+      "gpu_uuid": "e0410d53-efc9-9463-b1d7-423658107962",
+      "q_shape": [
+        2,
+        32,
+        128
+      ],
+      "k_shape": [
+        2,
+        16384,
+        128
+      ],
+      "provenance": {
+        "kind": "synthetic",
+        "pattern": "cross",
+        "seed": 20261016
+      },
+      "summary": {
+        "hot": {
+          "median_us": {
+            "compact": 19.756799936294556,
+            "fixed": 14.601600170135498,
+            "native": 10.683999955654144
+          },
+          "fixed_AA_median_ratio": 0.9999452642853335,
+          "fixed_over_compact": {
+            "median": 0.7382640405560179,
+            "paired_block_bootstrap95": [
+              0.7369568281689411,
+              0.739403963150004
+            ]
+          },
+          "native_over_compact": {
+            "median": 0.5396089581576321,
+            "paired_block_bootstrap95": [
+              0.5385926614291844,
+              0.539999367930619
+            ]
+          }
+        },
+        "cold": {
+          "median_us": {
+            "compact": 34.78400036692619,
+            "fixed": 26.623999699950218,
+            "native": 24.57600086927414
+          },
+          "fixed_AA_median_ratio": 1.0,
+          "fixed_over_compact": {
+            "median": 0.7654093669244904,
+            "paired_block_bootstrap95": [
+              0.7647058603236582,
+              0.7654093669244904
+            ]
+          },
+          "native_over_compact": {
+            "median": 0.7058823655293383,
+            "paired_block_bootstrap95": [
+              0.7058823655293383,
+              0.7058823655293383
+            ]
+          }
+        }
+      },
+      "aa_audit": {
+        "hot": {
+          "median_ratio": 0.9999452642853335,
+          "p95_abs_ratio_minus_one_nearest_rank": 0.01049950922346965
+        },
+        "cold": {
+          "median_ratio": 1.0,
+          "p95_abs_ratio_minus_one_nearest_rank": 0.08333328280585173
+        }
+      },
+      "raw_cpu_recomputation": "passed: 30 randomized/reversed paired blocks per cache; positive finite times; exact stored medians/ratios; independently best qualified config per cache",
+      "numerics_by_method": {
+        "compact": {
+          "qualified_config_count": 4,
+          "max_output_abs_error_fp64_over_qualified_configs": 0.00023521413327580454,
+          "max_lse_error_fp64_over_qualified_configs": 9.193948962149534e-07,
+          "configurations": [
+            {
+              "block_n": 64,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 32,
+              "threads_or_tensor_cores": 128
+            }
+          ]
+        },
+        "fixed": {
+          "qualified_config_count": 8,
+          "max_output_abs_error_fp64_over_qualified_configs": 0.00023521413327580454,
+          "max_lse_error_fp64_over_qualified_configs": 9.193948962149534e-07,
+          "configurations": [
+            {
+              "block_n": 64,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 32,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 16,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 32,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 32,
+              "split": 64,
+              "threads_or_tensor_cores": 128
+            },
+            {
+              "block_n": 64,
+              "split": 128,
+              "threads_or_tensor_cores": 128
+            }
+          ]
+        },
+        "native": {
+          "qualified_config_count": 6,
+          "max_output_abs_error_fp64_over_qualified_configs": 0.0002977028947279414,
+          "max_lse_error_fp64_over_qualified_configs": 7.48188161860952e-05,
+          "configurations": [
+            {
+              "block_n": 0,
+              "split": null,
+              "threads_or_tensor_cores": 0
+            },
+            {
+              "block_n": 0,
+              "split": 128,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": 1024,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": 512,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": 256,
+              "threads_or_tensor_cores": 1
+            },
+            {
+              "block_n": 0,
+              "split": null,
+              "threads_or_tensor_cores": 1
+            }
+          ]
+        }
+      },
+      "failed_configurations_by_reason": {
+        "compact: AssertionError()": 4
+      },
+      "raw_methods_metadata_contains_AA": false
+    }
+  ],
+  "cpu_audit_totals": {
+    "paired_files": 13,
+    "paired_timing_rows": 1560,
+    "check_failures": []
+  }
+}
