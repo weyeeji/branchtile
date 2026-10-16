@@ -28,7 +28,7 @@
 | A0 一次多问、A1 Dense+APC | `results/application_screen_v2/`，train8 两臂共64个自然结束答案 | 开发筛查完成，正式未完成 | 图优化原生强基线、三 seed/正式质量、冷暖成本及模板冻结 |
 | A2 KVzip/FastKVzip | 官方4B gate/全局mask资格；train8四预算128自然EOS；full32与A4逐token一致 | 参考质量及单judge盲审完成 | NVIDIA全局mask参考非物理压缩/作者优化prefill；主模型gate不可得；正式成本与质量未完成 |
 | A3 强 RAG | `results/application_calibrated/`：两个4B模型各八配置，512个RAG自然回答；检索准备/重排单独计费 | QMSum开发网格完成 | 事实核查、配置冻结、正式完整费用与DocFinQA覆盖 |
-| A4 query-aware 原生及共享源 | HF同栈四预算train8共128自然EOS回答；full-budget16步logits/token与dense精确一致 | 参考生成完成，引擎集成进行中 | 正式预算冻结、主模型共享源实现、完整准备成本；HF/vLLM sampling与后端不同不得跨栈归因 |
+| A4 query-aware 原生及共享源 | HF参考128条；主模型E0/union FULL图及原生XQA资格；两文档自然矩阵 | 集成资格和有界开发完成，质量未通过 | 正式预算和跨文档质量；全生命周期/完整摊销；HF/vLLM及后端不同不得跨栈归因 |
 | 自然 opportunity 与共同 ready | 原1024快照；官方FP8 TP2的200个cache核对快照、24个同forward ready组 | 部分完成 | 多自然文档及完整EOS生命周期、连续补入/取消，不把cap256当任务输出 |
 | E0/E2 强执行 | 原生 separate/joint 和固定 union，31 组配对 | 部分完成 | 主模型自然矩阵、轮转 capture 缓存、准备摊销、第二卡/卡对复核 |
 | E1 全部固定 partition | 初始B4全部15划分；官方主模型B3全部5划分、原生/自写、准备、第二卡 | 两模型初始自然矩阵完成 | 多文档覆盖、部署选择与事后 oracle 分开 |
@@ -213,3 +213,31 @@ generation为12.954/12.879s，另加冷anchor后为23.684/23.649s，严格1/3、
 1% pooled-score损失时，共同物理源的逻辑union减少17.65–22.99%/18.12–22.87%。
 这是代理分数约束，不是实际decode attention质量、答案质量、显存释放或新颖性证据。
 全部源cache仍保留，释放容量为零。后续独立actual-Q保真及2026先行工作审查进行中。
+
+
+2026-10-16 17:44：官方FI桥接通过864次SIMT和864次原生XQA同Q检查，E0图A/A
+logits精确一致。随后四组TP2在八卡并行完成：原文档32K，以及第二开发财报
+16K/32K/full；12方法格、36答案全EOS，P1分配0.525397GPUh。每格新源hash、
+实际FI cache/layout、selector和图捕获准备均保留。第二文档三个dense序列逐token相同。
+
+第二文档原生XQA舍入正确2/3；E0在16K/32K/full分别0/3、1/3、1/3，union分别
+1/3、1/3、2/3。原文档32K E0为3/3，原生和union为2/3。这仍仅两文档单seed，
+没有质量合格的跨文档结论；full E0也改变答案，不能把差异都归于KV删减。全部
+12格严格主指标第二文档为0/3，原文档native/E0/union为1/3、2/3、1/3。新图和CSV
+保存generation、cold anchor+generation及准备成本的独立列，不隐藏不利格子。
+
+联合交换actual-Q筛查1080行/8640query-head指标完成：epsilon0的240组O/LSE和
+indices逐位一致，完整causal private KV通过。epsilon1%时4K实际保留softmaxmass
+最多下降6.50百分点、16K最多4.92百分点；最坏单head dense-relativeL2分别增加
+0.13347/0.04476。代理分数约束不能当attention误差或答案质量保证。
+
+经典reverse-delete/refill两种候选域、96格全部满足原exact-k/score约束；1%时
+原union域缩减15.59–20.44%，全候选域11.28–20.44%。独立预算上限top-prefix
+48格/160请求验证通过，同阈值union只减1.95–4.13%，请求条目总量减2.37–4.49%。
+这些控制保留了共同选择的代理几何机会，但当前方法仍是普通启发式；覆盖贪心
+强控制、最小系统机制和自然生成资格继续核查。CPU模块与冻结函数96个head配置
+逐位等价，尚未把它接入默认生产selector，也没有释放实际源cache。
+
+截至17:44，累计P1/P2精确与明确backfill账为10.05249/4.47272 GPUh，早期未知成本
+1/1.05预留单列。当前所有job都有终态、无台账异常。论文正式评价、非劣、实际
+容量/生命周期及新贡献门槛仍未完成，目标保持进行中。

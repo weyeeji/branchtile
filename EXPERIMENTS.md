@@ -495,3 +495,30 @@ next, not implied by this score proxy. No candidate is yet novelty-qualified.
 
 Completed allocation totals are9.41855 P1 and4.46901 P2 GPUh; every start has a
 terminal record and no ledger anomaly. Early unknown-cost reserves stay separate.
+
+
+## 2026-10-16 17:44 — native-XQA expansion and joint-selection limits
+
+The official FI bridge passes864 SIMT and864 same-Q native-XQA comparisons,
+with exact E0 graph A/A logits. Four TP2 jobs use all8 GPUs for original32K and
+second-document16K/32K/full, completing36 natural EOS answers at0.525397 P1 GPUh.
+The second-document dense token sequences match across all three budgets.
+Rounded FINAL is native2/3, E0 0/1/1 and union1/1/2 across16K/32K/full. The
+original32K E0 is3/3 versus native/union2/3. Full E0 also changes the answer:
+backend floating-point trajectories prevent attributing all changes to pruning.
+Two documents/one seed do not demonstrate quality-qualified cross-document gains.
+New raw, figures and CSV separately retain generation, cold anchor, preparation,
+graph capture and memory; the strict primary endpoint is also preserved.
+
+Joint support actual-query screening retains1080 rows/8640 head metrics.240
+zero-epsilon groups match O/LSE/indices bitwise. At1% pooled-score loss the worst
+actual retained mass declines6.50pp at4K and4.92pp at16K; worst single-head
+relative L2 increases.13347/.04476. This refutes a proxy-loss-to-quality guarantee.
+Classical reverse-delete/refill and independent relaxed top-prefix controls are
+frozen and recorded separately; the latter reduces union only1.95–4.13% at1%,
+leaving logical coordination opportunity. There is no demonstrated new algorithm,
+physical cache release or natural quality gain. Saturated greedy and minimal
+system-mechanism checks continue before any larger experiment.
+
+Completed allocation totals are10.05249 P1 and4.47272 P2 GPUh. All starts have
+terminal records, no ledger anomaly; historical uncertainty reserves stay separate.
