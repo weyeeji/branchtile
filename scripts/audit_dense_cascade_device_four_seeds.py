@@ -37,6 +37,11 @@ def audit(initial_root, additional_root):
             protocol = extra['seed_protocol']
             seeds = [protocol['already_measured_sampling_seed'],*protocol['additional_sampling_seeds']]
             assert len(seeds) == len(set(seeds)) == 4
+            expected_order = [(seed,method) for seed,order in zip(
+                protocol['additional_sampling_seeds'],protocol['method_orders']) for method in order]
+            assert [(r['sampling']['seed'],r['method']) for r in extra['runs'] if r['natural_eos_enabled']] == expected_order
+            assert [(r['sampling']['seed'],r['method']) for r in first['runs'] if r['natural_eos_enabled']] == [
+                (seeds[0],'native'),(seeds[0],'cascade')]
             group = next(g for g in json.loads((ROOT/first['protocol']['manifest']).read_text())['groups']
                          if g['document_id'] == first['args']['document_id'])
             assert group['document_sha256'] == first['document_sha256']
@@ -62,6 +67,8 @@ def audit(initial_root, additional_root):
                         continue
                     key=(run['sampling']['seed'],run['method'])
                     assert key not in buckets
+                    assert {k:v for k,v in run['sampling'].items() if k!='seed'} == {
+                        k:v for k,v in first['protocol']['sampling'].items() if k!='seed'}
                     assert len(run['answers']) == 8
                     previous=old_runs[key]
                     assert previous['sampling'] == run['sampling']
