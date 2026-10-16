@@ -24,3 +24,9 @@ Default developer input is the original exploratory B3 DocFinQA document, not fo
 ## Current status
 
 CPU support checks and offline compilation pass. Root-scheduled `paged_owner_gpu_v1` then completed with exit 0: 528 FP64 output/LSE checks passed, maximum output absolute error 0.0040671800 and maximum LSE absolute error 6.7349742e-7. The allocation lasted 9.029 seconds (0.00250806 GPU-hours). Real-model qualification and performance remain pending; root owns all GPU allocation and experiment accounting. The first attempted CPU import initialized CUDA through FlashInfer and was rejected before any explicit kernel/qualification; its incident record is retained separately.
+
+## First real-model qualification outcome
+
+`paged_owner_model_qualification_v1` completed both four-token arms but exited 1 at the frozen joint gate. All 576 layer-output shadows passed across both TP ranks and all 48 layers. All 12 same-path logit vectors were finite and had matching top-1 tokens, but q0_s3 cosine was 0.9975648314 below the predeclared 0.999 threshold. The failed result remains failed; its timed arms are not performance evidence. The original runner's `qualification_all_shadow_checks_passed` label incorrectly represented the joint output-plus-logit gate; the independent audit separates these fields without changing raw results.
+
+Next diagnostic is an independent script `scripts/diagnose_vllm_paged_owner_logits.py` with E0 natural → E0 forced AA → owner forced, default 16 tokens. It preserves the 0.999 threshold, collects layer-by-layer shadow errors and cross-arm query/output norm differences, and reports E0-AA and owner logit gates separately. Norm differences can localize divergence but cannot prove a specific MoE-routing or probability-rounding cause. Runtime kernels remain unchanged.
