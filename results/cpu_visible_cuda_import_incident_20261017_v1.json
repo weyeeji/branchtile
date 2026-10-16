@@ -1,0 +1,44 @@
+{
+  "schema": 1,
+  "recorded_UTC": "2026-10-16T20:02:18.295978+00:00",
+  "event": "CPU-designated import commands unexpectedly initialized CUDA with visible devices",
+  "affected_reference_run_from_root": {
+    "PID": 1642402,
+    "description": "GPU0/1 repeat12r2 was running; flag possible overlap, do not discard old value or use normal AA as proof of no effect"
+  },
+  "commands": [
+    {
+      "command": ".venv-engine/bin/python scripts/check_raw_pair_training_shape_transfer_cpu.py > results/raw_pair_training_shape_transfer_cpu_v1.json",
+      "tool_reported_wall_seconds": 2.79222862,
+      "exit_code": 1,
+      "observed": "All preceding CPU fixture checks reached final assert not torch.cuda.is_initialized(), which raised AssertionError. CUDA initialized before this final check."
+    },
+    {
+      "command": ".venv-engine/bin/python - <<'PY'\nimport torch\nprint('a',torch.cuda.is_initialized())\nimport scripts.vllm_raw_pair_direct_transfer_worker\nprint('worker',torch.cuda.is_initialized())\nimport scripts.benchmark_raw_pair_direct_next8_transfer\nprint('driver',torch.cuda.is_initialized())\nPY",
+      "tool_reported_wall_seconds": 2.779045045,
+      "exit_code": 0,
+      "observed": [
+        "a False",
+        "worker True",
+        "driver True"
+      ]
+    },
+    {
+      "command": ".venv-engine/bin/python - <<'PY'\nimport torch,importlib\nfor m in ['scripts.vllm_native_precision_worker','src.vllm_raw_pair_direct_multidoc_plan','src.vllm_native_raw_pair_general_setup']:\n importlib.import_module(m); print(m,torch.cuda.is_initialized())\nPY",
+      "tool_reported_wall_seconds": 2.6124761640000003,
+      "exit_code": 0,
+      "observed": [
+        "scripts.vllm_native_precision_worker False",
+        "src.vllm_raw_pair_direct_multidoc_plan True",
+        "src.vllm_native_raw_pair_general_setup True"
+      ]
+    }
+  ],
+  "PID": null,
+  "exact_start_end_UTC": null,
+  "CUDA_VISIBLE_DEVICES_at_incident": null,
+  "actual_GPU_UUID": null,
+  "recoverable_timing": "Tool response reports per-command elapsed wall time only; PID and UTC start/end were not captured. Third tool also included read-only head/rg/cat commands; its total wall is not a precise Python-only duration. Commands all completed before this incident record. No exact overlap interval or GPU identity can be reconstructed from these receipts alone.",
+  "GPU_activity": "No explicit experiment/kernel launch or CUDA allocation was present in these command bodies. Imports reached FlashInfer via RawPairGeneralPlan and initialized CUDA. Import-side allocations, driver calls, kernel work, memory amount, device occupancy and interference were not traced and are UNKNOWN; no claim of no GPU impact.",
+  "mitigation": "All subsequent CPU/import/build/prepare commands explicitly set CUDA_VISIBLE_DEVICES to empty. Keep affected timing as potentially contaminated and add an independent clean repeat under root scheduling; do not overwrite/select away old value."
+}
