@@ -460,3 +460,38 @@ All eight GPUs now run four TP2 natural-generation configurations in parallel:
 full-budget plus the pre-existing8K/16K/32K grid, with qualified capacity and
 B1/B2/B3 transitions. Full-budget executor controls distinguish potential
 floating-point effects from token removal; no post-hoc quality equivalence claim.
+
+
+## 2026-10-16 17:24 — corrected replays, natural budgets, and stronger XQA control
+
+All1156 configurations at12 corrected suffix-only cells qualify. Dynamic still
+loses all24 hot/cold points. The B8 extension remains reject-only, lacking full
+partition/hierarchy enumeration. Additional32769-token N32/split64 long-region
+fixtures pass changed-input FP64 checks, zero-error memcheck and zero-hazard
+racecheck for compact and union. Historical observer-variant artifacts remain.
+
+The8K/16K/32K natural grid completed without forcing or shadows. E0 outputs
+6721/4289/3424 tokens with22.49/15.08/10.40s generation; union outputs
+6530/4789/3351 with27.87/18.95/13.56s. Dense is identically3000 tokens across all
+five budget runs; the three new dense generation times are14.4–14.7s. Rounded FINAL counts
+are E0 1/2/2, union3/2/2, dense2/2/2, each of three questions. Full budget yields
+the same three numeric endpoints across methods but different token trajectories.
+This is one development document/seed, not quality noninferiority or same-work
+speedup. Initialization, selector preparation, capture and graph memory remain
+separate costs. The historical4K first-dense sampler-JIT caveat is retained.
+
+Official native FLASHINFER actually selects BF16 XQA, page16/LBNHC, with native
+B1/B2/B3 FULL graphs. Two cold repetitions match all3066 output tokens and actual
+step sequences, finish all questions, and score1/3 exact,2/3 rounded. Generation takes
+12.954/12.879s (23.684/23.620s including the cold anchor), faster than the prior default FLASH_ATTN baseline. Any32K benefit
+must be assessed against this strong control, with full costs and quality.
+
+A separately frozen CPU-only joint support exchange screen keeps each request's
+budget/protected positions and caps pooled-score loss. Epsilon0 changes no masks;
+1% yields17.65–22.99% or18.12–22.87% logical common-source union reduction in two
+fixed orders. All132 rows validate; physical source capacity released is zero.
+Actual held-out decode attention fidelity and independent prior-art review are
+next, not implied by this score proxy. No candidate is yet novelty-qualified.
+
+Completed allocation totals are9.41855 P1 and4.46901 P2 GPUh; every start has a
+terminal record and no ledger anomaly. Early unknown-cost reserves stay separate.

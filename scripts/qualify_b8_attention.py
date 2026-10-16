@@ -20,6 +20,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--output', default='results/b8_pilot/kernel_qualification.json')
     parser.add_argument('--representative-only', action='store_true')
+    parser.add_argument('--long-selected-fixture', action='store_true',
+                        help='Long multi-tile regions at the selected N32/split64 configuration')
     args = parser.parse_args()
     path = Path(args.output)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -27,13 +29,20 @@ def main():
         output_tolerance=dict(atol=.006, rtol=.015), lse_tolerance=dict(atol=.00005, rtol=.00005),
         rows=[], source_sha256={str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in
             [Path(__file__), *Path('src/branchtile').glob('*b8.py')]})
-    owners = torch.arange(257).remainder(256).repeat(2, 1)
+    tokens = 32769 if args.long_selected_fixture else 257
+    values = torch.tensor([0,1,3,7,15,31,255])
+    owners = (values[torch.arange(tokens).remainder(len(values))] if args.long_selected_fixture
+              else torch.arange(tokens).remainder(256)).repeat(2, 1)
     owners[1] &= 127  # Includes an empty query row and every active M branch.
-    owners = owners[:, torch.randperm(257)]
+    owners = owners[:, torch.randperm(tokens)]
     q = torch.randn(2, 64, 128, device='cuda', dtype=torch.bfloat16)
-    k = torch.randn(2, 257, 128, device='cuda', dtype=torch.bfloat16)
+    k = torch.randn(2, tokens, 128, device='cuda', dtype=torch.bfloat16)
     v = torch.randn_like(k)
     configurations = [(64, 16)] if args.representative_only else [(32, 1), (32, 16), (64, 1), (64, 16)]
+    if args.long_selected_fixture:
+        configurations = [(32,64)]
+    report['fixture'] = dict(tokens=tokens, long_selected=args.long_selected_fixture,
+                             configurations=configurations)
     for block_n, splits in configurations:
         for method in ['compact', 'union']:
             row = dict(block_n=block_n, splits=splits, method=method, status='running', checks=[])
