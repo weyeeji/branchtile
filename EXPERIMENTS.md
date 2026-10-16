@@ -409,3 +409,24 @@ A verdict-independent32-answer second assisted judge sample is now frozen.
 
 Completed allocation totals are8.39856 P1 and4.09085 P2 GPUh, with all starts
 matched and no anomalies; historical uncertainty reserves remain separate.
+
+
+## 2026-10-16 17:00 — natural B8 extension rejected
+
+The first two eligible training reports were frozen before capture, with eight
+natural questions sorted by SHA, complete120K/145K prompts and no evaluation
+selection. Both achieve actual B8 same-forward decode;960 cache checks and48
+rank/layer/step ready groups verify provenance. The old exporter failed on one
+report because warm requests also share a question prefix. Recovery now requires
+an actually captured Q with identical token prefix and the same physical cached
+page, including origin request IDs; failed attempts remain in the cost ledger.
+
+The bounded M16/M32/M64 extension passes32 FP64/changed-input graph checks,
+memcheck with zero errors and representative shared-memory racecheck with zero
+hazards.136 configurations on two documents at4K/16K all qualify. Dynamic hot
+calls293–490us lose to native controls11–24us; cold also loses. Hundreds of owner
+classes cause fragmentation; even optimistic tile opportunity is often worse
+than the exact combinatorial fixed-partition model. The predeclared stop rule
+ends this layout search. GPU partition/hierarchy enumeration at B8 remains
+incomplete; the existing qualified faster controls suffice for rejection, never
+for a positive competitive claim.

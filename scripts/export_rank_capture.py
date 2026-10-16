@@ -79,13 +79,30 @@ def main():
                 if pos in observation[r]:
                     qs.append(observation[r][pos][0])
                 else:
-                    value,pages,origin = observation[cold][pos]
-                    assert pos < common, "Cannot reuse Q across a differing token prefix"
                     page = pos//16
-                    assert page < len(initial["prompt_full_page_ids"]) and page < len(pages)
-                    assert int(initial["prompt_full_page_ids"][page]) == int(pages[page]), "Skipped observation must come from the same cached physical page"
+                    # A later request can also reuse another warm request's
+                    # identical question prefix. Only an actually observed Q
+                    # with identical token prefix AND physical page qualifies.
+                    candidates = []
+                    for origin_request in [cold, *warm]:
+                        if origin_request == r or pos not in observation[origin_request]:
+                            continue
+                        value,pages,origin = observation[origin_request][pos]
+                        if pos >= len(prompts[origin_request]):
+                            continue
+                        if not torch.equal(prompts[r][:pos+1], prompts[origin_request][:pos+1]):
+                            continue
+                        if page >= len(initial["prompt_full_page_ids"]) or page >= len(pages):
+                            continue
+                        if int(initial["prompt_full_page_ids"][page]) != int(pages[page]):
+                            continue
+                        candidates.append((origin_request, value, pages, origin))
+                    assert candidates, "No observed Q with identical token prefix and cached physical page"
+                    origin_request,value,pages,origin = candidates[0]
                     qs.append(value)
-                    reused.append({"position":pos,"origin":origin,"physical_page":int(pages[page])})
+                    reused.append({"position":pos,"origin":origin,"origin_request_id":origin_request,
+                                   "identical_prefix_through_position":True,
+                                   "physical_page":int(pages[page])})
             observation_q = torch.stack(qs).permute(1,0,2).contiguous()[None]
             k = torch.cat([source["k"],initial["private_k"]],dim=1)[None]
             assert k.shape[2] == pl
