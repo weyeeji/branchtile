@@ -120,6 +120,7 @@ def main():
     parser.add_argument("--output", required=True)
     parser.add_argument("--max-model-len", type=int, default=131072)
     parser.add_argument("--max-new-tokens", type=int, default=8192)
+    parser.add_argument("--max-num-seqs", type=int, default=4)
     parser.add_argument("--gpu-memory-utilization", type=float, default=.85)
     parser.add_argument("--moe-backend", default=None)
     parser.add_argument("--capture-dir", default=None)
@@ -171,7 +172,7 @@ def main():
         save()
         kwargs = dict(model=args.model, tensor_parallel_size=2, dtype="bfloat16",
                       kv_cache_dtype="auto", max_model_len=args.max_model_len,
-                      max_num_seqs=4, max_num_batched_tokens=4096,
+                      max_num_seqs=args.max_num_seqs, max_num_batched_tokens=4096,
                       enable_prefix_caching=True, enforce_eager=True,
                       worker_extension_cls=("scripts.vllm_rank_capture.RankCaptureWorkerExtension" if args.capture_dir
                                             else "scripts.probe_engine_docfinqa.DeploymentWorkerExtension"),
