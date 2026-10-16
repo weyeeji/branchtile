@@ -44,6 +44,19 @@ def main():
                 table.zero_();table[:,:pp]=perm[:pp]
                 for row in range(b):table[row,pp:pp+tp]=perm[mp+row*tp:mp+(row+1)*tp]
             remap(cuts[0]);plan=RawPairDynamicCutPlan(modules,q,cache,table,lengths,cuts[0])
+            wrong_cut=torch.tensor([999],device='cuda',dtype=torch.int32)
+            try:
+                RawPairDynamicCutPlan(modules,q,cache,table,lengths,cuts[0],device_cut=wrong_cut)
+            except AssertionError:pass
+            else:raise AssertionError('Wrong external device cut accepted')
+            old_cut=plan.device_cut.clone();old_lengths=plan.lengths.clone();old_prefix=plan.prefix_tokens
+            for bad_prefix,bad_lengths in [(512,[plan.max_len+1]*b),(plan.max_len+16,[plan.max_len+32]*b)]:
+                try:plan.change_prefix(bad_prefix,bad_lengths)
+                except AssertionError:pass
+                else:raise AssertionError('Out-of-extent cut or length accepted')
+                assert plan.prefix_tokens==old_prefix and torch.equal(plan.device_cut,old_cut)
+                assert torch.equal(plan.lengths.view(torch.int32),old_lengths.view(torch.int32))
+            r.setdefault('negative_controls',[]).append({'B':b,'wrong_external_cut_rejected':True,'invalid_update_unchanged':True})
             native_lengths=torch.ones(b,device='cuda',dtype=torch.int32)
             plan.lengths=native_lengths.view(torch.uint32).reshape(b,1)
             nw=torch.zeros_like(plan.workspace);no=torch.empty_like(q);aa=torch.empty_like(q)
