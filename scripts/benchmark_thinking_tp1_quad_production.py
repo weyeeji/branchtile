@@ -1,0 +1,353 @@
+"""TP1-only production graph ABBA with completed strict receipts and explicitly charged common sampling warmup."""
+import argparse
+import copy
+import dataclasses
+import hashlib
+import json
+import os
+from pathlib import Path
+import statistics
+import sys
+import time
+import traceback
+
+ROOT=Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(ROOT))
+
+
+def digest(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def answer(index,output):
+    token=output.outputs[0]
+    return {'question_index':index,'tokens':list(token.token_ids),'text':token.text,
+        'finish_reason':token.finish_reason,'stop_reason':token.stop_reason,
+        'num_cached_tokens':output.num_cached_tokens,'request_id':output.request_id,
+        'request_metrics':dataclasses.asdict(output.metrics) if dataclasses.is_dataclass(output.metrics) else None}
+
+
+def compare_abba(runs):
+    assert [r['method'] for r in runs]==['native','cascade','cascade','native']
+    token_rows=[[a['tokens'] for a in r['answers']] for r in runs]
+    cached=[[a['num_cached_tokens'] for a in r['answers']] for r in runs]
+    finishes=[[a['finish_reason'] for a in r['answers']] for r in runs]
+    trajectories=[r['graph_trajectory_sha256_by_rank'] for r in runs]
+    result={'native_AA_tokens_equal':token_rows[0]==token_rows[3],
+        'candidate_BB_tokens_equal':token_rows[1]==token_rows[2],
+        'native_candidate_all_tokens_equal':all(t==token_rows[0] for t in token_rows[1:]),
+        'all_APC_hits_equal':all(c==cached[0] for c in cached[1:]),
+        'all_finish_reasons_equal':all(f==finishes[0] for f in finishes[1:]),
+        'all_graph_step_positions_and_questions_equal':all(t==trajectories[0] for t in trajectories[1:]),
+        'native_AA_wall_max_over_min':max(runs[i]['complete_generate_wall_seconds'] for i in (0,3))/min(runs[i]['complete_generate_wall_seconds'] for i in (0,3))}
+    result['identical_output_comparison_valid']=all(result[k] for k in
+        ('native_AA_tokens_equal','candidate_BB_tokens_equal','native_candidate_all_tokens_equal','all_APC_hits_equal','all_finish_reasons_equal','all_graph_step_positions_and_questions_equal'))
+    # Preserve descriptive timings even when equality fails, but gate their interpretation.
+    result['native_over_candidate']={key:statistics.mean(runs[i][key] for i in (0,3))/statistics.mean(runs[i][key] for i in (1,2))
+        for key in ('complete_generate_wall_seconds','generate_plus_phase_validation_wall_seconds',
+                    'cold_shared_document_total_wall_seconds','full_phase_control_wall_seconds')}
+    result['candidate_executed_in_both_candidate_arms']=all(runs[i].get('candidate_graph_executed',False) for i in (1,2))
+    result['candidate_speed_claim_eligible']=result['identical_output_comparison_valid'] and result['candidate_executed_in_both_candidate_arms']
+    result['scope']='Same-session ABBA means; native-only policy fallback is valid execution but cannot support a candidate acceleration claim.'
+    return result
+
+
+def policy_eligible(row,common_prefix_tokens,enabled_batches):
+    from src.thinking_tp1_quad_scope import in_scope
+    return row['batch'] in enabled_batches and in_scope(row['batch'],common_prefix_tokens,[p+1 for p in row['positions']])
+
+
+def audit_offline_setup(worker_rows, enabled_batches):
+    audits=[]
+    for worker in worker_rows:
+        raw=json.loads(Path(worker['raw_pair_record']).read_text())
+        from src.thinking_tp1_quad_scope import receipt
+        assert raw['development_scope']==receipt()
+        assert raw['setup_mode']=='production_only' and raw['offline_qualification']
+        assert not raw['checks'] and raw['qualification_steps']==0
+        assert raw['qualified_batches']==enabled_batches
+        assert set(raw['captured_layers_by_batch'])=={'production'}
+        assert set(map(int,raw['captured_layers_by_batch']['production']))==set(enabled_batches)
+        assert all(v==list(range(36)) for v in raw['captured_layers_by_batch']['production'].values())
+        audits.append({'rank':raw['rank'],'path':worker['raw_pair_record'],
+            'sha256':digest(Path(worker['raw_pair_record'])),
+            'execution_fingerprint':raw['execution_fingerprint'],
+            'offline_qualification':raw['offline_qualification'],
+            'captured_modes':['production'],'no_session_qualification':True})
+    assert len(audits)==1 and audits[0]['rank']==0
+    return audits
+
+
+def component_first_use(report,kind):
+    rows=[r for r in report['runs'] if r['phase'].startswith(kind+'_')]
+    full={m:statistics.mean(r['full_phase_control_wall_seconds'] for r in rows if r['method']==m) for m in ('native','cascade')}
+    cold={m:statistics.mean(r['cold_shared_document_total_wall_seconds'] for r in rows if r['method']==m) for m in ('native','cascade')}
+    common=report['common_sampling_warmup_wall_seconds']+report['common_initial_precision_export_wall_seconds']
+    extra=report['offline_preflight_wall_seconds']+report['candidate_total_setup_wall_seconds']+report['setup_receipt_export_wall_seconds']
+    native=full['native']+common;candidate=full['cascade']+common+extra
+    shared_engine=report['input_preparation_wall_seconds']+report['native_initialization_and_graph_setup_wall_seconds']
+    return {'native_full_phase_mean_seconds':full['native'],'candidate_full_phase_mean_seconds':full['cascade'],
+        'native_cold_document_mean_seconds':cold['native'],'candidate_cold_document_mean_seconds':cold['cascade'],
+        'common_sampling_warmup_seconds':report['common_sampling_warmup_wall_seconds'],'common_precision_export_seconds':report['common_initial_precision_export_wall_seconds'],
+        'candidate_extra_setup_seconds':extra,'native_net_after_engine_seconds':native,'candidate_net_after_engine_seconds':candidate,
+        'native_over_candidate_after_engine_component':native/candidate,'common_input_native_engine_seconds':shared_engine,
+        'native_first_use_component_sum_seconds':native+shared_engine,'candidate_first_use_component_sum_seconds':candidate+shared_engine,
+        'native_over_candidate_first_use_component_sum':(native+shared_engine)/(candidate+shared_engine),
+        'candidate_executed':all(r.get('candidate_graph_executed',False) for r in rows if r['method']=='cascade'),
+        'scope':'Full phase includes formal anchor/control/generation/export. Candidate offline/config/capture/setup-export once; full-input sampling warmup and precision-export once for both. Same-session component estimate, not independent fresh-service measurement.'}
+
+
+def main():
+    p=argparse.ArgumentParser()
+    p.add_argument('--protocol',default='configs/thinking_tp1_quad_qualification_v1.json')
+    p.add_argument('--document-id',required=True)
+    p.add_argument('--qualification-summary',required=True)
+    p.add_argument('--prepare-only',action='store_true')
+    p.add_argument('--fixed-tokens',type=int,default=128)
+    p.add_argument('--setup-only',action='store_true')
+    p.add_argument('--phase-kind',choices=('natural','fixed','both'),default='natural')
+    p.add_argument('--output',required=True)
+    args=p.parse_args()
+    assert os.geteuid()!=0 and sys.prefix!=sys.base_prefix
+    assert (args.prepare_only and os.environ.get('CUDA_VISIBLE_DEVICES')=='') or (not args.prepare_only and len(os.environ.get('CUDA_VISIBLE_DEVICES','').split(','))==1 and os.environ.get('CUDA_VISIBLE_DEVICES'))
+    assert args.fixed_tokens==128
+    protocol_path=ROOT/args.protocol
+    protocol=json.loads(protocol_path.read_text())
+    out=ROOT/args.output
+    assert not (out/'summary.json').exists()
+    out.mkdir(parents=True,exist_ok=True)
+    from scripts.vllm_thinking_tp1_quad_worker import SOURCE_FILES
+    sources=['scripts/benchmark_thinking_tp1_quad_production.py',*SOURCE_FILES,
+        'src/thinking_tp1_offline_qualification.py','scripts/probe_engine_docfinqa.py','scripts/vllm_batch_admission.py','scripts/capture_model.py',
+        'scripts/screen_application.py','src/financial_answer_metric.py']
+    report={'status':'initializing','uid':os.geteuid(),'python':sys.executable,'args':vars(args),
+        'protocol':protocol,'protocol_sha256':digest(protocol_path),'runs':[],'comparisons':{},
+        'source_sha256':{name:digest(ROOT/name) for name in sources},
+        'mechanism':'tp1_hq32_hkv8_raw_direct_quad_grouped_hint_v1','candidate_dispatch_scope':'Actual/padded B4..8, nominal P120528, max current private<=8192; B1..3 and other scope violations native.',
+        'limits':['Thinking4B is a bounded development scenario with limited task quality; no population or accuracy claim.','Single session and one sampling seed; ABBA repeats are not independent documents or seeds.',
+            'This session performs no research qualification and captures only production candidate graphs. Exact offline model/source/device qualification is required on the TP1 rank.',
+            'Raw generation includes host preparation; phase validation/export and setup/control RPC costs are separately measured.',
+            'Graph execution coverage excludes non-full-graph prefill/mixed work and is not a whole-task GPU-time fraction.',
+            'Full phase control wall ends after worker receipt export; subsequent local scoring/hash auditing/report writes are experimental analysis, outside that wall.',
+            'Host preparation timestamps may include waiting for earlier GPU work and are not a causal decomposition of added CPU overhead.',
+            'No candidate speed conclusion is valid unless the TP1 rank accept matching offline qualification and every compared output token matches.',
+            'First-use sums include common full-input B1..8 sampling warmup and all per-phase controls/exports; they are component estimates, not independent cold services. Residual JIT and AA drift must still be assessed.']}
+    def save():
+        (out/'summary.json').write_text(json.dumps(report,indent=2)+'\n')
+    save()
+    try:
+        from scripts.vllm_thinking_tp1_quad_worker import source_hashes
+        from src.vllm_gqa4_raw_pair_setup import validate_offline_records
+        preflight_start=time.perf_counter()
+        from src.thinking_tp1_offline_qualification import load_tp1_qualification
+        qualified=load_tp1_qualification(args.qualification_summary,source_hashes(),protocol,list(range(4,9)))
+        report['completed_strict_provenance']={k:v for k,v in qualified.items() if k!='reference_tokens'}
+        offline_paths=[Path(qualified['record_path'])]
+        offline_records=[json.loads(p.read_text()) for p in offline_paths]
+        assert offline_records
+        expected_fingerprint=offline_records[0]['execution_fingerprint']
+        # First validate all records against exact current worker/runtime sources.
+        validate_offline_records(offline_records,source_hashes(),expected_fingerprint,[],1)
+        coverage={0:set()}
+        for record in offline_records:
+            coverage[record['rank']].update(c['batch'] for c in record['checks'])
+        jointly_qualified=coverage[0]
+        report['offline_inputs']=[{'path':str(p),'sha256':digest(p)} for p in offline_paths]
+        report['offline_preflight_wall_seconds']=time.perf_counter()-preflight_start
+        report['offline_jointly_qualified_batches']=sorted(jointly_qualified)
+        from transformers import AutoTokenizer
+        from vllm import LLM,SamplingParams
+        from scripts.capture_model import make_inputs
+        from scripts.vllm_batch_admission import generate_ready_group
+        from scripts.screen_application import extract_final
+        from src.financial_answer_metric import METRIC_ID,score_pairs
+        start=time.perf_counter()
+        manifest_path=ROOT/protocol['manifest']
+        group=next(g for g in json.loads(manifest_path.read_text())['groups'] if g['document_id']==args.document_id)
+        item=next(d for d in protocol['documents'] if d['document_id']==args.document_id)
+        prompts,begin,end=make_inputs(AutoTokenizer.from_pretrained(ROOT/protocol['model_path'],local_files_only=True),group)
+        hashes=[hashlib.sha256(json.dumps(ids).encode()).hexdigest() for ids in prompts]
+        batch=len(prompts)
+        assert batch==group['natural_question_count']==len(set(hashes))==8
+        requested_batches=set(range(4,9))
+        assert requested_batches.issubset(jointly_qualified), 'All B4..8 must have TP1 new-build qualification before this fixed-bank production experiment'
+        enabled_batches=sorted(requested_batches)
+        report['enabled_batches']=enabled_batches
+        report['unqualified_batches_native_fallback']=sorted(requested_batches-set(enabled_batches))
+        validate_offline_records(offline_records,source_hashes(),expected_fingerprint,enabled_batches,1)
+        assert hashes==item['prompt_token_hashes'] and list(map(len,prompts))==item['prompt_lengths']
+        assert [begin,end]==item['document_token_range']
+        common=0
+        for values in zip(*prompts):
+            if len(set(values))!=1:
+                break
+            common+=1
+        common=common//16*16
+        assert common>=256 and max(map(len,prompts))+protocol['sampling']['max_tokens']<=protocol['engine']['max_model_len']
+        report.update(B=batch,document_sha256=group['document_sha256'],manifest=protocol['manifest'],manifest_sha256=digest(manifest_path),
+            prompt_token_hashes=hashes,prompt_lengths=list(map(len,prompts)),common_prefix_tokens=common,
+            input_preparation_wall_seconds=time.perf_counter()-start)
+        engine=copy.deepcopy(protocol['engine'])
+        engine.update(model=protocol['model_path'],kv_cache_dtype='auto',max_num_seqs=batch,disable_log_stats=False,
+            worker_extension_cls='scripts.vllm_thinking_tp1_quad_worker.ThinkingTP1QuadWorker')
+        engine['compilation_config']['cudagraph_capture_sizes']=list(range(1,batch+1))
+        report['engine']=engine
+        save()
+        start=time.perf_counter()
+        if args.prepare_only:
+            import torch
+            assert not torch.cuda.is_initialized();report['status']='CPU_prepared';report['cuda_initialized']=False;save();return
+        llm=LLM(**engine)
+        report['native_initialization_and_graph_setup_wall_seconds']=time.perf_counter()-start
+        config={'output':str(out.resolve()),'backend':'native_XQA_or_RawPair','prompt_token_hashes':hashes,
+                'batch':batch,'enabled_batches':enabled_batches,'setup_mode':'production_only','offline_qualification_records':[str(p) for p in offline_paths],
+                'common_prefix_tokens':common,
+                'max_tail_tokens':max(map(len,prompts))-common+protocol['sampling']['max_tokens']+64}
+        start=time.perf_counter()
+        report['configuration']=llm.collective_rpc('configure_dense_cascade',args=(config,))
+        report['candidate_configuration_wall_seconds']=time.perf_counter()-start
+        start=time.perf_counter()
+        report['capture']=llm.collective_rpc('capture_dense_cascade_graphs')
+        report['candidate_graph_capture_wall_seconds']=time.perf_counter()-start
+        report['candidate_total_setup_wall_seconds']=report['candidate_configuration_wall_seconds']+report['candidate_graph_capture_wall_seconds']
+        start=time.perf_counter();report['native_before']=llm.collective_rpc('native_precision_receipt',args=('auto',False))
+        report['common_initial_precision_export_wall_seconds']=time.perf_counter()-start
+        save()
+        start=time.perf_counter()
+        llm.collective_rpc('set_dense_cascade_phase',args=('setup_receipt','native',False))
+        setup_workers=llm.collective_rpc('finish_dense_cascade_phase')
+        report['setup_receipt_export_wall_seconds']=time.perf_counter()-start
+        report['offline_setup_joint_audit']=audit_offline_setup(setup_workers,enabled_batches)
+        report['setup_workers']=setup_workers
+        assert all(c['captured_modes']==['production'] and c['setup_mode']=='production_only' for c in report['capture'])
+        save()
+        if args.setup_only:
+            report['status']='completed_setup_only'
+            report['scope']='Production graph setup and offline source/device gate measured; no generated outputs or speedup measured.'
+            save()
+            return
+        # Common warmup uses the unchanged full prompt(s); no shortened task input.
+        warm_start=time.perf_counter();report['common_sampling_warmup']=[]
+        assert llm.reset_prefix_cache()
+        llm.collective_rpc('set_dense_cascade_phase',args=('common_warm_anchor','native',False))
+        warm_anchor=llm.generate([{'prompt_token_ids':prompts[0]}],SamplingParams(temperature=0,max_tokens=1,ignore_eos=False,seed=protocol['seed']),use_tqdm=False)
+        assert warm_anchor[0].num_cached_tokens==0
+        for warm_b in range(1,9):
+            llm.collective_rpc('set_dense_cascade_phase',args=(f'common_warm_B{warm_b}','native',False))
+            warm_sampling=dict(protocol['sampling'],max_tokens=2)
+            warm_outputs=generate_ready_group(llm,[{'prompt_token_ids':p} for p in prompts[:warm_b]],SamplingParams(**warm_sampling))
+            warm_workers=llm.collective_rpc('finish_dense_cascade_phase')
+            report['common_sampling_warmup'].append({'batch':warm_b,'sampling':warm_sampling,'answers':[answer(i,o) for i,o in enumerate(warm_outputs)],'workers':warm_workers})
+            assert len(warm_outputs)==warm_b and all(w['candidate_replays']==0 for w in warm_workers)
+        report['common_sampling_warmup_wall_seconds']=time.perf_counter()-warm_start
+        report['common_sampling_warmup_scope']='One full-document cold anchor and full-input B1..8 ready subgroups with at most two natural tokens; control/setup only, charged equally once to both first-use components. Formal ABBA retains all eight complete prompts and EOS8192, resetting APC each arm.'
+        save()
+        phases=[]
+        if args.phase_kind in ('fixed','both'):
+            phases += [(f'fixed_{method}_{i}',method,False,False,128) for i,method in enumerate(('native','cascade','cascade','native'))]
+        if args.phase_kind in ('natural','both'):
+            phases += [(f'natural_{method}_{i}',method,True,False,None) for i,method in enumerate(('native','cascade','cascade','native'))]
+        for phase,method,natural,validation,tokens in phases:
+            phase_started=time.perf_counter()
+            start=time.perf_counter()
+            llm.collective_rpc('set_dense_cascade_phase',args=(phase+'_anchor','native',False))
+            assert llm.reset_prefix_cache()
+            anchor_control=time.perf_counter()-start
+            start=time.perf_counter()
+            anchors=llm.generate([{'prompt_token_ids':prompts[0]}],SamplingParams(temperature=0,max_tokens=1,ignore_eos=False,seed=protocol['seed']),use_tqdm=False)
+            anchor_wall=time.perf_counter()-start
+            assert anchors[0].num_cached_tokens==0
+            start=time.perf_counter()
+            llm.collective_rpc('set_dense_cascade_phase',args=(phase,method,validation))
+            group_control=time.perf_counter()-start
+            sampling=dict(protocol['sampling'])
+            if not natural:
+                sampling.update(max_tokens=tokens,min_tokens=tokens,ignore_eos=True)
+            start=time.perf_counter()
+            outputs=generate_ready_group(llm,[{'prompt_token_ids':ids} for ids in prompts],SamplingParams(**sampling))
+            wall=time.perf_counter()-start
+            answers=[answer(i,o) for i,o in enumerate(outputs)]
+            start=time.perf_counter()
+            workers=llm.collective_rpc('finish_dense_cascade_phase')
+            finalize=time.perf_counter()-start
+            control_wall=time.perf_counter()-phase_started
+            run={'phase':phase,'method':method,'validation':validation,'natural_eos_enabled':natural,
+                'sampling':sampling,'anchor_wall_seconds':anchor_wall,'anchor_control_wall_seconds':anchor_control,
+                'group_control_wall_seconds':group_control,'complete_generate_wall_seconds':wall,
+                'cold_shared_document_total_wall_seconds':anchor_wall+wall,
+                'phase_validation_and_record_export_wall_seconds':finalize,
+                'generate_plus_phase_validation_wall_seconds':wall+finalize,'full_phase_control_wall_seconds':control_wall,
+                'answers':answers,'total_output_tokens':sum(len(a['tokens']) for a in answers),'workers':workers}
+            report['runs'].append(run)
+            save()
+            assert len(answers)==batch and all(a['request_metrics'] is not None for a in answers)
+            if not natural:
+                assert all(len(a['tokens'])==tokens for a in answers)
+            assert len(workers)==1 and all(w['phase_valid'] for w in workers),'TP1 receipt preserved; invalid RawPair phase'
+            run['total_request_preemptions']=sum(a['request_metrics']['num_preemptions'] for a in answers)
+            run['cap_hits']=[a['question_index'] for a in answers if a['finish_reason']=='length']
+            run['rank_graph_execution_counts']=[{'rank':w['rank'],'candidate_replays':w['candidate_replays'],
+                'native_replays':w['native_replays'],'candidate_fraction_of_counted_graphs':
+                w['candidate_replays']/(w['candidate_replays']+w['native_replays']) if w['candidate_replays']+w['native_replays'] else 0} for w in workers]
+            if natural:
+                prior_natural=[r for r in report['runs'][:-1] if r['natural_eos_enabled'] and r['method']=='native']
+                run['all_tokens_equal_to_strict_native_trajectory']=[a['tokens'] for a in answers]==qualified['reference_tokens']
+                if prior_natural:run['all_tokens_equal_to_first_native']=[a['tokens'] for a in answers]==[a['tokens'] for a in prior_natural[0]['answers']]
+                predictions=[]
+                parses=[]
+                for a in answers:
+                    final,_,parse=extract_final(a['text'],thinking=True)
+                    predictions.append(final if a['finish_reason']=='stop' and parse=='closed_thinking' else '')
+                    parses.append({'question_index':a['question_index'],'final':final,'parse':parse})
+                run['quality']={'metric_id':METRIC_ID,'score':score_pairs(predictions,[q['answer'] for q in group['questions']]),'parses':parses}
+            if method=='cascade':
+                run['candidate_graph_executed']=all(w['candidate_replays']>0 for w in workers)
+                run['comparison_scope']='candidate_policy_with_native_fallback' if run['candidate_graph_executed'] else 'native_only_policy_fallback_no_candidate_speed_claim'
+            signatures=[]
+            prepare_totals=[]
+            for worker in workers:
+                rows=json.loads(Path(worker['graph_metadata']).read_text())['replays']
+                raw=json.loads(Path(worker['raw_pair_record']).read_text())
+                from src.thinking_tp1_quad_scope import receipt
+                assert raw['development_scope']==receipt()
+                assert raw['setup_mode']=='production_only' and raw['offline_qualification']
+                assert not raw['checks'] and set(raw['captured_layers_by_batch'])=={'production'}
+                assert len(rows)==worker['candidate_replays']+worker['native_replays']
+                assert sum(r['candidate_graph_replayed'] for r in rows)==worker['candidate_replays']
+                assert all(r['batch'] in worker['qualified_batches'] and policy_eligible(r,common,enabled_batches) for r in rows if r['candidate_graph_replayed'])
+                if method=='cascade':
+                    assert all(p['development_scope_eligible'] for p in raw['prepare_records'])
+                if method=='native':
+                    assert worker['candidate_replays']==0
+                signatures.append(hashlib.sha256(json.dumps([(r['batch'],r['questions'],r['positions']) for r in rows]).encode()).hexdigest())
+                prepare_totals.append({'rank':worker['rank'],'candidate_prepare_records':len(raw['prepare_records']),
+                    'total_recorded_prepare_host_seconds':sum(r['complete_prepare_host_seconds'] for r in raw['prepare_records']),
+                    'raw_pair_record_sha256':digest(Path(worker['raw_pair_record'])),
+                    'fallbacks':raw['fallbacks']})
+            assert len(signatures)==1,'TP1 requires exactly one trajectory'
+            run['graph_trajectory_sha256_by_rank']=signatures
+            run['candidate_prepare_receipts']=prepare_totals
+            if phase in ('fixed_native_3','natural_native_3'):
+                kind='natural' if natural else 'fixed'
+                selected=[r for r in report['runs'] if r['phase'].startswith(kind+'_')]
+                report['comparisons'][kind]=compare_abba(selected)
+                if natural:report['comparisons'][kind]['all_tokens_equal_to_strict_native_trajectory']=all(x['all_tokens_equal_to_strict_native_trajectory'] for x in selected)
+                report.setdefault('first_use_component_estimates',{})[kind]=component_first_use(report,kind)
+                save()
+                assert report['comparisons'][kind]['identical_output_comparison_valid'],'Outputs/APC differ; keep results, reject speed interpretation'
+                if natural:assert report['comparisons'][kind]['all_tokens_equal_to_strict_native_trajectory'],'New warmup session trajectory differs from strict native trajectory; preserve all arms, require diagnosis'
+            save()
+        start=time.perf_counter()
+        report['native_after']=llm.collective_rpc('native_precision_receipt',args=('auto',True))
+        report['final_precision_receipt_wall_seconds']=time.perf_counter()-start
+        report['status']='completed'
+        save()
+    except BaseException:
+        report['status']='failed'
+        report['error']=traceback.format_exc()
+        save()
+        raise
+
+
+if __name__=='__main__':
+    main()

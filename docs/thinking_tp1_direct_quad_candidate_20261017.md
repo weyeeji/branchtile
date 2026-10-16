@@ -39,3 +39,23 @@ After TP1 actual-state operator and memcheck gates pass, root can run one GPU (i
 ```
 
 This driver is qualification-only: it retains the original native generation trajectory and checks up to eight naturally observed states for each B4..8 against native AA, a native witness graph, checked candidate and production candidate. It verifies every layer Q/O, full hidden/logit output, current KV slots, original inputs/positions/table and native metadata aliases. It restores native slots before continuing. Missing states remain unqualified; a successful first set is not a proof for all later states. No fixed/natural performance arms are launched by this driver. The whole-model receipt must pass before a separate matched TP1 production experiment can support a speed claim.
+
+## Matched TP1 production after strict qualification
+
+`benchmark_thinking_tp1_quad_production.py` is a separate production driver. It requires the **completed** new TP1 strict summary, exact driver/worker source and audited raw receipt digest, TP1 attention fingerprint and every B4..8 checked on the single rank. It captures only production candidate graphs and does not run research shadow checks. Earlier TP2/raw-only/partial receipts are insufficient.
+
+Before formal timing it performs one common full-document cold anchor and ready B1..8 subgroups using the unchanged full prompt tokens, sampling configuration and a maximum of two natural tokens. This is explicit sampler warmup, not a task-quality result. Its complete wall cost and control exports are retained and charged equally once to both first-use components. The candidate additionally pays offline provenance, configure/capture and setup export once. Formal natural ABBA resets APC every arm and always uses all eight complete inputs with the original EOS/8192 contract. It preserves all four arms before final output/trajectory gating and requires agreement with the TP1 strict native output as well. Full-phase primary costs include anchor, controls, generation and worker exports; fresh-service estimates additionally include common input/native-engine setup. These are component estimates, not independently cold processes.
+
+After strict summary completion, prepare without a visible GPU:
+
+```bash
+CUDA_VISIBLE_DEVICES='' .venv-engine/bin/python scripts/benchmark_thinking_tp1_quad_production.py --document-id docfinqa-680456070a0a0714 --qualification-summary results/thinking_tp1_quad_model_qual_v1/summary.json --prepare-only --output results/thinking_tp1_quad_production_prepare_v1
+```
+
+Then root can allocate one exclusive GPU (initial limit1200s):
+
+```bash
+.venv-engine/bin/python scripts/benchmark_thinking_tp1_quad_production.py --document-id docfinqa-680456070a0a0714 --qualification-summary results/thinking_tp1_quad_model_qual_v1/summary.json --phase-kind natural --output results/thinking_tp1_quad_production_v1
+```
+
+CPU tests verify completed-summary/source/raw-digest/rank rejection, common warmup/exports and candidate setup accounting, without CUDA. The existing qualification worker/runtime remains byte-for-byte unchanged by this production addition. Low application answer quality remains part of every report and limits the claim.
