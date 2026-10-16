@@ -19,6 +19,8 @@ Recent evidence:
   checks pass. Existing sparse E0 benefits from shared addresses by 1.22–1.77×
   in cold calls; this is a baseline property, not a new executor gain. Hardware
   traffic and full-model speed are not inferred from these operator timings.
+  [Figure](results/native_physical_alias_figures_v1/native_physical_alias_hot_cold.pdf)
+  · [Independent audit](results/native_physical_alias_independent_audit_v1/README.md).
 - [Corrected suffix-only replay](results/suffix_v2_replay/): 1,156 qualified
   configurations; dynamic execution loses at all 24 tested hot/cold points.
 - [Native-FI natural development matrix](results/main30b_sparse/fi_natural_expansion_summary.json):
