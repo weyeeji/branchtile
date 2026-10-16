@@ -33,7 +33,9 @@ def classify(name):
     lower = name.lower()
     if 'nccl' in lower or 'allreduce' in lower or 'all_reduce' in lower:
         return 'tensor_parallel_communication'
-    if 'xqa' in lower:
+    # FI XQA's exported CUBIN symbol omits "xqa". The dense MHA signature
+    # is verified in flashinfer/data/csrc/xqa/mha.cu and actual native receipts.
+    if 'xqa' in lower or (name.startswith('kernel_mha(') and 'KVCacheList<' in name):
         return 'attention_xqa'
     if 'flashinfer::' in name and any(x in name for x in ('BatchDecodeWithPagedKVCache', 'BatchPrefillWithPagedKVCache', 'SingleDecodeWithKVCache', 'SinglePrefillWithKVCache', 'MergeStates', 'MergeState')):
         return 'attention_flashinfer_non_xqa_or_merge'
@@ -70,6 +72,8 @@ def summarize_trace(path):
                            'fraction_of_kernel_sum': sum(e['dur'] for e in v) / total}
                        for k, v in groups.items()},
             'all_kernel_names': [{'name': k, 'category': classify(k), 'sum_us': v} for k, v in names.most_common()],
+            'user_annotation_counts': dict(collections.Counter(e['name'] for e in obj['traceEvents'] if e.get('cat') == 'user_annotation')),
+            'kernel_sum_over_span': total / span,
             'classification_status': 'Name-based recognizable attention only; inspect all kernel names before declaring complete attribution.',
             'scope': 'Instrumented trace, not unprofiled wall time or causal speedup. No graph-event denominator from a different window is mixed in.'}
 
@@ -114,6 +118,14 @@ def summarize_run(path):
         assert sha(trace) == meta['sha256'], trace
         if trace.name.endswith('.json.gz') or trace.suffix == '.json':
             trace_rows.append(summarize_trace(trace))
+    expected_primary_count = 48 * data['engine_configuration']['profiler_config']['max_iterations']
+    assert len(trace_rows) == 2
+    assert all(t['groups'].get('attention_xqa', {}).get('count') == expected_primary_count for t in trace_rows)
+    for receipt in data['native_receipt_before'] + data['native_receipt_after']:
+        assert len(receipt['layers']) == 48
+        assert all(layer['backend'] == 'FLASHINFER' for layer in receipt['layers'])
+        decode = [m['decode'] for m in receipt['actual_metadata'] if 'decode' in m]
+        assert decode and all('XQA' in row['kernel'] for row in decode)
     event_rows = []
     for rank in data['profile_graph_events']:
         times = [e['model_graph_cuda_us'] for e in rank['events']]
@@ -157,7 +169,11 @@ def main():
     args = parser.parse_args()
     paths = sorted((ROOT / args.root).rglob('summary.json')) if args.root else []
     rows = [summarize_run(path) for path in paths]
+    xqa_source = ROOT / '.venv-engine/lib/python3.12/site-packages/flashinfer/data/csrc/xqa/mha.cu'
     report = {'schema': 1, 'script_sha256': sha(Path(__file__)), 'historical_sparse_evidence': historical_evidence(),
+              'native_XQA_classification_source': {'path': str(xqa_source), 'sha256': sha(xqa_source),
+                  'symbol': 'kernel_mha', 'signature_marker': 'KVCacheList',
+                  'basis': 'Installed engine XQA mha.cu exported kernel symbol, actual XQA decode receipts, exactly 32*48 matched kernels per rank.'},
               'new_native_runs': rows,
               'interpretation': ['No candidate is executed by this experiment; it establishes a real baseline and opportunity attribution.',
                                  'Attention kernel fraction is not an observed end-to-end speedup or rigorous removable critical-path bound.',
