@@ -24,6 +24,7 @@ from transformers import AutoModelForCausalLM,AutoTokenizer
 from transformers.cache_utils import DynamicCache
 from capture_model import make_inputs
 from sparse_reference import QuestionObserver,alias_cache,compress_cache,decode,tensor_hash
+from sparse_budget_plan import parse_budgets,resolve_budget,load_full_sources,validate_reuse,reused_variant
 
 
 def digest(path):
@@ -69,7 +70,9 @@ def qualify(model,cache,observer,first_logits,ids,ds,de,eos,args):
     errors=(a-b).abs().amax(-1).tolist()
     assert dense["generated_ids"]==gathered["generated_ids"],"Full-budget tokens differ"
     assert torch.equal(a,b),f"Full-budget logits changed, maximum difference {max(errors)}"
-    sparse,_,_,sparse_audit=measure_compression(cache,observer,max(36,math.ceil((de-ds)*.25)),ds,de,model)
+    sparse_budget=(resolve_budget(args.budgets[0],args.budget_mode,de-ds)['budget_tokens']
+                   if args.budget_mode=='tokens' else max(36,math.ceil((de-ds)*.25)))
+    sparse,_,_,sparse_audit=measure_compression(cache,observer,sparse_budget,ds,de,model)
     # In a two-token continuation, changing only the future input must leave
     # the first position's logits unchanged after physical cache compaction.
     token=dense["generated_ids"][0]
@@ -89,7 +92,7 @@ def qualify(model,cache,observer,first_logits,ids,ds,de,eos,args):
             "full_budget_gather_bitwise_identity":identity,"full_budget_logit_max_abs_per_step":errors,
             "full_budget_tokens_equal":True,"future_causality_max_abs":future_error,
             "absolute_decode_positions_correct":dense["absolute_decode_positions"]==list(range(len(ids),len(ids)+len(dense["absolute_decode_positions"]))),
-            "full_budget_audit":audit,"quarter_budget_causality_audit":sparse_audit,
+            "full_budget_audit":audit,"sparse_budget_causality_audit":sparse_audit,
             "dense":dense,"full_budget":gathered,
             "trace_artifact":str(trace_path),"trace_sha256":digest(trace_path)}
 
@@ -104,6 +107,8 @@ def run(args,result):
     result.update(model_path=str(model_path),model_revision=identity["revision"],
                   weights_manifest=args.weights_manifest,weights_manifest_sha256=digest(args.weights_manifest),
                   model_config_sha256=digest(model_path/"config.json"))
+    reuse,reuse_sources=load_full_sources(args.reuse_full_from,result)
+    result['reuse_sources']=reuse_sources
     start=time.perf_counter()
     tokenizer=AutoTokenizer.from_pretrained(model_path,local_files_only=True)
     model=AutoModelForCausalLM.from_pretrained(model_path,dtype=torch.bfloat16,
@@ -142,6 +147,9 @@ def run(args,result):
                      "prompt_tokens":len(ids),"input_ids_sha256":tensor_hash(torch.tensor(ids,dtype=torch.int64)),
                      "status":"prefilling","variants":[]}
             record["questions"].append(qrecord)
+            prior=reuse.get((gi,qi))
+            if prior is not None:
+                validate_reuse(prior,record,qrecord)
             cache=alias_cache(prefix_cache,model.config)
             observer.begin();start=time.perf_counter()
             out=model(input_ids=torch.tensor(ids[de:],device="cuda")[None],
@@ -155,9 +163,28 @@ def run(args,result):
             if args.mode=="qualify":
                 qrecord["qualification"]=qualify(model,cache,observer,first_logits,ids,ds,de,eos,args)
             else:
-                for fraction in args.budgets:
-                    budget=min(de-ds,max(36,math.ceil((de-ds)*fraction)))
-                    variant={"fraction":fraction,"status":"selecting","budget_tokens":budget}
+                completed_budgets={}
+                for requested in args.budgets:
+                    resolved=resolve_budget(requested,args.budget_mode,de-ds)
+                    budget=resolved['budget_tokens']
+                    if prior is not None and budget==de-ds:
+                        variant=reused_variant(prior,resolved)
+                        qrecord['variants'].append(variant)
+                        write(args.output,result)
+                        continue
+                    if budget in completed_budgets:
+                        import copy
+                        variant=copy.deepcopy(completed_budgets[budget])
+                        costs={key:variant.pop(key) for key in list(variant) if '_seconds' in key}
+                        variant.update(resolved,generation_origin='reused_same_run_identical_budget',
+                            new_generation_performed=False,historical_reference_cost_seconds=costs,
+                            measurement_origin='same-run source only; no repeated measurement')
+                        qrecord['variants'].append(variant)
+                        write(args.output,result)
+                        continue
+                    variant={**resolved,"status":"selecting",'generation_origin':'new_generation',
+                        'new_generation_performed':True,'measurement_origin':'this_run',
+                        'source_generation_id':f'{Path(args.output)}:g{gi}:q{qi}:b{budget}'}
                     qrecord["variants"].append(variant)
                     write(args.output,result)
                     variant_start=time.perf_counter()
@@ -179,7 +206,9 @@ def run(args,result):
                     variant.update(generated,status="completed",generated_text=tokenizer.decode(generated["generated_ids"],skip_special_tokens=True),
                                    variant_reference_seconds_excluding_final_checkpoint=time.perf_counter()-variant_start)
                     write(args.output,result)
-                    print(json.dumps({"group":gi,"question":qi,"fraction":fraction,
+                    completed_budgets[budget]=variant
+                    print(json.dumps({"group":gi,"question":qi,"requested_budget":requested,
+                                      "budget_tokens":budget,
                                       "tokens":generated["generated_tokens"],"eos":generated["natural_eos"]}),flush=True)
                     del compact,supports,positions
             qrecord["status"]="completed"
@@ -201,6 +230,8 @@ def main():
     p.add_argument("--groups",default="0")
     p.add_argument("--questions",default="0")
     p.add_argument("--budgets",default="0.1,0.25,0.5,1.0")
+    p.add_argument("--budget-mode",choices=['fraction','tokens'],default='fraction')
+    p.add_argument("--reuse-full-from",nargs='*',default=[])
     p.add_argument("--max-new-tokens",type=int,default=8192)
     p.add_argument("--prefill-chunk",type=int,default=1024)
     p.add_argument("--seed",type=int,default=20261016)
@@ -211,8 +242,7 @@ def main():
     assert os.geteuid()!=0 and sys.prefix!=sys.base_prefix
     args.groups=list(map(int,args.groups.split(",")))
     args.questions=list(map(int,args.questions.split(",")))
-    args.budgets=list(map(float,args.budgets.split(",")))
-    assert all(0<f<=1 for f in args.budgets)
+    args.budgets=parse_budgets(args.budgets,args.budget_mode)
     if args.mode=="qualify":
         assert args.max_new_tokens<=32,"Qualification must not masquerade as a quality run"
     torch.set_num_threads(4)
@@ -227,6 +257,8 @@ def main():
             "start_epoch":time.time(),"torch":torch.__version__,"groups":[],
             "manifest":args.manifest,"manifest_sha256":digest(args.manifest),
             "script_sha256":digest(__file__),"core_sha256":digest(ROOT/"src/sparse_reference.py"),
+            "budget_mode":args.budget_mode,"requested_budgets":args.budgets,
+            "budget_plan_sha256":digest(ROOT/'src/sparse_budget_plan.py'),
             "generation":{"temperature":args.temperature,"top_p":args.top_p,"seed":args.seed,
                           "natural_eos":True,"min_tokens":None,"max_new_tokens":args.max_new_tokens},
             "selector":{"window":32,"pool":7,"normalization":"full causal original history",
