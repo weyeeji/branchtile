@@ -1,0 +1,154 @@
+...FFF.                                                                  [100%]
+=================================== FAILURES ===================================
+__________ test_native_union_same_supports[disjoint-4-8-137-64-False] __________
+
+pattern = 'disjoint', b = 4, g = 8, n = 137, split = 64, normalize = False
+
+    @pytest.mark.parametrize("pattern,b,g,n,split,normalize", [
+        ("cross", 4, 4, 197, None, False),
+        ("mixed", 4, 8, 301, 128, True),
+        ("tree", 3, 4, 127, None, True),
+        ("disjoint", 4, 8, 137, 64, False),
+        ("full", 1, 4, 17, None, True),
+    ])
+    def test_native_union_same_supports(pattern, b, g, n, split, normalize):
+        torch.manual_seed(602)
+        h, d = 2, 128
+        owners = synthetic_owners(h, n, pattern, b, seed=602)
+        owners[:, ::11] = 0  # Different union cardinalities and noncontiguous pages.
+        owners[1, ::7] = 0
+        owners[:, :4] = (1 << b) - 1  # Common system prefix.
+        for request in range(b):
+            owners[:, n - b + request] = 1 << request  # Complete private suffix.
+        q = torch.randn(h, b * g, d, device="cuda", dtype=torch.bfloat16)
+        k = torch.randn(h, n, d, device="cuda", dtype=torch.bfloat16)
+        v = torch.randn_like(k)
+        op = NativeUnionPrefill(q, k, v, owners, b, fixed_split_size=split, normalize_lse=normalize)
+        # The native pages alias the original immutable payload.
+        assert op.kv[0].data_ptr() == k.data_ptr()
+        assert op.kv[1].data_ptr() == v.data_ptr()
+        out, lse = op.run()
+        ref, ref_lse = reference(q, k, v, owners, b, g)
+        scale = 1 if normalize else math.log(2)
+        torch.testing.assert_close(out.float(), ref.float(), atol=0.006, rtol=0.015)
+>       torch.testing.assert_close((lse * scale).float(), ref_lse.float(), atol=0.0003, rtol=0.0001)
+E       AssertionError: Tensor-likes are not close!
+E       
+E       Mismatched elements: 3 / 64 (4.7%)
+E       Greatest absolute difference: 0.0009982585906982422 at index (1, 6) (up to 0.0003 allowed)
+E       Greatest relative difference: 0.00026079858071170747 at index (1, 6) (up to 0.0001 allowed)
+
+tests/test_flashinfer_union.py:38: AssertionError
+____________ test_native_union_same_supports[full-1-4-17-None-True] ____________
+
+pattern = 'full', b = 1, g = 4, n = 17, split = None, normalize = True
+
+    @pytest.mark.parametrize("pattern,b,g,n,split,normalize", [
+        ("cross", 4, 4, 197, None, False),
+        ("mixed", 4, 8, 301, 128, True),
+        ("tree", 3, 4, 127, None, True),
+        ("disjoint", 4, 8, 137, 64, False),
+        ("full", 1, 4, 17, None, True),
+    ])
+    def test_native_union_same_supports(pattern, b, g, n, split, normalize):
+        torch.manual_seed(602)
+        h, d = 2, 128
+        owners = synthetic_owners(h, n, pattern, b, seed=602)
+        owners[:, ::11] = 0  # Different union cardinalities and noncontiguous pages.
+        owners[1, ::7] = 0
+        owners[:, :4] = (1 << b) - 1  # Common system prefix.
+        for request in range(b):
+            owners[:, n - b + request] = 1 << request  # Complete private suffix.
+        q = torch.randn(h, b * g, d, device="cuda", dtype=torch.bfloat16)
+        k = torch.randn(h, n, d, device="cuda", dtype=torch.bfloat16)
+        v = torch.randn_like(k)
+        op = NativeUnionPrefill(q, k, v, owners, b, fixed_split_size=split, normalize_lse=normalize)
+        # The native pages alias the original immutable payload.
+        assert op.kv[0].data_ptr() == k.data_ptr()
+        assert op.kv[1].data_ptr() == v.data_ptr()
+        out, lse = op.run()
+        ref, ref_lse = reference(q, k, v, owners, b, g)
+        scale = 1 if normalize else math.log(2)
+        torch.testing.assert_close(out.float(), ref.float(), atol=0.006, rtol=0.015)
+>       torch.testing.assert_close((lse * scale).float(), ref_lse.float(), atol=0.0003, rtol=0.0001)
+E       AssertionError: Tensor-likes are not close!
+E       
+E       Mismatched elements: 2 / 8 (25.0%)
+E       Greatest absolute difference: 0.0007991790771484375 at index (0, 1) (up to 0.0003 allowed)
+E       Greatest relative difference: 0.00023057771613821387 at index (0, 1) (up to 0.0001 allowed)
+
+tests/test_flashinfer_union.py:38: AssertionError
+_____________ test_native_union_empty_request_with_nonempty_union ______________
+
+    def test_native_union_empty_request_with_nonempty_union():
+        torch.manual_seed(603)
+        owners = torch.tensor([[1, 3, 1, 2, 0], [2, 2, 2, 0, 0]], dtype=torch.int64)
+        q = torch.randn(2, 8, 128, device="cuda", dtype=torch.bfloat16)
+        k = torch.randn(2, 5, 128, device="cuda", dtype=torch.bfloat16)
+        v = torch.randn_like(k)
+        out, lse = NativeUnionPrefill(q, k, v, owners, 2, normalize_lse=True).run()
+        ref, ref_lse = reference(q, k, v, owners, 2, 4)
+        torch.testing.assert_close(out.float(), ref.float(), atol=0.006, rtol=0.015)
+>       torch.testing.assert_close(lse.float(), ref_lse.float(), atol=0.0003, rtol=0.0001)
+E       AssertionError: Tensor-likes are not close!
+E       
+E       Mismatched elements: 7 / 16 (43.8%)
+E       Greatest absolute difference: 0.0007295608520507812 at index (0, 6) (up to 0.0003 allowed)
+E       Greatest relative difference: 0.001486654276959598 at index (0, 4) (up to 0.0001 allowed)
+
+tests/test_flashinfer_union.py:62: AssertionError
+=============================== warnings summary ===============================
+.venv-latest/lib/python3.12/site-packages/tvm_ffi/registry.py:85
+  /home/qcjz/iscas/.venv-latest/lib/python3.12/site-packages/tvm_ffi/registry.py:85: UserWarning: Field 'span' in 'ir.TupleType' duplicates an ancestor field. Child types should not re-register inherited fields.
+    info = core._register_object_by_index(type_index, cls)
+
+.venv-latest/lib/python3.12/site-packages/tvm_ffi/registry.py:85
+  /home/qcjz/iscas/.venv-latest/lib/python3.12/site-packages/tvm_ffi/registry.py:85: UserWarning: Field 'span' in 'ir.FuncType' duplicates an ancestor field. Child types should not re-register inherited fields.
+    info = core._register_object_by_index(type_index, cls)
+
+.venv-latest/lib/python3.12/site-packages/tvm_ffi/registry.py:85
+  /home/qcjz/iscas/.venv-latest/lib/python3.12/site-packages/tvm_ffi/registry.py:85: UserWarning: Field 'span' in 'ir.TensorMapType' duplicates an ancestor field. Child types should not re-register inherited fields.
+    info = core._register_object_by_index(type_index, cls)
+
+.venv-latest/lib/python3.12/site-packages/tvm_ffi/registry.py:85
+  /home/qcjz/iscas/.venv-latest/lib/python3.12/site-packages/tvm_ffi/registry.py:85: UserWarning: Field 'name' in 'relax.TEPlaceholderOp' duplicates an ancestor field. Child types should not re-register inherited fields.
+    info = core._register_object_by_index(type_index, cls)
+
+.venv-latest/lib/python3.12/site-packages/tvm_ffi/registry.py:85
+  /home/qcjz/iscas/.venv-latest/lib/python3.12/site-packages/tvm_ffi/registry.py:85: UserWarning: Field 'tag' in 'relax.TEPlaceholderOp' duplicates an ancestor field. Child types should not re-register inherited fields.
+    info = core._register_object_by_index(type_index, cls)
+
+.venv-latest/lib/python3.12/site-packages/tvm_ffi/registry.py:85
+  /home/qcjz/iscas/.venv-latest/lib/python3.12/site-packages/tvm_ffi/registry.py:85: UserWarning: Field 'attrs' in 'relax.TEPlaceholderOp' duplicates an ancestor field. Child types should not re-register inherited fields.
+    info = core._register_object_by_index(type_index, cls)
+
+.venv-latest/lib/python3.12/site-packages/tvm_ffi/registry.py:85
+  /home/qcjz/iscas/.venv-latest/lib/python3.12/site-packages/tvm_ffi/registry.py:85: UserWarning: Field 'shape' in 'relax.TEPlaceholderOp' duplicates an ancestor field. Child types should not re-register inherited fields.
+    info = core._register_object_by_index(type_index, cls)
+
+.venv-latest/lib/python3.12/site-packages/tvm_ffi/registry.py:85
+  /home/qcjz/iscas/.venv-latest/lib/python3.12/site-packages/tvm_ffi/registry.py:85: UserWarning: Field 'dtype' in 'relax.TEPlaceholderOp' duplicates an ancestor field. Child types should not re-register inherited fields.
+    info = core._register_object_by_index(type_index, cls)
+
+.venv-latest/lib/python3.12/site-packages/tvm_ffi/registry.py:85
+  /home/qcjz/iscas/.venv-latest/lib/python3.12/site-packages/tvm_ffi/registry.py:85: UserWarning: Field 'policy_type' in 'tl.GemmSPWarpPolicy' duplicates an ancestor field. Child types should not re-register inherited fields.
+    info = core._register_object_by_index(type_index, cls)
+
+.venv-latest/lib/python3.12/site-packages/tvm_ffi/registry.py:85
+  /home/qcjz/iscas/.venv-latest/lib/python3.12/site-packages/tvm_ffi/registry.py:85: UserWarning: Field 'm_warp' in 'tl.GemmSPWarpPolicy' duplicates an ancestor field. Child types should not re-register inherited fields.
+    info = core._register_object_by_index(type_index, cls)
+
+.venv-latest/lib/python3.12/site-packages/tvm_ffi/registry.py:85
+  /home/qcjz/iscas/.venv-latest/lib/python3.12/site-packages/tvm_ffi/registry.py:85: UserWarning: Field 'n_warp' in 'tl.GemmSPWarpPolicy' duplicates an ancestor field. Child types should not re-register inherited fields.
+    info = core._register_object_by_index(type_index, cls)
+
+.venv-latest/lib/python3.12/site-packages/flashinfer/cute_dsl/availability.py:136
+  /home/qcjz/iscas/.venv-latest/lib/python3.12/site-packages/flashinfer/cute_dsl/availability.py:136: DeprecationWarning: Arch from arch.py is deprecated. Use Arch from enums.py instead.
+    from cutlass.base_dsl.arch import Arch
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_flashinfer_union.py::test_native_union_same_supports[disjoint-4-8-137-64-False]
+FAILED tests/test_flashinfer_union.py::test_native_union_same_supports[full-1-4-17-None-True]
+FAILED tests/test_flashinfer_union.py::test_native_union_empty_request_with_nonempty_union
+3 failed, 4 passed, 12 warnings in 15.23s

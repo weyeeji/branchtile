@@ -20,6 +20,12 @@ class NativeUnionPrefill:
     that request has left. Per-head zero-length unions are rejected: the native
     paged custom-mask indptr computation in 0.7.2 does not support that case.
     Individual empty request masks within a nonempty union remain representable.
+
+    BF16 FA2 also rounds probabilities before accumulating its denominator;
+    several small-support fixtures exceed this project's frozen LSE tolerance,
+    identically to direct native single-request FA2. Qualify every candidate
+    shape/configuration against FP64 before timing; do not assume this wrapper
+    universally meets that stricter LSE contract.
     """
 
     lse_log_base = 2

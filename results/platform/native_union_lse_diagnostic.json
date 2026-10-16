@@ -1,0 +1,87 @@
+{
+  "purpose": "Diagnose existing frozen-tolerance failures; no benchmark and no changed inputs/reference/tolerance",
+  "pid": 1202995,
+  "cuda_visible_devices": "0",
+  "flashinfer": "0.7.2",
+  "torch": "2.11.0+cu130",
+  "rows": [
+    {
+      "pattern": "disjoint",
+      "B": 4,
+      "GQA": 8,
+      "N": 137,
+      "union_fixed_split_size": 64,
+      "union": {
+        "max_output_error": 0.004624366760253906,
+        "max_ln_lse_error": 0.0009982585906982422,
+        "output_passes_frozen_tolerance": true,
+        "lse_passes_frozen_tolerance": false,
+        "empty_rows_have_negative_infinite_lse": true
+      },
+      "direct_single_fa2": {
+        "max_output_error": 0.0032176971435546875,
+        "max_ln_lse_error": 0.001069784164428711,
+        "output_passes_frozen_tolerance": true,
+        "lse_passes_frozen_tolerance": false,
+        "empty_rows_have_negative_infinite_lse": true
+      },
+      "union_vs_direct_max_ln_lse_difference": 0.0005593299865722656,
+      "union_vs_direct_max_output_difference": 0.0078125
+    },
+    {
+      "pattern": "full",
+      "B": 1,
+      "GQA": 4,
+      "N": 17,
+      "union_fixed_split_size": null,
+      "union": {
+        "max_output_error": 0.0034962892532348633,
+        "max_ln_lse_error": 0.0007991790771484375,
+        "output_passes_frozen_tolerance": true,
+        "lse_passes_frozen_tolerance": false,
+        "empty_rows_have_negative_infinite_lse": true
+      },
+      "direct_single_fa2": {
+        "max_output_error": 0.0034962892532348633,
+        "max_ln_lse_error": 0.0007991790771484375,
+        "output_passes_frozen_tolerance": true,
+        "lse_passes_frozen_tolerance": false,
+        "empty_rows_have_negative_infinite_lse": true
+      },
+      "union_vs_direct_max_ln_lse_difference": 0.0,
+      "union_vs_direct_max_output_difference": 0.0
+    },
+    {
+      "pattern": "empty_request",
+      "B": 2,
+      "GQA": 4,
+      "N": 5,
+      "union_fixed_split_size": null,
+      "union": {
+        "max_output_error": 0.00802922248840332,
+        "max_ln_lse_error": 0.0007295608520507812,
+        "output_passes_frozen_tolerance": true,
+        "lse_passes_frozen_tolerance": false,
+        "empty_rows_have_negative_infinite_lse": true
+      },
+      "direct_single_fa2": {
+        "max_output_error": 0.00802922248840332,
+        "max_ln_lse_error": 0.0007295608520507812,
+        "output_passes_frozen_tolerance": true,
+        "lse_passes_frozen_tolerance": false,
+        "empty_rows_have_negative_infinite_lse": true
+      },
+      "union_vs_direct_max_ln_lse_difference": 0.0,
+      "union_vs_direct_max_output_difference": 0.0
+    }
+  ],
+  "source_evidence": {
+    "path": "/home/qcjz/iscas/.venv-latest/lib/python3.12/site-packages/flashinfer/data/include/flashinfer/attention/prefill.cuh",
+    "sha256": "ad8be30492fb04131edc25b539ae77e911177af8647c7e2007cf172a4a69d029",
+    "function": "compute_sfm_v",
+    "probability_cast_line": 1868,
+    "denominator_sum_line": 1880,
+    "observation": "Native FA2 casts FP32 probabilities to DTypeQ (BF16 here), then accumulates denominator d from those rounded probabilities using MMA rowsum. This supports an intrinsic small-support LSE precision limit rather than a union-mask layout error."
+  },
+  "qualification_policy": "Retain initial 3 pytest failures. Native union may be timed only for individual shapes/configurations passing the original FP64 output and LSE checks. No universal BF16 numerical qualification is claimed."
+}
