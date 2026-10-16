@@ -78,6 +78,21 @@ def make_joint(tokenizer, group):
     return encoded["input_ids"] if hasattr(encoded, "keys") else encoded
 
 
+def make_retrieval_inputs(tokenizer, group, variant):
+    assert len(group["questions"]) == len(variant["questions"])
+    ids = []
+    instruction = "Answer the question using the meeting transcript. Give a concise factual summary that addresses the question."
+    for question, retrieved in zip(group["questions"], variant["questions"]):
+        assert question["question_sha256"] == retrieved["question_id"]
+        assert digest(retrieved["context"].encode()) == retrieved["context_sha256"]
+        content = "Document:\n" + retrieved["context"] + "\n\nQuestion:\n" + question["question"]
+        encoded = tokenizer.apply_chat_template(
+            [{"role": "system", "content": instruction}, {"role": "user", "content": content}],
+            tokenize=True, add_generation_prompt=True, return_dict=False)
+        ids.append(encoded["input_ids"] if hasattr(encoded, "keys") else encoded)
+    return ids
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", required=True)
@@ -85,10 +100,16 @@ def main():
     parser.add_argument("--groups", required=True)
     parser.add_argument("--output", required=True)
     parser.add_argument("--seed", type=int, default=20261016)
+    parser.add_argument("--temperature", type=float, default=.6)
+    parser.add_argument("--top-p", type=float, default=.95)
     parser.add_argument("--max-tokens-per-question", type=int, default=8192)
     parser.add_argument("--max-model-len", type=int, default=65536)
     parser.add_argument("--arms", default="dense,joint")
     parser.add_argument("--warm-repeats", type=int, default=0)
+    parser.add_argument("--cold-repeats", type=int, default=1)
+    parser.add_argument("--retrieval-plans", nargs="+", default=[])
+    parser.add_argument("--enforce-eager", action=argparse.BooleanOptionalAction, default=True)
+    parser.add_argument("--observe-step", action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--thinking", action=argparse.BooleanOptionalAction, default=True)
     args = parser.parse_args()
     assert os.geteuid() != 0 and sys.prefix != sys.base_prefix
@@ -105,7 +126,18 @@ def main():
     manifest = json.loads(manifest_path.read_text())
     group_indices = [int(x) for x in args.groups.split(",")]
     arms = args.arms.split(",")
-    assert set(arms) <= {"dense", "joint"}
+    assert set(arms) <= {"dense", "joint", "rag"} and args.cold_repeats >= 1
+    retrieval_groups, retrieval_identities = {}, []
+    for path in args.retrieval_plans:
+        plan_path = ROOT / path
+        plan = json.loads(plan_path.read_text())
+        assert plan["status"] == "complete" and plan["manifest_sha256"] == digest(manifest_path.read_bytes())
+        retrieval_identities.append({"path": path, "sha256": digest(plan_path.read_bytes())})
+        for group in plan["groups"]:
+            assert group["group_index"] not in retrieval_groups
+            retrieval_groups[group["group_index"]] = group
+    if "rag" in arms:
+        assert all(i in retrieval_groups for i in group_indices)
     assert all(manifest["groups"][i]["dataset"] == "QMSum" for i in group_indices)
     destination = ROOT / args.output
     nv.nvmlInit()
@@ -131,22 +163,24 @@ def main():
               "model": args.model, "torch": torch.__version__, "vllm": vllm.__version__,
               "manifest": args.manifest, "manifest_sha256": digest(manifest_path.read_bytes()),
               "script_sha256": digest(Path(__file__).read_bytes()), "config": vars(args),
-              "sampling": {"temperature": .6, "top_p": .95, "top_k": 20, "min_p": 0,
+              "sampling": {"temperature": args.temperature, "top_p": args.top_p, "top_k": 20, "min_p": 0,
                            "min_tokens": 0, "ignore_eos": False, "seed_rule": "seed + group_index*100 + question_index; joint uses group seed"},
               "engine": {"tp": 1, "dtype": "bfloat16", "kv_dtype": "auto (BF16)", "apc": True,
-                         "enforce_eager": True, "max_num_seqs": 4, "gpu_memory_utilization": .80,
+                         "enforce_eager": args.enforce_eager, "max_num_seqs": 4, "gpu_memory_utilization": .80,
                          "max_num_batched_tokens": 4096, "max_model_len": args.max_model_len},
               "limitations": ["Single seed development screening; no quality conclusions before scoring and blind factual review.",
                               "Cold arms reset prefix cache. Warm repeats are explicitly labeled, never used as A/A.",
                               "First execution can include additional backend JIT; initialization and warmup are separately recorded.",
-                              "Step output co-emission is an observer proxy, not exact attention ready/scheduler membership.",
+                              "Default FINAL step outputs indicate completion only; they do not reveal token emission or attention ready membership.",
+                              "RAG composed cost sums measured sequential preparation and generation; it is not a measured integrated online pipeline.",
                               "Board energy is gross and uncorrected; concurrent neighboring jobs prevent a formal energy comparison."],
               "board_before_initialization": board_state(), "runs": []}
+    report["retrieval_plans"] = retrieval_identities
     write_json(destination, report)
     llm = LLM(model=args.model, tensor_parallel_size=1, dtype="bfloat16",
               max_model_len=args.max_model_len, max_num_seqs=4,
               max_num_batched_tokens=4096, enable_prefix_caching=True,
-              enforce_eager=True, gpu_memory_utilization=.80,
+              enforce_eager=args.enforce_eager, gpu_memory_utilization=.80,
               disable_custom_all_reduce=True, disable_log_stats=False, seed=args.seed)
     report["initialization_seconds"] = time.monotonic() - start
     warm_start = time.monotonic()
@@ -164,16 +198,27 @@ def main():
         tokenization_seconds = time.monotonic() - prepare_start
         b = len(independent)
         order = arms.copy()
+        variants = {}
+        if "rag" in order:
+            retrieval = retrieval_groups[group_index]
+            assert retrieval["document_sha256"] == group["document_sha256"]
+            variants = {"rag_" + v["key"]: v for v in retrieval["variants"]}
+            order.remove("rag")
+            order.extend(variants)
         random.Random(args.seed + group_index).shuffle(order)
         for arm in order:
-            for repeat in range(args.warm_repeats + 1):
-                ids = independent if arm == "dense" else [joint]
-                cap = args.max_tokens_per_question * (1 if arm == "dense" else b)
+            for repeat in range(args.cold_repeats + args.warm_repeats):
+                arm_prepare_start = time.monotonic()
+                ids = independent if arm == "dense" else ([joint] if arm == "joint" else make_retrieval_inputs(tokenizer, group, variants[arm]))
+                arm_tokenization_seconds = time.monotonic() - arm_prepare_start
+                cap = args.max_tokens_per_question * (b if arm == "joint" else 1)
+                cold = repeat < args.cold_repeats
                 record = {"group_index": group_index, "document_id": group["document_id"],
                           "document_sha256": group["document_sha256"], "question_ids": [q["question_sha256"] for q in group["questions"]],
-                          "B": b, "arm": arm, "repeat": repeat, "cache": "cold" if repeat == 0 else "warm",
+                          "B": b, "arm": arm, "repeat": repeat, "cache": "cold" if cold else "warm",
                           "prompt_tokens": list(map(len, ids)), "prompt_sha256": [digest(json.dumps(x).encode()) for x in ids],
-                          "document_token_range_independent": [doc_start, doc_end],
+                          "document_token_range_independent": [doc_start, doc_end] if arm == "dense" else None,
+                          "arm_tokenization_seconds": arm_tokenization_seconds,
                           "max_tokens_per_request": cap, "tokenization_seconds_shared_preparation": tokenization_seconds,
                           "started_utc": dt.datetime.now(dt.timezone.utc).isoformat()}
                 if any(len(x) + cap > args.max_model_len for x in ids):
@@ -181,9 +226,9 @@ def main():
                     report["runs"].append(record)
                     write_json(destination, report)
                     continue
-                if repeat == 0:
+                if cold:
                     assert llm.reset_prefix_cache(), "Cold-cache reset failed"
-                sampling = [SamplingParams(temperature=.6, top_p=.95, top_k=20, min_p=0,
+                sampling = [SamplingParams(temperature=args.temperature, top_p=args.top_p, top_k=20, min_p=0,
                                            max_tokens=cap, min_tokens=0, ignore_eos=False,
                                            seed=args.seed + group_index * 100 + i) for i in range(len(ids))]
                 observations = []
@@ -198,12 +243,19 @@ def main():
                                                       for out in outputs if out.outputs]})
                     return outputs
 
-                llm.llm_engine.step = observed_step
+                if args.observe_step:
+                    llm.llm_engine.step = observed_step
                 record["board_before"] = board_state()
                 try:
                     outputs = llm.generate([{"prompt_token_ids": x} for x in ids], sampling, use_tqdm=False)
                     record["group_jct_seconds"] = time.monotonic() - t0
                     record["status"] = "complete"
+                    if arm in variants:
+                        variant = variants[arm]
+                        record["retrieval"] = {k: variant[k] for k in ["key", "chunk_target", "retrieval_budget", "ranker", "shared_document_preparation_seconds", "serial_query_retrieval_seconds"]}
+                        record["retrieval"]["context_sha256"] = [q["context_sha256"] for q in variant["questions"]]
+                        record["composed_serial_cold_pipeline_seconds"] = record["group_jct_seconds"] + arm_tokenization_seconds + variant["shared_document_preparation_seconds"] + variant["serial_query_retrieval_seconds"]
+                        record["composed_serial_cached_index_pipeline_seconds"] = record["group_jct_seconds"] + arm_tokenization_seconds + variant["serial_query_retrieval_seconds"]
                 except Exception as exc:
                     record.update(status="failed", error=repr(exc), group_jct_seconds=time.monotonic() - t0)
                     report["runs"].append(record)
