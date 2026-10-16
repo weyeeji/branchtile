@@ -1,0 +1,43 @@
+{
+  "schema": "operator-owner-tasks-qualification-wave17",
+  "created_utc": "2026-10-16T14:14:52.731956+00:00",
+  "source_commit": "aac3e85",
+  "code_sha256": {
+    "scripts/qualify_owner_tasks.py": "11f116bc41407ef24f9bd0d2629d8a5507e2e0249ee0bc944967763bcee1101e",
+    "scripts/qualify_static_bank_v2.py": "6aaa8744b0672a20fd5cf80fc135fc5420e3e7ec3339a6fc028cf79ce6811ee7",
+    "scripts/compare_attention.py": "a23b40b1139e93fbb2bd7f5e8794b1885e4df8778bc83114e845829fb1a7e2e2",
+    "src/branchtile/attention.py": "2878475c1273f527f95f629090e275c5a99f9dbad6c67646c40657692c20673d",
+    "src/branchtile/attention_owner_tasks.py": "cc9d59e704cff075eaba2b4e92b5fa199e52475de4b5241ee58d6d2b6aa3987d",
+    "src/branchtile/owner_tasks_plan.py": "e1d41289a183518f716fbd43bf6c98d4412f9da24ebf8ae7070cce3a739f4ec2",
+    "src/branchtile/triton_kernel_owner_tasks.py": "48e8cd01e2aeae1d8f8c06e6370f06c3f186c7d3a51e2b1ba614ad3ede9e698e",
+    "scripts/run_jobs.py": "2872404f3224044b844c712bceea3f93a00a6f56555dae92b652cb8044c35d23",
+    "configs/operator_qualification_wave17_jobs.json": "ce426e868cb972111899e6c2bead9303722c62c923e9b825a4981eb6bfec1ed7"
+  },
+  "scope": "First GPU numerical and resource qualification of independent nonempty owner chunks and packed active-query partial merge, not performance acceptance.",
+  "jobs": 8,
+  "physical_gpus": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "maximum_P1_gpu_hours": 0.43333333333333335,
+  "expected_complete_cases": 40,
+  "expected_complete_FP64_O_and_LSE_phases": 240,
+  "fixtures": "all_masks, unequal, empty, one_token; 1543 synthetic tokens ensures multi-chunk cases even at chunk1024; one real captured 32K input per job.",
+  "numerics": {
+    "O_atol": 0.006,
+    "O_rtol": 0.015,
+    "natural_LSE_atol": 0.0003,
+    "natural_LSE_rtol": 0.0001
+  },
+  "graph_contract": "Five fixed-topology eager/graph phases including Q/K/V/Indices inplace changes. Sixth changed-owner phase REBUILDS Attention and RECAPTURES a new graph, charging CPU preparation and recapture separately. Direct graph replay bypasses host checks. Metadata identity/layout/version guard is not a content checksum.",
+  "cpu_evidence": "aac3e85: 26 mathematical cases/1456 rows, 19 real Torch host-guard rejection cases plus allowed inplace indices values; separate reviewer passed independent 16-category guard check, random 200-case coverage and 12 offline SM120 compilation cases.",
+  "measurement": "Each job saves producer and merge compiled code/resources; any compile/runtime/numerical failure remains recorded. No automatic retry. No GPU or timing claim inferred from offline compilation.",
+  "virtualenv": ".venv-latest",
+  "uid": 1000
+}
