@@ -134,7 +134,7 @@ def main():
               "virtual_environment": sys.prefix, "arguments": vars(args),
               "visible_gpus": os.environ["CUDA_VISIBLE_DEVICES"], "stages": [],
               "scope": "Official real-weight TP2 deployment and complete-document natural-generation pilot; no application speedup or quality comparison",
-              "limitations": ["Exploratory manifest is not the missing historical development split",
+              "limitations": ["The exact input manifest is recorded; this deployment pilot does not establish application quality",
                               "Cold singleton and APC-warm group have different states and are not A/A",
                               "NVML memory peak is sampled, not an exact allocation high-water mark"]}
     def save():
