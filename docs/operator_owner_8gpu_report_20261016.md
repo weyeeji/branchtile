@@ -46,11 +46,13 @@
 
 只有rank1/L15/step256热态点获益，另7个不获益；cold没有严格正收益，多个CI受CUDA event粗量化影响，不能把[1,1]当作无限精度的等价证明。同一文档中的rank/layer/step相关，不当作跨文档泛化或质量非劣证据。
 
-复验的唯一正点也需约24,513次静态计划重用才能摊销额外准备。原生候选集合、384项资格与source alias、40块CI和准备收据由[wave25独立审计](../results/operator_owner_wave25_audit_v1/README.md)逐项复核；这不是正式自然输出或整模型的收益证明。
+复验的唯一正点也需约24,513次静态计划重用才能摊销额外准备。原生候选集合、384项资格与source alias、40块CI和准备收据由[wave25独立审计](../results/operator_owner_native_wave25_audit_v1/README.md)逐项复核；这不是正式自然输出或整模型的收益证明。
 
 ## 还有哪里值得做
 
 独立阶段诊断中，4K producer约5.87–6.12us、merge约3.82–3.93us；32K producer约13.39–17.12us、merge约9.36–9.71us；128K producer约100.30us、merge约9.69us。中等长度值得检验更好的终止合并与调度，长输入还需降低producer成本。但stage-only graph改变缓存和依赖，它们的时间和差值不是融合后的可移除成本，cold partial flush也不是真实链式工作集。
+
+[阶段独立审计](operator_owner_stage_diagnostic_20261016.md)保存640行/2560个计时值和64个复算中位数，并保留cold A/A粗量化与漂移，未据此推导融合加速。
 
 [后续机制审查](next_operator_mechanisms_20261016.md)已对照最新官方FlashInfer源码、一手PAT/MSA等工作：单kernel最后到达CTA合并、活跃任务元数据均已有先例，不能只改名字作为创新。连续KV slab、动态任务描述、融合合并只能作为待检验的实现假设；需要匹配的原生布局/缓存计划对照。[严格2×2设计](owner_tasks_factorial_design_20261016.md)保留为尚未完成的消融，不将packing容量降低当成实际DRAM流量收益。
 
