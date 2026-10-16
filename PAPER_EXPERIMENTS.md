@@ -18,9 +18,9 @@
 | DocFinQA 官方答案解析和独立 fixture | 原始数据及冲突审计 | 未完成 | 数字/单位/百分比/舍入/FINAL 规则，不能事后挑数字或修 gold |
 | A0 一次多问、A1 Dense+APC | `results/application_screen_v2/`，train8 两臂共64个自然结束答案 | 开发筛查完成，正式未完成 | 图优化原生强基线、三 seed/正式质量、冷暖成本及模板冻结 |
 | A2 KVzip/FastKVzip | 文献与适配线索 | 未完成 | 合法 gate 或诚实兼容性判定、共享压缩实际质量与成本 |
-| A3 强 RAG | `results/retrieval_preparation/`：表格/整行分块、BM25+embedding+reranker八配置及完整准备成本 | 开发生成进行中 | 自然输出质量、配置冻结、强检索对照及正式完整费用 |
+| A3 强 RAG | `results/application_calibrated/`：两个4B模型各八配置，512个RAG自然回答；检索准备/重排单独计费 | QMSum开发网格完成 | 事实核查、配置冻结、正式完整费用与DocFinQA覆盖 |
 | A4 query-aware 原生及共享源 | QC-SnapKV capture；无 sparse 自由生成 | 未完成 | 真正执行稀疏生成，full-budget/Dense、质量预算冻结、准备成本 |
-| 自然 opportunity 与共同 ready | 1024 个 dense 轨迹快照、逻辑 tile 分析 | 部分完成 | 官方主模型实际 rank 形状、自然输出步、真实调度 ready 生命周期 |
+| 自然 opportunity 与共同 ready | 原1024快照；官方FP8 TP2的200个cache核对快照、24个同forward ready组 | 部分完成 | 多自然文档及完整EOS生命周期、连续补入/取消，不把cap256当任务输出 |
 | E0/E2 强执行 | 原生 separate/joint 和固定 union，31 组配对 | 部分完成 | 主模型自然矩阵、轮转 capture 缓存、准备摊销、第二卡/卡对复核 |
 | E1 全部固定 partition | `results/partition_cascade/summary.json`，全部15划分、原生/自写、准备和第二卡 | 初始4形状执行完成 | 官方主模型与多文档自然矩阵、部署选择与事后 oracle 分开 |
 | E3 及 2×2 | 当前全 canonical partial 的 48 点消融 | 部分完成 | packed-active partial、合理 split/直接输出、局部固定组融合强控制 |
@@ -30,7 +30,7 @@
 | 全 alive 子集、数值、logit、full-budget | 当前算子 FP64/内存检查；native 小形状 LSE 失败保留 | 部分完成 | 全子集和生命周期、层/logit、稀疏自然生成；开发冻结原生校准容差 |
 | 引擎共享源安全与连续补入 | 仅原生 APC 部署 | 未完成 | COW、reader、取消/抢占、引用/slot generation、图失效和不等待兄弟请求 |
 | 100 报告/三 seed/公司聚类质量 | 无正式评价 | 未完成 | 全分母、公司身份、10000次聚类区间、2pp 非劣界、有限样本保守界 |
-| QMSum 官方 ROUGE/盲审 | 无完成回答评分 | 未完成 | 官方兼容评分、冻结 judge/rubric、事实与覆盖抽查；不能只凭 ROUGE |
+| QMSum 官方 ROUGE/盲审 | 原Perl1.5.5、作者指定flags和279条官方fixture；最大0.011点残差；已评分640开发回答 | 评分校准完成，盲审未完成 | 冻结judge/rubric、事实与覆盖抽查及正式test；不能只凭ROUGE |
 | 完整应用约5%净改善 | 无候选集成 | 未完成 | 同质量、同资源、冷暖/复用摊销、TP通信、自然长度/失败计费 |
 | 能耗/EDP | NVML 可读，尚无正式配对窗口 | 未完成 | 更新粒度、20–30s同工作量窗口、反序、gross板卡能量、失败分母 |
 | 硬件归因 | cubin资源；NCU权限失败 | 部分完成且有平台限制 | 普通用户可得证据；硬件counter不可用时收缩归因，不使用root或虚构流量 |

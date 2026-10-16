@@ -193,3 +193,62 @@ outputs; its traces cannot establish scheduler ready membership.
 
 Main-model TP2, executed E1/E4, stronger selector profiling and exact protocol
 recovery remain active. No new successful paper mechanism is claimed yet.
+
+## Public protocol and executable controls (2026-10-16 15:12 CST)
+
+The user explicitly waived the old-data requirement. The new public DocFinQA
+protocol freezes development8/evaluation100/training167 from verified official
+sources, with text/question leakage checks, conservative identity components,
+label-conflict sensitivity rules and every overlength document retained. This
+does not assert the old company's split or company-held-out generalization.
+
+The official Qwen3-30B-A3B-Thinking-2507-FP8 deployment passed a complete-report
+TP2 probe with BF16 KV. Actual worker capture checked hooked K/V against paged
+cache bit-for-bit in 200 snapshots and exported 24 layer/rank/anchor groups from
+the same forward. Last two document tokens cross the shared full-page boundary
+and remain in each private cache; they are never silently omitted. Capped256
+instrumentation is not natural task evaluation. Full-EOS public development
+evaluation at 262K context is now running separately.
+
+E1 all15 fixed partitions and E4 all15 exact binary trees passed 984 initial
+configuration checks plus small-shape FP64 qualification. E4's synthetic-tree
+gain over full union shrinks to about2.8% against strong E1. Natural initial
+shapes do not support a new mechanism. These are explicit exact mechanism ports,
+not a complete QUILT reproduction. Official B3/GQA8 main-model replay is active.
+
+The selector branch qualified native CUB stable-set selection, ties/repeats and
+CUDA graphs. FlashInfer's strict deterministic-order flags are unsupported on
+SM120; preserving only the stable selected set is qualified separately. Native
+BF16 LSE changes one selected token in two of the initial four captures, while
+the official86K main-model point preserves the set. MiniKV already establishes
+LSE reuse; the speedups are a required strong baseline, not novel research.
+Source: `results/selector/summary.json` and the pivot literature dossier.
+
+QMSum now has20 development configurations and640 natural-EOS answers with no
+empty final answers or cap hits: each official4B Thinking/Instruct model has
+dense, joint, and eight hybrid-RAG settings. All original answers, token IDs,
+preparation costs and grid results are retained. The calibrated original Perl
+ROUGE scorer uses author-linked settings and matches the279-example published
+fixture within0.011 score points; the remaining discrepancy is documented.
+Google whole-summary ROUGE-L was diagnostic and is not interchangeable.
+
+Instruct dense/joint macro ROUGE-L is29.15/30.67 and eager total group JCT across
+eight documents is35.60/55.58s. Thinking dense/joint is26.12/29.40 and200.61/286.40s.
+The tested Instruct RAG grid does not exceed dense on this exploratory
+ROUGE/cost comparison after measured retrieval preparation. These different
+model-recommended sampling configurations are application alternatives, not a
+controlled model-only ablation. They still require factual review and formal
+test evaluation; no noninferiority claim follows from train8.
+
+One native CUDA-graph profile on QMSum group3 (roughly21K prompt tokens, B4)
+records32 actual decode iterations: attention including split merge is47.11%
+of summed GPU kernel time. Profiler timings are not uninstrumented latency,
+and the dense fraction cannot be carried over to a sparse engine. Graph A/A
+on group0 produced identical tokens, but first-call residual JIT caused16.65s
+versus7.65s on the second call; steady execution and startup must be separated.
+
+All new work remains ordinary uid1000 and project virtualenvs. All failed GPU
+attempts and allocated compilation time are charged. Long native CUB AOT was
+subsequently performed with no visible GPU and its706.5s CPU cost recorded
+separately. Current parallel work also includes genuine sparse natural-generation
+qualification; the full-paper goal remains active and incomplete.
