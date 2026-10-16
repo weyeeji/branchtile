@@ -55,7 +55,7 @@
 - FP8 unit-scale资格：首次检查全完成但退出超时，严格保留失败；显式确认作业正常退出，48/48 own-cache FP64检查及A/A、eager logits位等通过。
 - 自然对照：两财报×两精度×两冷重复，共24回答记录全EOS；各臂A/A token/调度位等、跨精度APC一致。只有六个唯一问题、两个文档，一个seed。
 - FP8生成更短、耗时更低，但新财报一题FINAL漏百分号，冻结舍入评分由2/3变1/3；不能视为同质量加速或已证实算术退化。
-- CPU：原生calibrated FP8 loader接口和输入容量边界审计；没有校准/长文新GPU作业授权或正式评价扩展。
+- CPU：原生calibrated FP8 loader接口和输入容量边界审计；目前未计划校准或长文GPU作业，也未扩展正式评价。
 - 原始dynamic与joint-E0分支均维持停止；register-bank剩余实现空间相对最佳固定划分的逻辑MMA余量仅约2–4%，没有新增试跑依据。
 
 截至18:52，已记账P1/P2分别10.998694/4.506292 GPUh，启动均有终态，无审计异常。
@@ -309,3 +309,21 @@ GPU prompt读回，CPUhash/step metadata费用仍保留。自然stochastic预热
 真实B3 decode。显式top_k=0/min_p=0/rep_penalty=1与此前native-vLLM默认一致；不能与
 明确top_k20的早期HF/application配置混同。初始化/JIT/预热、cold anchor、自然生成和
 审计导出分别计费，四引擎同时加载的CPU/磁盘竞争保留。正式数据未扩评，尚无新论文贡献。
+
+
+2026-10-16 18:56 CPU边界归档：`docs/native_context_capacity_review_20261016.md` 复用
+冻结输入长度（正式manifest仅校验字节hash，未读正式答案）区分配置与模型上限。模型
+原生262144；98304配置+8192输出余量覆盖开发2/8，196608与262144均5/8。另三文
+prompt本身288K/292K/442K，FP8不突破原生上下文。基于当前池和共同anchor的页/null/
+私有8192尾条件估计只是输入容量审计，不是服务成功率；扩大context/batch会改变profile。
+不为已知容量拒绝启动BF16262K，也不将训练group22候选资格扩为正式评价。
+
+`results/native_fp8_calibration_interface_audit_v1/` 核定独立派生index+96个K/V scalar
+可经官方loader加载，原4权重shard保持字节不变；sidecar必须加入index。此路径可能先经
+BF16 scalar placeholder舍入再存FP32 buffer，CPUfixture已记录。新的标量需全TP训练统计、
+在创建新engine/cache/graph前加载，并重新检查actual scale与own-cache数值，不能RPC改
+scale后继续复用旧图/FP8字节。当前未构建派生checkpoint、未校准、未运行额外GPU。
+
+`docs/register_bank_residual_review_20261016.md` 保存固定register bank的具体实现缺口，
+但真实384个cohort全五种B3固定划分的CPU复算仅余约2–4%逻辑MMA工作量（非runtime
+上界，省略private、未推断GDDR流量）。无新增GPU候选，不能将优化空间本身当作贡献。

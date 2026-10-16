@@ -39,6 +39,12 @@ Recent evidence:
   no qualified replacement contribution has emerged; ordinary quantization,
   index ordering or weighted attention variants are not relabeled as new ideas.
 
+The [input-capacity audit](docs/native_context_capacity_review_20261016.md),
+[calibrated scalar-loader audit](results/native_fp8_calibration_interface_audit_v1/README.md),
+and [register-bank residual review](docs/register_bank_residual_review_20261016.md)
+record remaining boundaries without launching another GPU sweep or claiming a
+qualified replacement idea.
+
 ## Environment
 
 All runs use uid 1000 and a virtual environment; no root or driver permission
