@@ -650,3 +650,28 @@ KV²/EchoPress reduce compression preparation, not the necessary first dense
 prefill. No renamed combination is promoted to a new paper contribution.
 TinyGEMM router qualification is being prepared as a mature strong control;
 original dynamic and joint-E0 stops remain. Paper requirements remain unmet.
+
+
+## 2026-10-16 20:45 — bounded router qualification and capacity follow-up
+
+The frozen TinyGEMM TP2 attempt exits0 after98.3475s, costing0.0546375P1 GPUh.
+All576 native same-input graph reproductions pass. Candidate logits differ at36
+of147456 elements including phase/rank repeats, by one BF16 encoding step;
+all expert sets stay unchanged, while one unique row exchanges two experts'
+order and normalized weights differ at some points. The conservative bitwise
+drop-in gate fails, so both ranks skip candidate timing as preregistered. This
+is not incorrect TinyGEMM mathematics or measured task/performance failure.
+Actual native snapshots are included as deterministic gzip with SHA receipts.
+
+The CPU long-workset audit restores96 old masks exactly and computes168 geometry
+rows. A real173K B4 report has an untested BF16 footprint above96MiB at larger
+budgets, while hypothetical FP8 full payload stays84.8MiB. At128K the optimistic
+MMA difference versus best fixed is only0.5–3.3%, not a runtime upper bound;
+exact hierarchy and FP8 numerical qualification remain absent. No new GPU run
+is justified solely by this capacity calculation.
+
+User preference remains finding a novel acceleration mechanism. P1/P2 totals
+are11.071951/4.506292GPUh, every job terminal, all eight devices free. Subagents
+and automatic goal continuation encountered a platform usage limit; result
+archiving was completed by the root agent after the interruption. The paper
+objective remains unmet.

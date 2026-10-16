@@ -55,7 +55,10 @@ The [query-residual certificate review](docs/query_residual_certificate_review_2
 and [shared-prefill review](docs/shared_prefill_application_gap_audit_20261016.md)
 also close ordinary Taylor/fallback and leader/follower proposals using current
 primary literature and reproducible CPU checks. A mature TinyGEMM router control
-is being prepared; it is not a new contribution.
+has completed its [bounded qualification](results/tinygemm_gate_qualification_v1/README.md):
+small rounding differences prevent conservative bitwise substitution; candidate
+performance was not measured. The [large-workset CPU audit](results/natural_capacity_boundary_v1/README.md)
+finds a remaining BF16 capacity boundary but no qualified new acceleration mechanism.
 
 ## Environment
 
