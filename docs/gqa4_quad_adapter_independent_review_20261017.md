@@ -1,0 +1,11 @@
+# CPU review of grouped-hint GQA4 quad model adapter
+
+Read-only review of `src/xqa_raw_gqa4_quad_shared_runtime.py`, `src/vllm_gqa4_quad_plan.py`, `scripts/vllm_gqa4_quad_worker.py` and the Thinking driver found no blocking residual two-member shape/index assumption. This is a source-contract review, not a substitute for actual model qualification.
+
+The plan allocates ceil(B/4) prefix groups, packs group × KVhead ×4members ×4GQA heads into64 query heads per group, and leaves dummy query rows zero. Each fixed-B plan has its own padded buffer; only real rows are overwritten, so a shrinking batch cannot reuse former real rows as stale dummy values. The native tail processes actual B and uses S computed from original B,4KV heads and full table extent. The group prefix SM parameter preserves that same S. All native output rows are restored by the existing quad raw-state mapping.
+
+The bank sizes its common FP32 state by the maximum groups×4KV×S×4warps×32lanes×35fields over B4..8. One workspace/state allocation is shared across36 layers and five serial graph shapes. Each layer refreshes all four K/V and wrapper-layout views before replay. Actual-stride Q canonicalization and output copies remain charged. Native int32 GPU lengths are aliased as uint32; original full-width table slices and addresses are checked.
+
+The worker imports grouped-hint `jit_specs(4,4)`, includes quad/grouped-hint/runtime/scope sources in the fingerprint, and enforces actual B equal padded B. Only naturally observed and qualified B can dispatch during strict runs; other batches fall back. The first physical-prefix check and subsequent cohort/slot/epoch guards are retained. The new scope is nominal P120528, B4..8 and max private length8192; it does not inherit the GQA8 policy or claim other prefixes. Production-only use must have new-source offline coverage for all enabled batches.
+
+Limits: first8 states per naturally observed B do not prove later-state correctness; the known grouped-hint counterexample illustrates why natural-output equality and regression tests remain necessary. This review does not certify new CUDA mapping, simultaneous stream use, or arbitrary KV/cache mutations. Shared workspace correctness assumes the declared serial stream/layer execution.
