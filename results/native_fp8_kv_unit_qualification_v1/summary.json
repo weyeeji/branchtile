@@ -1,0 +1,3979 @@
+{
+  "status": "qualified_instrumented_native_FP8KV_unit",
+  "uid": 1000,
+  "pid": 1340107,
+  "python": "/home/qcjz/iscas/.venv-engine/bin/python",
+  "protocol": "configs/native_fp8_kv_unit_qualification_v1.json",
+  "protocol_sha256": "88c22e2a50a3119098e47342f13abf00f60ceee94a44a688cf423fde718d0034",
+  "protocol_contents": {
+    "schema": 1,
+    "protocol_id": "native-fp8-kv-unit-qualification-v1-20261016",
+    "status": "frozen_before_GPU",
+    "arm": "native-full-FP8KV-unit",
+    "not_joint_selector": true,
+    "model_path": "data/models/Qwen3-30B-A3B-Thinking-2507-FP8",
+    "model_revision": "60d80c83c53c3b611c642dbb8c942b3f90c5948a",
+    "manifest": "data/manifests/docfinqa_exploratory_dev8.json",
+    "document_id": "docfinqa-c0f11a67aae850fc",
+    "document_token_range": [
+      34,
+      86818
+    ],
+    "prompt_lengths": [
+      86850,
+      86840,
+      86839
+    ],
+    "common_prefix_tokens": 86820,
+    "common_prefix_mod_page": 4,
+    "document_end_mod_page": 2,
+    "prompt_token_hashes": [
+      "ad8bdbeddcb4cadf40fdb0202f15b6b25b2cf770f4f6fcedeeab4cf15efe508f",
+      "437bfde1f9403e5d5642f6400ff9f7c32250664e068de2e4ebd5332bdae677b4",
+      "71fbbebb494d983ab00a8efe683d6b9fa194c2de09bbee0759db26c3a34e6973"
+    ],
+    "seed": 20261016,
+    "tokens_by_question": [
+      8,
+      12,
+      16
+    ],
+    "sampling": {
+      "temperature": 0,
+      "ignore_eos": true,
+      "seed": 20261016,
+      "purpose": "Fixed instrumented tails and request departure B3\u2192B2\u2192B1; not natural EOS, quality or speed"
+    },
+    "engine": {
+      "tensor_parallel_size": 2,
+      "dtype": "bfloat16",
+      "kv_cache_dtype": "fp8_e4m3",
+      "block_size": 16,
+      "max_model_len": 98304,
+      "max_num_seqs": 3,
+      "max_num_batched_tokens": 4096,
+      "enable_prefix_caching": true,
+      "enforce_eager": false,
+      "gpu_memory_utilization": 0.8,
+      "disable_custom_all_reduce": true,
+      "enable_batch_sharded_sampling": false,
+      "compilation_config": {
+        "mode": 3,
+        "cudagraph_mode": "FULL_DECODE_ONLY",
+        "cudagraph_capture_sizes": [
+          1,
+          2,
+          3
+        ]
+      },
+      "attention_config": {
+        "backend": "FLASHINFER"
+      },
+      "seed": 20261016
+    },
+    "phases": [
+      "full_A",
+      "full_B",
+      "eager_teacher"
+    ],
+    "admission": "Each phase clears APC, requires q0 anchor cached_tokens=0, then admits all three requests together. A/B native greedy trajectories unforced; eager forced to A and actual pre-forcing logits recorded.",
+    "reference_layers": [
+      0,
+      15,
+      31,
+      47
+    ],
+    "reference_chunk": 4096,
+    "qualification": {
+      "all_48_unit_scales_tensor_and_host_float": true,
+      "query_dtype": "BF16 actual hook and metadata BF16; maybe_quant_query must not quantize Q",
+      "resolved_decode_kernel_required": "XQA",
+      "own_cache_reference": "FP64 full causal attention over actual FP8 E4M3 bytes decoded by real per-layer K/V scales; complete private suffix and generated tail",
+      "reference_points": "First pure decode step at each B=3,2,1 in full_A and eager_teacher, every selected layer, both TP ranks; 24 points/rank",
+      "output_atol": 0.006,
+      "output_rtol": 0.015,
+      "native_LSE": "XQA O-only does not expose LSE; reference finite check only, no native LSE accuracy claim",
+      "same_input_eager_vs_FULL": "At full_A points run original official attention forward on same Q, actual quantized cache and metadata; no cache rewrite",
+      "cold_AA": "Tokens/APC hits and batch/question/position sequences exact for full_A/full_B; each phase rank0 all36 finite logit keys required",
+      "logit_drift": "max_abs, relativeL2, top1/margin, bitwise flag descriptive; no new quality/noninferiority threshold",
+      "eager_teacher": "Exact A token trajectory, APC hits and scheduled step sequence; logits measured before forcing",
+      "APC": "Verify all complete common pages alias and nonaligned common-prefix page stays request-private at qualification points",
+      "failure": "Any assertion/runtime/timeout fails this unit-scale configuration; no retries, calibration or backend search"
+    },
+    "instrumentation": {
+      "selected_layer_copies": "Additional FULL graphs copy Q/output/current K/V into persistent buffers at attention boundaries, preventing intermediate-storage reuse; official attention math/cache updates retained",
+      "memory": "Report all cache shapes/strides/payload, actual allocated blocks and memory peaks, additional graph allocation and persistent instrument bytes",
+      "timing": "All engine/generate/check timings instrumented; no application speedup claim",
+      "no_formal_eval_or_quality": true,
+      "FP8_vs_BF16": "Different input precision; this own-cache numerical qualification does not certify BF16 quality equivalence",
+      "runtime_library_identity": "Record actual loaded FlashInfer .so paths/hash and package/source identity; missing flashinfer-cubin package is recorded rather than assumed installed"
+    },
+    "budgets": {
+      "category": "P1",
+      "jobs": 1,
+      "GPUs_per_job": 2,
+      "gpus": [
+        0,
+        1
+      ],
+      "timeout_seconds": 201,
+      "termination_grace_seconds": 15,
+      "allocated_GPU_hours_upper_bound": 0.12,
+      "automatic_retries": false
+    },
+    "source_sha256": {
+      "scripts/qualify_native_fp8_kv.py": "bb5d53f6b07213427182aacbf43980b753cee1c9d7d80b0e38e7778581c7272c",
+      "scripts/vllm_native_fp8_kv_worker.py": "7c0b8653e873d62b2e41d2d994f12b5843f2061872158ea1831fac2f01becda6",
+      "scripts/vllm_native_backend_worker.py": "08cbe98802c91f42bfd97b6192dab91756e1abdf7688f4e6c3dd388d5e9a7c61",
+      "scripts/probe_engine_docfinqa.py": "d3f177f1345521cdff2c116b8af2a616b2f55f7ae7e7f7ec523f7d8f7bca51ff",
+      "scripts/vllm_batch_admission.py": "4a28cd560b847e3b83ffbfafa6f1a9586419667503699b560ae1b8a1cbbf2658",
+      "scripts/capture_model.py": "08c18e222c820997e53978cb102ecdcd3a52e77036a4d052b9cac3cd43cdad00",
+      "tests/test_native_fp8_kv_probe_cpu.py": "48b48439c41cb89be965645c73fd9f5c9dce6d27577ea9900a6410fc9039a1da",
+      ".venv-engine/lib/python3.12/site-packages/vllm/v1/attention/backends/flashinfer.py": "9e65e124edc2a8e36c7e29306159dc51d345978ed7987ac3164983a2c17cb94c",
+      ".venv-engine/lib/python3.12/site-packages/vllm/utils/flashinfer.py": "b0e6abff28095c4ebf26e7fa1c85923401fd47240877d53aa74ec72f9402ecf0",
+      ".venv-engine/lib/python3.12/site-packages/vllm/model_executor/layers/quantization/kv_cache.py": "32b45463d0b36c021cb5ae0937d60b5c797ca383a0ef3e291170337486feb1b0",
+      ".venv-engine/lib/python3.12/site-packages/vllm/config/cache.py": "a9b2a804c9c353e7bded64081bf920c79432d4e44ca180c05e275c69e642a280",
+      ".venv-engine/lib/python3.12/site-packages/flashinfer/xqa.py": "6a3f7330980b976201cff0fcdf51e2958e454c4c5951ad2b30c1f2aa13722d33",
+      ".venv-engine/lib/python3.12/site-packages/flashinfer/jit/xqa.py": "b47625e738bcef4324e874a20fa4c3aee91c477dafd72b24480e3d235c3d20cc"
+    },
+    "artifact_sha256": {
+      "data/manifests/docfinqa_exploratory_dev8.json": "ba4c4496d7f6182374376cd16f990ad7d0b1839691d730a5e0fe498a83a1a29f",
+      "data/models/Qwen3-30B-A3B-Thinking-2507-FP8/config.json": "002ebe91531ec67011b3d0c923234ef708c7da7d3b246045c4475d90b3d94628",
+      "data/models/Qwen3-30B-A3B-Thinking-2507-FP8/model.safetensors.index.json": "270f54aead2ae634567310218340069621fd8dfa2ad80001b69888ea5cc03477",
+      "data/models/Qwen3-30B-A3B-Thinking-2507-FP8/tokenizer_config.json": "60adcfc35f5f251e19a196ec977b4ca0fcfb534852911b3196d68d5e3b146aa0",
+      "data/models/Qwen3-30B-A3B-Thinking-2507-FP8/tokenizer.json": "aeb13307a71acd8fe81861d94ad54ab689df773318809eed3cbe794b4492dae4",
+      "results/Qwen3-30B-A3B-Thinking-2507-FP8_download.json": "278f4fc8a0c247dd549bb77686fc36dc01e1db57aa5e946fdb87cea9a6aa95b0",
+      "results/platform/native_fp8_kv_source_audit_20261016.json": "f2912864ba07a3f3cb04b74725c9d8adefb037a662450809e93bfabaab6ccb90",
+      "data/models/Qwen3-30B-A3B-Thinking-2507-FP8/generation_config.json": "2325da0f15bb848e018c5ae071b7943332e9f871d6b60e2ed22ca97d4cb993d2",
+      "data/models/Qwen3-30B-A3B-Thinking-2507-FP8/vocab.json": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910",
+      "data/models/Qwen3-30B-A3B-Thinking-2507-FP8/merges.txt": "8831e4f1a044471340f7c0a83d7bd71306a5b867e95fd870f74d0c5308a904d5"
+    },
+    "CPU_validation": {
+      "pytest": "CUDA_VISIBLE_DEVICES= empty; .venv/bin/python -m pytest -q tests/test_native_fp8_kv_probe_cpu.py",
+      "result": "1 passed; strided uint8 FP8 storage, nonidentity pages, variable partial tails, nonunit scales, chunked vs independent direct FP64 oracle, future-token perturbation",
+      "independent_review": "kernel agent read-only review; independently extracted reference passed five chunk sizes at 1e-14 with storage_offset and strided gaps; CUDA not initialized. All reported driver key-coverage/scale issues resolved before freeze."
+    },
+    "chat_template_sha256": "3802169b2a02b81e6adb7ab4f64f91ff02db753c8c3a64a01c35192d3a61d8d7"
+  },
+  "runs": [
+    {
+      "phase": "full_A",
+      "mode": "native",
+      "teacher_forced": false,
+      "cold_anchor_wall_seconds": 11.161283943802118,
+      "instrumented_generate_wall_seconds": 1.1738194562494755,
+      "anchor_cached_tokens": 0,
+      "answers": [
+        {
+          "question": 0,
+          "tokens": [
+            40,
+            1184,
+            311,
+            1477,
+            279,
+            11414,
+            315,
+            279
+          ],
+          "finish_reason": "length",
+          "num_cached_tokens": 86848
+        },
+        {
+          "question": 1,
+          "tokens": [
+            40,
+            1184,
+            311,
+            1477,
+            279,
+            11414,
+            315,
+            2790,
+            75443,
+            29155,
+            429,
+            4041
+          ],
+          "finish_reason": "length",
+          "num_cached_tokens": 86816
+        },
+        {
+          "question": 2,
+          "tokens": [
+            40,
+            1184,
+            311,
+            1477,
+            279,
+            11414,
+            315,
+            2790,
+            75443,
+            29155,
+            429,
+            2525,
+            504,
+            1283,
+            4236,
+            1635
+          ],
+          "finish_reason": "length",
+          "num_cached_tokens": 86816
+        }
+      ],
+      "workers": [
+        {
+          "rank": 0,
+          "phase": "full_A",
+          "path": "/home/qcjz/iscas/results/native_fp8_kv_unit_qualification_v1/rank0/full_A.json",
+          "pure_batches": [
+            1,
+            2,
+            3
+          ],
+          "checks": 12
+        },
+        {
+          "rank": 1,
+          "phase": "full_A",
+          "path": "/home/qcjz/iscas/results/native_fp8_kv_unit_qualification_v1/rank1/full_A.json",
+          "pure_batches": [
+            1,
+            2,
+            3
+          ],
+          "checks": 12
+        }
+      ]
+    },
+    {
+      "phase": "full_B",
+      "mode": "native",
+      "teacher_forced": false,
+      "cold_anchor_wall_seconds": 11.175594297237694,
+      "instrumented_generate_wall_seconds": 0.38731649424880743,
+      "anchor_cached_tokens": 0,
+      "answers": [
+        {
+          "question": 0,
+          "tokens": [
+            40,
+            1184,
+            311,
+            1477,
+            279,
+            11414,
+            315,
+            279
+          ],
+          "finish_reason": "length",
+          "num_cached_tokens": 86848
+        },
+        {
+          "question": 1,
+          "tokens": [
+            40,
+            1184,
+            311,
+            1477,
+            279,
+            11414,
+            315,
+            2790,
+            75443,
+            29155,
+            429,
+            4041
+          ],
+          "finish_reason": "length",
+          "num_cached_tokens": 86816
+        },
+        {
+          "question": 2,
+          "tokens": [
+            40,
+            1184,
+            311,
+            1477,
+            279,
+            11414,
+            315,
+            2790,
+            75443,
+            29155,
+            429,
+            2525,
+            504,
+            1283,
+            4236,
+            1635
+          ],
+          "finish_reason": "length",
+          "num_cached_tokens": 86816
+        }
+      ],
+      "workers": [
+        {
+          "rank": 0,
+          "phase": "full_B",
+          "path": "/home/qcjz/iscas/results/native_fp8_kv_unit_qualification_v1/rank0/full_B.json",
+          "pure_batches": [
+            1,
+            2,
+            3
+          ],
+          "checks": 0
+        },
+        {
+          "rank": 1,
+          "phase": "full_B",
+          "path": "/home/qcjz/iscas/results/native_fp8_kv_unit_qualification_v1/rank1/full_B.json",
+          "pure_batches": [
+            1,
+            2,
+            3
+          ],
+          "checks": 0
+        }
+      ]
+    },
+    {
+      "phase": "eager_teacher",
+      "mode": "eager",
+      "teacher_forced": true,
+      "cold_anchor_wall_seconds": 11.185633624903858,
+      "instrumented_generate_wall_seconds": 1.7691469201818109,
+      "anchor_cached_tokens": 0,
+      "answers": [
+        {
+          "question": 0,
+          "tokens": [
+            40,
+            1184,
+            311,
+            1477,
+            279,
+            11414,
+            315,
+            279
+          ],
+          "finish_reason": "length",
+          "num_cached_tokens": 86848
+        },
+        {
+          "question": 1,
+          "tokens": [
+            40,
+            1184,
+            311,
+            1477,
+            279,
+            11414,
+            315,
+            2790,
+            75443,
+            29155,
+            429,
+            4041
+          ],
+          "finish_reason": "length",
+          "num_cached_tokens": 86816
+        },
+        {
+          "question": 2,
+          "tokens": [
+            40,
+            1184,
+            311,
+            1477,
+            279,
+            11414,
+            315,
+            2790,
+            75443,
+            29155,
+            429,
+            2525,
+            504,
+            1283,
+            4236,
+            1635
+          ],
+          "finish_reason": "length",
+          "num_cached_tokens": 86816
+        }
+      ],
+      "workers": [
+        {
+          "rank": 0,
+          "phase": "eager_teacher",
+          "path": "/home/qcjz/iscas/results/native_fp8_kv_unit_qualification_v1/rank0/eager_teacher.json",
+          "pure_batches": [
+            1,
+            2,
+            3
+          ],
+          "checks": 12
+        },
+        {
+          "rank": 1,
+          "phase": "eager_teacher",
+          "path": "/home/qcjz/iscas/results/native_fp8_kv_unit_qualification_v1/rank1/eager_teacher.json",
+          "pure_batches": [
+            1,
+            2,
+            3
+          ],
+          "checks": 12
+        }
+      ]
+    }
+  ],
+  "scope": "Instrumented unit-scale native FP8 KV execution qualification only; not natural quality, application speedup or a joint-selector result.",
+  "engine_configuration": {
+    "tensor_parallel_size": 2,
+    "dtype": "bfloat16",
+    "kv_cache_dtype": "fp8_e4m3",
+    "block_size": 16,
+    "max_model_len": 98304,
+    "max_num_seqs": 3,
+    "max_num_batched_tokens": 4096,
+    "enable_prefix_caching": true,
+    "enforce_eager": false,
+    "gpu_memory_utilization": 0.8,
+    "disable_custom_all_reduce": true,
+    "enable_batch_sharded_sampling": false,
+    "compilation_config": {
+      "mode": 3,
+      "cudagraph_mode": "FULL_DECODE_ONLY",
+      "cudagraph_capture_sizes": [
+        1,
+        2,
+        3
+      ]
+    },
+    "attention_config": {
+      "backend": "FLASHINFER"
+    },
+    "seed": 20261016,
+    "model": "data/models/Qwen3-30B-A3B-Thinking-2507-FP8",
+    "worker_extension_cls": "scripts.vllm_native_fp8_kv_worker.NativeFP8KVWorkerExtension"
+  },
+  "initialization_wall_seconds": 141.77911325264722,
+  "configured_workers": [
+    {
+      "rank": 0,
+      "layers": {
+        "0": {
+          "name": "model.layers.0.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 128850730156032,
+          "storage_offset": 0,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "1": {
+          "name": "model.layers.1.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 128850941648896,
+          "storage_offset": 211492864,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "2": {
+          "name": "model.layers.2.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 128851153141760,
+          "storage_offset": 422985728,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "3": {
+          "name": "model.layers.3.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 128851364634624,
+          "storage_offset": 634478592,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "4": {
+          "name": "model.layers.4.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 128851576127488,
+          "storage_offset": 845971456,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "5": {
+          "name": "model.layers.5.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 128851787620352,
+          "storage_offset": 1057464320,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "6": {
+          "name": "model.layers.6.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 128851999113216,
+          "storage_offset": 1268957184,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "7": {
+          "name": "model.layers.7.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 128852210606080,
+          "storage_offset": 1480450048,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "8": {
+          "name": "model.layers.8.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 128852422098944,
+          "storage_offset": 1691942912,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "9": {
+          "name": "model.layers.9.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 128852633591808,
+          "storage_offset": 1903435776,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "10": {
+          "name": "model.layers.10.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 128852845084672,
+          "storage_offset": 2114928640,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "11": {
+          "name": "model.layers.11.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 128853056577536,
+          "storage_offset": 2326421504,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "12": {
+          "name": "model.layers.12.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 128853268070400,
+          "storage_offset": 2537914368,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "13": {
+          "name": "model.layers.13.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 128853479563264,
+          "storage_offset": 2749407232,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "14": {
+          "name": "model.layers.14.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 128853691056128,
+          "storage_offset": 2960900096,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "15": {
+          "name": "model.layers.15.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 128853902548992,
+          "storage_offset": 3172392960,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "16": {
+          "name": "model.layers.16.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 128854114041856,
+          "storage_offset": 3383885824,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "17": {
+          "name": "model.layers.17.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 128854325534720,
+          "storage_offset": 3595378688,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "18": {
+          "name": "model.layers.18.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 128854537027584,
+          "storage_offset": 3806871552,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "19": {
+          "name": "model.layers.19.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 128854748520448,
+          "storage_offset": 4018364416,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "20": {
+          "name": "model.layers.20.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 128854960013312,
+          "storage_offset": 4229857280,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "21": {
+          "name": "model.layers.21.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 128855171506176,
+          "storage_offset": 4441350144,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "22": {
+          "name": "model.layers.22.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 128855382999040,
+          "storage_offset": 4652843008,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "23": {
+          "name": "model.layers.23.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 128855594491904,
+          "storage_offset": 4864335872,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "24": {
+          "name": "model.layers.24.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 128855805984768,
+          "storage_offset": 5075828736,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "25": {
+          "name": "model.layers.25.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 128856017477632,
+          "storage_offset": 5287321600,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "26": {
+          "name": "model.layers.26.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 128856228970496,
+          "storage_offset": 5498814464,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "27": {
+          "name": "model.layers.27.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 128856440463360,
+          "storage_offset": 5710307328,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "28": {
+          "name": "model.layers.28.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 128856651956224,
+          "storage_offset": 5921800192,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "29": {
+          "name": "model.layers.29.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 128856863449088,
+          "storage_offset": 6133293056,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "30": {
+          "name": "model.layers.30.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 128857074941952,
+          "storage_offset": 6344785920,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "31": {
+          "name": "model.layers.31.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 128857286434816,
+          "storage_offset": 6556278784,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "32": {
+          "name": "model.layers.32.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 128857497927680,
+          "storage_offset": 6767771648,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "33": {
+          "name": "model.layers.33.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 128857709420544,
+          "storage_offset": 6979264512,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "34": {
+          "name": "model.layers.34.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 128857920913408,
+          "storage_offset": 7190757376,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "35": {
+          "name": "model.layers.35.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 128858132406272,
+          "storage_offset": 7402250240,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "36": {
+          "name": "model.layers.36.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 128858343899136,
+          "storage_offset": 7613743104,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "37": {
+          "name": "model.layers.37.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 128858555392000,
+          "storage_offset": 7825235968,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "38": {
+          "name": "model.layers.38.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 128858766884864,
+          "storage_offset": 8036728832,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "39": {
+          "name": "model.layers.39.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 128858978377728,
+          "storage_offset": 8248221696,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "40": {
+          "name": "model.layers.40.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 128859189870592,
+          "storage_offset": 8459714560,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "41": {
+          "name": "model.layers.41.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 128859401363456,
+          "storage_offset": 8671207424,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "42": {
+          "name": "model.layers.42.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 128859612856320,
+          "storage_offset": 8882700288,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "43": {
+          "name": "model.layers.43.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 128859824349184,
+          "storage_offset": 9094193152,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "44": {
+          "name": "model.layers.44.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 128860035842048,
+          "storage_offset": 9305686016,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "45": {
+          "name": "model.layers.45.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 128860247334912,
+          "storage_offset": 9517178880,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "46": {
+          "name": "model.layers.46.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 128860458827776,
+          "storage_offset": 9728671744,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "47": {
+          "name": "model.layers.47.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 128860670320640,
+          "storage_offset": 9940164608,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        }
+      },
+      "deployment": {
+        "pid": 1340231,
+        "tp_world_size": 2,
+        "rank_in_group": 0,
+        "device_name": "NVIDIA GeForce RTX 5090",
+        "device_capability": [
+          12,
+          0
+        ],
+        "device_properties": "_CudaDeviceProperties(name='NVIDIA GeForce RTX 5090', major=12, minor=0, total_memory=32109MB, multi_processor_count=170, uuid=a968eb06-fbdc-36af-d507-50240e0e50a3, pci_bus_id=12, pci_device_id=0, pci_domain_id=0, L2_cache_size=96MB)",
+        "parameter_elements_by_dtype": {
+          "torch.bfloat16": 323958784,
+          "torch.float8_e4m3fn": 14948499456,
+          "torch.int32": 32342016
+        },
+        "quantization_methods": {
+          "vllm.model_executor.layers.vocab_parallel_embedding.UnquantizedEmbeddingMethod": {
+            "count": 2,
+            "resolved_fp8_backends": []
+          },
+          "vllm.model_executor.layers.quantization.fp8.Fp8LinearMethod": {
+            "count": 96,
+            "resolved_fp8_backends": []
+          },
+          "vllm.model_executor.layers.quantization.fp8.Fp8KVCacheMethod": {
+            "count": 48,
+            "resolved_fp8_backends": []
+          },
+          "vllm.model_executor.layers.linear.UnquantizedLinearMethod": {
+            "count": 48,
+            "resolved_fp8_backends": []
+          },
+          "vllm.model_executor.layers.quantization.fp8.Fp8MoEMethod": {
+            "count": 48,
+            "resolved_fp8_backends": [
+              "Fp8MoeBackend.DEEPGEMM"
+            ]
+          }
+        },
+        "memory_free_bytes": 5401804800,
+        "memory_total_bytes": 33668726784,
+        "torch_peak_allocated_bytes": 27250274304,
+        "torch_peak_reserved_bytes": 27302821888,
+        "cache_dtype": "fp8_e4m3",
+        "model_dtype": "torch.bfloat16",
+        "actual_kv_tensor_dtypes": [
+          "torch.uint8"
+        ],
+        "cache_block_size": 16,
+        "cache_num_gpu_blocks": 25817,
+        "max_model_len": 98304
+      },
+      "packages": {
+        "torch": "2.13.0",
+        "vllm": "0.31.0",
+        "flashinfer-python": "0.7.0.post1",
+        "flashinfer-cubin": null
+      },
+      "source_sha256": "7c0b8653e873d62b2e41d2d994f12b5843f2061872158ea1831fac2f01becda6",
+      "native_cache_update_untouched": true,
+      "attention_math_untouched": true,
+      "no_sparse_executor_or_selector": true,
+      "unit_scales_verified_all_48_layers": true
+    },
+    {
+      "rank": 1,
+      "layers": {
+        "0": {
+          "name": "model.layers.0.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 138155978129408,
+          "storage_offset": 0,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "1": {
+          "name": "model.layers.1.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 138156189622272,
+          "storage_offset": 211492864,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "2": {
+          "name": "model.layers.2.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 138156401115136,
+          "storage_offset": 422985728,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "3": {
+          "name": "model.layers.3.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 138156612608000,
+          "storage_offset": 634478592,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "4": {
+          "name": "model.layers.4.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 138156824100864,
+          "storage_offset": 845971456,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "5": {
+          "name": "model.layers.5.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 138157035593728,
+          "storage_offset": 1057464320,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "6": {
+          "name": "model.layers.6.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 138157247086592,
+          "storage_offset": 1268957184,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "7": {
+          "name": "model.layers.7.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 138157458579456,
+          "storage_offset": 1480450048,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "8": {
+          "name": "model.layers.8.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 138157670072320,
+          "storage_offset": 1691942912,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "9": {
+          "name": "model.layers.9.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 138157881565184,
+          "storage_offset": 1903435776,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "10": {
+          "name": "model.layers.10.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 138158093058048,
+          "storage_offset": 2114928640,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "11": {
+          "name": "model.layers.11.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 138158304550912,
+          "storage_offset": 2326421504,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "12": {
+          "name": "model.layers.12.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 138158516043776,
+          "storage_offset": 2537914368,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "13": {
+          "name": "model.layers.13.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 138158727536640,
+          "storage_offset": 2749407232,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "14": {
+          "name": "model.layers.14.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 138158939029504,
+          "storage_offset": 2960900096,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "15": {
+          "name": "model.layers.15.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 138159150522368,
+          "storage_offset": 3172392960,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "16": {
+          "name": "model.layers.16.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 138159362015232,
+          "storage_offset": 3383885824,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "17": {
+          "name": "model.layers.17.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 138159573508096,
+          "storage_offset": 3595378688,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "18": {
+          "name": "model.layers.18.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 138159785000960,
+          "storage_offset": 3806871552,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "19": {
+          "name": "model.layers.19.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 138159996493824,
+          "storage_offset": 4018364416,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "20": {
+          "name": "model.layers.20.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 138160207986688,
+          "storage_offset": 4229857280,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "21": {
+          "name": "model.layers.21.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 138160419479552,
+          "storage_offset": 4441350144,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "22": {
+          "name": "model.layers.22.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 138160630972416,
+          "storage_offset": 4652843008,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "23": {
+          "name": "model.layers.23.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 138160842465280,
+          "storage_offset": 4864335872,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "24": {
+          "name": "model.layers.24.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 138161053958144,
+          "storage_offset": 5075828736,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "25": {
+          "name": "model.layers.25.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 138161265451008,
+          "storage_offset": 5287321600,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "26": {
+          "name": "model.layers.26.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 138161476943872,
+          "storage_offset": 5498814464,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "27": {
+          "name": "model.layers.27.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 138161688436736,
+          "storage_offset": 5710307328,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "28": {
+          "name": "model.layers.28.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 138161899929600,
+          "storage_offset": 5921800192,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "29": {
+          "name": "model.layers.29.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 138162111422464,
+          "storage_offset": 6133293056,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "30": {
+          "name": "model.layers.30.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 138162322915328,
+          "storage_offset": 6344785920,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "31": {
+          "name": "model.layers.31.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 138162534408192,
+          "storage_offset": 6556278784,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "32": {
+          "name": "model.layers.32.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 138162745901056,
+          "storage_offset": 6767771648,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "33": {
+          "name": "model.layers.33.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 138162957393920,
+          "storage_offset": 6979264512,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "34": {
+          "name": "model.layers.34.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 138163168886784,
+          "storage_offset": 7190757376,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "35": {
+          "name": "model.layers.35.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 138163380379648,
+          "storage_offset": 7402250240,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "36": {
+          "name": "model.layers.36.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 138163591872512,
+          "storage_offset": 7613743104,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "37": {
+          "name": "model.layers.37.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 138163803365376,
+          "storage_offset": 7825235968,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "38": {
+          "name": "model.layers.38.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 138164014858240,
+          "storage_offset": 8036728832,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "39": {
+          "name": "model.layers.39.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 138164226351104,
+          "storage_offset": 8248221696,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "40": {
+          "name": "model.layers.40.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 138164437843968,
+          "storage_offset": 8459714560,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "41": {
+          "name": "model.layers.41.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 138164649336832,
+          "storage_offset": 8671207424,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "42": {
+          "name": "model.layers.42.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 138164860829696,
+          "storage_offset": 8882700288,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "43": {
+          "name": "model.layers.43.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 138165072322560,
+          "storage_offset": 9094193152,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "44": {
+          "name": "model.layers.44.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 138165283815424,
+          "storage_offset": 9305686016,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "45": {
+          "name": "model.layers.45.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 138165495308288,
+          "storage_offset": 9517178880,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "46": {
+          "name": "model.layers.46.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 138165706801152,
+          "storage_offset": 9728671744,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        },
+        "47": {
+          "name": "model.layers.47.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "scale_floats": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          },
+          "scale_origin": "checkpoint has no KV scale tensors; official loader default 1.0",
+          "logical_cache_dtype": "fp8_e4m3",
+          "cache_dtype": "torch.uint8",
+          "shape": [
+            25817,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "data_ptr": 138165918294016,
+          "storage_offset": 9940164608,
+          "logical_payload_bytes": 211492864,
+          "attention_scale": 0.08838834764831845
+        }
+      },
+      "deployment": {
+        "pid": 1340232,
+        "tp_world_size": 2,
+        "rank_in_group": 1,
+        "device_name": "NVIDIA GeForce RTX 5090",
+        "device_capability": [
+          12,
+          0
+        ],
+        "device_properties": "_CudaDeviceProperties(name='NVIDIA GeForce RTX 5090', major=12, minor=0, total_memory=32109MB, multi_processor_count=170, uuid=ae92c55e-dadf-1a1d-e921-b36b5a212fa5, pci_bus_id=50, pci_device_id=0, pci_domain_id=0, L2_cache_size=96MB)",
+        "parameter_elements_by_dtype": {
+          "torch.bfloat16": 323958784,
+          "torch.float8_e4m3fn": 14948499456,
+          "torch.int32": 32342016
+        },
+        "quantization_methods": {
+          "vllm.model_executor.layers.vocab_parallel_embedding.UnquantizedEmbeddingMethod": {
+            "count": 2,
+            "resolved_fp8_backends": []
+          },
+          "vllm.model_executor.layers.quantization.fp8.Fp8LinearMethod": {
+            "count": 96,
+            "resolved_fp8_backends": []
+          },
+          "vllm.model_executor.layers.quantization.fp8.Fp8KVCacheMethod": {
+            "count": 48,
+            "resolved_fp8_backends": []
+          },
+          "vllm.model_executor.layers.linear.UnquantizedLinearMethod": {
+            "count": 48,
+            "resolved_fp8_backends": []
+          },
+          "vllm.model_executor.layers.quantization.fp8.Fp8MoEMethod": {
+            "count": 48,
+            "resolved_fp8_backends": [
+              "Fp8MoeBackend.DEEPGEMM"
+            ]
+          }
+        },
+        "memory_free_bytes": 5452333056,
+        "memory_total_bytes": 33668726784,
+        "torch_peak_allocated_bytes": 27250274304,
+        "torch_peak_reserved_bytes": 27302821888,
+        "cache_dtype": "fp8_e4m3",
+        "model_dtype": "torch.bfloat16",
+        "actual_kv_tensor_dtypes": [
+          "torch.uint8"
+        ],
+        "cache_block_size": 16,
+        "cache_num_gpu_blocks": 25817,
+        "max_model_len": 98304
+      },
+      "packages": {
+        "torch": "2.13.0",
+        "vllm": "0.31.0",
+        "flashinfer-python": "0.7.0.post1",
+        "flashinfer-cubin": null
+      },
+      "source_sha256": "7c0b8653e873d62b2e41d2d994f12b5843f2061872158ea1831fac2f01becda6",
+      "native_cache_update_untouched": true,
+      "attention_math_untouched": true,
+      "no_sparse_executor_or_selector": true,
+      "unit_scales_verified_all_48_layers": true
+    }
+  ],
+  "instrumented_native_graph_capture": [
+    {
+      "rank": 0,
+      "capture_wall_seconds": 0.4072401812300086,
+      "additional_allocated_bytes": 33790976,
+      "persistent_instrument_buffers_bytes": 221184,
+      "graph_descriptors": [
+        "BatchExecutionDescriptor(cg_mode=<CUDAGraphMode.FULL: 2>, num_tokens=3, num_reqs=3, uniform_token_count=1, max_query_len=None, num_active_loras=0, num_ubatches=1)",
+        "BatchExecutionDescriptor(cg_mode=<CUDAGraphMode.FULL: 2>, num_tokens=2, num_reqs=2, uniform_token_count=1, max_query_len=None, num_active_loras=0, num_ubatches=1)",
+        "BatchExecutionDescriptor(cg_mode=<CUDAGraphMode.FULL: 2>, num_tokens=1, num_reqs=1, uniform_token_count=1, max_query_len=None, num_active_loras=0, num_ubatches=1)"
+      ],
+      "capture_calls": {
+        "B3:L0": 2,
+        "B3:L15": 2,
+        "B3:L31": 2,
+        "B3:L47": 2,
+        "B2:L0": 2,
+        "B2:L15": 2,
+        "B2:L31": 2,
+        "B2:L47": 2,
+        "B1:L0": 2,
+        "B1:L15": 2,
+        "B1:L31": 2,
+        "B1:L47": 2
+      },
+      "official_attention_forward_and_KV_update_unmodified": true,
+      "instrumentation": "Extra Q/output/current-KV copies at selected native attention boundaries; original graphs retained; no speed claim"
+    },
+    {
+      "rank": 1,
+      "capture_wall_seconds": 0.4088243190199137,
+      "additional_allocated_bytes": 33790976,
+      "persistent_instrument_buffers_bytes": 221184,
+      "graph_descriptors": [
+        "BatchExecutionDescriptor(cg_mode=<CUDAGraphMode.FULL: 2>, num_tokens=3, num_reqs=3, uniform_token_count=1, max_query_len=None, num_active_loras=0, num_ubatches=1)",
+        "BatchExecutionDescriptor(cg_mode=<CUDAGraphMode.FULL: 2>, num_tokens=2, num_reqs=2, uniform_token_count=1, max_query_len=None, num_active_loras=0, num_ubatches=1)",
+        "BatchExecutionDescriptor(cg_mode=<CUDAGraphMode.FULL: 2>, num_tokens=1, num_reqs=1, uniform_token_count=1, max_query_len=None, num_active_loras=0, num_ubatches=1)"
+      ],
+      "capture_calls": {
+        "B3:L0": 2,
+        "B3:L15": 2,
+        "B3:L31": 2,
+        "B3:L47": 2,
+        "B2:L0": 2,
+        "B2:L15": 2,
+        "B2:L31": 2,
+        "B2:L47": 2,
+        "B1:L0": 2,
+        "B1:L15": 2,
+        "B1:L31": 2,
+        "B1:L47": 2
+      },
+      "official_attention_forward_and_KV_update_unmodified": true,
+      "instrumentation": "Extra Q/output/current-KV copies at selected native attention boundaries; original graphs retained; no speed claim"
+    }
+  ],
+  "cold_AA": {
+    "same_tokens": [
+      true,
+      true,
+      true
+    ],
+    "same_APC_hits": [
+      true,
+      true,
+      true
+    ],
+    "same_steps": [
+      true,
+      true
+    ]
+  },
+  "logit_diagnostics": {
+    "full_A": {
+      "expected_keys": 36,
+      "observed_keys": 36,
+      "all_finite": true
+    },
+    "full_B": {
+      "expected_keys": 36,
+      "observed_keys": 36,
+      "all_finite": true,
+      "max_abs_vs_full_A": 0.0,
+      "max_relative_l2_vs_full_A": 0.0,
+      "all_top1_equal_full_A": true,
+      "bitwise_equal_full_A": true,
+      "scope": "Descriptive FP8 same-stack logit drift; no BF16 quality inference or invented noninferiority threshold"
+    },
+    "eager_teacher": {
+      "expected_keys": 36,
+      "observed_keys": 36,
+      "all_finite": true,
+      "max_abs_vs_full_A": 0.0,
+      "max_relative_l2_vs_full_A": 0.0,
+      "all_top1_equal_full_A": true,
+      "bitwise_equal_full_A": true,
+      "scope": "Descriptive FP8 same-stack logit drift; no BF16 quality inference or invented noninferiority threshold"
+    }
+  },
+  "eager_teacher_same_tokens_A": [
+    true,
+    true,
+    true
+  ],
+  "eager_teacher_same_APC_A": [
+    true,
+    true,
+    true
+  ],
+  "eager_teacher_same_steps_A": [
+    true,
+    true
+  ]
+}
