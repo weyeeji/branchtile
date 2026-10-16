@@ -21,7 +21,7 @@ class SparseAttentionWorkerExtension(DeploymentWorkerExtension):
         from vllm.distributed import get_tp_group
         state = self.sparse_state = {'config': config, 'rank': get_tp_group().rank_in_group,
             'phase': 'unset', 'method': 'dense', 'requests': {}, 'records': [], 'logits': {},
-            'positions': {}, 'layer_outputs': {}, 'handles': [], 'originals': [], 'executors': {}, 'metadata_seconds': 0.0}
+            'positions': {}, 'layer_outputs': {}, 'forward_trace': [], 'handles': [], 'originals': [], 'executors': {}, 'metadata_seconds': 0.0}
         state['selector'] = FrozenQCSelector(config['prompt_tokens'], config['document_token_range'], config['budget']) if isinstance(config.get('budget'), int) else None
         state['output'] = Path(config['output']) / f"rank{state['rank']}"
         state['output'].mkdir(parents=True, exist_ok=True)
@@ -99,10 +99,22 @@ class SparseAttentionWorkerExtension(DeploymentWorkerExtension):
 
     def _capture_sparse_layer_output(self, layer, meta, output):
         state = self.sparse_state
+        batch = state.get('batch')
         if not state['config'].get('capture_layer_outputs') or meta is None:
             return
         starts = meta.query_start_loc.cpu().tolist()
         positions = state['positions'][layer][:meta.num_actual_tokens].cpu()
+        if layer == 0:
+            trace = {'phase':state['phase'],'query_start_loc':starts,'seq_lens':meta.seq_lens.cpu().tolist(),
+                'num_actual_tokens':meta.num_actual_tokens,'num_computed_tokens_before_forward':batch.num_computed_tokens_np[:batch.num_reqs].tolist(),
+                'requests':[]}
+            for request,(a,b) in enumerate(zip(starts,starts[1:])):
+                info = self._sparse_request_info(request)
+                pos = positions[a:b].tolist()
+                trace['requests'].append({'request_id':batch.req_ids[request],'slot':int(batch.idx_mapping_np[request]),
+                    **info,'query_tokens':b-a,'post_rope_Q_positions':pos if len(pos)<=64 else {'first':pos[0],'last':pos[-1],'contiguous':pos==list(range(pos[0],pos[-1]+1))},
+                    'phase_kind':'single_token_decode' if b-a==1 and pos[0]>=info['prompt_length'] else 'prefill'})
+            state['forward_trace'].append(trace)
         for request, (a, b) in enumerate(zip(starts, starts[1:])):
             info = self._sparse_request_info(request)
             if b > a and int(positions[b-1]) >= info['prompt_length']-1:
@@ -197,6 +209,17 @@ class SparseAttentionWorkerExtension(DeploymentWorkerExtension):
             difference = (actual.float()-dense_reference.float()).abs()
             record['max_abs_output_vs_dense'] = float(difference.max())
             record['dense_output_tolerance_passed'] = bool(torch.isclose(actual.float(), dense_reference.float(), atol=.006, rtol=.015).all())
+        if state['config'].get('check_sparse_reference'):
+            reference_method = 'e0' if method == 'e0_simt' else 'e0_simt'
+            if reference_method not in state['executors']:
+                state['executors'][reference_method] = PagedSparseExecutor(query.device, reference_method)
+            reference_executor = state['executors'][reference_method]
+            reference_executor.plan(actual_q, cache, ids)
+            sparse_reference = reference_executor.run(actual_q)
+            difference = (actual.float()-sparse_reference.float()).abs()
+            record['same_mask_reference'] = {'method': reference_method, 'max_abs': float(difference.max()),
+                'output_tolerance_passed': bool(torch.isclose(actual.float(), sparse_reference.float(), atol=.006, rtol=.015).all()),
+                'same_query_cache_and_physical_ids': True, 'extra_attention_for_numerical_reference': True}
         probe_key = (state['phase'], layer)
         if (layer in state['config'].get('fp64_probe_layers', []) and probe_key not in state['fp64_probed']):
             state['fp64_probed'].add(probe_key)
@@ -238,7 +261,7 @@ class SparseAttentionWorkerExtension(DeploymentWorkerExtension):
         assert method in ('dense', 'e0', 'e0_simt', 'union')
         state = self.sparse_state
         state['phase'], state['method'] = phase, method
-        state['records'], state['logits'], state['layer_outputs'] = [], {}, {}
+        state['records'], state['logits'], state['layer_outputs'], state['forward_trace'] = [], {}, {}, []
         state['teacher_tokens'], state['fp64_probed'] = teacher_tokens, set()
         return {'rank': state['rank'], 'phase': phase, 'method': method}
 
@@ -250,7 +273,9 @@ class SparseAttentionWorkerExtension(DeploymentWorkerExtension):
                   'selector': state['selector'].summary() if state['selector'] is not None else None,
                   'teacher_forced_tokens': state.get('teacher_tokens'),
                   'records': state['records'], 'logits_count': len(state['logits']),
-                  'scope': 'Instrumented full-budget output/logit qualification; timings include Python metadata and optional redundant dense checks, not application speed evidence.'}
+                  'forward_trace': state['forward_trace'],
+                  'budget': state['config']['budget'],
+                  'scope': 'Instrumented exact-mask output/logit qualification; timings include Python metadata and optional redundant numerical references, not application speed evidence.'}
         if state['logits']:
             logits_path = path.with_suffix('.pt')
             torch.save(state['logits'], logits_path)
@@ -260,5 +285,10 @@ class SparseAttentionWorkerExtension(DeploymentWorkerExtension):
             torch.save(state['layer_outputs'], layers_path)
             record['layer_outputs_file'] = str(layers_path)
             record['layer_outputs_count'] = len(state['layer_outputs'])
+        if state['selector'] is not None:
+            masks_path = state['output']/'frozen_logical_masks.pt'
+            torch.save({f'l{layer}_q{question}':torch.stack(ids) for (layer,question),ids in state['selector'].masks.items()}, masks_path)
+            record['frozen_mask_file'] = str(masks_path)
+            record['frozen_mask_file_sha256'] = hashlib.sha256(masks_path.read_bytes()).hexdigest()
         path.write_text(json.dumps(record, indent=2)+'\n')
         return {'rank': state['rank'], 'metadata': str(path), 'records': len(state['records']), 'logits_count': len(state['logits'])}
