@@ -168,3 +168,28 @@ report `FEASIBILITY.md` records the final evidence and limitations.
 - Literature and raw measurements remain versioned; an existing fixed-union
   mechanism is not relabeled as a new idea. Strong native joint attention is
   now a required baseline for any future pivot.
+
+## Goal resumed: full paper evidence (2026-10-16 14:40 CST)
+
+The user requested continued exploration until paper experimental requirements
+are met. The earlier bounded no-go remains valid but is not the completion
+criterion for this expanded goal. `PAPER_EXPERIMENTS.md` tracks every required
+evidence category and explicitly marks missing work.
+
+Official 4B QMSum train8 development screening now includes natural-EOS A0/A1
+with 8192 tokens per question (joint B-times cap), complete outputs and failures.
+All 64 question answers across the two arms parsed, no cap was hit. A single
+seed and eager engine do not establish optimized production timing or formal
+quality. Diagnostic ROUGE uses rouge-score0.1.2; equivalence to original QMSum
+scoring remains unverified. Joint answers have higher overlap scores but usually
+longer group completion; neither arm is declared quality-cost dominant.
+
+A Transformers5 BatchEncoding mismatch caused the first pilot to fail; three
+newly started sibling jobs were stopped once diagnosed. All allocation charges
+and original snapshots remain, with `results/application_screen/failure_audit.json`.
+The corrected tokenizer path was checked on all eight complete documents before
+the four successful parallel retries. The step observer receives only final
+outputs; its traces cannot establish scheduler ready membership.
+
+Main-model TP2, executed E1/E4, stronger selector profiling and exact protocol
+recovery remain active. No new successful paper mechanism is claimed yet.
