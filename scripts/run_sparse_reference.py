@@ -51,6 +51,7 @@ def measure_compression(cache,observer,budget,ds,de,model):
            "system_prefix_retained":True,"entire_private_suffix_retained":True,
            "sorted_original_positions":all(bool((p[:,1:]>p[:,:-1]).all()) for p in positions),
            "head_supports_can_differ":any(not torch.equal(s[0],s[h]) for s in supports for h in range(1,s.shape[0]))}
+    audit["audit_hashing_and_checks_seconds"]=time.perf_counter()-end
     return compressed,supports,positions,audit
 
 
@@ -159,12 +160,15 @@ def run(args,result):
                     variant={"fraction":fraction,"status":"selecting","budget_tokens":budget}
                     qrecord["variants"].append(variant)
                     write(args.output,result)
+                    variant_start=time.perf_counter()
                     compact,supports,positions,audit=measure_compression(cache,observer,budget,ds,de,model)
                     variant.update(audit,status="generating",seed=args.seed+qi)
                     mask_path=Path(args.output).with_suffix("").with_name(Path(args.output).stem+f"_g{gi}_q{qi}_b{budget}.masks.pt")
+                    export_start=time.perf_counter()
                     torch.save({"supports":[s.cpu() for s in supports],"scores":observer.scores,
                                 "document_range":[ds,de],"budget":budget},mask_path)
-                    variant.update(mask_artifact=str(mask_path),mask_artifact_sha256=digest(mask_path))
+                    variant.update(mask_artifact=str(mask_path),mask_artifact_sha256=digest(mask_path),
+                                   mask_export_seconds=time.perf_counter()-export_start)
                     def progress(tokens,absolute_positions,elapsed):
                         variant.update(generated_ids=tokens.copy(),generated_tokens=len(tokens),
                                        decode_seconds_so_far=elapsed,last_absolute_position=absolute_positions[-1])
@@ -172,7 +176,8 @@ def run(args,result):
                     generated=decode(model,compact,first_logits,len(ids),args.max_new_tokens,eos,
                         temperature=args.temperature,top_p=args.top_p,seed=args.seed+qi,progress=progress)
                     generated.pop("logit_traces")
-                    variant.update(generated,status="completed",generated_text=tokenizer.decode(generated["generated_ids"],skip_special_tokens=True))
+                    variant.update(generated,status="completed",generated_text=tokenizer.decode(generated["generated_ids"],skip_special_tokens=True),
+                                   variant_reference_seconds_excluding_final_checkpoint=time.perf_counter()-variant_start)
                     write(args.output,result)
                     print(json.dumps({"group":gi,"question":qi,"fraction":fraction,
                                       "tokens":generated["generated_tokens"],"eos":generated["natural_eos"]}),flush=True)
