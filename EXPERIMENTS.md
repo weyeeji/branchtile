@@ -351,3 +351,36 @@ EOS and one8192-token cap, counted as a failure despite retained raw text. Exact
 FINAL is6/24 and frozen rounding14/24. Measured phases total2620.219s, generation
 2543.329s, allocated1.44117 GPUh. This eager result does not establish speedup;
 native graph repeats are running with the same retrieval variant.
+
+
+## 2026-10-16 16:29 — graph baselines, complete blind comparison and budget coverage
+
+Main-model full-report graph A/A completed all64 configured runs. Five documents
+and17 questions are serviceable, with all other questions retained. All17 dense
+and5 joint cold request sequences match across three repeats; no warm sequences
+match. Steady-cold totals are320.242/204.910s, with startup/first-call/preparation
+separate. Cold0 exact FINAL is3/24 dense,2/24 joint; rounded both9/24. Instruct4B
+selected-RAG graph repeats also match all24 cold requests, with6/24 exact and
+15/24 rounded. None of these cross-output timings establish same-workload speedup.
+
+The96 novel FastKVzip-mask judgments are complete. Their32 full answers reuse
+prior judgments only after exact source/question/gold/answer identity verification.
+10/25/50/full factual-pass counts are12/14/15/13, adequate coverage8/15/15/18,
+and both6/8/8/9. The comparative figure retains differing global/per-head budget
+policies and one-judge limitations. A power-button wording ambiguity is documented
+for versioned cross-candidate review; already-unblinded v1 judgments stay intact.
+
+The main natural operator budget extension covers8K/16K/32K, all85 configurations
+at each point and60 paired observations per cache. Dynamic v2/v3 still lose; at
+32K, exact hierarchy is about19.41us versus21.63us full union in hot cache. It must
+remain a strong control. All larger-budget jobs together cost0.014603 P2 GPUh.
+MSA exact-tail gather adaptation passes numerical qualification but is slower
+than native E0 by4.46x/8.72x hot on the main/QMSum points, primarily from gather.
+Two additional main-model documents, including true B4, are being captured.
+
+Real FULL-graph sparse qualification now includes2016 actual-query/cache shadow
+checks, explicit candidate graph captures, exact E0 graph A/A logits and no dense
+pure-decode calls. CPU metadata preparation is80–181ms/step and added graph memory
+is explicit. This is successful integration qualification with a severe cost
+bottleneck, not production speedup. Native plan reuse and GPU metadata updates
+will be tested as engineering controls; ordinary caching is not claimed novel.
