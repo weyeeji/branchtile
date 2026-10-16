@@ -27,6 +27,7 @@ from branchtile.attention_v2 import Attention
 from branchtile.union import FixedUnion
 from branchtile.resources import kernel_resources
 from flashinfer_baseline import NativeSparseDecode
+from flashinfer_union import NativeUnionPrefill
 
 
 def load_capture(path, layer, budget, step, head_count):
@@ -107,6 +108,7 @@ def main():
     p.add_argument("--include-union", action="store_true", help="Also tune fixed rows across owner-region boundaries")
     p.add_argument("--normalize-native-lse", action="store_true", help="Include native log2-to-ln conversion in timed complete call")
     p.add_argument("--include-native-raw", action="store_true", help="Also time the original log2-LSE native API separately")
+    p.add_argument("--include-native-union", action="store_true", help="Also tune native joint-query paged prefill with exact custom masks")
     p.add_argument("--output", required=True)
     args = p.parse_args()
     assert os.geteuid() != 0 and sys.prefix != sys.base_prefix
@@ -129,22 +131,27 @@ def main():
     flush = torch.zeros(max(2*pdev.L2_cache_size, 256*1024*1024)//4, device="cuda", dtype=torch.float32)
     tuning, best = [], {"hot": {}, "cold": {}}
     tile_methods = ("compact", "fixed", "union") if args.include_union else ("compact", "fixed")
-    native_methods = ("native", "native_raw") if args.include_native_raw else ("native",)
+    decode_methods = ("native", "native_raw") if args.include_native_raw else ("native",)
+    union_methods = (("native_union", "native_union_raw") if args.include_native_raw else ("native_union",)) if args.include_native_union else ()
+    native_methods = (*decode_methods, *union_methods)
     comparison_methods = (*tile_methods, *native_methods)
     configs = [(method, bn, split, threads) for method in tile_methods
                for bn, split, threads in itertools.product((32, 64), map(int, args.splits.split(",")), map(int, args.threads.split(",")))]
-    configs += [(method, 0, split, int(tc)) for method in native_methods for tc in (False, True)
+    configs += [(method, 0, split, int(tc)) for method in decode_methods for tc in (False, True)
                 for split in ((None, 128, 256, 512, 1024) if tc else (None,))]
+    configs += [(method, 0, split, 1) for method in union_methods for split in (None, 128, 256, 512, 1024)]
     rng.shuffle(configs)
     for method, bn, split, threads in configs:
         record = {"method": method, "block_n": bn, "split": split, "threads_or_tensor_cores": threads}
         try:
             start = time.monotonic()
             if method in native_methods:
-                normalize_lse = args.normalize_native_lse and method != "native_raw"
-                op = NativeSparseDecode(q, k, v, supports, use_tensor_cores=bool(threads), fixed_split_size=split,
-                                        normalize_lse=normalize_lse)
-                record["native_resolved_backend"] = getattr(op.wrapper, "resolved_backend", None)
+                normalize_lse = args.normalize_native_lse and not method.endswith("_raw")
+                op = (NativeUnionPrefill(q, k, v, owners, b, fixed_split_size=split, normalize_lse=normalize_lse)
+                      if method in union_methods else
+                      NativeSparseDecode(q, k, v, supports, use_tensor_cores=bool(threads), fixed_split_size=split,
+                                         normalize_lse=normalize_lse))
+                record["native_resolved_backend"] = getattr(op, "resolved_backend", getattr(op.wrapper, "resolved_backend", None))
                 fn = op.run
                 lse_scale = 1 if normalize_lse else math.log(2)
             else:
@@ -176,7 +183,13 @@ def main():
             record.update(status="error", error=repr(exc))
         tuning.append(record)
         print(json.dumps(record), flush=True)
-    assert all(m in best[c] for c in best for m in comparison_methods), "A comparison arm failed qualification"
+    if not all(m in best[c] for c in best for m in comparison_methods):
+        out = Path(args.output)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(json.dumps({"status": "failed_qualification", "methods": comparison_methods,
+                                  "provenance": provenance, "q_shape": list(q.shape), "k_shape": list(k.shape),
+                                  "tuning": tuning, "reason": "At least one required arm has no configuration passing frozen numerical checks"}, indent=2)+"\n")
+        raise AssertionError("A comparison arm failed qualification; all tuning evidence saved")
     measurements = []
     for regime, repetitions in (("hot", 20), ("cold", 1)):
         graphs = {m: graph_of(x[2], repetitions) for m, x in best[regime].items()}

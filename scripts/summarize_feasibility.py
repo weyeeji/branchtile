@@ -12,17 +12,21 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def main():
-    records = []
+    records, unqualified = [], []
     patterns = [('v2', 'results/paired/paired_v2_cache_tuned_*.json'),
                 ('v3', 'results/kernel_ablation_v3/paired_cross_*.json'),
                 ('v2+union', 'results/union_paired/union_*.json'),
                 ('old30b', 'results/natural_paired/*.json'),
                 ('official4b', 'results/official4b_paired/*.json'),
-                ('latest4b', 'results/latest4b_paired/*.json')]
+                ('latest4b', 'results/latest4b_paired/*.json'),
+                ('latest-old30b', 'results/latest_old30b_paired/*.json'),
+                ('latest-v2', 'results/latest_synthetic_paired/*.json'),
+                ('native-union4b', 'results/native_union_paired/*.json')]
     for version, pattern in patterns:
         for path in sorted(ROOT.glob(pattern)):
             d = json.loads(path.read_text())
             if 'summary' not in d:
+                unqualified.append({'file':str(path.relative_to(ROOT)), 'status':d.get('status'), 'reason':d.get('reason')})
                 continue
             for cache, s in d['summary'].items():
                 times = s['median_us']
@@ -33,6 +37,9 @@ def main():
                                 'native_lse_contract': d.get('native_lse_contract', 'native log2; conversion only in validation'),
                                 'candidate_us': times['compact'], 'fixed_us': times['fixed'],
                                 'union_us': times.get('union'), 'native_us': times['native'],
+                                'native_raw_us': times.get('native_raw'),
+                                'native_union_us': times.get('native_union'),
+                                'native_union_raw_us': times.get('native_union_raw'),
                                 'best_control': best_name,
                                 'best_control_over_candidate': times[best_name]/times['compact'],
                                 'fixed_over_candidate': s['fixed_over_compact']['median'],
@@ -41,12 +48,13 @@ def main():
     dest = ROOT/'results/summary'
     dest.mkdir(parents=True, exist_ok=True)
     with (dest/'paired_comparisons.csv').open('w') as f:
-        writer = csv.DictWriter(f, fieldnames=list(records[0]))
+        writer = csv.DictWriter(f, fieldnames=list(records[0]), lineterminator="\n")
         writer.writeheader()
         writer.writerows(records)
     report = {'scope': 'operator qualification; source manifests and limitations remain in raw files',
               'paired_configurations': len(records)//2, 'rows': len(records),
               'candidate_fixed_ratio_above_1_15': sum(r['fixed_over_candidate'] >= 1.15 for r in records),
+              'unqualified_files': unqualified,
               'records': records}
     (dest/'paired_comparisons.json').write_text(json.dumps(report, indent=2)+'\n')
     fig, axes = plt.subplots(1, 2, figsize=(12, max(5.2,len(records)*0.13+1.7)), constrained_layout=True)
