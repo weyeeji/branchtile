@@ -35,7 +35,7 @@ def test_fp64_causality_and_pool_padding():
 @pytest.mark.parametrize("g,w,n,start,end,bn", [
     (4,23,197,5,169,32), (8,32,301,7,279,64),
     (4,1,59,0,59,128), (4,7,43,2,39,64)])
-def test_fused_score_fp64_and_native_topk(g, w, n, start, end, bn):
+def test_fused_score_fp64(g, w, n, start, end, bn):
     torch.manual_seed(2026)
     q = torch.randn(1, 2*g, w, 128, device="cuda", dtype=torch.bfloat16)
     k = torch.randn(1, 2, n, 128, device="cuda", dtype=torch.bfloat16)
@@ -45,15 +45,29 @@ def test_fused_score_fp64_and_native_topk(g, w, n, start, end, bn):
     scorer = FusedKnownLSEScorer(q, k, pos, start, end, bn)
     actual = scorer.run(lse)
     torch.testing.assert_close(actual.double(), expected, rtol=3e-5, atol=2e-8)
-    budget = min(64, end-start)
-    # Identical score tensors must yield identical protected sets, including ties.
-    for scores in (actual, torch.ones_like(actual)):
-        assert torch.equal(select_support(scores,budget,"argsort"),
-                           select_support(scores,budget,"flashinfer"))
     torch.cuda.synchronize()
     graph = torch.cuda.CUDAGraph()
     with torch.cuda.graph(graph):
-        masks = select_support(scorer.run(lse), budget, "flashinfer")
+        masks = select_support(scorer.run(lse), min(64,end-start))
     graph.replay()
     torch.cuda.synchronize()
-    assert torch.equal(masks, select_support(actual,budget,"argsort"))
+    assert torch.equal(masks, select_support(actual,min(64,end-start)))
+
+
+@pytest.mark.skipif(not torch.cuda.is_available(), reason="CUDA required")
+@pytest.mark.parametrize("h,n,budget", [(2,257,128),(8,6126,4096),(4,20896,4096)])
+def test_native_topk_ties_and_graph(h,n,budget):
+    torch.manual_seed(20261016)
+    scores = torch.randn(h,n,device="cuda")
+    # Many ties, including at selection boundaries, exercise lower-position policy.
+    scores = (scores*8).round()
+    expected = select_support(scores,budget,"argsort")
+    actual = select_support(scores,budget,"flashinfer")
+    assert torch.equal(actual,expected)
+    torch.cuda.synchronize()
+    graph = torch.cuda.CUDAGraph()
+    with torch.cuda.graph(graph):
+        actual = select_support(scores,budget,"flashinfer")
+    graph.replay()
+    torch.cuda.synchronize()
+    assert torch.equal(actual,expected)

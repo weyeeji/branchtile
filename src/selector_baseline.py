@@ -150,6 +150,6 @@ class FusedKnownLSEScorer:
         _fused_scores[(h, triton.cdiv(self.n, self.block_n))](
             self.q, self.k, self.positions, lse, self.out,
             *self.q.stride(), *self.k.stride(), rows, d, self.start, self.n,
-            triton.next_power_of_2(rows), self.block_n,
+            max(16, triton.next_power_of_2(rows)), self.block_n,
             triton.next_power_of_2(self.block_n+6), num_warps=8)
         return self.out
