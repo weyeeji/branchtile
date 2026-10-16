@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "frozen_before_formal_outputs": true,
+  "source": "src/paired_statistics.py",
+  "source_sha256": "4e0b2f1b7af97c435779251479f32736c5fd25e93c6751b4fac9ac566e45c055",
+  "scope": "Prospective statistical component; selection budgets, complete application arms, judge protocol and actual grouping still require freeze before formal evaluation.",
+  "confidence": 0.95,
+  "two_sided_percentile_tails": [
+    0.025,
+    0.975
+  ],
+  "resamples": 10000,
+  "bootstrap_seed": 20261016,
+  "formal_paired_seed_count": 3,
+  "seed_rule": "Seed field is logical replicate ID; resolved per-question sampling seeds must match methods within each replicate. Average reference and candidate scores per document/question over those same replicates first; never count seeds as new questions or clusters.",
+  "docfinqa_primary_estimand": "Question-weighted accuracy difference over every frozen question, including service/parse/generation failure, clustered by conservative inferred company identity component; do not call these verified companies.",
+  "qmsum_estimand": "Question-weighted calibrated ROUGE differences, with meeting and higher-source clustering sensitivity; source identity recovery pending.",
+  "mandatory_sensitivities": [
+    "Equal cluster weighting, a distinct estimand.",
+    "DocFinQA fixed rounding rule and shared-label conflict sensitivity.",
+    "Source identity ambiguity and higher grouping.",
+    "Finite-sample conservative guard for degenerate bootstrap intervals."
+  ],
+  "decision": "95% lower bound must be strictly above -0.02. Single-seed/development calls never support formal noninferiority. If bootstrap range is zero, take the smaller of bootstrap lower and fixed-weight Hoeffding lower.",
+  "hoeffding_derivation": "Independent cluster mean differences D_i in [-1,1] and predetermined normalized weights w_i imply Pr(E[sum w_i D_i] < observed-t) <= exp(-t^2/(2 sum_i w_i^2)). Use tail alpha=.025; independence is an assumption, not verified by code.",
+  "zero_loss_event_sensitivity": {
+    "assumption": "iid cluster event of any seed-averaged question degradation",
+    "upper_at_59_clusters": 0.06060890095033988,
+    "min_clusters_for_strict_below_2pp": 183,
+    "interpretation": "Event probability bound, not question-weighted paired effect. Never substitute it for the primary estimand."
+  },
+  "tests": "tests/test_paired_statistics.py: seed replication invariance; unequal cluster weighting; analytic two-cluster interval; 59-cluster equality guard; denominator and NaN rejection."
+}
