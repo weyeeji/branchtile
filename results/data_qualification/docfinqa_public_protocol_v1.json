@@ -1,0 +1,152 @@
+{
+  "schema": 1,
+  "protocol_id": "docfinqa-public-v1-20261016",
+  "frozen_utc": "2026-10-16T07:02:47.617584+00:00",
+  "status": "frozen_new_public_source_input_protocol",
+  "authorization": "User explicitly said there is no old manifest and to disregard the old data on 2026-10-16; historical recovery is no longer a requirement or blocker.",
+  "selection": "Adopt v3 input-only hash-ranked evaluation100/training167 and preserve all already-exposed development8 unchanged. The 8/100/167 sizes are new cohort sizes, not a recovery of the old reports or company distribution.",
+  "source_dataset": "https://huggingface.co/datasets/kensho/DocFinQA",
+  "source_revision": "64ebaff62f692495bcc182f45cf9a9606251b19b",
+  "converted_parquet_revision": "7ab8d931022705be37535159d637de7e4b341fb6",
+  "source_files": [
+    {
+      "path": "data/raw/docfinqa/parquet/test.parquet",
+      "split": "test",
+      "sha256": "21520123f990dcd4b8581f3107f3295b300eb0c5202085d0e5f9dc48a04ea666",
+      "bytes": 56117346,
+      "revision": "7ab8d931022705be37535159d637de7e4b341fb6"
+    },
+    {
+      "path": "data/raw/docfinqa/parquet/train.parquet",
+      "split": "train",
+      "sha256": "6f73c7cf234cacb40bbb32b56d62a06cdcd5d4a9d3cab7c0f11599fa64027594",
+      "bytes": 584576680,
+      "revision": "7ab8d931022705be37535159d637de7e4b341fb6"
+    },
+    {
+      "path": "data/raw/docfinqa/parquet/validation.parquet",
+      "split": "validation",
+      "sha256": "5e756b38a84b72d2b83761f4edee8f124d0e26dacb73feaacb99cf3cbf20d571",
+      "bytes": 48290313,
+      "revision": "7ab8d931022705be37535159d637de7e4b341fb6"
+    }
+  ],
+  "source_validation": {
+    "path": "results/data_docfinqa_parquet_validation.json",
+    "sha256": "582206bac28226efde0065fe4be1ec1c7a37187512f788bad6d699c4b1287f39"
+  },
+  "question_policy": "Same byte-identical complete report only; deduplicate exact question text, deterministic order and at most four natural questions; retain actual B1/B2/B3/B4. The existing development representative is preserved; evaluation/training use question-SHA order. No answer, length, B, measured mask or model performance enters report selection.",
+  "leakage_policy": "Training excludes all official test contexts and their conservative FinQA company/year components, including unselected official test reports. Evaluation excludes development contexts and such components. Same company across different years may remain and is not out-of-company generalization.",
+  "inference_cluster_policy": "Connected components of all available inferred company candidates across years, plus conservative report-identity components, across the selected development/evaluation/training cohorts. Missing-company reports are combined into one unresolved component. These are inferred identity components, not verified company clusters; report-level and component-level sensitivity results must both be shown.",
+  "identity_uncertainty": "Exact FinQA question matching can produce ambiguous or incomplete company/year identities. Component clustering is conservative relative to the observed candidate graph but does not establish complete statistical independence. Do not claim the historical 48-company distribution or unconditional company-cluster coverage.",
+  "label_policy": "Retain every source variant. Evaluation/training primary labels use earliest row of the target official split, then deterministic source precedence fixed before model outputs. Never choose the closest label to a prediction. Report primary-label results and adversarial sensitivity for each unresolved conflicting question; no conflict is silently dropped.",
+  "capacity_policy": "Full input, no truncation/replacement/filtering after freeze; all selected reports and questions remain in denominators. Report model-context, allocation/OOM, execution, output-cap, parse, and quality failures separately. The context audit is tokenizer-only, not a GPU capacity guarantee.",
+  "statistics_scope": "This freezes inputs, cluster labels and source-label handling. Scorer calibration, three-seed paired execution, frozen model/budget and completed application results remain separately required. No quality or noninferiority conclusion follows from this freeze.",
+  "cross_split_overlap": [
+    {
+      "splits": [
+        "development8",
+        "evaluation100"
+      ],
+      "documents": 0,
+      "company_year_candidates": 0,
+      "company_candidates": 4,
+      "selected_question_hashes": 0
+    },
+    {
+      "splits": [
+        "development8",
+        "training167"
+      ],
+      "documents": 0,
+      "company_year_candidates": 0,
+      "company_candidates": 2,
+      "selected_question_hashes": 0
+    },
+    {
+      "splits": [
+        "evaluation100",
+        "training167"
+      ],
+      "documents": 0,
+      "company_year_candidates": 0,
+      "company_candidates": 46,
+      "selected_question_hashes": 0
+    }
+  ],
+  "manifests": [
+    {
+      "split": "development8",
+      "path": "data/manifests/docfinqa_public_development8_v1.json",
+      "sha256": "17a52d72fde5a2b7e430ff6113905d3eece0589240d30a27794848be226e2d33",
+      "reports": 8,
+      "questions": 24,
+      "B_histogram": {
+        "3": 4,
+        "2": 2,
+        "4": 2
+      },
+      "inferred_connected_components": 6,
+      "inferred_unambiguous_companies": 6,
+      "groups_without_unique_company": 0,
+      "groups_without_unique_company_year": 1
+    },
+    {
+      "split": "evaluation100",
+      "path": "data/manifests/docfinqa_public_evaluation100_v1.json",
+      "sha256": "6169cc7be440084de3c4058247d7fd73b63db4e0b18541bce65eb2b01fc6479e",
+      "reports": 100,
+      "questions": 371,
+      "B_histogram": {
+        "2": 7,
+        "4": 84,
+        "3": 6,
+        "1": 3
+      },
+      "inferred_connected_components": 59,
+      "inferred_unambiguous_companies": 60,
+      "groups_without_unique_company": 1,
+      "groups_without_unique_company_year": 9
+    },
+    {
+      "split": "training167",
+      "path": "data/manifests/docfinqa_public_training167_v1.json",
+      "sha256": "87af11c06193feffbee566a74865d77e8b4bbeff14046359f9a4fb0c34fcd732",
+      "reports": 167,
+      "questions": 567,
+      "B_histogram": {
+        "1": 5,
+        "4": 105,
+        "2": 29,
+        "3": 28
+      },
+      "inferred_connected_components": 91,
+      "inferred_unambiguous_companies": 92,
+      "groups_without_unique_company": 0,
+      "groups_without_unique_company_year": 4
+    }
+  ],
+  "conflicting_questions": [
+    {
+      "split": "evaluation100",
+      "document_id": "docfinqa-96be562cbb2f263e",
+      "question_sha256": "022b6b1f8e0617c5e91dc3febdfd21005d7654be35993a160a9e3c2acdd9e72e",
+      "primary_answer": "6%",
+      "source_answer_variants": [
+        "18%",
+        "6%"
+      ]
+    },
+    {
+      "split": "evaluation100",
+      "document_id": "docfinqa-96be562cbb2f263e",
+      "question_sha256": "9ba10bb94a197ec54ffe7b11877bd3cb7f3877134680bdc8dd68cf8716914ac0",
+      "primary_answer": "22%",
+      "source_answer_variants": [
+        "22%",
+        "66%"
+      ]
+    }
+  ],
+  "script_sha256": "449e1214fd0eedb58267bf7b0c79132c6b3d3aced996433eee2a14e2d1c84433"
+}
