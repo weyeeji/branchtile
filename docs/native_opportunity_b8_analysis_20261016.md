@@ -28,3 +28,23 @@
 ```
 
 本轮没有自然EOS完成率或任务质量结论；相关自然实验应单独报告。生产prefix多请求attention已有直接先例，问题空间大不意味着新机制已成立。
+
+## 2026-10-17补充：train1自然EOS与共同活跃期
+
+新增两次自然请求实验均已完成，16/16答案stop、无8192 cap。BF16完整generate33.788秒，anchor19.874秒，冷文档总53.662秒；FP8分别34.961、20.671、55.632秒。FP8这次自然输出合计12999 tokens，BF16为11302；因此固定128段较快并不保证自然任务更快。本段只报告行为和时间，没有新增质量评分或非劣证据。
+
+| 实际活跃请求数 | BF16 模型图步数 | FP8 模型图步数 |
+| --- | ---: | ---: |
+| 8 | 291 | 773 |
+| 7 | 418 | 1 |
+| 6 | 433 | 88 |
+| 5 | 53 | 43 |
+| 4 | 47 | 1187 |
+| 3 | 509 | 51 |
+| 2 | 609 | 285 |
+| 1 | 252 | 594 |
+| 合计 | 2612 | 3022 |
+
+两rank每步的batch/questions/positions完全相等；每题在实际图中的出现次数恰好等于保存的自然输出tokens，所有位置逐步连续；`Σbatch×steps`与输出token总数一致。8题全体共同活跃只占模型步数11.14%/25.58%，不能用固定B8图的收益乘全部自然解码步，也不能假设同一候选plan可复用全部输出长度。还有共同活跃的B7/B6等阶段，实际优化需支持请求退出或合理回退。
+
+复现：`.venv/bin/python scripts/audit_native_natural_lifetime.py --root results/native_opportunity_b8_natural_v1 --output results/native_opportunity_b8_natural_v1/lifetime_audit.json`。原始summary及两rank图轨迹SHA保存在该审计输出中。
