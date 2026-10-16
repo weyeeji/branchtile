@@ -15,6 +15,20 @@ def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def completed_answer(run, question_index, raw_answer):
+    """A capped or unserviceable request is a failure even if it printed FINAL."""
+    if run["status"] != "complete":
+        return "", run["status"]
+    request_index = 0 if run["arm"] == "joint" else question_index
+    requests = run.get("requests", [])
+    if request_index >= len(requests):
+        return "", "missing_request_completion"
+    reason = requests[request_index]["finish_reason"]
+    if reason != "stop":
+        return "", "non_natural_finish:" + str(reason)
+    return raw_answer, "eligible_completed_answer"
+
+
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--input", required=True)
@@ -35,9 +49,11 @@ def main():
         assert run["question_ids"] == [q["question_sha256"] for q in group["questions"]]
         answers = run.get("answers", [""] * group["B"])
         assert len(answers) == group["B"]
-        for question, answer in zip(group["questions"], answers):
+        for qi, (question, answer) in enumerate(zip(group["questions"], answers)):
+            metric_answer, eligibility = completed_answer(run, qi, answer)
             grouped[run["arm"]].append({"document_id": group["document_id"], "group_index": run["group_index"],
                 "question_id": question["question_sha256"], "prediction": answer, "gold": question["answer"],
+                "metric_prediction": metric_answer, "completion_eligibility": eligibility,
                 "source_answer_variants": question.get("source_answer_variants", [question["answer"]]),
                 "conflicting_source_answers": question.get("conflicting_source_answers", False),
                 "generation_status": run["status"], "cap_hit": run.get("any_cap_hit"),
@@ -51,12 +67,12 @@ def main():
         "metric_protocol": "results/metric_calibration_docfinqa.md",
         "scope": "Frozen development, one seed. This FINAL-answer metric is not official FinQA/DocFinQA program-execution accuracy, factual audit, or formal noninferiority.",
         "primary": "exact_match", "mandatory_sensitivity": "rounded_match",
-        "denominator_rule": "All configured questions including unserviceable context and parse/cap failures. Gold parse failures remain included.",
+        "denominator_rule": "All configured questions including unserviceable context and parse/cap failures. Non-natural finishes score zero even if raw text contains FINAL; joint failure affects all its answers. Gold parse failures remain included.",
         "expected_questions_per_arm": expected_count, "arms": {}}
     for arm, rows in grouped.items():
         assert len(rows) == expected_count
         assert len({(r["document_id"], r["question_id"]) for r in rows}) == len(rows)
-        scored = score_pairs([r["prediction"] for r in rows], [r["gold"] for r in rows])
+        scored = score_pairs([r["metric_prediction"] for r in rows], [r["gold"] for r in rows])
         for row, score in zip(rows, scored.pop("per_example")):
             row["score"] = score
         docs = {r["document_id"]: r for r in rows}

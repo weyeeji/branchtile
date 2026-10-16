@@ -18,6 +18,9 @@ def main():
     p.add_argument("--group", type=int, default=3)
     p.add_argument("--output", required=True)
     p.add_argument("--trace-dir", required=True)
+    p.add_argument("--tp", type=int, default=1)
+    p.add_argument("--max-model-len", type=int, default=65536)
+    p.add_argument("--gpu-memory-utilization", type=float, default=.8)
     args = p.parse_args()
     assert os.geteuid() != 0 and sys.prefix != sys.base_prefix
     import torch
@@ -38,16 +41,16 @@ def main():
         "manifest_sha256": hashlib.sha256(manifest_path.read_bytes()).hexdigest(),
         "document_id": group["document_id"], "document_range": [start, end],
         "prompt_lengths": list(map(len, ids)), "B": len(ids),
-        "scope": "native BF16 dense+APC CUDA-graph engine attribution; capped 256 generation for instrumentation, not quality; profiler timings carry instrumentation overhead",
+        "scope": "native model-precision dense+APC CUDA-graph engine attribution with BF16 KV; capped256 generation for instrumentation, not quality; profiler timings carry instrumentation overhead",
         "sampling": {"temperature": .6, "top_p": .95, "top_k": 20, "max_tokens": 256, "min_tokens": 0, "ignore_eos": False},
         "profile_scope": {"warm_apc": True, "delay_iterations": 64, "max_iterations": 32}}
     def save():
         output.write_text(json.dumps(report, indent=2) + "\n")
     save()
     t0 = time.monotonic()
-    llm = LLM(model=args.model, dtype="bfloat16", tensor_parallel_size=1,
-              max_model_len=65536, max_num_seqs=4, max_num_batched_tokens=4096,
-              enable_prefix_caching=True, enforce_eager=False, gpu_memory_utilization=.8,
+    llm = LLM(model=args.model, dtype="bfloat16", tensor_parallel_size=args.tp,
+              max_model_len=args.max_model_len, max_num_seqs=4, max_num_batched_tokens=4096,
+              enable_prefix_caching=True, enforce_eager=False, gpu_memory_utilization=args.gpu_memory_utilization,
               disable_custom_all_reduce=True, seed=20261016,
               profiler_config={"profiler": "torch", "torch_profiler_dir": str(ROOT / args.trace_dir),
                                "torch_profiler_with_stack": False, "torch_profiler_record_shapes": False,
@@ -60,7 +63,7 @@ def main():
     report["actual_shape_warmup_seconds"] = time.monotonic() - warm_start
     report["status"] = "profiling"
     save()
-    llm.start_profile(profile_prefix=f"qmsum_g{args.group}_decode")
+    llm.start_profile(profile_prefix=f"{group['dataset'].lower()}_g{args.group}_decode")
     params = [SamplingParams(temperature=.6, top_p=.95, top_k=20, max_tokens=256,
                              min_tokens=0, ignore_eos=False, seed=20261016 + args.group * 100 + i)
               for i in range(len(ids))]

@@ -27,10 +27,16 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("--input", required=True)
     p.add_argument("--output", required=True)
+    p.add_argument("--trace", help="Select one worker trace explicitly for TP; summarize ranks separately")
     args = p.parse_args()
     metadata = json.loads((ROOT / args.input).read_text())
     assert metadata["status"] == "complete"
-    trace_path = ROOT / next(f["path"] for f in metadata["trace_files"] if f["path"].endswith(".json.gz"))
+    trace_paths = [f["path"] for f in metadata["trace_files"] if f["path"].endswith(".json.gz")]
+    if args.trace is None:
+        assert len(trace_paths) == 1, "Multiple worker traces: supply --trace and report each rank separately"
+    else:
+        assert args.trace in trace_paths
+    trace_path = ROOT / (args.trace or trace_paths[0])
     events = json.load(gzip.open(trace_path, "rt"))["traceEvents"]
     kernels = [e for e in events if e.get("cat") == "kernel"]
     groups = collections.defaultdict(list)
@@ -38,7 +44,9 @@ def main():
     for e in kernels:
         name = e["name"]
         names[name] += e["dur"]
-        if "flash_fwd_splitkv" in name:
+        if "nccl" in name.lower() or "allreduce" in name.lower() or "all_reduce" in name.lower():
+            category = "tensor_parallel_communication"
+        elif "flash_fwd_splitkv" in name:
             category = "attention_including_split_combine"
         elif "gemm" in name.lower() or "cublas" in name.lower():
             category = "matrix_multiply_and_reduction"

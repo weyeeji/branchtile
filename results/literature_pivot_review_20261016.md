@@ -28,7 +28,7 @@ tie-break。当前实验采用可在 SM120 上使用的路径；需要更大 sha
 成员关系、split/merge、FP8 概率缩放与 LSE 补偿；union 路径返回索引和 bitmap。
 [MSA 论文](https://arxiv.org/abs/2606.13392) 与
 [作者实现](https://github.com/MiniMax-AI/MSA) 覆盖 KV 外层调度和 query gather，
-公开 SM100/CuTe DSL 实现的存在不证明 SM120 直接兼容。
+最初仅核查了作者SM100/CuTe DSL。后续FlashInfer0.7.2源码已确认SM120/121、D128、GQA≤16支持；但当前接口以128-token块选择，无逐token mask。我们的自然mask有大量混合块，直接使用会改变语义。需要计费gather重排的E0适配，不能把它标成原位同mask基线。详见 `results/platform/flashinfer_msa_applicability.json` 与 [官方接口](https://docs.flashinfer.ai/generated/flashinfer.msa_ops.msa_sparse_decode_attention.html)。
 
 [VC-Attention](https://arxiv.org/abs/2609.15810)（2026-09）涉及 V 聚类/平滑及
 FP8 attention；[MpFA](https://arxiv.org/abs/2609.33135)（2026-09）涉及混合精度
@@ -56,3 +56,29 @@ QK/PV、平滑和 prefill/decode 分工。若试验缩小 inactive partial 的�
 和 [Qwen3-Reranker-0.6B](https://huggingface.co/Qwen/Qwen3-Reranker-0.6B) 的官方
 输入规则、固定权重 revision 和校验 hash。这只是开发网格起点，不宣称是2026年
 所有检索系统中的最优配置；正式结论需冻结同质量的可用强对照。
+
+
+## 2026-10-16 15:43 增补：当前原生能力与共享压缩
+
+[FlashAttention4 b35](https://github.com/Dao-AILab/flash-attention/releases/tag/fa4-v4.0.0.beta35)
+于10月14日发布。独立venv安装并按immutable tag核对六个核心源码后，实际SM120
+任意token mask、GQA4/8、B1/B3/B4及不等长strided KV资格通过；split>1及paged
+仍被接口拒绝。FA4同源mask、独立gather和compact-union+gather都独立调优。
+两自然decode点热/冷完整call仍慢于FI0.7.2，连不计gather的乐观下界也未改变
+结论。只限这些小batch长decode形状，不能外推训练/prefill或FA4整体性能。
+未过滤sanitizer的68条CUDA API版本查询错误保留，单独设备内存检查0错误；
+不能将其写成无条件clean memcheck。完整证据 `results/fa4/summary.json`。
+
+[FastKVzip官方实现](https://github.com/Janghyun1230/FastKVzip/tree/e04afaa6007c58d18500d0698d2d8ae592ff22c2)
+发布了与本实验4B-Instruct-2507对应的模型专用gate。HF revision
+`67ce1265f510a946bf22486a30269f99066b3cbb`中没有主模型30B-A3B gate，不可跨模型套用。
+[NVIDIA实现](https://github.com/NVIDIA/kvpress/blob/7136c224105ba7b046a6e538742c3589698680b8/kvpress/presses/fastkvzip_press.py)
+与作者gate公式相同，但保护窗、全局预算和threshold/tie语义不同；其默认使用
+mask模拟压缩，源码明确不代表优化物理压缩性能。当前拟做准确命名的NVIDIA
+全层全头mask质量参考，成本与作者优化chunked-prefill分开，绝不将fake mask
+时间当作实际KV压缩加速。
+
+[EchoPress](https://arxiv.org/abs/2610.00412)于9月30日提交，利用prefill Q/K近似
+重构分数，并只重构首块作校准，不需要模型专用训练。论文报告Qwen3-8B与
+Llama3.1-8B的LongBench/RULER结果。这是query-agnostic方向的直接近期对照，
+不是本文的新idea；当前仅列为后继适配候选，尚无本机资格/性能证据。
