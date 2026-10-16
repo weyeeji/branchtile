@@ -14,12 +14,15 @@ p = argparse.ArgumentParser()
 p.add_argument("repo")
 p.add_argument("--output", required=True)
 p.add_argument("--aria2", action="store_true")
+p.add_argument("--modelscope-mirror", action="store_true",
+               help="Download payload from Qwen's public mirror; verify HF revision SHA256")
 a = p.parse_args()
 assert os.geteuid() != 0 and sys.prefix != sys.base_prefix
 info = HfApi().model_info(a.repo)
 record = {"repo": a.repo, "revision": info.sha,
           "started_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
-          "path": str(Path(a.output).resolve()), "complete": False}
+          "path": str(Path(a.output).resolve()), "complete": False,
+          "payload_transport": "modelscope_official_mirror_hf_sha256_verified" if a.modelscope_mirror else "huggingface"}
 meta = Path("results") / (a.repo.split("/")[-1] + "_download.json")
 meta.parent.mkdir(exist_ok=True)
 meta.write_text(json.dumps(record, indent=2) + "\n")
@@ -36,6 +39,8 @@ else:
     def fetch(name):
         url = hf_hub_url(a.repo, name, revision=info.sha)
         metadata = get_hf_file_metadata(url)
+        if a.modelscope_mirror:
+            url = f"https://modelscope.cn/models/{a.repo}/resolve/master/{name}"
         final = dest / name
         incomplete = dest / ".cache/huggingface/download" / (name + "." + metadata.etag + ".incomplete")
         if incomplete.exists() and not final.exists():
@@ -45,9 +50,15 @@ else:
                "--min-split-size=16M", "--summary-interval=30", "--console-log-level=warn",
                "--max-tries=8", "--retry-wait=3", "--dir="+str(dest), "--out="+name, url]
         proxy = os.environ.get("HTTPS_PROXY") or os.environ.get("https_proxy")
-        if proxy:
+        if proxy and not a.modelscope_mirror:
             cmd.insert(1, "--all-proxy=" + proxy)
-        subprocess.run(cmd, check=True)
+        env = os.environ.copy()
+        env.pop("all_proxy", None)
+        env.pop("ALL_PROXY", None)
+        if a.modelscope_mirror:
+            for key in ("http_proxy", "https_proxy", "HTTP_PROXY", "HTTPS_PROXY"):
+                env.pop(key, None)
+        subprocess.run(cmd, check=True, env=env)
         digest = hashlib.sha256()
         with final.open("rb") as f:
             for chunk in iter(lambda: f.read(16 * 1024 * 1024), b""):

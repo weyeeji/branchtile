@@ -45,3 +45,37 @@ evidence from a completed application evaluation.
 
 Git commits checkpoint executable code, small raw measurements, configuration,
 and conclusions; weights, captures, venv and compiler caches are ignored.
+
+## Qualification checkpoint (2026-10-16)
+
+- Native FlashInfer shared-source paged decode is correct against FP64. Its
+  returned LSE uses log2; validation explicitly converts to natural log.
+- Version 1 dynamic M16/M32 and register-resident fixed-row control pass 17
+  tests, including empty rows, partial tiles, split merge, changing runtime
+  row identities and the four fused/partial mechanisms. Compute Sanitizer
+  memcheck passed three selected cases with zero reported errors.
+- Eight separate GPU jobs completed the initial 480-run screening: 420 valid
+  measurements, 60 candidate N64 launches rejected for excessive shared memory
+  (102656 bytes). Raw failures are retained. After independently selecting the
+  fastest configuration, v1 loses to the fixed-row control in all 30 tested
+  synthetic shapes. These are hot-cache screening results; the selections
+  span devices and are not a final paired-performance claim.
+- V2 explicitly reuses buffers between mutually exclusive M16/M32 branches and
+  separates Q/state loads to avoid conservative compiler barriers. Its N64
+  compiled shared memory decreases to 64768 bytes including static allocation.
+  The same-shape fixed control uses 47104 bytes. V2 is undergoing numerical
+  checks and same-device comparisons with native FlashInfer; no v2 speedup is
+  established yet.
+- Nsight Compute reports `ERR_NVGPUCTRPERM` for uid 1000. We do not change driver
+  permissions or use root. Actual hardware-counter/DRAM attribution remains
+  unavailable; compiled resource counts and measured latency are separate
+  evidence. All eight NVML cumulative energy counters are readable, but energy
+  improvements have not yet been measured.
+- Local old Qwen3-30B-A3B BF16 will be used for an explicitly labeled natural
+  GQA8 diagnostic while official 2507 weights download. Three-card layer
+  sharding is instrumentation, not a substitute for the proposed TP2 engine.
+  First loading attempt failed on missing `accelerate`; this dependency was
+  installed only in the project venv, with the failed attempt retained.
+
+The goal remains active: neither operator qualification against all strong
+controls nor application feasibility/quality has been established.
