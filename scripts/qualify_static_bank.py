@@ -122,7 +122,8 @@ def main():
              ROOT / "src/branchtile/resources.py", ROOT / "scripts/compare_attention.py"]
     for relative in ("attention_v4.py", "tilelang_kernel_v4.py", "attention_fullcol_guard.py",
                      "tilelang_kernel_fullcol_guard.py", "attention_emptyguard.py",
-                     "tilelang_kernel_emptyguard.py", "tilelang_kernel_v2.py"):
+                     "tilelang_kernel_emptyguard.py", "tilelang_kernel_v2.py",
+                     "attention_persistent_fixed.py", "tilelang_kernel_persistent_fixed.py"):
         candidate = ROOT / "src/branchtile" / relative
         if candidate.exists():
             paths.append(candidate)
