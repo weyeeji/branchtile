@@ -68,6 +68,7 @@ def main():
     pending = [row for row in jobs if row['event'] == 'start' and row['pid'] not in ended_pids]
     report = {'scope': 'Official Qwen3-30B-A3B-Thinking-2507-FP8 TP2, true B3 ready groups, same exact captured dense-trajectory payload/masks; operator evidence only.',
               'records': records,
+              'implementation_sources_sha256': {str(p): hashlib.sha256((ROOT / p).read_bytes()).hexdigest() for p in ('src/dynamic_baseline.py', 'src/branchtile/tilelang_kernel_v3.py', 'src/partition_baseline.py', 'src/cascade_baseline.py', 'scripts/bench_partition_cascade.py', 'scripts/measure_partition_planning.py')},
               'natural_document_count': len({r['provenance']['document_sha256'] for r in records}),
               'budget': {'limit_gpu_hours': 1, 'actual_allocated_gpu_hours': sum(row['gpu_hours'] for row in ended),
                          'includes_failures': True, 'finished_jobs': len(ended), 'pending': pending},
@@ -83,6 +84,7 @@ def main():
                               'Rank-local timings on separate inputs do not measure TP2 synchronized full-model decode speed.',
                               'Prepare amortization counts 1/16/64/256 are scenarios, not observed static-plan lifetimes; suffix growth may require updates.',
                               'E4 is a binary hierarchy mechanism port, not a full QUILT planner reproduction.',
+                              'Single-call cold CUDA-event timings show about 2us quantization; narrow or degenerate bootstrap intervals do not remove timer quantization.',
                               'Frozen numerical tolerance is inherited; failures are reported and excluded, without claiming dominance over unqualified native configurations.']}
     output = ROOT / 'results/main30b_operator/summary.json'
     output.write_text(json.dumps(report, indent=2) + '\n')

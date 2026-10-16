@@ -41,3 +41,28 @@ def test_runtime_change():
         expected, expected_lse = reference(q, k, v, owners)
         torch.testing.assert_close(actual.float(), expected.float(), atol=0.006, rtol=0.015)
         torch.testing.assert_close(lse, expected_lse.float(), atol=0.00005, rtol=0.00005)
+
+
+def test_b3_real_rows_changed_query_and_rowmap():
+    """24 real rows, non-tile lengths, empty request, and runtime owner change."""
+    torch.manual_seed(108)
+    owners = torch.arange(259).repeat(2, 1) % 8
+    owners[1] &= 3
+    plan = make_plan(owners, batch=3, gqa=8, device='cuda')
+    q = torch.randn(2, 24, 128, device='cuda', dtype=torch.bfloat16)
+    k = torch.randn(2, 259, 128, device='cuda', dtype=torch.bfloat16)
+    v = torch.randn_like(k)
+    op = Attention(plan, splits=3, block_n=64)
+    for change in (False, True):
+        if change:
+            q.normal_()
+            owners[owners == 1] = 7
+            region = plan.labels.index(1)
+            plan.counts[:, region] = 24
+            plan.row_map[:, region, :24] = torch.arange(24, device='cuda', dtype=torch.int32)
+            plan.owner_rows[:, region] = 1
+        actual, lse = op(q, k, v)
+        expected, expected_lse = reference(q, k, v, owners, batch=3, gqa=8)
+        torch.testing.assert_close(actual.float(), expected.float(), atol=.006, rtol=.015)
+        torch.testing.assert_close(lse, expected_lse.float(), atol=.00005, rtol=.00005)
+        assert actual.shape == (2, 24, 128)
