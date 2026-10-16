@@ -14,6 +14,8 @@
 
 这是单文档单 seed 探索结果，不是正式质量比较。两种稀疏方法各有一个请求触及长度上限；所有失败保留。生成轨迹不同，不能把这些比值称为相同工作量的算子减速倍数。owner 的自然长尾还暴露了当前单 CTA 私有尾/桥接准备的成本，但 host prepare 时间包含等待 GPU，不能全部归为 CPU 元数据开销。
 
+第二份已预选开发文档 `docfinqa-593ec0c33f45ea02` 也已完成：dense/E0/owner 的 generate 分别 30.839/42.376/44.686 秒，anchor 加和分别 42.152/53.716/56.020 秒；输出分别 6732/11492/11128 token，全部 EOS。严格指标均为 0/3，舍入指标分别 2/3、0/3、0/3。第二文档也没有支持当前稀疏 owner 的净收益；不因第一文档结果差而删除它。[第二文档记录](../results/paged_owner_natural_newdoc_exploratory_v1/natural_execution_summary.json)
+
 模型初始化 43.945 秒、选择器 dense warmup 12.915 秒和图构建另行记录，表中没有把它们假装免费；anchor + generate 也是两个实际阶段的加和，而非包含客户端所有开销的一体请求测量。不同方法的图同时常驻，原生独立部署可释放额外候选 workspace。
 
 证据：[原始结果](../results/paged_owner_natural_exploratory_v1/summary.json)、[冻结指标汇总](../results/paged_owner_natural_exploratory_v1/natural_execution_summary.json)、[预先标识的解释合同](../configs/paged_owner_natural_exploratory_v1_interpretation.json)。先前模型 logit cosine 门槛失败保留；局部 attention 检查通过不能自动授予任务质量资格。
@@ -25,6 +27,8 @@
 B8 的自然请求会陆续退出。第一个文档的全八路共同活跃仅占 BF16/FP8 模型步的 11.1%/25.6%，其后必须处理 B7…B1；因此固定 B8 的比例不可乘整个自然任务。两种精度的生成长度不同，也不能仅用每 token 指标判断任务更快。
 
 第一个 B8 文档的原生严格 FINAL 得分本身较低：BF16 1/8、FP8 0/8，舍入敏感性都是 2/8。全部完成 EOS。这一训练组仅作真实负载探索，不能凭少数样本宣称任务质量保持，也不能在看到结果后挑选高分题替换。
+
+第二个 B8 文档原生 BF16/FP8 的 anchor + generate 分别 71.868/49.826 秒，输出 10003/7317 token，16 个答案均 EOS；严格得分 2/8 与 1/8，舍入得分 3/8 与 2/8。自然长度和质量变化都影响耗时，FP8 更短不能单独作为精度无损的证据。[四个原生自然单元的冻结指标](../results/native_opportunity_b8_natural_v1/quality_all4.json)
 
 证据：[整模型干预报告](cached_o_opportunity_first_result_20261017.md)、[自然活跃期分析](native_opportunity_b8_analysis_20261016.md)、[原生质量记录](../results/native_opportunity_b8_natural_v1/train1_quality.json)。
 
