@@ -1,55 +1,27 @@
-"""Independently inspect the first retained same-state numerical failure on CPU."""
-import argparse
-import hashlib
-import json
-import os
+"""CPU-only raw checkpoint audit of preserved late-state counterexamples."""
+import argparse,hashlib,json
 from pathlib import Path
-import sys
-
-
-def sha(path):
-    return hashlib.sha256(path.read_bytes()).hexdigest()
-
+import torch
 
 def main():
-    parser=argparse.ArgumentParser()
-    parser.add_argument('--snapshot',required=True)
-    parser.add_argument('--output',required=True)
-    args=parser.parse_args()
-    assert os.geteuid()!=0 and sys.prefix!=sys.base_prefix and os.environ.get('CUDA_VISIBLE_DEVICES')==''
-    import torch
-    torch.set_num_threads(4)
-    path,output=Path(args.snapshot),Path(args.output);assert not output.exists()
-    s=torch.load(path,map_location='cpu',weights_only=False)
-    assert s['schema']=='native_raw_pair_same_state_v1'
-    a,b=s['native_o'],s['candidate_o'];assert a.dtype==b.dtype==torch.bfloat16
-    eq=lambda x,y:torch.equal(x.contiguous().view(torch.int16),y.contiguous().view(torch.int16))
-    mismatches=[]
-    for index in torch.nonzero(a.view(torch.int16)!=b.view(torch.int16)).tolist():
-        t=tuple(index)
-        mismatches.append({'coordinate':index,'question_index':s['questions'][index[0]],
-            'native':a[t].item(),'candidate':b[t].item(),
-            'native_bits_int16':a.view(torch.int16)[t].item(),'candidate_bits_int16':b.view(torch.int16)[t].item()})
-    assert mismatches
-    comparisons={key:{'bits_equal_native':eq(s[key],a),'bits_equal_candidate':eq(s[key],b)}
-        for key in ('native_aa_o','native_pdl_off_o','witness_o','unshared_checkpoint_o','model_candidate_o','candidate_poison_o')}
-    assert eq(s['q'],s['model_candidate_q'])
-    assert all(comparisons[k]['bits_equal_native'] for k in ('native_aa_o','native_pdl_off_o','witness_o','unshared_checkpoint_o'))
-    assert all(comparisons[k]['bits_equal_candidate'] for k in ('model_candidate_o','candidate_poison_o'))
-    assert not torch.cuda.is_initialized()
-    report={'status':'same_state_bitwise_failure_independently_confirmed_CPU',
-        'snapshot':str(path),'snapshot_sha256':sha(path),'snapshot_bytes':path.stat().st_size,
-        'audit_source_sha256':sha(Path(__file__)),
-        **{k:s[k] for k in ('rank','layer','graph_index','questions','positions','prefix_tokens','S','SM','original_cache_shape','original_cache_stride','original_table_columns')},
-        'Q_bits_equal':True,'differences':mismatches,'comparisons':comparisons,
-        'max_abs_difference':float((a.float()-b.float()).abs().max()),
-        'CUDA_initialized':torch.cuda.is_initialized(),
-        'limits':['Direct same-Q attention output failure predates the later visible generated-token divergence; shared question identity is consistent with propagation but not a complete counterfactual causal proof.',
-            'Native repeatability, PDL off, and unshared checkpoint match in this snapshot. This excludes those observed controls as explanations for these two output differences, not every possible runtime issue.',
-            'The snapshot does not independently establish all previous generated tokens or all later layers; inspect diagnostic trajectory and full-model receipts separately.',
-            'A very small absolute difference still falsifies the declared bitwise contract; no tolerance is substituted or failed heldout document discarded.']}
-    output.parent.mkdir(parents=True,exist_ok=True);output.write_text(json.dumps(report,indent=2)+'\n')
-    print(json.dumps({'status':report['status'],'differences':mismatches,'CUDA_initialized':False},indent=2))
-
-
+ p=argparse.ArgumentParser();p.add_argument('--input',default='results/raw_pair_eval2_late_same_state_v1');p.add_argument('--output',required=True);a=p.parse_args()
+ torch.set_num_threads(2);out=Path(a.output);assert not out.exists();out.parent.mkdir(parents=True,exist_ok=True)
+ r={'scope':__doc__,'input':a.input,'snapshots':[]}
+ def comp(a,b):
+  m=a.view(torch.int16)!=b.view(torch.int16);inds=m.nonzero()
+  return {'bits_equal':not bool(m.any()),'mismatch_count':int(m.sum()),'max_abs':float((a.float()-b.float()).abs().max()),'coordinates':inds[:10].tolist()}
+ for f in sorted(Path(a.input).glob('rank*/same_state_first_failure*.pt')):
+  x=torch.load(f,map_location='cpu',weights_only=True);b=len(x['q']);S=x['S'];ps=x['paired_prefix_raw_state'].reshape((b+1)//2,2,S,4,32,35);ns=x['native_prefix_raw_state'].reshape(b,2,S,4,32,35)
+  rec={'path':str(f),'sha256':hashlib.sha256(f.read_bytes()).hexdigest(),'rank':x['rank'],'layer':x['layer'],'graph_index':x['graph_index'],'original_checks':x['checks'],'same_Q':comp(x['q'],x['model_candidate_q']),'output_checks':{},'raw_prefix_differences':[]}
+  for key in ['native_aa_o','native_pdl_off_o','witness_o','candidate_o','candidate_poison_o','model_candidate_o','unshared_checkpoint_o']:rec['output_checks'][key]=comp(x['native_o'],x[key])
+  for row in range(b):
+   for field,lo,hi in [('U',0,32),('m',32,33),('z',33,34),('hint',34,35)]:
+    if field=='U':
+     slots=[i for i in range(32) if i%4<2];src=ps[row//2,...,[i+2*(row%2) for i in slots]];dst=ns[row,...,slots]
+    else:src=ps[row//2,...,8*(row%2):8*(row%2)+8,lo:hi];dst=ns[row,...,:8,lo:hi]
+    mask=src.view(torch.int32)!=dst.view(torch.int32)
+    if mask.any():rec['raw_prefix_differences'].append({'row':row,'question':x['questions'][row],'field':field,'count':int(mask.sum()),'max_abs':float((src-dst).abs().max()),'coordinates':mask.nonzero()[:10].tolist()})
+  r['snapshots'].append(rec)
+ assert len(r['snapshots'])>0 and not torch.cuda.is_initialized();r['cuda_initialized']=False;r['status']='audited'
+ out.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps({'snapshots':len(r['snapshots']),'output':str(out)}))
 if __name__=='__main__':main()
