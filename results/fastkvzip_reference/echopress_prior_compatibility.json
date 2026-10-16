@@ -1,0 +1,40 @@
+{
+  "paper": "EchoPress: Query-Agnostic KV Cache Pruning via Virtual Context Reconstruction",
+  "arxiv": "https://arxiv.org/abs/2610.00412",
+  "first_submission": "2026-09-30",
+  "source": {
+    "repo": "ljwljwljwljw/kvpress",
+    "revision": "39748e9c8301944128eb2e681bfb074e9a2de860",
+    "paths": [
+      "kvpress/presses/echo_press.py",
+      "kvpress/presses/echo_press_kernels.py",
+      "tests/presses/test_echo_press.py"
+    ]
+  },
+  "files": [
+    {
+      "path": "cache/fastkvzip/echopress/kvpress/presses/echo_press.py",
+      "sha256": "c1165408abec363b17201d56c4105873555b384b674819c7901df5d5c5c06b0b"
+    },
+    {
+      "path": "cache/fastkvzip/echopress/kvpress/presses/echo_press_kernels.py",
+      "sha256": "fe57293da95d10e552ff34fb5384c80b975fe856583192330b47b09f0c3f0830"
+    },
+    {
+      "path": "cache/fastkvzip/echopress/tests/presses/test_echo_press.py",
+      "sha256": "1fbceb4b7d116a0e09226ba1a355d6a09705cdf277b00668bb474c9b3cf6d839"
+    }
+  ],
+  "novelty_audit": "Training-free approximation of KVzip reconstruction scores from ordinary-prefill Q/K using RoPE composition, one exact first-chunk reconstruction and per-request per-layer per-KV-head score calibration is existing prior by Sep30 2026. Do not claim this mechanism as a new idea.",
+  "published_models": [
+    "Qwen3-8B",
+    "Llama-3.1-8B-Instruct"
+  ],
+  "code_constraints": [
+    "EchoPress docstring and _prefill_hook require B=1 and a single full-context prefill forward, incompatible with current dense1024 chunked-prefill reference without a semantic port.",
+    "Q normalization in _prefill_hook is guarded by isinstance(module,Qwen3Attention). The official30B is Qwen3MoeAttention, so blindly using this code would omit q_norm on that class.",
+    "The fork inherits KVzipPress compression and Cache extraction adapters, and wraps model.model.forward; current Transformers5 DynamicCache and TP2 vLLM integration are not qualified.",
+    "RoPE offset composition, reconstruction prompt accounting, first-chunk calibration and global allocation need separate numerical checks. A4 suffix-only query selection cannot substitute for its full-document reconstruction scores."
+  ],
+  "compatibility_decision": "Plausible training-free follow-up for unsupported-gate main model, but not a drop-in validated baseline and no runtime/quality claim. Bounded source audit only; no EchoPress GPU experiment in current allocation."
+}

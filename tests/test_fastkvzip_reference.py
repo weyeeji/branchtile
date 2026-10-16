@@ -53,3 +53,23 @@ def test_shared_mask_preserves_future_causality_and_private_tokens():
     assert result[...,6:8].all() and result[...,0,8].all()
     assert not result[0,0,0,1] and result[0,2,0,1]
     assert result[0,0,0,5] and not result[0,2,0,5]
+
+
+def test_masked_attention_matches_unequal_head_physical_support_fp64():
+    torch.manual_seed(44)
+    mask=SharedMaskReference.__new__(SharedMaskReference)
+    mask.active=True;mask.full=False;mask.shared_length=6;mask.calls=0;mask.seconds=0.
+    keep=torch.ones((1,4,1,20),dtype=torch.bool)
+    keep[:,0:2,:,1:5]=False;keep[:,2:4,:,3:5]=False;mask.keep=[keep]
+    q=torch.randn(1,4,2,8,dtype=torch.float64)
+    k=torch.randn(1,2,10,8,dtype=torch.float64);v=torch.randn_like(k)
+    kwargs={'hidden_states':torch.empty(1,2,8),'past_key_values':SimpleNamespace(get_seq_length=lambda i:8),'attention_mask':None}
+    _,modified=mask.hook(SimpleNamespace(layer_idx=0),(),kwargs)
+    actual=torch.nn.functional.scaled_dot_product_attention(q,k.repeat_interleave(2,1),v.repeat_interleave(2,1),
+        attn_mask=modified['attention_mask'],is_causal=False)
+    for head in range(4):
+        for step in range(2):
+            positions=modified['attention_mask'][0,head,step].nonzero().flatten()
+            logits=q[0,head,step]@k[0,head//2,positions].T/(8**.5)
+            expected=torch.softmax(logits,-1)@v[0,head//2,positions]
+            torch.testing.assert_close(actual[0,head,step],expected,atol=1e-15,rtol=1e-14)

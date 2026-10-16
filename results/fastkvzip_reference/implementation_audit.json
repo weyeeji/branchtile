@@ -47,6 +47,10 @@
     {
       "path": "cache/fastkvzip/kvpress/kvpress/presses/fastkvzip_press.py",
       "sha256": "a2ea3552a739f5cf1927aa962dfd239e42dd6d52d04f06bd4c2847b1ff41d675"
+    },
+    {
+      "path": "cache/fastkvzip/kvpress/kvpress/attention_patch.py",
+      "sha256": "ef4f809fc64df458d630b1dc25325caa0826ba92fac662bfbbf03ec1b4926472"
     }
   ],
   "native_nvidia": {
@@ -66,10 +70,11 @@
   "implementation": "Dense original KV plus exact per-query-head attention masks; no physical KV gather/compaction. Preserves global allocation instead of equalizing head budgets.",
   "qualification": {
     "gpu_result": "results/fastkvzip_reference/qualification_g3.json",
-    "cpu_tests": "tests/test_fastkvzip_reference.py;3 passed",
+    "cpu_tests": "tests/test_fastkvzip_reference.py; native tie/allocation/protection checks, causal/private support and FP64 masked attention vs physical per-head gather",
     "upstream_class_loading": "AST extracts unchanged original gate/press method bodies, avoids old-API surrounding imports and network side effects",
     "gate_loading": "torch.load(weights_only=True) with minimal NVIDIA numpy safe_globals; file SHA256 verified"
   },
   "comparison_scope": "Same HF stack and sampling temperature0.6/top_p0.95/no top_k/seed+question_index as A4. A2 source budget includes system prefix; A4 is document-only. Neither instrumented reference establishes vLLM application acceleration.",
-  "model_scope": "Exact official Qwen3-4B-Instruct-2507 gate; no released compatible gate established for official30B FP8 TP2 and no transfer of4B gate."
+  "model_scope": "Exact official Qwen3-4B-Instruct-2507 gate; no released compatible gate established for official30B FP8 TP2 and no transfer of4B gate.",
+  "implementation_difference_from_nvidia_fake_keys": "NVIDIA attention_patch.py searches query-dependent fake keys with exp underflow to emulate excluded indices. This reference uses an explicit exact support mask with the same native selected set. It does not reproduce that fake-key algorithm or its runtime."
 }
