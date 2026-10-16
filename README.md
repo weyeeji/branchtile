@@ -39,6 +39,20 @@ Different natural output lengths are retained. No formal paper-success claim.
 
 Recent evidence:
 
+- **2026-10-17, GPU metadata control:** one-plan device metadata passes native-layout,
+  long-tail, all-layer and exact page-index qualifications. The first complete
+  four-condition run preserves every token of the corresponding old implementation.
+  Fixed-128 generation is 1.20–1.28× faster than native; natural cold-task ratios
+  including phase validation are 1.213/1.039/0.983/0.572, so the second document
+  remains negative. The other three predeclared seeds are running on all eight
+  GPUs. This is an execution control with existing precedents, not a new paper
+  mechanism. See [audited boundaries](docs/device_cascade_engine_control_20261017.md).
+- **2026-10-17, grouped verification screening:** actual consecutive AR queries
+  pass causal full-history checks. Randomized interleaving reproduces about 40%
+  attention-cost variation for equal total query counts across two prefix groups.
+  A simple group/tile cost model plausibly explains it; no advantage over an
+  informed scheduler, actual draft acceptance, or verifier end-to-end gain has
+  been established. [Evidence and prior-art overlap](docs/ragged_shared_first_G0_20261017.md).
 - **2026-10-17, complete natural-task check:** the existing full-history
   shared-prefix cascade does not yet deliver net task gains. Across four fixed
   sampling seeds per document/precision condition, native/cascade summed
