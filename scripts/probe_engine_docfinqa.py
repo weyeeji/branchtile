@@ -71,6 +71,12 @@ def worker_state(worker):
             "max_model_len": cfg.model_config.max_model_len}
 
 
+class DeploymentWorkerExtension:
+    """Named RPC avoids enabling arbitrary-function pickle serialization."""
+    def deployment_state(self):
+        return worker_state(self)
+
+
 class Monitor:
     def __init__(self, path):
         self.path = path
@@ -166,6 +172,7 @@ def main():
                       kv_cache_dtype="auto", max_model_len=args.max_model_len,
                       max_num_seqs=4, max_num_batched_tokens=4096,
                       enable_prefix_caching=True, enforce_eager=True,
+                      worker_extension_cls="scripts.probe_engine_docfinqa.DeploymentWorkerExtension",
                       gpu_memory_utilization=args.gpu_memory_utilization,
                       disable_custom_all_reduce=True, disable_log_stats=False, seed=20261016)
         if args.moe_backend:
@@ -174,7 +181,7 @@ def main():
         started = time.monotonic()
         llm = LLM(**kwargs)
         record["initialization_seconds"] = time.monotonic()-started
-        record["worker_state_after_initialization"] = llm.collective_rpc(worker_state)
+        record["worker_state_after_initialization"] = llm.collective_rpc("deployment_state")
         save()
         for stage, indices in [("cold_singleton", [0]), ("apc_warm_natural_group", list(range(len(inputs))))]:
             started = time.monotonic()
@@ -195,7 +202,7 @@ def main():
                                           "output_text": answer.text, "output_token_ids": list(answer.token_ids),
                                           "output_sha256": hashlib.sha256(answer.text.encode()).hexdigest(),
                                           "num_cached_tokens": getattr(out, "num_cached_tokens", None), "metrics": metrics})
-            entry["worker_state_after_generation"] = llm.collective_rpc(worker_state)
+            entry["worker_state_after_generation"] = llm.collective_rpc("deployment_state")
             save()
         record["status"] = "completed"
     except BaseException:
