@@ -70,6 +70,11 @@ def make_joint(tokenizer, group):
     instruction = ("Answer all questions using the meeting transcript. Give concise factual summaries "
                    "that address each question. Return the final answers as one JSON object with "
                    "exactly the question IDs as keys and answer strings as values. Include every question.")
+    if group["dataset"] == "DocFinQA":
+        instruction = ("Answer all questions using the annual report. Reason carefully. Return the final answers "
+                       "as one JSON object with exactly the question IDs as keys and answer strings as values. "
+                       "Each answer string must end with FINAL: followed by the numerical answer and its unit. "
+                       "Include every question.")
     questions = "\n".join(f'q{i}: {q["question"]}' for i, q in enumerate(group["questions"]))
     content = "Document:\n" + text + "\n\nQuestions:\n" + questions
     encoded = tokenizer.apply_chat_template(
@@ -82,6 +87,8 @@ def make_retrieval_inputs(tokenizer, group, variant):
     assert len(group["questions"]) == len(variant["questions"])
     ids = []
     instruction = "Answer the question using the meeting transcript. Give a concise factual summary that addresses the question."
+    if group["dataset"] == "DocFinQA":
+        instruction = "Answer the question using the annual report. Reason carefully. End with FINAL: followed by the numerical answer and its unit."
     for question, retrieved in zip(group["questions"], variant["questions"]):
         assert question["question_sha256"] == retrieved["question_id"]
         assert digest(retrieved["context"].encode()) == retrieved["context_sha256"]
@@ -104,6 +111,8 @@ def main():
     parser.add_argument("--top-p", type=float, default=.95)
     parser.add_argument("--max-tokens-per-question", type=int, default=8192)
     parser.add_argument("--max-model-len", type=int, default=65536)
+    parser.add_argument("--tp", type=int, default=1)
+    parser.add_argument("--gpu-memory-utilization", type=float, default=.80)
     parser.add_argument("--arms", default="dense,joint")
     parser.add_argument("--warm-repeats", type=int, default=0)
     parser.add_argument("--cold-repeats", type=int, default=1)
@@ -138,7 +147,7 @@ def main():
             retrieval_groups[group["group_index"]] = group
     if "rag" in arms:
         assert all(i in retrieval_groups for i in group_indices)
-    assert all(manifest["groups"][i]["dataset"] == "QMSum" for i in group_indices)
+    assert all(manifest["groups"][i]["dataset"] in {"QMSum", "DocFinQA"} for i in group_indices)
     destination = ROOT / args.output
     nv.nvmlInit()
     handles = [nv.nvmlDeviceGetHandleByIndex(int(i)) for i in os.environ["CUDA_VISIBLE_DEVICES"].split(",")]
@@ -158,15 +167,15 @@ def main():
     start = time.monotonic()
     tokenizer = AutoTokenizer.from_pretrained(args.model, local_files_only=True)
     report = {"schema": 1, "status": "initializing", "created_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
-              "scope": "QMSum frozen train development; natural generation application baseline screening; not formal quality/noninferiority or candidate speedup",
+              "scope": "Frozen development manifest; natural generation application baseline screening; not formal quality/noninferiority or candidate speedup",
               "pid": os.getpid(), "uid": os.geteuid(), "python": sys.executable,
               "model": args.model, "torch": torch.__version__, "vllm": vllm.__version__,
               "manifest": args.manifest, "manifest_sha256": digest(manifest_path.read_bytes()),
               "script_sha256": digest(Path(__file__).read_bytes()), "config": vars(args),
               "sampling": {"temperature": args.temperature, "top_p": args.top_p, "top_k": 20, "min_p": 0,
                            "min_tokens": 0, "ignore_eos": False, "seed_rule": "seed + group_index*100 + question_index; joint uses group seed"},
-              "engine": {"tp": 1, "dtype": "bfloat16", "kv_dtype": "auto (BF16)", "apc": True,
-                         "enforce_eager": args.enforce_eager, "max_num_seqs": 4, "gpu_memory_utilization": .80,
+              "engine": {"tp": args.tp, "dtype": "bfloat16", "kv_dtype": "auto (BF16)", "apc": True,
+                         "enforce_eager": args.enforce_eager, "max_num_seqs": 4, "gpu_memory_utilization": args.gpu_memory_utilization,
                          "max_num_batched_tokens": 4096, "max_model_len": args.max_model_len},
               "limitations": ["Single seed development screening; no quality conclusions before scoring and blind factual review.",
                               "Cold arms reset prefix cache. Warm repeats are explicitly labeled, never used as A/A.",
@@ -176,11 +185,15 @@ def main():
                               "Board energy is gross and uncorrected; concurrent neighboring jobs prevent a formal energy comparison."],
               "board_before_initialization": board_state(), "runs": []}
     report["retrieval_plans"] = retrieval_identities
+    model_identity = ROOT / "results" / (Path(args.model).name + "_download.json")
+    if model_identity.exists():
+        report["model_identity"] = json.loads(model_identity.read_text())
+        assert report["model_identity"]["complete"]
     write_json(destination, report)
-    llm = LLM(model=args.model, tensor_parallel_size=1, dtype="bfloat16",
+    llm = LLM(model=args.model, tensor_parallel_size=args.tp, dtype="bfloat16",
               max_model_len=args.max_model_len, max_num_seqs=4,
               max_num_batched_tokens=4096, enable_prefix_caching=True,
-              enforce_eager=args.enforce_eager, gpu_memory_utilization=.80,
+              enforce_eager=args.enforce_eager, gpu_memory_utilization=args.gpu_memory_utilization,
               disable_custom_all_reduce=True, disable_log_stats=False, seed=args.seed)
     report["initialization_seconds"] = time.monotonic() - start
     warm_start = time.monotonic()
