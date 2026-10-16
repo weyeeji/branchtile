@@ -7,6 +7,7 @@ identified explicitly. This is not an application or novelty measurement.
 from __future__ import annotations
 
 import argparse
+import csv
 import gc
 import importlib.metadata
 import json
@@ -39,6 +40,14 @@ def load_case(path, layer, question, device):
     # Decode step1 adds its current generated token. Trim exactly at the last
     # observation token to recover suffix-prefill selector full history.
     length = int(sel["observation_positions"][-1]) + 1
+    prefix_length, shared_document_length = source["prefix_k"].shape[2], source["document_k"].shape[2]
+    private_length = dec["private_suffix_k"].shape[2]
+    assert length <= prefix_length+shared_document_length+private_length, "Capture omits required full-history K"
+    assert torch.equal(sel["observation_positions"],torch.arange(length-q.shape[2],length)), "Native causal LSE requires the final consecutive observation positions"
+    ds,de = meta["document_token_range"]
+    assert prefix_length == ds
+    private_document_tail = de-prefix_length-shared_document_length
+    assert 0 <= private_document_tail <= private_length, "Document tail missing from private source"
     k = torch.cat([source["prefix_k"], source["document_k"], dec["private_suffix_k"]], dim=2)[:, :, :length].contiguous().to(device)
     v = torch.cat([source["prefix_v"], source["document_v"], dec["private_suffix_v"]], dim=2)[:, :, :length].contiguous().to(device)
     torch.cuda.synchronize()
@@ -47,6 +56,11 @@ def load_case(path, layer, question, device):
             "document_sha256": meta["document_sha256"],
             "document_range": meta["document_token_range"],
             "q_shape": list(q.shape), "k_shape": list(k.shape),
+            "tensor_parallel_size":meta.get("tensor_parallel_size"),
+            "actual_tp_rank":meta.get("actual_tp_rank"),
+            "actual_shared_document_range":meta.get("actual_shared_document_token_range",[ds,de]),
+            "private_document_tail_tokens_included":private_document_tail,
+            "full_history_tokens":length,
             "load_cpu_concat_transfer_ms": (time.perf_counter()-start)*1000,
             "load_cost_is_capture_instrumentation_not_runtime_selector_cost": True}
     return q, k, v, positions, sel, info
@@ -88,6 +102,64 @@ def mask_error(a, b):
             "jaccard_per_head": ((a & b).sum(-1)/(a | b).sum(-1).clamp_min(1)).tolist()}
 
 
+def summarize(files, output):
+    rows = []
+    names = ["original_two_pass_argsort", "two_pass_native_topk",
+             "full_fp32_lse_fused_score_native_topk",
+             "known_fp32_lse_fused_score_native_topk"]
+    for filename in files:
+        data = json.loads(Path(filename).read_text())
+        assert data["status"] == "completed"
+        for c in data["cases"]:
+            q = c["qualification"]
+            rows.append({"source":filename,"capture":c["input"]["capture"],
+                "layer":c["input"]["layer"],"question":c["input"]["question"],
+                "document_tokens":c["input"]["document_range"][1]-c["input"]["document_range"][0],
+                "private_document_tail_tokens_included":c["input"]["private_document_tail_tokens_included"],
+                "native_topk_mask_equal":q["selected_topk_backend_same_scores"]["equal"],
+                "fp32_fused_mask_equal":q["fused_vs_original_mask"]["equal"],
+                "original_equals_frozen_mask":q["original_vs_saved_mask"]["equal"],
+                "native_lse_mask_symmetric_difference":sum(q["native_lse_vs_original_mask"]["symmetric_difference_per_head"]),
+                "native_lse_max_abs_error":q["native_lse_vs_fp64"]["max_abs"],
+                "fused_prepare_ms":c["prepare_ms"][str(c["fused_block_n"])] if str(c["fused_block_n"]) in c["prepare_ms"] else c["prepare_ms"][c["fused_block_n"]],
+                **{name+"_us":c["timing"][name]["median_us"] for name in names}})
+    summary = {"status":"completed_exploratory_selector_controls","rows":rows,
+        "scope":"Single-question/layer snapshots. Warm graph medians, no paired/A-A inference, no application speedup or novelty claim.",
+        "known_lse_arms":"Exclude denominator production; full_fp32_lse arm charges the entire causal history denominator.",
+        "strict_native_flags":"FlashInfer0.7.2 deterministic=True,tie_break=1,dsa_graph_safe=True is unsupported on SM120. Original three failures retained.",
+        "tested_native_flags":{"deterministic":False,"tie_break":1,"dsa_graph_safe":True,
+            "reason":"CUB output index order is irrelevant to bool-mask scatter; lower-index boundary set matches stable argsort on repeated tie fixtures and real scores."},
+        "prior_art_not_novelty":{"lse_reuse":"https://aclanthology.org/2025.findings-acl.952/",
+                                 "native_topk":"https://docs.flashinfer.ai/api/topk.html"},
+        "qualification":"10 semantic/fused-FP64/graph cases plus 3 CUB tie/repeat/graph cases passed; 1 separate test proves strict-flags unsupported.",
+        "native_lse_warning":"FA2 BF16 LSE changes one selected token in each of two boundary snapshots. Preserve these differences; do not call native-LSE masks universally identical."}
+    output = Path(output)
+    output.parent.mkdir(parents=True,exist_ok=True)
+    output.write_text(json.dumps(summary,indent=2)+"\n")
+    with output.with_suffix(".csv").open("w") as f:
+        writer = csv.DictWriter(f,fieldnames=list(rows[0]))
+        writer.writeheader();writer.writerows(rows)
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    import numpy as np
+    x = np.arange(len(rows)); width=.2
+    fig, ax = plt.subplots(figsize=(11,4.6))
+    labels = ["Two-pass + stable sort", "Two-pass + native top-k",
+              "Full FP32 LSE + fused + native top-k", "Existing FP32 LSE + fused + native top-k"]
+    for i,(name,label) in enumerate(zip(names,labels)):
+        ax.bar(x+(i-1.5)*width,[r[name+"_us"] for r in rows],width,label=label)
+    ax.set_xticks(x,[f"{'Main FP8 TP2' if 'main30b' in r['capture'] else 'Old 30B' if 'old30b' in r['capture'] else 'Official 4B'}\nL{r['layer']}, {r['document_tokens']:,} tokens" for r in rows])
+    ax.set_yscale("log");ax.set_ylabel("Complete selector GPU latency (microseconds, warm graph)")
+    ax.set_title("Known-prior selector controls; denominator availability is explicit")
+    ax.grid(axis="y",alpha=.2);ax.set_axisbelow(True)
+    ax.legend(fontsize=8,loc="upper left")
+    fig.tight_layout()
+    fig.savefig(output.with_suffix(".png"),dpi=200)
+    fig.savefig(output.with_suffix(".pdf"))
+    plt.close(fig)
+
+
 def case(args, specification):
     case_start = time.perf_counter()
     backend = args.topk_backend
@@ -122,7 +194,9 @@ def case(args, specification):
     result["topk_backend"] = backend
     result["first_selected_topk_wall_ms_including_any_jit"] = (time.perf_counter()-start)*1000
     result["qualification"]["selected_topk_backend_same_scores"] = mask_error(original_mask, native_topk_mask)
-    result["qualification"]["native_topk_verified"] = backend == "flashinfer"
+    result["qualification"]["native_topk_verified"] = backend.startswith("flashinfer")
+    result["topk_contract"] = {"sorted":False,"deterministic_index_order":backend=="flashinfer",
+        "tie_break":1,"dsa_graph_safe":True,"consumer":"bool support mask, independent of index output order"}
     assert result["qualification"]["selected_topk_backend_same_scores"]["equal"], "Stable-top-k semantics changed"
     preparations, scorers, tunes, first_runs = {}, {}, {}, {}
     for bn in (32, 64, 128):
@@ -147,6 +221,7 @@ def case(args, specification):
     scorer = scorers[bn]
     result["fused_tuning"] = tunes
     result["fused_block_n"] = bn
+    result["fused_layout"] = "BN physical columns with overlapping pool halos; emits BN-6 scores per CTA"
     result["prepare_ms"] = preparations
     result["first_fused_call_wall_ms_including_any_jit"] = first_runs
     fused_scores = scorer.run(lse).clone()
@@ -206,6 +281,7 @@ def case(args, specification):
         "preparation_and_jit_excluded_from_graph_timing_reported_separately":True,
         "pool7_includes_halos_and_zero_padding":True,"protect_after_pool":True,
         "topk_lower_position_boundary_tie":True,"original_capture_selector_is_not_a_serving_baseline":True,
+        "debug_assertions_and_host_device_barriers_excluded_from_all_graph_arms":True,
         "application_speedup_or_novelty_claim":False}
     return result
 
@@ -214,13 +290,17 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("--case",action="append",help="capture/path:layer:question")
     p.add_argument("--prepare-native-only",action="store_true",help="CPU-only ahead-of-time build with explicit FLASHINFER_CUDA_ARCH_LIST")
+    p.add_argument("--summarize",nargs="+",help="Completed result JSON files; writes JSON/CSV/PNG/PDF without GPU work")
     p.add_argument("--budget",type=int,default=4096)
     p.add_argument("--blocks",type=int,default=15)
-    p.add_argument("--topk-backend",choices=["argsort","flashinfer"],default="flashinfer")
+    p.add_argument("--topk-backend",choices=["argsort","flashinfer","flashinfer_set"],default="flashinfer")
     p.add_argument("--output",required=True)
     args = p.parse_args()
     assert os.geteuid() != 0 and sys.prefix != sys.base_prefix
     torch.set_num_threads(4)
+    if args.summarize:
+        summarize(args.summarize,args.output)
+        return
     if args.prepare_native_only:
         assert not torch.cuda.is_available(), "Preparation must not reserve a GPU"
         assert os.environ.get("FLASHINFER_CUDA_ARCH_LIST"), "Explicit target architecture required"

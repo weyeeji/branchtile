@@ -1,0 +1,157 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+__________________ test_native_topk_ties_and_graph[2-257-128] __________________
+
+h = 2, n = 257, budget = 128
+
+    @pytest.mark.skipif(not torch.cuda.is_available(), reason="CUDA required")
+    @pytest.mark.parametrize("h,n,budget", [(2,257,128),(8,6126,4096),(4,20896,4096)])
+    def test_native_topk_ties_and_graph(h,n,budget):
+        torch.manual_seed(20261016)
+        scores = torch.randn(h,n,device="cuda")
+        # Many ties, including at selection boundaries, exercise lower-position policy.
+        scores = (scores*8).round()
+        expected = select_support(scores,budget,"argsort")
+>       actual = select_support(scores,budget,"flashinfer")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_selector_baseline.py:65: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/selector_baseline.py:87: in select_support
+    _, indices = flashinfer.top_k(ranked_scores, count, sorted=False,
+.venv-latest/lib/python3.12/site-packages/flashinfer/topk.py:995: in top_k
+    use_cub = _resolve_graph_safe_backend("top_k", k, algo, cub_supported, device)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+api_name = 'top_k', k = 92, algo = None, cub_supported = False
+device = device(type='cuda', index=0)
+
+    def _resolve_graph_safe_backend(api_name, k, algo, cub_supported, device):
+        """Return whether CUB is required when the preferred path is native."""
+        # Capability takes precedence over performance: FilteredTopK needs
+        # 128 KiB of shared memory, which does not fit on SM120/SM121.
+        with torch.cuda.device(device):
+            # Keep the k limit in sync with FILTERED_TOPK_MAX_K in topk.cuh.
+            native_supported = k <= 2048 and can_implement_filtered_topk()
+        if native_supported:
+            return False
+        if not cub_supported:
+>           raise NotImplementedError(
+                f"{api_name} with dsa_graph_safe=True requires "
+                "native FilteredTopK (k <= 2048 and 128 KiB shared memory) "
+                "or a supported CUB call. Native FilteredTopK cannot serve "
+                f"this call (k={k}, device={device}), and CUB is unavailable "
+                "for the requested dtype, shape, sorted output, deterministic mode, or "
+                f"FLASHINFER_TOPK_ALGO override ({algo!r})."
+            )
+E           NotImplementedError: top_k with dsa_graph_safe=True requires native FilteredTopK (k <= 2048 and 128 KiB shared memory) or a supported CUB call. Native FilteredTopK cannot serve this call (k=92, device=cuda:0), and CUB is unavailable for the requested dtype, shape, sorted output, deterministic mode, or FLASHINFER_TOPK_ALGO override (None).
+
+.venv-latest/lib/python3.12/site-packages/flashinfer/topk.py:682: NotImplementedError
+_________________ test_native_topk_ties_and_graph[8-6126-4096] _________________
+
+h = 8, n = 6126, budget = 4096
+
+    @pytest.mark.skipif(not torch.cuda.is_available(), reason="CUDA required")
+    @pytest.mark.parametrize("h,n,budget", [(2,257,128),(8,6126,4096),(4,20896,4096)])
+    def test_native_topk_ties_and_graph(h,n,budget):
+        torch.manual_seed(20261016)
+        scores = torch.randn(h,n,device="cuda")
+        # Many ties, including at selection boundaries, exercise lower-position policy.
+        scores = (scores*8).round()
+        expected = select_support(scores,budget,"argsort")
+>       actual = select_support(scores,budget,"flashinfer")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_selector_baseline.py:65: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/selector_baseline.py:87: in select_support
+    _, indices = flashinfer.top_k(ranked_scores, count, sorted=False,
+.venv-latest/lib/python3.12/site-packages/flashinfer/topk.py:995: in top_k
+    use_cub = _resolve_graph_safe_backend("top_k", k, algo, cub_supported, device)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+api_name = 'top_k', k = 4060, algo = None, cub_supported = False
+device = device(type='cuda', index=0)
+
+    def _resolve_graph_safe_backend(api_name, k, algo, cub_supported, device):
+        """Return whether CUB is required when the preferred path is native."""
+        # Capability takes precedence over performance: FilteredTopK needs
+        # 128 KiB of shared memory, which does not fit on SM120/SM121.
+        with torch.cuda.device(device):
+            # Keep the k limit in sync with FILTERED_TOPK_MAX_K in topk.cuh.
+            native_supported = k <= 2048 and can_implement_filtered_topk()
+        if native_supported:
+            return False
+        if not cub_supported:
+>           raise NotImplementedError(
+                f"{api_name} with dsa_graph_safe=True requires "
+                "native FilteredTopK (k <= 2048 and 128 KiB shared memory) "
+                "or a supported CUB call. Native FilteredTopK cannot serve "
+                f"this call (k={k}, device={device}), and CUB is unavailable "
+                "for the requested dtype, shape, sorted output, deterministic mode, or "
+                f"FLASHINFER_TOPK_ALGO override ({algo!r})."
+            )
+E           NotImplementedError: top_k with dsa_graph_safe=True requires native FilteredTopK (k <= 2048 and 128 KiB shared memory) or a supported CUB call. Native FilteredTopK cannot serve this call (k=4060, device=cuda:0), and CUB is unavailable for the requested dtype, shape, sorted output, deterministic mode, or FLASHINFER_TOPK_ALGO override (None).
+
+.venv-latest/lib/python3.12/site-packages/flashinfer/topk.py:682: NotImplementedError
+________________ test_native_topk_ties_and_graph[4-20896-4096] _________________
+
+h = 4, n = 20896, budget = 4096
+
+    @pytest.mark.skipif(not torch.cuda.is_available(), reason="CUDA required")
+    @pytest.mark.parametrize("h,n,budget", [(2,257,128),(8,6126,4096),(4,20896,4096)])
+    def test_native_topk_ties_and_graph(h,n,budget):
+        torch.manual_seed(20261016)
+        scores = torch.randn(h,n,device="cuda")
+        # Many ties, including at selection boundaries, exercise lower-position policy.
+        scores = (scores*8).round()
+        expected = select_support(scores,budget,"argsort")
+>       actual = select_support(scores,budget,"flashinfer")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_selector_baseline.py:65: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/selector_baseline.py:87: in select_support
+    _, indices = flashinfer.top_k(ranked_scores, count, sorted=False,
+.venv-latest/lib/python3.12/site-packages/flashinfer/topk.py:995: in top_k
+    use_cub = _resolve_graph_safe_backend("top_k", k, algo, cub_supported, device)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+api_name = 'top_k', k = 4060, algo = None, cub_supported = False
+device = device(type='cuda', index=0)
+
+    def _resolve_graph_safe_backend(api_name, k, algo, cub_supported, device):
+        """Return whether CUB is required when the preferred path is native."""
+        # Capability takes precedence over performance: FilteredTopK needs
+        # 128 KiB of shared memory, which does not fit on SM120/SM121.
+        with torch.cuda.device(device):
+            # Keep the k limit in sync with FILTERED_TOPK_MAX_K in topk.cuh.
+            native_supported = k <= 2048 and can_implement_filtered_topk()
+        if native_supported:
+            return False
+        if not cub_supported:
+>           raise NotImplementedError(
+                f"{api_name} with dsa_graph_safe=True requires "
+                "native FilteredTopK (k <= 2048 and 128 KiB shared memory) "
+                "or a supported CUB call. Native FilteredTopK cannot serve "
+                f"this call (k={k}, device={device}), and CUB is unavailable "
+                "for the requested dtype, shape, sorted output, deterministic mode, or "
+                f"FLASHINFER_TOPK_ALGO override ({algo!r})."
+            )
+E           NotImplementedError: top_k with dsa_graph_safe=True requires native FilteredTopK (k <= 2048 and 128 KiB shared memory) or a supported CUB call. Native FilteredTopK cannot serve this call (k=4060, device=cuda:0), and CUB is unavailable for the requested dtype, shape, sorted output, deterministic mode, or FLASHINFER_TOPK_ALGO override (None).
+
+.venv-latest/lib/python3.12/site-packages/flashinfer/topk.py:682: NotImplementedError
+=============================== warnings summary ===============================
+tests/test_selector_baseline.py::test_native_topk_ties_and_graph[2-257-128]
+  /home/qcjz/iscas/.venv-latest/lib/python3.12/site-packages/flashinfer/cute_dsl/availability.py:136: DeprecationWarning: Arch from arch.py is deprecated. Use Arch from enums.py instead.
+    from cutlass.base_dsl.arch import Arch
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_selector_baseline.py::test_native_topk_ties_and_graph[2-257-128]
+FAILED tests/test_selector_baseline.py::test_native_topk_ties_and_graph[8-6126-4096]
+FAILED tests/test_selector_baseline.py::test_native_topk_ties_and_graph[4-20896-4096]
+3 failed, 10 deselected, 1 warning in 3.44s

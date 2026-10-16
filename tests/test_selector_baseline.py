@@ -56,18 +56,28 @@ def test_fused_score_fp64(g, w, n, start, end, bn):
 
 @pytest.mark.skipif(not torch.cuda.is_available(), reason="CUDA required")
 @pytest.mark.parametrize("h,n,budget", [(2,257,128),(8,6126,4096),(4,20896,4096)])
-def test_native_topk_ties_and_graph(h,n,budget):
+def test_native_set_ties_and_graph(h,n,budget):
     torch.manual_seed(20261016)
     scores = torch.randn(h,n,device="cuda")
     # Many ties, including at selection boundaries, exercise lower-position policy.
     scores = (scores*8).round()
     expected = select_support(scores,budget,"argsort")
-    actual = select_support(scores,budget,"flashinfer")
-    assert torch.equal(actual,expected)
+    for _ in range(5):
+        actual = select_support(scores,budget,"flashinfer_set")
+        assert torch.equal(actual,expected)
     torch.cuda.synchronize()
     graph = torch.cuda.CUDAGraph()
     with torch.cuda.graph(graph):
-        actual = select_support(scores,budget,"flashinfer")
+        actual = select_support(scores,budget,"flashinfer_set")
     graph.replay()
     torch.cuda.synchronize()
     assert torch.equal(actual,expected)
+
+
+@pytest.mark.skipif(not torch.cuda.is_available(), reason="CUDA required")
+def test_native_strict_index_order_graph_contract_sm120():
+    if torch.cuda.get_device_capability()[0] != 12:
+        pytest.skip("This is the SM120 / FlashInfer 0.7.2 capability regression")
+    scores = torch.ones(8,6126,device="cuda")
+    with pytest.raises(NotImplementedError,match="CUB is unavailable"):
+        select_support(scores,4096,"flashinfer")

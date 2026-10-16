@@ -82,11 +82,14 @@ def select_support(scores, budget, backend="argsort"):
     count = budget - protected
     if backend == "argsort":
         indices = ranked_scores.argsort(dim=-1, descending=True, stable=True)[:, :count]
-    elif backend == "flashinfer":
+    elif backend in ("flashinfer", "flashinfer_set"):
         import flashinfer
         _, indices = flashinfer.top_k(ranked_scores, count, sorted=False,
-                                      deterministic=True, tie_break=1,
+                                      deterministic=backend == "flashinfer", tie_break=1,
                                       dsa_graph_safe=True)
+        # On SM120, strict reproducible index ORDER plus graph-safe execution
+        # is unsupported in 0.7.2. CUB's lower-index boundary tie still defines
+        # a deterministic SET; unordered indices scatter to the same bool mask.
     else:
         raise ValueError(backend)
     support.scatter_(1, indices, True)
@@ -99,12 +102,12 @@ def _fused_scores(Q, K, POS, LSE, OUT,
                   KH: tl.constexpr, KN: tl.constexpr, KD: tl.constexpr,
                   ROWS: tl.constexpr, D: tl.constexpr, DS: tl.constexpr,
                   DN: tl.constexpr, BM: tl.constexpr, BN: tl.constexpr,
-                  BH: tl.constexpr):
+                  BH: tl.constexpr, OUTN: tl.constexpr):
     head, block = tl.program_id(0), tl.program_id(1)
     rows = tl.arange(0, BM)
     dims = tl.arange(0, D)
     # Halo is recomputed by neighboring tiles; no intermediate score array.
-    cols = block * BN + tl.arange(0, BH) - 3
+    cols = block * OUTN + tl.arange(0, BH) - 3
     q = tl.load(Q + head*QH + rows[:, None]*QR + dims[None, :]*QD,
                 rows[:, None] < ROWS, other=0)
     key = tl.load(K + head*KH + (DS+cols)[None, :]*KN + dims[:, None]*KD,
@@ -119,9 +122,10 @@ def _fused_scores(Q, K, POS, LSE, OUT,
     outcols = tl.arange(0, BN)
     pooled = tl.full((BN,), 0, tl.float32)
     for offset in tl.static_range(7):
-        pooled += tl.gather(reduced, outcols + offset, 0)
+        pooled += tl.gather(reduced, tl.minimum(outcols + offset, BH-1), 0)
     pooled /= 7.
-    tl.store(OUT + head*DN + block*BN + outcols, pooled, block*BN+outcols < DN)
+    tl.store(OUT + head*DN + block*OUTN + outcols, pooled,
+             (outcols < OUTN) & (block*OUTN+outcols < DN))
 
 
 class FusedKnownLSEScorer:
@@ -131,7 +135,8 @@ class FusedKnownLSEScorer:
     output allocation suitable for CUDA graph replay. LSE is natural logarithm
     shaped [H,G*W], in head-major/GQA-major/observation-major order.
     """
-    def __init__(self, q, k, positions, doc_start, doc_end, block_n=64):
+    def __init__(self, q, k, positions, doc_start, doc_end, block_n=64,
+                 overlap_halos=True):
         qf, pos = flatten_observations(q, k, positions)
         if not q.is_cuda or q.dtype != torch.bfloat16 or k.dtype != q.dtype:
             raise ValueError("CUDA BF16 inputs are required")
@@ -141,15 +146,19 @@ class FusedKnownLSEScorer:
             raise ValueError("Invalid document range")
         self.q, self.k, self.positions = qf, k[0], pos.contiguous()
         self.start, self.n, self.block_n = doc_start, doc_end-doc_start, block_n
+        # Emit BN-6 positions from BN columns. Padding BN+6 to the next power
+        # of two nearly doubles QK work; overlapping halo tiles avoid that.
+        self.output_block = block_n-6 if overlap_halos else block_n
+        self.physical_columns = block_n if overlap_halos else triton.next_power_of_2(block_n+6)
         self.out = torch.empty((k.shape[1], self.n), device=k.device, dtype=torch.float32)
 
     def run(self, lse):
         if lse.shape != self.q.shape[:2] or lse.dtype != torch.float32 or not lse.is_contiguous():
             raise ValueError("LSE must be contiguous FP32 [H,G*W]")
         h, rows, d = self.q.shape
-        _fused_scores[(h, triton.cdiv(self.n, self.block_n))](
+        _fused_scores[(h, triton.cdiv(self.n, self.output_block))](
             self.q, self.k, self.positions, lse, self.out,
             *self.q.stride(), *self.k.stride(), rows, d, self.start, self.n,
             max(16, triton.next_power_of_2(rows)), self.block_n,
-            triton.next_power_of_2(self.block_n+6), num_warps=8)
+            self.physical_columns, self.output_block, num_warps=8)
         return self.out
