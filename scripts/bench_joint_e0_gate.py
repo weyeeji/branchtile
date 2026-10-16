@@ -24,6 +24,7 @@ import probe_joint_support_exchange as selector
 os.environ['CUDA_VISIBLE_DEVICES']=visible_devices
 import numpy as np
 import torch
+assert not torch.cuda.is_initialized(), 'CPU selector imports must precede CUDA initialization'
 from compare_attention import load_capture, graph_of, elapsed
 from branchtile.attention import reference
 from flashinfer_baseline import NativeSparseDecode
@@ -108,8 +109,10 @@ def main():
     assert visible_devices and ',' not in visible_devices
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--document',required=True);parser.add_argument('--budget',type=int,required=True)
-    parser.add_argument('--job-id',required=True);args=parser.parse_args()
-    protocol=json.loads((BASE/'protocol.json').read_text())
+    parser.add_argument('--job-id',required=True)
+    parser.add_argument('--protocol',default=str(BASE/'protocol.json'));args=parser.parse_args()
+    protocol_path=Path(args.protocol)
+    protocol=json.loads(protocol_path.read_text())
     for file,digest in protocol['code_and_result_hashes'].items():
         assert sha(ROOT/file)==digest
     assert sha(Path(__file__))==protocol['script_sha256']
@@ -119,14 +122,13 @@ def main():
     result={'job_id':args.job_id,'document':args.document,'budget':args.budget,'status':'starting',
             'started_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'pid':os.getpid(),
             'uid':os.getuid(),'python':sys.executable,'CUDA_VISIBLE_DEVICES':visible_devices,
-            'protocol_sha256':sha(BASE/'protocol.json'),'qualification':[],'measurements':[]}
+            'protocol_sha256':sha(protocol_path),'qualification':[],'measurements':[]}
     def save():
         output.write_text(json.dumps(result,indent=2,allow_nan=False)+'\n')
     signal.signal(signal.SIGTERM,lambda *_: (_ for _ in ()).throw(RuntimeError('Bounded job SIGTERM')))
     save(); started=time.perf_counter()
     try:
         torch.set_num_threads(1)
-        assert not torch.cuda.is_initialized()
         variants,preparation,meta=cpu_masks(source,args.budget,protocol)
         result['selector_preparation']=preparation
         directory=ROOT/source['directory']
