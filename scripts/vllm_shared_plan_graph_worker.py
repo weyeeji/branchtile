@@ -65,6 +65,9 @@ class SharedPlanGraphWorkerExtension(SparseGraphWorkerExtension):
         assert len(state['selector'].masks)==48*len(state['config']['prompt_tokens'])
         before=torch.cuda.memory_allocated();started=time.perf_counter()
         selector=state['selector'];prompts=[len(x) for x in state['config']['prompt_tokens']]
+        if selector.budget==selector.doc_end-selector.doc_start:
+            expected=torch.arange(selector.doc_start,selector.doc_end)
+            assert all(torch.equal(ids,expected) for by_head in selector.masks.values() for ids in by_head), 'Full document budget must select every document position'
         histories=[[[torch.cat((torch.arange(selector.doc_start),selector.masks[layer,q][head],torch.arange(selector.doc_end,prompts[q]))) for head in range(2)] for q in range(len(prompts))] for layer in range(48)]
         identity=hashlib.sha256(json.dumps({'prompt_hashes':state['config']['prompt_token_hashes'],
             'masks':[r['mask_sha256'] for r in selector.records]},sort_keys=True).encode()).hexdigest()
@@ -79,7 +82,8 @@ class SharedPlanGraphWorkerExtension(SparseGraphWorkerExtension):
             for b in (1,2,3):
                 caches=[state['graph_caches'][l] for l in range(48)]
                 if method=='e0':
-                    plan=LayerSharedDecodePlan(caches,histories,prompts,identity,b,max_per_request=16384,workspace=workspace)
+                    capacity=max(len(histories[0][q][0]) for q in range(len(prompts)))+8192
+                    plan=LayerSharedDecodePlan(caches,histories,prompts,identity,b,max_per_request=capacity,workspace=workspace)
                 else:
                     plan=LayerSharedUnionPlan(caches,histories,prompts,identity,b,
                         common_end=(selector.doc_end//16)*16,max_generated=8192,workspace=workspace)
@@ -104,6 +108,7 @@ class SharedPlanGraphWorkerExtension(SparseGraphWorkerExtension):
             'candidate_attention_capture_calls':state['graph_capture_calls'],
             'descriptors':{m:[str(d) for d in manager.graphs] for m,manager in state['graph_managers'].items()},
             'frozen_history_identity':identity,
+            'full_budget_exact_document_mask':selector.budget==selector.doc_end-selector.doc_start,
             'shared_native_plan':'Each method/B graph owns one native length plan shared by all48 layers. E0 maps indices on GPU; union also packs exact masks and validates shared complete-page physical identity. Union histories are padded to equal lengths across layers/heads.',
             'scope':'Existing native cached/incremental planning control, not a novel method.'}
         (state['output']/'graph_capture.json').write_text(json.dumps(result,indent=2)+'\n')

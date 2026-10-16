@@ -13,24 +13,28 @@ from src.vllm_shared_decode_plan import LayerSharedDecodePlan
 
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--output',required=True);p.add_argument('--method',choices=('union','e0'),default='union');args=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--output',required=True);p.add_argument('--method',choices=('union','e0'),default='union');p.add_argument('--history-tokens',type=int,default=96);args=p.parse_args()
     assert os.geteuid()!=0 and sys.prefix!=sys.base_prefix
     torch.set_num_threads(4);torch.manual_seed(2028)
-    layers,heads,questions,prompt=4,2,3,1024
-    backing=torch.randn(7200,layers,heads,16,256,device='cuda',dtype=torch.bfloat16)
+    layers,heads,questions=4,2,3
+    prompt=1024 if args.history_tokens<=96 else 65536
+    common_end=prompt-16;common_pages=common_end//16
+    physical_shift=3600 if prompt==1024 else 8000
+    backing=torch.randn(7200 if prompt==1024 else 16000,layers,heads,16,256,device='cuda',dtype=torch.bfloat16)
     caches=[backing[:,l] for l in range(layers)]
-    histories=[[[torch.cat((torch.randperm(1008)[:80].sort().values,torch.arange(1008,1024))) for h in range(heads)] for q in range(questions)] for l in range(layers)]
-    tables=torch.stack([torch.cat((torch.arange(63),torch.arange(64+q*1024,64+(q+1)*1024))) for q in range(questions)])
+    histories=[[[torch.cat((torch.randperm(common_end)[:args.history_tokens-16].sort().values,torch.arange(common_end,prompt))) for h in range(heads)] for q in range(questions)] for l in range(layers)]
+    tables=torch.stack([torch.cat((torch.arange(common_pages),torch.arange(common_pages+1+q*1024,common_pages+1+(q+1)*1024))) for q in range(questions)])
     workspace=torch.zeros(256*1024*1024,device='cuda',dtype=torch.uint8)
-    ops={b:(LayerSharedUnionPlan(caches,histories,[prompt]*3,'epoch0',b,1008,max_generated=12289,workspace=workspace)
-        if args.method=='union' else LayerSharedDecodePlan(caches,histories,[prompt]*3,'epoch0',b,max_per_request=16384,workspace=workspace)) for b in (1,3)}
-    queries={b:torch.randn(layers,b,16,128,device='cuda',dtype=torch.bfloat16)*.25 for b in (1,3)}
+    ops={b:(LayerSharedUnionPlan(caches,histories,[prompt]*3,'epoch0',b,common_end,max_generated=12289,workspace=workspace)
+        if args.method=='union' else LayerSharedDecodePlan(caches,histories,[prompt]*3,'epoch0',b,max_per_request=args.history_tokens+12290,workspace=workspace)) for b in (1,2,3)}
+    queries={b:torch.randn(layers,b,16,128,device='cuda',dtype=torch.bfloat16)*.25 for b in (1,2,3)}
     graphs={};records=[]
     cases=[(3,[0,1,2],n) for n in (0,1,7,8,15,16,17,127,128,129,4095,4096,4097,8191,8192,8193,12288)]
     cases.extend([(1,[2],17),(3,[2,0,1],18),(3,[1,2,0],19),(1,[0],20),(3,[0,1,2],21)])
+    cases.extend([(2,[2,0],0),(2,[1,2],128),(3,[2,0,1],129),(2,[0,1],4096),(1,[1],4097),(2,[2,1],8192)])
     for step,(batch,order,tail) in enumerate(cases):
         op=ops[batch];q=queries[batch];q.normal_(std=.25);backing.add_(.001953125)
-        table=tables[order]+(3600 if step>=19 else 0);gpu_table=table.to('cuda',dtype=torch.int32)
+        table=tables[order]+(physical_shift if step>=19 else 0);gpu_table=table.to('cuda',dtype=torch.int32)
         positions=[prompt+tail-1+(i%2) for i in range(batch)]
         item={'step':step,'batch':batch,'question_order':order,'generated_tail_base':tail,'physical_epoch':int(step>=19)}
         try:
@@ -77,7 +81,7 @@ def main():
         if item['status']=='failed':break
     passed=len(records)==len(cases) and all(r['status']=='qualified' for r in records)
     path.write_text(json.dumps({'status':'qualified' if passed else 'failed','records':records,'uid':os.geteuid(),'python':sys.executable,
-        'method':args.method,'source_sha256':{p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in ['src/vllm_shared_union_plan.py','src/vllm_shared_decode_plan.py','scripts/qualify_shared_union_plan.py']},
+        'method':args.method,'history_tokens':args.history_tokens,'source_sha256':{p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in ['src/vllm_shared_union_plan.py','src/vllm_shared_decode_plan.py','scripts/qualify_shared_union_plan.py']},
         'frozen_output_tolerance':{'atol':.006,'rtol':.015},'source_cache_shape':list(caches[0].shape),'source_cache_stride':list(caches[0].stride()),
         'scope':'Existing selected native method with one length/native plan across layers, original-cache FP64 reference. Changing Q/KV, byte/page/split boundaries, generated suffix up to12289, B3/B1/reorder, physical remap and explicit invalidation. No application speed/quality claim.'},indent=2)+'\n')
     print(json.dumps({'status':'qualified' if passed else 'failed','cases':len(records),'checks':sum(len(r.get('checks',[])) for r in records)}))
