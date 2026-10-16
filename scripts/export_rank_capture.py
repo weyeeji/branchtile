@@ -70,10 +70,8 @@ def main():
         for qi,r in enumerate(warm):
             initial = load(f"layer{layer}_request{r}_step1.pt")
             pl = requests[r]["prompt_length"]
-            n = min(len(prompts[r]),len(prompts[cold]))
-            differing = torch.nonzero(prompts[r][:n] != prompts[cold][:n]).flatten()
-            common = int(differing[0]) if len(differing) else n
-            positions = torch.arange(max(0,pl-32),pl)
+            positions = torch.arange(max(de,pl-32),pl)
+            assert len(positions) == min(32, pl-de) and len(positions) > 0
             qs, reused = [], []
             for pos in positions.tolist():
                 if pos in observation[r]:
@@ -113,6 +111,7 @@ def main():
             summary["selector_seconds"].append({"layer":layer,"question":qi,"seconds":time.monotonic()-start})
             torch.save({"observation_q":observation_q,"observation_positions":positions,
                         "pooled_scores":scores.cpu(),"supports":supports,
+                        "observation_is_question_suffix_only":True,
                         "source_request_id":r,"reused_observation_positions_with_proof":reused},out/f"selector_q{qi}_l{layer}.pt")
             for budget in budgets:
                 # Recent32 protects these actual request-private document tokens.
@@ -145,6 +144,8 @@ def main():
             summary["ready_groups"].append({"layer":layer,"anchor":anchor,"B":len(warm),
                 "query_positions":events[0],"actual_prediction_steps":[x["metadata"]["prediction_step"] for x in decoded]})
     meta = {"status":"completed","B":len(warm),"gqa":8,"kv_heads":2,"tensor_parallel_size":2,
+            "export_semantics_version":2,
+            "observation_window":"Last min(32, prompt_length-document_end) actual suffix Q; no document Q backfill",
             "actual_tp_rank":a.rank,"model_path":"data/models/Qwen3-30B-A3B-Thinking-2507-FP8",
             "model_revision":raw["config"]["model_revision"],"document_sha256":raw["config"]["document_sha256"],
             "document_token_range":[ds,de],"actual_shared_document_token_range":[ds,se],
