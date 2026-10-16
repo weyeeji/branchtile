@@ -60,12 +60,12 @@ class PagedSparseExecutor:
     Both paths preserve original query supports; union uses exact custom masks.
     """
     def __init__(self, device, method='e0', workspace_bytes=256 * 1024 * 1024):
-        if method not in ('e0', 'union'):
+        if method not in ('e0', 'e0_simt', 'union'):
             raise ValueError(method)
         self.method = method
         self.workspace = torch.empty(workspace_bytes, device=device, dtype=torch.uint8)
-        if method == 'e0':
-            self.wrapper = flashinfer.BatchDecodeWithPagedKVCacheWrapper(self.workspace, kv_layout='NHD', use_tensor_cores=True, backend='auto')
+        if method != 'union':
+            self.wrapper = flashinfer.BatchDecodeWithPagedKVCacheWrapper(self.workspace, kv_layout='NHD', use_tensor_cores=method != 'e0_simt', backend='auto')
         else:
             self.wrapper = flashinfer.BatchPrefillWithPagedKVCacheWrapper(self.workspace, kv_layout='NHD', backend='fa2')
         self.planned = False
@@ -86,7 +86,7 @@ class PagedSparseExecutor:
                 ids = torch.as_tensor(physical_ids[request][head], dtype=torch.int32, device='cpu')
                 assert len(ids) == len(torch.unique(ids)) and len(ids) > 0
                 assert int(ids.min()) >= 0 and int(ids.max()) < kv[0].shape[0]
-        if self.method == 'e0':
+        if self.method != 'union':
             for request in range(b):
                 for head in range(h):
                     ids = physical_ids[request][head]
@@ -104,7 +104,7 @@ class PagedSparseExecutor:
         self.indices = torch.cat(indices).to(query.device)
         self.indptr = torch.tensor(pointers, dtype=torch.int32, device=query.device)
         self.last = torch.ones(len(pointers) - 1, dtype=torch.int32, device=query.device)
-        if self.method == 'e0':
+        if self.method != 'union':
             self.wrapper.plan(self.indptr, self.indices, self.last, g, 1, d, 1,
                               q_data_type=query.dtype, kv_data_type=cache.dtype)
         else:

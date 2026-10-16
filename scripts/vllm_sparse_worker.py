@@ -13,6 +13,7 @@ import time
 import torch
 from scripts.probe_engine_docfinqa import DeploymentWorkerExtension
 from src.vllm_sparse_executor import PagedSparseExecutor, physical_supports
+from src.vllm_sparse_selector import FrozenQCSelector
 
 
 class SparseAttentionWorkerExtension(DeploymentWorkerExtension):
@@ -20,7 +21,8 @@ class SparseAttentionWorkerExtension(DeploymentWorkerExtension):
         from vllm.distributed import get_tp_group
         state = self.sparse_state = {'config': config, 'rank': get_tp_group().rank_in_group,
             'phase': 'unset', 'method': 'dense', 'requests': {}, 'records': [], 'logits': {},
-            'positions': {}, 'handles': [], 'originals': [], 'executors': {}, 'metadata_seconds': 0.0}
+            'positions': {}, 'layer_outputs': {}, 'handles': [], 'originals': [], 'executors': {}, 'metadata_seconds': 0.0}
+        state['selector'] = FrozenQCSelector(config['prompt_tokens'], config['document_token_range'], config['budget']) if isinstance(config.get('budget'), int) else None
         state['output'] = Path(config['output']) / f"rank{state['rank']}"
         state['output'].mkdir(parents=True, exist_ok=True)
         old_prepare = self.model_runner.prepare_inputs
@@ -28,6 +30,7 @@ class SparseAttentionWorkerExtension(DeploymentWorkerExtension):
             batch = old_prepare(*args, **kwargs)
             state['batch'] = batch
             state['table_cpu'] = None
+            state['table_source_ptr'] = None
             return batch
         self.model_runner.prepare_inputs = prepare
         state['old_prepare'] = old_prepare
@@ -54,7 +57,10 @@ class SparseAttentionWorkerExtension(DeploymentWorkerExtension):
         original_logits = model.compute_logits
         def logits(*args, **kwargs):
             actual = original_logits(*args, **kwargs)
-            if state['rank'] == 0 and config.get('capture_logits'):
+            if actual is None:
+                return actual
+            forced = state.get('teacher_tokens')
+            if (state['rank'] == 0 and config.get('capture_logits')) or forced:
                 batch = state['batch']
                 indexes = batch.logits_indices.cpu().tolist()
                 starts = batch.query_start_loc_np[:batch.num_reqs + 1].tolist()
@@ -66,11 +72,17 @@ class SparseAttentionWorkerExtension(DeploymentWorkerExtension):
                     step = int(positions[token_index]) - info['prompt_length'] + 2
                     if step >= 1:
                         key = f"q{info['question_index']}_s{step}"
-                        state['logits'][key] = actual[row].detach().float().cpu()
+                        if state['rank'] == 0 and config.get('capture_logits'):
+                            state['logits'][key] = actual[row].detach().float().cpu()
+                        if forced:
+                            tokens = forced[info['question_index']]
+                            assert step <= len(tokens), 'Teacher trajectory exhausted'
+                            actual[row].fill_(-torch.inf)
+                            actual[row, tokens[step-1]] = 0
             return actual
         model.compute_logits = logits
         state['old_logits'] = original_logits
-        return {'rank': state['rank'], 'wrapped_layers': len(state['originals']), 'cache_update_preserved': True}
+        return {'rank': state['rank'], 'wrapped_layers': len(state['originals']), 'cache_update_preserved': True, 'worker_source_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest()}
 
     def _sparse_request_info(self, request_index):
         state, batch = self.sparse_state, self.sparse_state['batch']
@@ -85,32 +97,67 @@ class SparseAttentionWorkerExtension(DeploymentWorkerExtension):
                                              'prompt_length': prompt_length, 'prompt_token_sha256': digest}
         return state['requests'][request_id]
 
+    def _capture_sparse_layer_output(self, layer, meta, output):
+        state = self.sparse_state
+        if not state['config'].get('capture_layer_outputs') or meta is None:
+            return
+        starts = meta.query_start_loc.cpu().tolist()
+        positions = state['positions'][layer][:meta.num_actual_tokens].cpu()
+        for request, (a, b) in enumerate(zip(starts, starts[1:])):
+            info = self._sparse_request_info(request)
+            if b > a and int(positions[b-1]) >= info['prompt_length']-1:
+                step = int(positions[b-1]) - info['prompt_length'] + 2
+                key = f'l{layer}_q{info["question_index"]}_s{step}'
+                state['layer_outputs'][key] = output[b-1].detach().float().cpu()
+
     def _sparse_forward(self, layer, original, attn_layer, query, key, value, cache, meta,
                         output, output_scale, output_block_scale):
         state = self.sparse_state
         def dense(destination):
             return original(attn_layer, query, key, value, cache, meta, output=destination,
                             output_scale=output_scale, output_block_scale=output_block_scale)
-        if meta is None or state['method'] == 'dense':
-            return dense(output)
+        if meta is None:
+            result = dense(output)
+            self._capture_sparse_layer_output(layer, meta, output)
+            return result
         assert type(meta).__name__ == 'FlashAttentionMetadata'
         assert output_scale is None and output_block_scale is None
+        assert abs(attn_layer.impl.scale - 128**-.5) < 1e-12
+        assert getattr(attn_layer.impl, 'alibi_slopes', None) is None
+        assert getattr(attn_layer.impl, 'logits_soft_cap', 0) in (None, 0)
+        assert getattr(attn_layer.impl, 'sliding_window', (-1, -1)) in (None, (-1, -1))
         started = time.perf_counter()
         starts = meta.query_start_loc.cpu().tolist()
         batch = state['batch']
         assert starts == batch.query_start_loc_np[:len(starts)].tolist()
         positions = state['positions'][layer][:meta.num_actual_tokens].cpu()
+        if state['table_cpu'] is None:
+            state['table_cpu'] = meta.block_table.cpu()
+            state['table_source_ptr'] = meta.block_table.data_ptr()
+        assert state['table_source_ptr'] == meta.block_table.data_ptr(), 'Different per-layer KV groups need separate physical tables'
+        if state['selector'] is not None:
+            for request, (a, b) in enumerate(zip(starts, starts[1:])):
+                info = self._sparse_request_info(request)
+                if b > a and int(positions[a]) < info['prompt_length']:
+                    state['selector'].observe(layer, info['question_index'], positions[a:b], query[a:b], state['table_cpu'][request], cache.shape[2])
+                    if int(positions[b-1]) == info['prompt_length']-1:
+                        state['selector'].freeze(layer, info['question_index'], cache, state['table_cpu'][request])
+        if state['method'] == 'dense':
+            result = dense(output)
+            self._capture_sparse_layer_output(layer, meta, output)
+            return result
         chosen = []
         logical = []
         for request_index, (a, b) in enumerate(zip(starts, starts[1:])):
             info = self._sparse_request_info(request_index)
             if b-a == 1 and int(positions[a]) >= info['prompt_length']:
                 chosen.append((request_index, a))
-                # Full-budget milestone. Sparse masks will replace only document positions.
-                assert state['config'].get('budget') in (None, 'full')
-                logical.append([torch.arange(int(positions[a]) + 1)] * 2)
+                assert int(positions[a]) + 1 == int(meta.seq_lens[request_index])
+                logical.append([torch.arange(int(positions[a]) + 1)] * 2 if state['selector'] is None else state['selector'].logical_supports(layer, info['question_index'], int(positions[a])))
         if not chosen:
-            return dense(output)
+            result = dense(output)
+            self._capture_sparse_layer_output(layer, meta, output)
+            return result
         pure = len(chosen) == len(starts)-1
         dense_reference = None
         if not pure:
@@ -120,9 +167,7 @@ class SparseAttentionWorkerExtension(DeploymentWorkerExtension):
         elif state['config'].get('check_dense'):
             original_output = torch.empty_like(output)
             dense(original_output)
-            dense_reference = original_output[:len(chosen)]
-        if state['table_cpu'] is None:
-            state['table_cpu'] = meta.block_table.cpu()
+            dense_reference = original_output[[row for _, row in chosen]]
         tables = state['table_cpu'][[request for request, _ in chosen]]
         ids = physical_supports(tables, logical, 2, cache.shape[2], cache.stride())
         method = state['method']
@@ -144,19 +189,57 @@ class SparseAttentionWorkerExtension(DeploymentWorkerExtension):
                   'complete_bridge_host_seconds': time.perf_counter()-started,
                   'query_positions': [int(positions[row]) for row in rows],
                   'question_indices': [self._sparse_request_info(request)['question_index'] for request, _ in chosen],
+                  'request_ids': [batch.req_ids[request] for request, _ in chosen],
+                  'request_slots': [int(batch.idx_mapping_np[request]) for request, _ in chosen],
+                  'prompt_hashes': [self._sparse_request_info(request)['prompt_token_sha256'] for request, _ in chosen],
                   'cache_shape': list(cache.shape), 'cache_stride': list(cache.stride())}
         if dense_reference is not None:
             difference = (actual.float()-dense_reference.float()).abs()
             record['max_abs_output_vs_dense'] = float(difference.max())
             record['dense_output_tolerance_passed'] = bool(torch.isclose(actual.float(), dense_reference.float(), atol=.006, rtol=.015).all())
+        probe_key = (state['phase'], layer)
+        if (layer in state['config'].get('fp64_probe_layers', []) and probe_key not in state['fp64_probed']):
+            state['fp64_probed'].add(probe_key)
+            # Independent address calculation from original cache coordinates;
+            # this does not use the flattened alias or physical_supports.
+            reference = torch.empty_like(actual, dtype=torch.float64)
+            for request, by_head in enumerate(logical):
+                for head, support in enumerate(by_head):
+                    qq = actual_q[request, head*8:(head+1)*8].double()
+                    m = torch.full((8,), -torch.inf, dtype=torch.float64, device=query.device)
+                    z = torch.zeros_like(m)
+                    u = torch.zeros((8,128), dtype=torch.float64, device=query.device)
+                    for offset in range(0, len(support), 4096):
+                        positions64 = support[offset:offset+4096].to(query.device)
+                        pages = tables[request, support[offset:offset+4096]//cache.shape[2]].to(query.device).long()
+                        offsets = positions64 % cache.shape[2]
+                        kk = cache[pages, head, offsets, :128].double()
+                        vv = cache[pages, head, offsets, 128:].double()
+                        scores = qq @ kk.T * (128**-.5)
+                        next_m = torch.maximum(m, scores.max(1).values)
+                        weights = torch.exp(scores-next_m[:,None])
+                        rescale = torch.exp(m-next_m)
+                        z = z*rescale+weights.sum(1)
+                        u = u*rescale[:,None]+weights @ vv
+                        m = next_m
+                    reference[request, head*8:(head+1)*8] = u/z[:,None]
+            def compare(reference, value):
+                diff = value.double()-reference
+                return {'max_abs': float(diff.abs().max()), 'rmse': float(diff.square().mean().sqrt()),
+                        'frozen_output_tolerance_passed': bool(torch.isclose(value.double(), reference, atol=.006, rtol=.015).all())}
+            record['independent_fp64_probe'] = {'candidate': compare(reference, actual),
+                'dense': compare(reference, dense_reference) if dense_reference is not None else None,
+                'method': 'streaming FP64 softmax via original cache[actual_page,head,token_offset,K_or_V], no flattened-address reuse'}
         state['records'].append(record)
+        self._capture_sparse_layer_output(layer, meta, output)
         return output
 
-    def set_sparse_phase(self, phase, method):
-        assert method in ('dense', 'e0', 'union')
+    def set_sparse_phase(self, phase, method, teacher_tokens=None):
+        assert method in ('dense', 'e0', 'e0_simt', 'union')
         state = self.sparse_state
         state['phase'], state['method'] = phase, method
-        state['records'], state['logits'] = [], {}
+        state['records'], state['logits'], state['layer_outputs'] = [], {}, {}
+        state['teacher_tokens'], state['fp64_probed'] = teacher_tokens, set()
         return {'rank': state['rank'], 'phase': phase, 'method': method}
 
     def finish_sparse_phase(self):
@@ -164,11 +247,18 @@ class SparseAttentionWorkerExtension(DeploymentWorkerExtension):
         torch.cuda.synchronize()
         path = state['output'] / f"{state['phase']}.json"
         record = {'rank': state['rank'], 'phase': state['phase'], 'method': state['method'],
+                  'selector': state['selector'].summary() if state['selector'] is not None else None,
+                  'teacher_forced_tokens': state.get('teacher_tokens'),
                   'records': state['records'], 'logits_count': len(state['logits']),
                   'scope': 'Instrumented full-budget output/logit qualification; timings include Python metadata and optional redundant dense checks, not application speed evidence.'}
         if state['logits']:
             logits_path = path.with_suffix('.pt')
             torch.save(state['logits'], logits_path)
             record['logits_file'] = str(logits_path)
+        if state['layer_outputs']:
+            layers_path = path.with_name(path.stem + '_layer_outputs.pt')
+            torch.save(state['layer_outputs'], layers_path)
+            record['layer_outputs_file'] = str(layers_path)
+            record['layer_outputs_count'] = len(state['layer_outputs'])
         path.write_text(json.dumps(record, indent=2)+'\n')
         return {'rank': state['rank'], 'metadata': str(path), 'records': len(state['records']), 'logits_count': len(state['logits'])}

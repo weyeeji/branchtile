@@ -28,7 +28,7 @@ def main():
             supports = [[torch.cat((torch.arange(4), torch.arange(6 + r + h, 29, 3), torch.arange(30, 47 + r))) for h in range(2)] for r in range(batch)]
             physical = physical_supports(tables[:batch], supports, 2, 16, cache.stride())
             q = torch.randn(batch, 16, 128, device='cuda', dtype=torch.bfloat16)
-            for method in ('e0', 'union'):
+            for method in ('e0', 'e0_simt', 'union'):
                 op = PagedSparseExecutor(q.device, method).plan(q, cache, physical)
                 for change in (False, True):
                     if change:
