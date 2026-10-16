@@ -22,3 +22,5 @@ The two distinct-score tiny fixtures demonstrate exchange stagnation: a triangle
 Data/run process CPU time was 16.028s and wall time 16.030s, excluding imports/self-tests. Peak process RSS was 519.29MiB. Source hashes are inherited through the exact frozen exchange protocol hash. Full source cache remains retained; physical capacity released is zero.
 
 Zero epsilon uses an explicitly reported unique-top-k identity shortcut; its CPU time is not a general zero-loss optimization benchmark. The first pre-freeze fixture attempt exposed an overly conservative numerical guard at the exact boundary; it was corrected and both fixtures passed before any natural score computation. Natural execution completed without retry or implementation changes.
+
+Independent post-run input audit (`boundary_gap_audit.json`) checks all40 request/budget/head boundaries: the lowest optional selected score strictly exceeds the highest unselected score in every cell. The zero-loss unique-support premise therefore holds on these recorded inputs. This check was added after review, not silently attributed to the original run.
