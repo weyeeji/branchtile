@@ -1,0 +1,202 @@
+{
+  "schema": 1,
+  "protocol_id": "joint-real48-replay-v1-20261016",
+  "status": "frozen_before_GPU",
+  "budget": 32768,
+  "variants": [
+    {
+      "name": "independent",
+      "configuration": null
+    },
+    {
+      "name": "epsilon0",
+      "configuration": {
+        "protocol_id": "joint-support-exchange-cpu-v1-20261016",
+        "protocol_sha256": "64ee6faf63a7f7ccec4cda0ba39d5242f464107054ce89eec3e89d754fa92e6f",
+        "request_order": "ascending",
+        "max_rounds": 2,
+        "protected_first": 4,
+        "protected_last": 32,
+        "epsilon": 0
+      }
+    },
+    {
+      "name": "epsilon001",
+      "configuration": {
+        "protocol_id": "joint-support-exchange-cpu-v1-20261016",
+        "protocol_sha256": "64ee6faf63a7f7ccec4cda0ba39d5242f464107054ce89eec3e89d754fa92e6f",
+        "request_order": "ascending",
+        "max_rounds": 2,
+        "protected_first": 4,
+        "protected_last": 32,
+        "epsilon": 0.001
+      }
+    },
+    {
+      "name": "epsilon01",
+      "configuration": {
+        "protocol_id": "joint-support-exchange-cpu-v1-20261016",
+        "protocol_sha256": "64ee6faf63a7f7ccec4cda0ba39d5242f464107054ce89eec3e89d754fa92e6f",
+        "request_order": "ascending",
+        "max_rounds": 2,
+        "protected_first": 4,
+        "protected_last": 32,
+        "epsilon": 0.01
+      }
+    }
+  ],
+  "documents": [
+    {
+      "document_id": "docfinqa-593ec0c33f45ea02",
+      "document_sha256": "593ec0c33f45ea02d1139d061d3f5fcec367a50c2e44b7f29e815611bc65124b"
+    },
+    {
+      "document_id": "docfinqa-c0f11a67aae850fc",
+      "document_sha256": "c0f11a67aae850fc423d60b5c3839769c083888b4d2e73c6d47b359547f44e46"
+    }
+  ],
+  "manifest": "data/manifests/docfinqa_exploratory_dev8.json",
+  "manifest_sha256": "ba4c4496d7f6182374376cd16f990ad7d0b1839691d730a5e0fe498a83a1a29f",
+  "source_sha256": {
+    "scripts/benchmark_vllm_joint_replay.py": "44b4862757ae0ec91542620e233062588ef4eefcf6db2e9a7703417efe7d112a",
+    "scripts/vllm_joint_replay_worker.py": "1412912429b5a237ef17c55c5a6405e0568e0449155b41aef7e91c43fae80f6d",
+    "scripts/vllm_joint_support_worker.py": "a8ec4ece24e3f0df7d6022db355d9f454f755162ebcb6ad6569bd5dc24bb185f",
+    "scripts/vllm_sparse_production_worker.py": "344d058589eca2177d7d5c52df25c79c0e187d1e9b8cca866b871da88ab130fa",
+    "scripts/vllm_shared_plan_graph_worker.py": "457cb776c25964e097638137b8a94f9468587f7b6c31353b3ee9089902669a30",
+    "scripts/vllm_sparse_graph_worker.py": "4fc871611c7d9acd568b1ab5d0621a102edfb4457ad671a61e44214f54eeef96",
+    "scripts/vllm_sparse_worker.py": "266f6185f3ab43540db99d893dde4ea2fbc3040811d9b15823b3171cc19b0f5f",
+    "src/vllm_sparse_selector.py": "9c5dd1b27a2dd33b914883e1582805ff8299a17f9334db0186d7b276dabd373f",
+    "src/joint_support_exchange.py": "de2cb0a45ca956e0b88f1ea6b615309b95e21af24078b6072331ac4290d87e63",
+    "src/selector_baseline.py": "3187dc5cfd0efbd08935ef19f31e19199bcd1c1984c80ca0f33a3337834c81ac",
+    "src/vllm_sparse_executor.py": "dd83db5c4468bf3254878282c9964489fb993ed6b8d680fe7bb0dc2155d82628",
+    "src/vllm_shared_decode_plan.py": "48bc3f5ccda09b0e4cb42cc9da8737f0216099857a3c30fc63b46effb3ac31ad",
+    "scripts/vllm_batch_admission.py": "4a28cd560b847e3b83ffbfafa6f1a9586419667503699b560ae1b8a1cbbf2658",
+    "scripts/capture_model.py": "08c18e222c820997e53978cb102ecdcd3a52e77036a4d052b9cac3cd43cdad00"
+  },
+  "model": "Qwen3-30B-A3B-Thinking-2507-FP8",
+  "model_revision": "60d80c83c53c3b611c642dbb8c942b3f90c5948a",
+  "engine": "project .venv-engine / TP2 / original official FLASHINFER backend / BF16 KV",
+  "same_engine_seed": 20261016,
+  "device_replicas": 2,
+  "blocks": 6,
+  "measurement_seed": 20261016,
+  "hot_repeats": 3,
+  "cold_repeats": 1,
+  "cache_flush_bytes": 268435456,
+  "budgets": {
+    "category": "P1",
+    "jobs": 4,
+    "GPUs_per_job": 2,
+    "timeout_seconds": 165,
+    "termination_grace_seconds": 15,
+    "total_GPU_hours_upper_bound": 0.4,
+    "automatic_retries": false
+  },
+  "input_state": {
+    "bounded_generation_tokens": 8,
+    "ignore_eos": true,
+    "snapshot": "seventh actual pure B3 graph replay, positions/tables/Q/outputs captured inside dispatch before scheduler input recycling",
+    "B1_B2": "first 1/2 request rows of the same real B3 state, no padding or independent trajectory claim",
+    "source_KV": "all original 48 layer cache tensors, actual strided aliases; no new requests/model forwards after snapshot",
+    "tail": "actual saved positions; every private suffix and generated token retained"
+  },
+  "measurement": {
+    "fixed_layer_order": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47
+    ],
+    "variants_per_block": "seeded random permutation and exact reverse, explicitly install every arm",
+    "same_Q_cache_tail_length": true,
+    "graph": "one additional attention-only graph per B, invokes production LayerSharedDecodePlan.run_layer with output.copy_; same graph/pointers across variants",
+    "contracts": [
+      "48_layers_only",
+      "prepare_plus_48_layers"
+    ],
+    "main_latency": "complete_wall_us for prepare_plus_48_layers; cuda_us retained separately",
+    "prepare": "existing shared native plan and GPU all-layer index mapping; standalone synchronized prepare measured separately; complete contract includes its actual execution",
+    "hot": "one preceding chain warmup; three serialized complete chains per cell",
+    "cold": "256MiB write and synchronize outside every measured sample; not claimed to reproduce model interleaving",
+    "timer": "CUDA events around chain; complete wall starts before prepare/graph submission and ends after event synchronization; no timer-overhead subtraction",
+    "statistics": "per-call samples median; random/reverse within block clustered; 10000 bootstrap blocks, paired max-rank complete latency for TP2; device replicas never independent documents",
+    "AA": "epsilon0 vs independent output bitwise and paired timing; restore every round"
+  },
+  "qualification": {
+    "all_variants_same_mask_SIMT_all_48_B1_B2_B3": true,
+    "atol": 0.006,
+    "rtol": 0.015,
+    "actual_last_step_indices_bitwise_reproduced": true,
+    "actual_B3_attention_outputs_bitwise_reproduced": true,
+    "topology_change": "explicit fail, no silent recapture or fallback"
+  },
+  "profile": {
+    "actual_model": "same no-shadow E0 engine, skip first pure B3 replay, profile next four",
+    "events": "full actual model graph CUDA events plus trace kernel attribution",
+    "copy_attribution": "attention-only chain includes exact output.copy_; trace exact copy membership may be ambiguous and must be reported rather than guessed",
+    "limitation": "instrumentation attribution, not uninstrumented JCT; attention-only chain omits MoE/GEMM/NCCL interleaving"
+  },
+  "costs": [
+    "selector original gather/compute from selector records",
+    "score D2H already in selector freeze; do not double count",
+    "each variant CPU finalization",
+    "each installation including history construction/H2D/synchronize",
+    "graph capture/additional memory",
+    "shared prepare and complete 48-layer chain",
+    "actual whole-model graph profile; time and share not application speedup"
+  ],
+  "decision": {
+    "kernel_speed_ratio_threshold": 1.15,
+    "require_more_than_twice_AA_noise": true,
+    "application_threshold": 0.05,
+    "optimistic_break_even": "max-rank incremental variant CPU+D2H+incremental installation divided by positive complete 48-layer saved seconds; report infinite if nonpositive; compare observed B3 and max-tail horizons, no assertion of upper bound",
+    "no_formal_quality": true,
+    "no_novel_algorithm": true,
+    "classical_cover": "not included in this bounded all48 termination diagnostic; mandatory before any method superiority claim"
+  },
+  "stop_rule": "Report all failed/finished jobs; no retries or layout/selector search; no natural pilot expansion from this diagnostic."
+}
