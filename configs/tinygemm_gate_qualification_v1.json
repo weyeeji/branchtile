@@ -1,0 +1,170 @@
+{
+  "model_path": "data/models/Qwen3-30B-A3B-Thinking-2507-FP8",
+  "model_revision": "60d80c83c53c3b611c642dbb8c942b3f90c5948a",
+  "manifest": "data/manifests/docfinqa_exploratory_dev8.json",
+  "document_id": "docfinqa-c0f11a67aae850fc",
+  "document_token_range": [
+    34,
+    86818
+  ],
+  "prompt_lengths": [
+    86850,
+    86840,
+    86839
+  ],
+  "common_prefix_tokens": 86820,
+  "prompt_token_hashes": [
+    "ad8bdbeddcb4cadf40fdb0202f15b6b25b2cf770f4f6fcedeeab4cf15efe508f",
+    "437bfde1f9403e5d5642f6400ff9f7c32250664e068de2e4ebd5332bdae677b4",
+    "71fbbebb494d983ab00a8efe683d6b9fa194c2de09bbee0759db26c3a34e6973"
+  ],
+  "seed": 20261016,
+  "tokens_by_question": [
+    8,
+    12,
+    16
+  ],
+  "engine": {
+    "tensor_parallel_size": 2,
+    "dtype": "bfloat16",
+    "kv_cache_dtype": "fp8_e4m3",
+    "block_size": 16,
+    "max_model_len": 98304,
+    "max_num_seqs": 3,
+    "max_num_batched_tokens": 4096,
+    "enable_prefix_caching": true,
+    "enforce_eager": false,
+    "gpu_memory_utilization": 0.8,
+    "disable_custom_all_reduce": true,
+    "enable_batch_sharded_sampling": false,
+    "compilation_config": {
+      "mode": 3,
+      "cudagraph_mode": "FULL_DECODE_ONLY",
+      "cudagraph_capture_sizes": [
+        1,
+        2,
+        3
+      ]
+    },
+    "attention_config": {
+      "backend": "FLASHINFER"
+    },
+    "seed": 20261016
+  },
+  "chat_template_sha256": "3802169b2a02b81e6adb7ab4f64f91ff02db753c8c3a64a01c35192d3a61d8d7",
+  "schema": 1,
+  "protocol_id": "tinygemm-gate-qualification-v1-20261016",
+  "status": "prepared_frozen_before_GPU_start_authorization_pending",
+  "purpose": "Mature FlashInfer TinyGEMM baseline coverage; no new mechanism, no natural quality or application speed claim",
+  "phases": [
+    "full_A",
+    "full_B"
+  ],
+  "sampling": {
+    "temperature": 0,
+    "ignore_eos": true,
+    "purpose": "Caps 8/12/16 instrument actual B3/B2/B1; not natural EOS"
+  },
+  "timing": {
+    "blocks": 20,
+    "seed": 20261016,
+    "hot_repeats": 3,
+    "cache_flush_bytes": 268435456,
+    "cache_flush_outside_timer": true,
+    "methods": [
+      "native_A",
+      "native_B",
+      "tinygemm"
+    ],
+    "contracts": [
+      "gate_only",
+      "gate_and_router"
+    ],
+    "order": "Random permutation and its exact reverse per block; resample blocks, not samples",
+    "use_pdl": false,
+    "hardware_L2_bytes": 100663296,
+    "hardware": "RTX5090, SM120, assert actual device name"
+  },
+  "budgets": {
+    "category": "P1",
+    "jobs": 1,
+    "GPUs_per_job": 2,
+    "gpus": [
+      0,
+      1
+    ],
+    "timeout_seconds": 240,
+    "termination_grace_seconds": 15,
+    "allocated_GPU_hours_upper_bound": 0.14166666666666666,
+    "automatic_retries": false,
+    "includes_initialization_JIT_and_failures": true
+  },
+  "qualification": {
+    "points_total": 576,
+    "points_per_rank": 288,
+    "coverage": "First actual native graph state per full_A/full_B phase and B1/B2/B3, all48 layers, both TP ranks; not every generated step",
+    "cold_AA": "Same tokens/APC hits and question/position sequence; first-state full tensor receipts bitwise",
+    "actual_graph_receipt": "Instrumented FULL graph copies actual X/logits/selected IDs/normalized weights at gate/router boundaries; poison before first replay verifies complete overwrite",
+    "oracle": "FP64 exact BF16 X/W matrix dot, all logits; finite/absolute/relativeL2/RMSE descriptive, no fitted threshold",
+    "relative_to_native": "Full BF16 element errors/encoding-step differences plus IDs/weights changes",
+    "conservative_bitwise_drop_in_gate": "Actual original gate/router recomputation matches captured graph; Tiny via same official router preserves ordered IDs and FP32 normalized weights bitwise for every row",
+    "gate_failure_meaning": "Not qualified for direct replacement under this conservative contract; not proof TinyGEMM is mathematically incorrect or permanently ineligible",
+    "failure_policy": "Retain all predeclared numerical checks. Any rank failing bitwise gate skips timing on BOTH ranks. Runtime/assertion/timeout retained separately; no tolerance change or retry",
+    "downstream_contract": "Nonmonolithic MoERunner experts consume hidden states, topk IDs and weights only; assert no EPLB/fused gate/capture side effects",
+    "expected_native_layout": "BF16 contiguous X[B,2048], W[128,2048], logits[B,128]; no bias, FusedTopKRouter softmax top8 renormalize"
+  },
+  "source_semantics": {
+    "flashinfer_version": "0.7.0.post1",
+    "flashinfer_build_revision": "946200de1ae94fc93fdd0926f0a13afd1fa7f0f1",
+    "tinygemm_installed_dispatch": "Official default STAGES16 if capacity permits else4; SM120 default4; no custom stage tuning",
+    "barrier_structure": "Installed csrc has warp>=4 outer branch/elected inner lane and all-CTA syncthreads outside compute/DMA branches, matching FI2996 fix structure",
+    "PDL": false,
+    "vllm_gate_gap": "SM120 excluded from specialized GateLinear and existing CuteDSL BF16 dispatch; actual per-layer eligibility asserted before experiment"
+  },
+  "measurement_limits": [
+    "Two rank gate chains independent, no collective; not synchronous model step",
+    "Gate-only chain lacks attention/expert/TP cache interleaving",
+    "No extra output.copy_ because both original GateLinear and Tiny return retained GEMM output",
+    "No candidate installed in live model",
+    "Instrumented cap trajectories do not validate natural quality or JCT"
+  ],
+  "CPU_validation": {
+    "tests": "tests/test_tinygemm_gate_contract_cpu.py",
+    "result": "2 passed, CPU only, CUDA uninitialized",
+    "read_only_review": "data agent checked actual opaque MoERunner call route, bindings, retained graph outputs and timing scope; poison-overwrite receipt added before freeze"
+  },
+  "source_sha256": {
+    "scripts/qualify_tinygemm_gate.py": "5953a96121de89e5f1153eb88632f1ac7faa609835c1bf283ca89a5098ecc3c8",
+    "scripts/vllm_tinygemm_gate_worker.py": "b5e9c50e329e81deda735c5af3e7c35381eae5d2bc1b0af923373a1ee3cd44e9",
+    "scripts/probe_engine_docfinqa.py": "d3f177f1345521cdff2c116b8af2a616b2f55f7ae7e7f7ec523f7d8f7bca51ff",
+    "scripts/vllm_batch_admission.py": "4a28cd560b847e3b83ffbfafa6f1a9586419667503699b560ae1b8a1cbbf2658",
+    "scripts/capture_model.py": "08c18e222c820997e53978cb102ecdcd3a52e77036a4d052b9cac3cd43cdad00",
+    "scripts/run_jobs.py": "2872404f3224044b844c712bceea3f93a00a6f56555dae92b652cb8044c35d23",
+    "tests/test_tinygemm_gate_contract_cpu.py": "e65c2572bf35d60ecac04196e2adc806c64cdac59ff9d228f727ac43a1e0c43f",
+    ".venv-engine/lib/python3.12/site-packages/vllm/model_executor/models/qwen3_moe.py": "cac0cffc3e5b1ff805e9e15fe1d4bcfd5e55c27378e4a9ab23b0fa6c1b05e5ee",
+    ".venv-engine/lib/python3.12/site-packages/vllm/model_executor/layers/fused_moe/router/gate_linear.py": "19191d160cb48d79508eb822db795ffe638268f2c585eaffda05966e47b78252",
+    ".venv-engine/lib/python3.12/site-packages/vllm/model_executor/layers/utils.py": "514076151e2a81b461e362087f6520120befea511c1ecc4cd375fbfff9fa7e37",
+    ".venv-engine/lib/python3.12/site-packages/vllm/model_executor/layers/fused_moe/runner/moe_runner.py": "2c6e1fffba1f4fd2e4c5d3981c4d26f7c0de802fc9c35865748b113c30235da5",
+    ".venv-engine/lib/python3.12/site-packages/vllm/model_executor/layers/fused_moe/router/fused_topk_router.py": "1c80f4af4d781fd66b12aa6a7a0fd30082bc521df40f1252987a8ac4c0bef51c",
+    ".venv-engine/lib/python3.12/site-packages/vllm/model_executor/layers/fused_moe/router/base_router.py": "c909924fcfa461ccdaa6290d215d4d35bd4062fb02feeb23619b234da993f6bf",
+    ".venv-engine/lib/python3.12/site-packages/vllm/model_executor/layers/fused_moe/router/fused_moe_router.py": "d386fce7b5f61abda2d4b2a3a0bc324db53129b5c5158a1a0cbb6fd4ed6b0018",
+    ".venv-engine/lib/python3.12/site-packages/vllm/v1/worker/gpu/cudagraph_utils.py": "8e6ac6f655dd013dd2a3d3561bc88fe05ceeea2b060e5cb6bc85decb0bb2f813",
+    ".venv-engine/lib/python3.12/site-packages/vllm/v1/attention/backends/flashinfer.py": "9e65e124edc2a8e36c7e29306159dc51d345978ed7987ac3164983a2c17cb94c",
+    ".venv-engine/lib/python3.12/site-packages/flashinfer/gemm/routergemm.py": "16112f25f90f898c9d80d13fa8d08b76b9b9b56ec48dc19a28ffab9621c46314",
+    ".venv-engine/lib/python3.12/site-packages/flashinfer/jit/tinygemm2.py": "dece7a8a5f8e1c753406c7bb9698145b281066444e6387716599be64f72d6775",
+    ".venv-engine/lib/python3.12/site-packages/flashinfer/data/csrc/tinygemm2.cu": "c4e2a06bc4f271e2c6513683c7d8c7173dc244cda8713a07d2ba58326ec879f2",
+    ".venv-engine/lib/python3.12/site-packages/flashinfer/_build_meta.py": "3ec36987bc3815003129cfe9e99a69d9fa76b0b73fc40717fdf0cd7b38df9252"
+  },
+  "artifact_sha256": {
+    "data/manifests/docfinqa_exploratory_dev8.json": "ba4c4496d7f6182374376cd16f990ad7d0b1839691d730a5e0fe498a83a1a29f",
+    "data/models/Qwen3-30B-A3B-Thinking-2507-FP8/config.json": "002ebe91531ec67011b3d0c923234ef708c7da7d3b246045c4475d90b3d94628",
+    "data/models/Qwen3-30B-A3B-Thinking-2507-FP8/model.safetensors.index.json": "270f54aead2ae634567310218340069621fd8dfa2ad80001b69888ea5cc03477",
+    "data/models/Qwen3-30B-A3B-Thinking-2507-FP8/tokenizer_config.json": "60adcfc35f5f251e19a196ec977b4ca0fcfb534852911b3196d68d5e3b146aa0",
+    "data/models/Qwen3-30B-A3B-Thinking-2507-FP8/tokenizer.json": "aeb13307a71acd8fe81861d94ad54ab689df773318809eed3cbe794b4492dae4",
+    "results/Qwen3-30B-A3B-Thinking-2507-FP8_download.json": "278f4fc8a0c247dd549bb77686fc36dc01e1db57aa5e946fdb87cea9a6aa95b0",
+    "results/platform/native_fp8_kv_source_audit_20261016.json": "f2912864ba07a3f3cb04b74725c9d8adefb037a662450809e93bfabaab6ccb90",
+    "data/models/Qwen3-30B-A3B-Thinking-2507-FP8/generation_config.json": "2325da0f15bb848e018c5ae071b7943332e9f871d6b60e2ed22ca97d4cb993d2",
+    "data/models/Qwen3-30B-A3B-Thinking-2507-FP8/vocab.json": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910",
+    "data/models/Qwen3-30B-A3B-Thinking-2507-FP8/merges.txt": "8831e4f1a044471340f7c0a83d7bd71306a5b867e95fd870f74d0c5308a904d5"
+  }
+}
