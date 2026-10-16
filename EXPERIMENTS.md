@@ -442,3 +442,21 @@ frozen mapping defines the primary comparison; other prior versions remain
 explicit. Neither verdict set is changed. Same model-family judges and only
 8 documents/7 higher source groups limit reliability and do not establish human
 or formal noninferiority evidence.
+
+
+## 2026-10-16 17:10 — observer boundary correction, historical results retained
+
+The old TP-rank exporter used max(0,prompt_length-32), incorrectly including
+some document Q when the question suffix was shorter than32. Production
+FrozenQCSelector and the Transformers reference already used suffix-only Q.
+New `_suffix_v2` exports retain the same actual suffix Q bitwise and remove
+backfill in120/208 rank/layer/question records across five captures. The88
+already-correct score/mask records are bitwise unchanged. Historical operator
+and capacity observations remain valid for their saved masks but represent a
+different observer variant, not the specified QC-SnapKV semantics. Corrected
+pre-specified operator cells are queued; no old artifact is overwritten.
+
+All eight GPUs now run four TP2 natural-generation configurations in parallel:
+full-budget plus the pre-existing8K/16K/32K grid, with qualified capacity and
+B1/B2/B3 transitions. Full-budget executor controls distinguish potential
+floating-point effects from token removal; no post-hoc quality equivalence claim.

@@ -1,5 +1,12 @@
 # 论文实验推进台账
 
+2026-10-16 17:10 语义更正：旧 TP-rank 算子导出在短 question suffix 时误将文档 Q 回填到32。
+历史主模型/B8算子和容量结果保留为不同观察窗变体，不再等同预定 QC-SnapKV；
+实际自然生成 FrozenQCSelector 与 HF 参考本来就是 suffix-only，不受此错误影响。
+正确版本使用 `_suffix_v2` 路径，208个selector记录中120个被更正，关键算子点待重跑。
+详见 `results/selector_export_semantics_correction.json` 和 `results/selector_suffix_correction_impact.json`。
+
+
 2026-10-16 继续探索。目标是满足 `proposal-iscas.md` 的完整论文证据要求，
 不是把上一轮算子否定结论重新定义为论文实验完成。用户授权继续研究、必要时
 更换 idea；普通用户权限、虚拟环境、八卡合理并行和及时提交 git 继续有效。
