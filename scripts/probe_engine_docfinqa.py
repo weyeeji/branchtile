@@ -122,6 +122,7 @@ def main():
     parser.add_argument("--max-new-tokens", type=int, default=8192)
     parser.add_argument("--gpu-memory-utilization", type=float, default=.85)
     parser.add_argument("--moe-backend", default=None)
+    parser.add_argument("--capture-dir", default=None)
     args = parser.parse_args()
     assert os.geteuid() != 0 and sys.prefix != sys.base_prefix
     assert len(os.environ["CUDA_VISIBLE_DEVICES"].split(",")) == 2
@@ -172,7 +173,8 @@ def main():
                       kv_cache_dtype="auto", max_model_len=args.max_model_len,
                       max_num_seqs=4, max_num_batched_tokens=4096,
                       enable_prefix_caching=True, enforce_eager=True,
-                      worker_extension_cls="scripts.probe_engine_docfinqa.DeploymentWorkerExtension",
+                      worker_extension_cls=("scripts.vllm_rank_capture.RankCaptureWorkerExtension" if args.capture_dir
+                                            else "scripts.probe_engine_docfinqa.DeploymentWorkerExtension"),
                       gpu_memory_utilization=args.gpu_memory_utilization,
                       disable_custom_all_reduce=True, disable_log_stats=False, seed=20261016)
         if args.moe_backend:
@@ -182,8 +184,20 @@ def main():
         llm = LLM(**kwargs)
         record["initialization_seconds"] = time.monotonic()-started
         record["worker_state_after_initialization"] = llm.collective_rpc("deployment_state")
+        if args.capture_dir:
+            capture_config = {"output": str(Path(args.capture_dir).resolve()), "layers": [0, 15, 31, 47],
+                              "steps": [1, 16, 64, 256], "document_token_range": [start, end],
+                              "document_sha256": group["document_sha256"],
+                              "prompt_token_hashes": record["input"]["prompt_token_hashes"],
+                              "model_revision": download["revision"],
+                              "instrumentation_source_sha256": digest(ROOT / "scripts/vllm_rank_capture.py")}
+            record["rank_capture_configuration"] = capture_config
+            record["rank_capture_initialization"] = llm.collective_rpc("configure_rank_capture", args=(capture_config,))
+            record["limitations"].append("Read-only rank activation instrumentation is enabled; these latencies cannot be used for application performance claims")
         save()
         for stage, indices in [("cold_singleton", [0]), ("apc_warm_natural_group", list(range(len(inputs))))]:
+            if args.capture_dir:
+                llm.collective_rpc("set_rank_capture_phase", args=(stage,))
             started = time.monotonic()
             entry = {"name": stage, "started_utc": now(), "question_indices": indices, "status": "running"}
             record["stages"].append(entry)
@@ -204,6 +218,8 @@ def main():
                                           "num_cached_tokens": getattr(out, "num_cached_tokens", None), "metrics": metrics})
             entry["worker_state_after_generation"] = llm.collective_rpc("deployment_state")
             save()
+        if args.capture_dir:
+            record["rank_capture_completed"] = llm.collective_rpc("finish_rank_capture")
         record["status"] = "completed"
     except BaseException:
         record.update(status="failed", exception=traceback.format_exc())

@@ -60,7 +60,7 @@ def load_capture(path, layer, budget, step, head_count):
                   "model_revision": meta["model_revision"],
                   "document_sha256": meta["document_sha256"],
                   "includes_system_prefix_and_complete_private_suffix": True,
-                  "ready_lifetime_measured": False}
+                  "ready_lifetime_measured": step != 1 and bool(meta.get("ready_lifetime_measured_by_step", {}).get(str(step), False))}
     return q, k, v, owners, b, g, provenance
 
 
