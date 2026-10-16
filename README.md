@@ -25,7 +25,9 @@ Recent evidence:
   is not a task-quality, physical-capacity or deployment-speed guarantee.
 - [Amortization decision](docs/joint_e0_amortization_review_20261016.md) and
   [current accounting](results/budget_audit.json): preparation, failed runs and
-  all allocated GPU time remain charged. A bounded real-layer check is pending.
+  all allocated GPU time remain charged. The [real 48-layer check](results/joint_real48_replay_v1/README.md)
+  retains a small positive signal but fails the performance/amortization gate;
+  the current joint-E0 application branch is stopped.
 
 ## Environment
 

@@ -110,7 +110,19 @@ def main():
                 if item.get("enabled"):
                     # Preserve the source report: callers must not subtract epsilon0
                     # verification cost from a joint method's deployment cost.
-                    variants[name] = item
+                    head_records = [h for layer in item["layer_records"] for h in layer["records"]]
+                    before = sum(h["independent_geometry"]["common_source_union_tokens"] for h in head_records)
+                    after = sum(h["new_geometry"]["common_source_union_tokens"] for h in head_records)
+                    variants[name] = {
+                        "configuration": item["configuration"],
+                        "CPU_finalize_wall_seconds": item["CPU_finalize_wall_seconds"],
+                        "CPU_finalize_process_seconds": item["CPU_finalize_process_seconds"],
+                        "independent_mask_sha256": item["independent_mask_identity"]["sha256"],
+                        "new_mask_sha256": item["new_mask_identity"]["sha256"],
+                        "common_union_before": before, "common_union_after": after,
+                        "weighted_common_union_reduction": 1 - after / before,
+                        "max_pooled_score_loss_fraction": max(q["score_loss_fraction"] for h in head_records for q in h["requests"]),
+                    }
             preparations.append({"rank": rank,
                                  "score_D2H_bytes": frozen["shared_score_D2H_bytes"],
                                  "shared_score_D2H_and_copy_wall_seconds": frozen["shared_score_transfer_and_copy_wall_seconds"],
