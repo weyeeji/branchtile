@@ -22,6 +22,8 @@ Other inputs and preparation amortization still fail the research gate. Eight
 legacy-compilation jobs were stopped early and remain charged as incomplete.
 The [frozen summary](results/operator_8gpu_exploration_summary_v2/summary.json),
 independent audits, all failures and stage diagnostics are retained. The
+[fixed-parameter confirmation figure](results/operator_owner_confirmation_figure_v1/fixed_owner_paired_speedup.pdf)
+shows all eight correlated cells and the coarse cold-event intervals. The
 [earlier register-bank report](docs/operator_8gpu_exploration_report_20261016.md)
 and same-wave [figure](results/operator_lane_wave16_audit_v1/paired_time_ratios.pdf)
 remain historical evidence; no formal paper or application gain is established.

@@ -48,6 +48,8 @@
 
 复验的唯一正点也需约24,513次静态计划重用才能摊销额外准备。原生候选集合、384项资格与source alias、40块CI和准备收据由[wave25独立审计](../results/operator_owner_native_wave25_audit_v1/README.md)逐项复核；这不是正式自然输出或整模型的收益证明。
 
+同波固定参数图：[PNG](../results/operator_owner_confirmation_figure_v1/fixed_owner_paired_speedup.png) / [PDF](../results/operator_owner_confirmation_figure_v1/fixed_owner_paired_speedup.pdf)。图中大于1表示owner更快，单元间没有合并为跨文档置信区间；root已人工查看渲染。
+
 ## 还有哪里值得做
 
 独立阶段诊断中，4K producer约5.87–6.12us、merge约3.82–3.93us；32K producer约13.39–17.12us、merge约9.36–9.71us；128K producer约100.30us、merge约9.69us。中等长度值得检验更好的终止合并与调度，长输入还需降低producer成本。但stage-only graph改变缓存和依赖，它们的时间和差值不是融合后的可移除成本，cold partial flush也不是真实链式工作集。
