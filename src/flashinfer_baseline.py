@@ -6,6 +6,7 @@ There is no payload packing/copy: K and V are views of the source tensors.
 Planning cost is explicit and independent of the repeatedly invoked run().
 """
 import time
+import math
 import torch
 import flashinfer
 
@@ -13,7 +14,7 @@ import flashinfer
 class NativeSparseDecode:
     lse_log_base = 2  # FlashInfer state_t::get_lse; normalize for FP64 comparisons.
     def __init__(self, q, k, v, supports, *, use_tensor_cores=True,
-                 fixed_split_size=None, disable_split_kv=False):
+                 fixed_split_size=None, disable_split_kv=False, normalize_lse=False):
         """q [H,B*G,D], k/v [H,N,D], supports nested [H][B] CPU indices."""
         h, n, d = k.shape
         b = len(supports[0])
@@ -47,10 +48,17 @@ class NativeSparseDecode:
         self.kv = (k.view(h * n, 1, 1, d), v.view(h * n, 1, 1, d))
         self.out = torch.empty_like(self.q)
         self.lse = torch.empty((h * b, g), device=q.device, dtype=torch.float32)
+        self.lse_ln = torch.empty_like(self.lse) if normalize_lse else None
+        self.lse_log_base = math.e if normalize_lse else 2
         self.original_shape = q.shape
         torch.cuda.synchronize()
         self.plan_ms = (time.perf_counter() - start) * 1000
 
     def run(self):
         self.wrapper.run(self.q, self.kv, out=self.out, lse=self.lse, return_lse=True)
-        return self.out.view(self.original_shape), self.lse.view(self.original_shape[:2])
+        lse = self.lse
+        if self.lse_ln is not None:
+            # Included in CUDA graph timing when a common natural-log contract is requested.
+            torch.mul(self.lse, math.log(2), out=self.lse_ln)
+            lse = self.lse_ln
+        return self.out.view(self.original_shape), lse.view(self.original_shape[:2])

@@ -104,6 +104,7 @@ def main():
     p.add_argument("--threads", default="128,256")
     p.add_argument("--blocks", type=int, default=30)
     p.add_argument("--include-union", action="store_true", help="Also tune fixed rows across owner-region boundaries")
+    p.add_argument("--normalize-native-lse", action="store_true", help="Include native log2-to-ln conversion in timed complete call")
     p.add_argument("--output", required=True)
     args = p.parse_args()
     assert os.geteuid() != 0 and sys.prefix != sys.base_prefix
@@ -126,7 +127,7 @@ def main():
     flush = torch.zeros(max(2*pdev.L2_cache_size, 256*1024*1024)//4, device="cuda", dtype=torch.float32)
     tuning, best = [], {"hot": {}, "cold": {}}
     tile_methods = ("compact", "fixed", "union") if args.include_union else ("compact", "fixed")
-    methods = (*tile_methods, "native")
+    comparison_methods = (*tile_methods, "native")
     configs = [(method, bn, split, threads) for method in tile_methods
                for bn, split, threads in itertools.product((32, 64), map(int, args.splits.split(",")), map(int, args.threads.split(",")))]
     configs += [("native", 0, split, int(tc)) for tc in (False, True)
@@ -137,9 +138,10 @@ def main():
         try:
             start = time.monotonic()
             if method == "native":
-                op = NativeSparseDecode(q, k, v, supports, use_tensor_cores=bool(threads), fixed_split_size=split)
+                op = NativeSparseDecode(q, k, v, supports, use_tensor_cores=bool(threads), fixed_split_size=split,
+                                        normalize_lse=args.normalize_native_lse)
                 fn = op.run
-                lse_scale = math.log(2)
+                lse_scale = 1 if args.normalize_native_lse else math.log(2)
             else:
                 op = (FixedUnion(plan, owners, split, bn, threads) if method == "union" else
                       Attention(plan, split, bn, threads, compact=(method == "compact")))
@@ -166,7 +168,7 @@ def main():
             record.update(status="error", error=repr(exc))
         tuning.append(record)
         print(json.dumps(record), flush=True)
-    assert all(m in best[c] for c in best for m in methods), "A comparison arm failed qualification"
+    assert all(m in best[c] for c in best for m in comparison_methods), "A comparison arm failed qualification"
     measurements = []
     for regime, repetitions in (("hot", 20), ("cold", 1)):
         graphs = {m: graph_of(x[2], repetitions) for m, x in best[regime].items()}
@@ -186,13 +188,14 @@ def main():
         ratios = {m: np.array([[next(x for x in rows if x["block"]==i and x["direction"]==d)["us"][m] /
                                next(x for x in rows if x["block"]==i and x["direction"]==d)["us"]["compact"]
                                for d in ("random", "reverse")] for i in range(args.blocks)])
-                  for m in methods if m != "compact"}
+                  for m in comparison_methods if m != "compact"}
         summary[regime] = {"median_us": {m: statistics.median(x["us"][m] for x in rows) for m in best[regime]},
                            "fixed_AA_median_ratio": statistics.median(x["us"]["fixed"]/x["us"]["fixed_AA"] for x in rows)}
         for m, r in ratios.items():
             boot = np.median(r[brng.integers(0, args.blocks, size=(10000,args.blocks))], axis=(1,2))
             summary[regime][m+"_over_compact"] = {"median": float(np.median(r)), "paired_block_bootstrap95": np.quantile(boot,[0.025,0.975]).tolist()}
-    result = {"protocol_version": 2, "methods": methods, "scope": "same-mask operator replay; no application or quality claim", "uid": os.geteuid(),
+    result = {"protocol_version": 2, "methods": comparison_methods, "scope": "same-mask operator replay; no application or quality claim", "uid": os.geteuid(),
+              "native_lse_contract": "natural log; conversion timed" if args.normalize_native_lse else "native log2; conversion only in validation",
               "python": sys.executable, "gpu_uuid": str(pdev.uuid), "q_shape": list(q.shape), "k_shape": list(k.shape),
               "provenance": provenance, "plan": plan.statistics(), "source_bytes": k.numel()*k.element_size()*2,
               "l2_bytes": pdev.L2_cache_size, "tuning": tuning,
