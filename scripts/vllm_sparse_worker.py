@@ -23,7 +23,8 @@ class SparseAttentionWorkerExtension(DeploymentWorkerExtension):
         state = self.sparse_state = {'config': config, 'rank': get_tp_group().rank_in_group,
             'phase': 'unset', 'method': 'dense', 'requests': {}, 'records': [], 'logits': {},
             'positions': {}, 'layer_outputs': {}, 'forward_trace': [], 'handles': [], 'originals': [], 'executors': {}, 'metadata_seconds': 0.0}
-        state['selector'] = FrozenQCSelector(config['prompt_tokens'], config['document_token_range'], config['budget']) if isinstance(config.get('budget'), int) else None
+        state['selector'] = FrozenQCSelector(config['prompt_tokens'], config['document_token_range'], config['budget'],
+            joint_support_exchange=config.get('joint_support_exchange')) if isinstance(config.get('budget'), int) else None
         state['output'] = Path(config['output']) / f"rank{state['rank']}"
         state['output'].mkdir(parents=True, exist_ok=True)
         old_prepare = self.model_runner.prepare_inputs
@@ -303,6 +304,12 @@ class SparseAttentionWorkerExtension(DeploymentWorkerExtension):
         state['teacher_tokens'], state['fp64_probed'] = teacher_tokens, set()
         return {'rank': state['rank'], 'phase': phase, 'method': method}
 
+    def finalize_joint_supports(self):
+        state=self.sparse_state
+        assert not state.get('graph_enabled'), 'Finalize supports before graph capture'
+        result=state['selector'].finalize_joint_supports(expected_layers=48,expected_heads=2)
+        return {'rank':state['rank'],**result}
+
     def finish_sparse_phase(self):
         state = self.sparse_state
         torch.cuda.synchronize()
@@ -324,9 +331,15 @@ class SparseAttentionWorkerExtension(DeploymentWorkerExtension):
             record['layer_outputs_file'] = str(layers_path)
             record['layer_outputs_count'] = len(state['layer_outputs'])
         if state['selector'] is not None:
-            masks_path = state['output']/'frozen_logical_masks.pt'
+            prefix = state.get('joint_active_variant')
+            masks_path = state['output']/(f'{prefix}_frozen_logical_masks.pt' if prefix else 'frozen_logical_masks.pt')
             torch.save({f'l{layer}_q{question}':torch.stack(ids) for (layer,question),ids in state['selector'].masks.items()}, masks_path)
             record['frozen_mask_file'] = str(masks_path)
             record['frozen_mask_file_sha256'] = hashlib.sha256(masks_path.read_bytes()).hexdigest()
+            if state['selector'].independent_masks is not None:
+                independent_path=state['output']/f'{prefix or "joint"}_independent_logical_masks.pt'
+                torch.save({f'l{layer}_q{question}':torch.stack(ids) for (layer,question),ids in state['selector'].independent_masks.items()},independent_path)
+                record['independent_mask_file']=str(independent_path)
+                record['independent_mask_file_sha256']=hashlib.sha256(independent_path.read_bytes()).hexdigest()
         path.write_text(json.dumps(record, indent=2)+'\n')
         return {'rank': state['rank'], 'metadata': str(path), 'records': len(state['records']), 'logits_count': len(state['logits'])}

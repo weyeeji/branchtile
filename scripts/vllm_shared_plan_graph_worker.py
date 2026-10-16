@@ -67,12 +67,13 @@ class SharedPlanGraphWorkerExtension(SparseGraphWorkerExtension):
         assert len(state['selector'].masks)==48*len(state['config']['prompt_tokens'])
         before=torch.cuda.memory_allocated();started=time.perf_counter()
         selector=state['selector'];prompts=[len(x) for x in state['config']['prompt_tokens']]
+        selector.require_finalized_joint_supports()
         if selector.budget==selector.doc_end-selector.doc_start:
             expected=torch.arange(selector.doc_start,selector.doc_end)
             assert all(torch.equal(ids,expected) for by_head in selector.masks.values() for ids in by_head), 'Full document budget must select every document position'
         histories=[[[torch.cat((torch.arange(selector.doc_start),selector.masks[layer,q][head],torch.arange(selector.doc_end,prompts[q]))) for head in range(2)] for q in range(len(prompts))] for layer in range(48)]
         identity=hashlib.sha256(json.dumps({'prompt_hashes':state['config']['prompt_token_hashes'],
-            'masks':[r['mask_sha256'] for r in selector.records]},sort_keys=True).encode()).hexdigest()
+            'active_masks':selector.mask_identity()['sha256']},sort_keys=True).encode()).hexdigest()
         state['shared_history_id']=identity
         workspace=torch.zeros(256*1024*1024,device=runner.device,dtype=torch.uint8)
         state['graph_workspace']=workspace
