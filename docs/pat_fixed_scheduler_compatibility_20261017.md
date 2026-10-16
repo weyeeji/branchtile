@@ -1,0 +1,11 @@
+# Local PAT compatibility repair: final-box split numbering
+
+This is **PAT compat fixed scheduler**, not unchanged upstream PAT. It corrects the independently demonstrated scratch collision while keeping every final packed box, query set, KV token partition, tile choice, CTA position and per-request contributor count. Only the split-rank numbers are reassigned. The original failed artifacts remain untouched.
+
+The repair processes indices of existing boxes in stable order: larger query sets first, then lexicographic query set, with equal sets retaining original order. A box receives the common next rank of all its requests. A mismatch is an explicit unsupported-schedule error; it never invents a hole or quietly alters the boxes. Separate checks require unique requests per box, valid request/rank bounds, unchanged contributor counts, and exactly one writer for every gather slot. The original boxes are not reordered.
+
+On the captured train1/rank0/layer15 case, the independent CPU binding verifies all253 slots are unique and covered, physical KV token multisets are unchanged, and all group/query/tile/CTA-order metadata except rank is identical to the original. This establishes only the scheduler contract for this input. It does not claim this ordering handles every possible nonlaminar tree/group arrangement.
+
+The build reuses all four CUDA object files from the explicit fork/join compatibility artifact byte-for-byte. It adds no arithmetic or gather-kernel changes. The diagnostic variant retains NaN initialization and exports the partial tensors. Its timed performance must not be compared with the normal allocation path because NaN initialization is extra work. A later performance artifact, if qualified, should remove only this diagnostic instrumentation and separately requalify.
+
+`qualify_pat_fixed_scheduler_v1.py` checks complete calls against FP64, requires every gather slot to be finite despite initial NaNs, and checks isolated MNW groups write precisely their advertised slots while leaving all others NaN. The original official `DISABLE_STREAM=1` option and the local explicit multistream fork/join mode are independently selected by environment. Sources and receipts are hashed. GPU qualification is pending root scheduling.

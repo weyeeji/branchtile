@@ -1,0 +1,60 @@
+--- a/prefix_tree.h
++++ b/prefix_tree.h
+@@ -217,6 +217,57 @@
+ 
+         // Balance Pack
+         packed_boxes = balancePack(packed_boxes, kvHead, HRatio);
++
++        // Compatibility repair: original tree counters can differ between members
++        // of a shared box after private descendants have received ranks. Preserve
++        // every box and its original position, and number shared sets first.
++        // Reject schedules for which a common contiguous rank cannot be assigned.
++        const std::vector<int> original_counts = split_per_seq;
++        std::vector<int> next_rank(original_counts.size(), 0);
++        std::vector<size_t> order(packed_boxes.size());
++        for (size_t i = 0; i < order.size(); ++i) order[i] = i;
++        std::stable_sort(order.begin(), order.end(), [&](size_t a, size_t b) {
++            const auto& qa = packed_boxes[a].q_table;
++            const auto& qb = packed_boxes[b].q_table;
++            if (qa.size() != qb.size()) return qa.size() > qb.size();
++            return qa < qb;
++        });
++        for (size_t index : order) {
++            auto& box = packed_boxes[index];
++            TORCH_CHECK(!box.q_table.empty(), "PAT fixed scheduler: empty box");
++            std::vector<bool> members(next_rank.size(), false);
++            int common_rank = -1;
++            for (int qid : box.q_table) {
++                TORCH_CHECK(qid >= 0 && size_t(qid) < next_rank.size(),
++                            "PAT fixed scheduler: request index out of bounds");
++                TORCH_CHECK(!members[qid], "PAT fixed scheduler: duplicate request in box");
++                members[qid] = true;
++                if (common_rank < 0) common_rank = next_rank[qid];
++                TORCH_CHECK(next_rank[qid] == common_rank,
++                            "PAT fixed scheduler: nonuniform member next-rank; unsupported schedule");
++            }
++            box.CTA_rank = common_rank;
++            for (int qid : box.q_table) ++next_rank[qid];
++        }
++        TORCH_CHECK(next_rank == original_counts,
++                    "PAT fixed scheduler: altered per-request contributor counts");
++        std::vector<std::vector<bool>> written(next_rank.size());
++        for (size_t q = 0; q < next_rank.size(); ++q) written[q].resize(next_rank[q], false);
++        for (const auto& box : packed_boxes) {
++            for (int qid : box.q_table) {
++                TORCH_CHECK(box.CTA_rank >= 0 && box.CTA_rank < next_rank[qid],
++                            "PAT fixed scheduler: rank outside gather range");
++                TORCH_CHECK(!written[qid][box.CTA_rank],
++                            "PAT fixed scheduler: overlapping scratch writers");
++                written[qid][box.CTA_rank] = true;
++            }
++        }
++        for (const auto& ranks : written) {
++            TORCH_CHECK(std::all_of(ranks.begin(), ranks.end(), [](bool x) { return x; }),
++                        "PAT fixed scheduler: unwritten gather slot");
++        }
++        split_per_seq = next_rank;
++
+ 
+         std::map<std::vector<int>, std::vector<PackedBox>> grouped;
+         for (const auto& b : buckets) {
