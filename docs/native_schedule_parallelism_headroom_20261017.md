@@ -113,6 +113,11 @@ Prototype: `src/xqa_raw_direct_dslice_{build,runtime}.py`; build receipt
 `configs/xqa_raw_direct_dslice_v1_jobs.json`. CPU compilation initialized no
 CUDA context. Failed preliminary source-anchor/PATH attempts did not execute
 GPU work; the final build receipt covers the successfully compiled sources.
+CPU-only `cuobjdump` of those compiled binaries reports 152 registers/thread
+for D-slice G16 versus 168 for current direct G16, both stack64/local0. This
+does not permit two 256-thread CTAs in the 64K register file; original dynamic
+shared allocation also remains. Exact binary hashes and output are retained
+in `results/xqa_raw_direct_dslice_binary_resources_v1.json`.
 
 ## Deferred alternative: on-chip prefix-to-tail continuation
 
