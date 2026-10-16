@@ -1,0 +1,79 @@
+--- official/pat_fwd_launch_template.h
++++ stream_compat/pat_fwd_launch_template.h
+@@ -1,5 +1,6 @@
+ #pragma once
+ #include "namespace_config.h"
++#include "c10/cuda/CUDAStream.h"
+ #include "c10/cuda/CUDAException.h"  // For C10_CUDA_CHECK and C10_CUDA_KERNEL_LAUNCH_CHECK
+ 
+ #include "static_switch.h"
+@@ -51,7 +52,7 @@
+ 
+ template<typename elem_type, int Headdim>
+ void pat_run_mha_fwd_splitkv_dispatch(std::vector<pat_fwd_params> &params) {
+-    cudaStream_t stream = 0;
++    cudaStream_t stream = c10::cuda::getCurrentCUDAStream().stream();
+     HRatio_SWITCH(params[0].h / params[0].h_k, HRatio, [&]() {
+         if (params[0].max_split_per_seq == 1) {
+             // In this case, we will not run gather_kernel
+@@ -62,6 +63,8 @@
+             const int num_kernels = params.size();
+             const char* disableStreamEnv = std::getenv("DISABLE_STREAM");
+             std::vector<cudaStream_t> streams;
++            std::vector<cudaEvent_t> done_events;
++            cudaEvent_t ready_event = nullptr;
+             if (disableStreamEnv && std::string(disableStreamEnv) == "1") {
+ //                std::cout << "Running without streams due to DISABLE_STREAM environment variable." << std::endl;
+                 for (int i = 0; i < num_kernels; i++) {
+@@ -70,28 +73,44 @@
+                     });
+                 }
+             } else {
++                // Explicit fork: all input/metadata writes on the caller precede children.
++                C10_CUDA_CHECK(cudaEventCreateWithFlags(&ready_event, cudaEventDisableTiming));
++                C10_CUDA_CHECK(cudaEventRecord(ready_event, stream));
+                 for (int i = 0; i < num_kernels; i++) {
+-                    cudaStream_t stream;
+-                    cudaStreamCreate(&stream);
+-                    streams.push_back(stream);
++                    cudaStream_t child_stream;
++                    cudaEvent_t done_event;
++                    C10_CUDA_CHECK(cudaStreamCreate(&child_stream));
++                    C10_CUDA_CHECK(cudaEventCreateWithFlags(&done_event, cudaEventDisableTiming));
++                    streams.push_back(child_stream);
++                    done_events.push_back(done_event);
++                    C10_CUDA_CHECK(cudaStreamWaitEvent(child_stream, ready_event, 0));
+                 }
+                 for (int i = 0; i < num_kernels; i++) {
+                     MNW_SWITCH(params[i].tile_q, params[i].tile_kv, params[i].Warps, kBlockM, kBlockN, Warps, [&]() {
+                         launch<fwd_kernel_traits<elem_type, float, kBlockM, kBlockN, Headdim, Warps, HRatio> >(params[i], streams[i]);
+                     });
++                    C10_CUDA_CHECK(cudaEventRecord(done_events[i], streams[i]));
++                }
++                // Explicit join: gather and allocator reuse on the caller follow every child.
++                for (auto done_event : done_events) {
++                    C10_CUDA_CHECK(cudaStreamWaitEvent(stream, done_event, 0));
+                 }
+             }
+ 
+-            // run gather_kernel on legacy default stream
++            // Run gather on the caller stream after the explicit child joins.
+             dim3 grid_gather(params[0].b, params[0].h);
+ //            std::cout << "grid_gather : " << grid_gather << std::endl;
+             constexpr int WARPS = Headdim == 64 ? 2 : 4;
+             GBLOCKM_SWITCH(params[0].max_split_per_seq, [&]() {
+-                gather_kernel<elem_type, Headdim, BLOCKM, WARPS><<<grid_gather, WARPS*32, 0>>>(params[0]);
++                gather_kernel<elem_type, Headdim, BLOCKM, WARPS><<<grid_gather, WARPS*32, 0, stream>>>(params[0]);
+             });
+             C10_CUDA_KERNEL_LAUNCH_CHECK();
+-            for (auto &stream: streams) {
+-                cudaStreamDestroy(stream);
++            for (auto done_event : done_events) {
++                C10_CUDA_CHECK(cudaEventDestroy(done_event));
++            }
++            if (ready_event != nullptr) C10_CUDA_CHECK(cudaEventDestroy(ready_event));
++            for (auto child_stream : streams) {
++                C10_CUDA_CHECK(cudaStreamDestroy(child_stream));
+             }
+         }
+     });
