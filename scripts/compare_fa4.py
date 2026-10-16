@@ -1,6 +1,7 @@
 """Paired exact-mask FA4/FI/own-union replay, including required copying."""
 import argparse
 import importlib.metadata
+import hashlib
 import itertools
 import json
 import os
@@ -19,7 +20,7 @@ from branchtile.attention import make_plan,reference
 from branchtile.union import FixedUnion
 from flashinfer_baseline import NativeSparseDecode
 from flashinfer_union import NativeUnionPrefill
-from fa4_baseline import FullSourceMasked,GatheredDecode
+from fa4_baseline import FullSourceMasked,GatheredDecode,GatheredUnion
 
 
 def main():
@@ -35,7 +36,7 @@ def main():
     props=torch.cuda.get_device_properties(0)
     flush=torch.zeros(max(2*props.L2_cache_size,256*1024*1024)//4,dtype=torch.float32,device='cuda')
     factories=[]
-    for name,cls in [('fa4_source_mask',FullSourceMasked),('fa4_gather_e0',GatheredDecode)]:
+    for name,cls in [('fa4_source_mask',FullSourceMasked),('fa4_gather_e0',GatheredDecode),('fa4_gather_union',GatheredUnion)]:
         for pack,tile in itertools.product((True,False),((128,64),(64,64))):
             factories.append((name,{'pack_gqa':pack,'tile_mn':tile},lambda cls=cls,pack=pack,tile=tile:cls(q,k,v,owners,b,pack_gqa=pack,tile_mn=tile)))
     for split in (None,128,256,512,1024):
@@ -46,12 +47,14 @@ def main():
         factories.append(('own_union',{'block_n':bn,'split':split,'threads':threads},lambda bn=bn,split=split,threads=threads:FixedUnion(plan,owners,split,bn,threads)))
     rng.shuffle(factories);best={'hot':{},'cold':{}};tuning=[]
     result={'status':'tuning','uid':os.geteuid(),'python':sys.executable,'gpu_uuid':str(props.uuid),
+            'source_sha256':{str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in (Path(__file__),ROOT/'src/fa4_baseline.py')},
             'versions':{x:importlib.metadata.version(x) for x in ('torch','flash-attn-4','flashinfer-python','nvidia-cutlass-dsl','apache-tvm-ffi','tilelang')},
             'provenance':provenance,'q_shape':list(q.shape),'k_shape':list(k.shape),'source_bytes':2*k.numel()*k.element_size(),
             'lse_contract':'Natural log for all arms. FA4 produces ln internally, FI log2-to-ln multiplication is timed, and output layout conversions are timed.',
             'fa4_api':'Unmodified official flash_attn.cute.interface._flash_attn_fwd with preallocated output/LSE; SM120 num_splits=0 resolves to 1.',
             'fa4_source_mask_contract':'Shares original physical K/V without payload copy, exact arbitrary token mask, visits whole source; not paged or block-sparse.',
             'fa4_gather_e0_contract':'Independent per-head/request ragged supports; every complete run includes both index_select K/V gathers plus attention, never credited as zero-copy.',
+            'fa4_gather_union_contract':'Gather each head union once per call, pad shorter head unions with masked finite source values, then joint token-mask attention; both K/V gathers timed.',
             'scope':'Same-mask operator replay, no application or quality claim; plan and compilation costs separate from repeated complete run.',
             'tuning':tuning}
     outpath=Path(a.output);outpath.parent.mkdir(parents=True,exist_ok=True)
@@ -76,7 +79,7 @@ def main():
             if 'illegal memory' in str(exc).lower():tuning.append(row);save();raise
         tuning.append(row);save();print(json.dumps(row),flush=True)
     result['selected']={r:{m:x[0] for m,x in arms.items()} for r,arms in best.items()}
-    required={'fa4_source_mask','fa4_gather_e0','fi_decode','fi_union','own_union'}
+    required={'fa4_source_mask','fa4_gather_e0','fa4_gather_union','fi_decode','fi_union','own_union'}
     if any(required-set(arms) for arms in best.values()):
         result.update(status='failed_qualification',reason='Required arm has no passing exact-mask configuration');save();return
     measurements=[]

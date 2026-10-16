@@ -89,3 +89,31 @@ class GatheredDecode:
     def run(self):
         self.gather()
         return self.run_attention_only()
+
+
+class GatheredUnion(FullSourceMasked):
+    """Joint mask on each head's compact union, with copying in every run."""
+
+    def __init__(self, q, k, v, owners, b, *, pack_gqa=True, tile_mn=None):
+        h,n,d=k.shape
+        selected=[torch.where(owners[head]!=0)[0] for head in range(h)]
+        width=max(len(ids) for ids in selected)
+        indices=torch.zeros((h,width),dtype=torch.int64)
+        compact_owners=torch.zeros((h,width),dtype=torch.int32)
+        for head,ids in enumerate(selected):
+            indices[head].fill_(head*n)
+            indices[head,:len(ids)]=ids+head*n
+            compact_owners[head,:len(ids)]=owners[head,ids].to(torch.int32)
+        compact_k=torch.empty((h,width,d),dtype=k.dtype,device=k.device)
+        compact_v=torch.empty_like(compact_k)
+        super().__init__(q,compact_k,compact_v,compact_owners,b,pack_gqa=pack_gqa,tile_mn=tile_mn)
+        self.source_k,self.source_v=k.view(h*n,d),v.view(h*n,d)
+        self.indices=indices.flatten().to(q.device)
+        self.gather_k,self.gather_v=compact_k.view(h*width,d),compact_v.view(h*width,d)
+        self.payload_copy_bytes_per_call=2*compact_k.numel()*compact_k.element_size()
+        self.union_lengths=[len(ids) for ids in selected]
+
+    def run(self):
+        torch.index_select(self.source_k,0,self.indices,out=self.gather_k)
+        torch.index_select(self.source_v,0,self.indices,out=self.gather_v)
+        return super().run()

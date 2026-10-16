@@ -1,0 +1,287 @@
+{
+  "schema": 1,
+  "created_utc": "2026-10-16T07:36:26.011096+00:00",
+  "conclusion": "Official FA4 b35 qualifies exact BF16 D128 token masks on the tested SM120 shapes, but none of the tuned complete-call paths improves on qualified FlashInfer0.7.2 at these two low-batch long-decode natural points. Even optimistic prepacked attention-only times remain larger. This is not a statement about FA4 training, large prefill or other architectures.",
+  "environment": "results/platform/fa4_environment.json",
+  "immutable_source_audit": "results/platform/fa4_api_scope.json",
+  "qualifications": {
+    "FP64_numerical_and_layout_passes": 13,
+    "expected_interface_rejections": 2,
+    "frozen_tolerances": {
+      "O_atol": 0.006,
+      "O_rtol": 0.015,
+      "LSE_atol": 0.0003,
+      "LSE_rtol": 0.0001
+    },
+    "first_wrapper_failure": "Pilot owner-mask callback used TensorSSA as scalar index, failed compilation; retained and corrected with official SSA conversion. This is our adapter error, not an upstream failure.",
+    "memory_check": {
+      "unfiltered_exit_code": 86,
+      "unfiltered_errors": 68,
+      "version_probe_messages": 34,
+      "invalid_value_cuGetProcAddress_messages": 34,
+      "observed_invalid_global_access_messages": 0,
+      "device_memory_only_api_reporting_disabled_error_count": 0,
+      "interpretation": "Unfiltered sanitizer is NOT clean: CUDA API version negotiation requests13020 on driver13000. The separate --report-api-errors no run leaves device-memory checks enabled and reports0 errors. No claim to reproduce the full MiniMax issue2860 allocator/model context."
+    }
+  },
+  "final_independently_tuned_same_mask_rows": [
+    {
+      "capture": "main30b",
+      "cache": "hot",
+      "B": 3,
+      "heads": 2,
+      "median_us": {
+        "fa4_source_mask": 2375.558376312256,
+        "fa4_gather_e0": 140.72239995002747,
+        "fi_union": 11.802399903535843,
+        "fi_decode": 8.948000147938728,
+        "own_union": 7.223200052976608,
+        "fi_union_AA": 11.788799986243248,
+        "fa4_gather_union": 185.34240126609802
+      },
+      "best_flashinfer_method": "fi_decode",
+      "best_complete_fa4_method": "fa4_gather_e0",
+      "best_complete_fa4_over_best_flashinfer_median_latency": 15.726687262342574,
+      "fi_union_AA_ratio": 1.0003478840268971,
+      "result": "results/fa4/compare_main30b_with_union.json",
+      "sha256": "5fa067a91e643281cc173d090227b6958ff2467f6c1dba101e9dad00a9a20e69"
+    },
+    {
+      "capture": "main30b",
+      "cache": "cold",
+      "B": 3,
+      "heads": 2,
+      "median_us": {
+        "fa4_gather_e0": 147.44000136852264,
+        "fi_decode": 18.432000651955605,
+        "fa4_source_mask": 2646.0158824920654,
+        "fi_union": 22.52800017595291,
+        "own_union": 16.383999958634377,
+        "fa4_gather_union": 208.8959962129593,
+        "fi_union_AA": 22.52800017595291
+      },
+      "best_flashinfer_method": "fi_decode",
+      "best_complete_fa4_method": "fa4_gather_e0",
+      "best_complete_fa4_over_best_flashinfer_median_latency": 7.999131735755419,
+      "fi_union_AA_ratio": 1.0,
+      "result": "results/fa4/compare_main30b_with_union.json",
+      "sha256": "5fa067a91e643281cc173d090227b6958ff2467f6c1dba101e9dad00a9a20e69"
+    },
+    {
+      "capture": "qmsum4b",
+      "cache": "hot",
+      "B": 4,
+      "heads": 8,
+      "median_us": {
+        "fa4_source_mask": 624.9511957168579,
+        "own_union": 12.755999714136124,
+        "fi_union": 13.787999749183655,
+        "fi_decode": 18.49440038204193,
+        "fa4_gather_e0": 246.56399488449097,
+        "fi_union_AA": 13.7472003698349,
+        "fa4_gather_union": 280.45759201049805
+      },
+      "best_flashinfer_method": "fi_union",
+      "best_complete_fa4_method": "fa4_gather_e0",
+      "best_complete_fa4_over_best_flashinfer_median_latency": 17.88250648170263,
+      "fi_union_AA_ratio": 1.0031951282743603,
+      "result": "results/fa4/compare_qmsum4b_with_union.json",
+      "sha256": "eb68fd0cd5935a04173081337bae54dc5a21359dc822966f1768c90970d843b7"
+    },
+    {
+      "capture": "qmsum4b",
+      "cache": "cold",
+      "B": 4,
+      "heads": 8,
+      "median_us": {
+        "own_union": 32.80000016093254,
+        "fi_decode": 35.840000957250595,
+        "fa4_source_mask": 673.8080084323883,
+        "fi_union": 34.81600061058998,
+        "fa4_gather_e0": 251.90401077270508,
+        "fa4_gather_union": 309.2480003833771,
+        "fi_union_AA": 34.81600061058998
+      },
+      "best_flashinfer_method": "fi_union",
+      "best_complete_fa4_method": "fa4_gather_e0",
+      "best_complete_fa4_over_best_flashinfer_median_latency": 7.235294300175404,
+      "fi_union_AA_ratio": 1.0,
+      "result": "results/fa4/compare_qmsum4b_with_union.json",
+      "sha256": "eb68fd0cd5935a04173081337bae54dc5a21359dc822966f1768c90970d843b7"
+    }
+  ],
+  "paired_design": "20 blocks each random/reverse; hot20-call graph and coldsingle-call plus256MiB flush; complete O+natural-log LSE, required gather and layout conversion counted; per-arm tuning filtered by identical FP64 tolerances.",
+  "final_natural_points": 2,
+  "final_point_cache_regimes": 4,
+  "initial_runs_retained_not_additional_tasks": [
+    "results/fa4/compare_main30b.json",
+    "results/fa4/compare_qmsum4b.json"
+  ],
+  "prepacked_lower_bound": [
+    {
+      "capture": "main30b",
+      "method": "fa4_gather_e0",
+      "cache": "hot",
+      "attention_only_median_us": 114.4760012626648
+    },
+    {
+      "capture": "main30b",
+      "method": "fa4_gather_union",
+      "cache": "hot",
+      "attention_only_median_us": 172.00639843940735
+    },
+    {
+      "capture": "main30b",
+      "method": "fa4_gather_e0",
+      "cache": "cold",
+      "attention_only_median_us": 118.78400295972824
+    },
+    {
+      "capture": "main30b",
+      "method": "fa4_gather_union",
+      "cache": "cold",
+      "attention_only_median_us": 196.60800695419312
+    },
+    {
+      "capture": "qmsum4b",
+      "method": "fa4_gather_e0",
+      "cache": "hot",
+      "attention_only_median_us": 114.21360373497009
+    },
+    {
+      "capture": "qmsum4b",
+      "method": "fa4_gather_union",
+      "cache": "hot",
+      "attention_only_median_us": 219.72639560699463
+    },
+    {
+      "capture": "qmsum4b",
+      "method": "fa4_gather_e0",
+      "cache": "cold",
+      "attention_only_median_us": 120.83200365304947
+    },
+    {
+      "capture": "qmsum4b",
+      "method": "fa4_gather_union",
+      "cache": "cold",
+      "attention_only_median_us": 247.80799448490143
+    }
+  ],
+  "prepacked_scope": "Optimistic static-input attention-only diagnostic. K/V packed once before timing; preparation, payload refresh and private-suffix growth omitted. This is not a complete source-layout transition or application baseline. No paired-ratio claim is made from these separate samples.",
+  "msa_applicability": "results/platform/flashinfer_msa_applicability.json",
+  "jobs": [
+    {
+      "name": "fa4_qualification_pilot",
+      "pid": 1249384,
+      "exit_code": 0,
+      "start_utc": "2026-10-16T07:24:02.892086+00:00",
+      "end_utc": "2026-10-16T07:24:10.415960+00:00",
+      "gpus": [
+        4
+      ],
+      "allocated_seconds": 7.5252082105726,
+      "gpu_hours": 0.0020903356140479445
+    },
+    {
+      "name": "fa4_qualification_full",
+      "pid": 1249808,
+      "exit_code": 0,
+      "start_utc": "2026-10-16T07:25:34.842294+00:00",
+      "end_utc": "2026-10-16T07:25:54.682385+00:00",
+      "gpus": [
+        4
+      ],
+      "allocated_seconds": 19.841426865197718,
+      "gpu_hours": 0.005511507462554922
+    },
+    {
+      "name": "fa4_compare_main30b",
+      "pid": 1251790,
+      "exit_code": 0,
+      "start_utc": "2026-10-16T07:28:06.931958+00:00",
+      "end_utc": "2026-10-16T07:29:43.929418+00:00",
+      "gpus": [
+        4
+      ],
+      "allocated_seconds": 96.99880359414965,
+      "gpu_hours": 0.026944112109486013
+    },
+    {
+      "name": "fa4_compare_qmsum4b",
+      "pid": 1252793,
+      "exit_code": 0,
+      "start_utc": "2026-10-16T07:29:43.983141+00:00",
+      "end_utc": "2026-10-16T07:30:17.693365+00:00",
+      "gpus": [
+        4
+      ],
+      "allocated_seconds": 33.711484597064555,
+      "gpu_hours": 0.009364301276962377
+    },
+    {
+      "name": "fa4_varlen_memcheck",
+      "pid": 1253687,
+      "exit_code": 86,
+      "start_utc": "2026-10-16T07:31:37.794842+00:00",
+      "end_utc": "2026-10-16T07:31:46.720583+00:00",
+      "gpus": [
+        4
+      ],
+      "allocated_seconds": 8.92709388770163,
+      "gpu_hours": 0.0024797483021393417
+    },
+    {
+      "name": "fa4_varlen_device_memory_only",
+      "pid": 1254225,
+      "exit_code": 0,
+      "start_utc": "2026-10-16T07:33:00.928731+00:00",
+      "end_utc": "2026-10-16T07:33:09.104173+00:00",
+      "gpus": [
+        4
+      ],
+      "allocated_seconds": 8.176856455393136,
+      "gpu_hours": 0.0022713490153869823
+    },
+    {
+      "name": "fa4_compare_main30badding_union",
+      "pid": 1254396,
+      "exit_code": 0,
+      "start_utc": "2026-10-16T07:33:09.158775+00:00",
+      "end_utc": "2026-10-16T07:33:45.671728+00:00",
+      "gpus": [
+        4
+      ],
+      "allocated_seconds": 36.51426038425416,
+      "gpu_hours": 0.010142850106737267
+    },
+    {
+      "name": "fa4_compare_qmsum4badding_union",
+      "pid": 1254790,
+      "exit_code": 0,
+      "start_utc": "2026-10-16T07:33:45.726045+00:00",
+      "end_utc": "2026-10-16T07:34:20.685717+00:00",
+      "gpus": [
+        4
+      ],
+      "allocated_seconds": 34.961101243272424,
+      "gpu_hours": 0.009711417012020118
+    },
+    {
+      "name": "fa4_prepacked_lower_bound",
+      "pid": 1255376,
+      "exit_code": 0,
+      "start_utc": "2026-10-16T07:35:05.598073+00:00",
+      "end_utc": "2026-10-16T07:35:19.880967+00:00",
+      "gpus": [
+        4
+      ],
+      "allocated_seconds": 14.28434081748128,
+      "gpu_hours": 0.0039678724493003555
+    }
+  ],
+  "P2_allocated_GPUh": 0.07248349334863533,
+  "P2_allocation_cap_GPUh": 0.3,
+  "active_GPU_jobs": 0,
+  "GPU4_released": true,
+  "failures_preserved": true
+}

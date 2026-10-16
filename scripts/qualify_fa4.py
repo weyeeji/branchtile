@@ -26,7 +26,7 @@ def errors(out, lse, ref, ref_lse):
 
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--output',required=True);p.add_argument('--quick',action='store_true');a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--output',required=True);p.add_argument('--quick',action='store_true');p.add_argument('--varlen-only',action='store_true');a=p.parse_args()
     assert os.geteuid()!=0 and sys.prefix!=sys.base_prefix
     torch.set_num_threads(4);torch.manual_seed(20261016)
     result={'status':'running','started_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),
@@ -45,7 +45,7 @@ def main():
             if 'illegal memory' in str(exc).lower():
                 result['cases'].append(row);save();raise
         row['seconds']=time.monotonic()-start;result['cases'].append(row);save();print(json.dumps(row),flush=True)
-    for b,g in ([(1,4)] if a.quick else [(b,g) for b in (1,3,4) for g in (4,8)]):
+    for b,g in ([] if a.varlen_only else [(1,4)] if a.quick else [(b,g) for b in (1,3,4) for g in (4,8)]):
         h,n,d=2,257,128
         q=torch.randn(h,b*g,d,device='cuda',dtype=torch.bfloat16)
         k=torch.randn(h,n,d,device='cuda',dtype=torch.bfloat16);v=torch.randn_like(k)
