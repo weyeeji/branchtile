@@ -24,6 +24,10 @@ class SharedPlanGraphWorkerExtension(SparseGraphWorkerExtension):
             counter=f'{method}:B{batch}:L{layer}'
             state['graph_capture_calls'][counter]=state['graph_capture_calls'].get(counter,0)+1
             return state['shared_plans'][method,batch].run_layer(layer,query,output=output)
+        if meta is not None and 'batch' in state:
+            # Compilation may bypass the late-installed parent-module hook;
+            # actual runner token positions follow the same query row order.
+            state['positions'][layer]=state['batch'].positions
         return super()._sparse_forward(layer,original,attn_layer,query,key,value,cache,meta,output,output_scale,output_block_scale)
 
     def _prepare_sparse_graph(self,metadata):

@@ -21,6 +21,7 @@ def main():
     p.add_argument('--shared-decode-plan',action='store_true')
     p.add_argument('--shared-union-plan',action='store_true')
     p.add_argument('--compare-no-shadow',action='store_true')
+    p.add_argument('--compile-mode',type=int,default=0)
     args=p.parse_args()
     shared=args.shared_decode_plan or args.shared_union_plan
     assert os.geteuid()!=0 and sys.prefix!=sys.base_prefix
@@ -44,7 +45,7 @@ def main():
     engine=dict(model=model,tensor_parallel_size=2,dtype='bfloat16',kv_cache_dtype='auto',
         max_model_len=98304,max_num_seqs=3,max_num_batched_tokens=4096,enable_prefix_caching=True,
         enforce_eager=False,gpu_memory_utilization=.80,disable_custom_all_reduce=True,enable_batch_sharded_sampling=False,
-        compilation_config={'mode':0,'cudagraph_mode':'FULL_DECODE_ONLY','cudagraph_capture_sizes':[1,2,3]},
+        compilation_config={'mode':args.compile_mode,'cudagraph_mode':'FULL_DECODE_ONLY','cudagraph_capture_sizes':[1,2,3]},
         worker_extension_cls=('scripts.vllm_shared_plan_graph_worker.SharedPlanGraphWorkerExtension' if shared else 'scripts.vllm_sparse_graph_worker.SparseGraphWorkerExtension'),seed=20261016)
     report['engine_configuration']=engine;save()
     llm=LLM(**engine)
