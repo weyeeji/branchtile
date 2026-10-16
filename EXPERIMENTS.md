@@ -77,5 +77,56 @@ and conclusions; weights, captures, venv and compiler caches are ignored.
   First loading attempt failed on missing `accelerate`; this dependency was
   installed only in the project venv, with the failed attempt retained.
 
-The goal remains active: neither operator qualification against all strong
-controls nor application feasibility/quality has been established.
+## Paired comparison checkpoint (2026-10-16 13:14 CST)
+
+V2 passed all 17 FP64/memcheck cases and runtime-changing M16/M32 racecheck.
+Configurations are tuned independently for hot and cold cache, then measured
+in 30 randomized/reversed paired blocks with fixed A/A and block bootstrap.
+The following are complete producer-plus-merge times in microseconds, not
+application speedups. Raw records are in `results/paired/`.
+
+| Synthetic shape | Cache | Native FlashInfer | Fixed region loop | Dynamic v2 |
+|---|---|---:|---:|---:|
+| cross, 16K, GQA8 | hot | 10.48 | 14.74 | 16.45 |
+| cross, 16K, GQA8 | cold | 24.58 | 26.62 | 28.67 |
+| cross, 128K, GQA8 | hot | 82.74 | 92.47 | 94.38 |
+| cross, 128K, GQA8 | cold | 106.50 | 100.35 | 106.46 |
+| mixed, 64K, GQA8 | hot | 27.60 | 39.39 | 52.98 |
+| mixed, 64K, GQA8 | cold | 57.34 | 63.49 | 77.82 |
+| cross, 64K, GQA4 | hot | 26.32 | 26.58 | 29.84 |
+| cross, 64K, GQA4 | cold | 57.38 | 57.34 | 59.39 |
+
+The first older-BF16-30B natural replay (QMSum group 0, four preselected layers,
+4K document budget, step 1, including full system prefix/private suffix) also
+loses: hot native 7.93–7.97 us, fixed 21.22–21.61 us, dynamic v2 26.22–27.41 us.
+These are serially captured operator inputs, not simultaneous ready requests,
+not the specified 2507 main checkpoint, and not quality measurements.
+
+A bounded v3 attempt keeps canonical FP32 output state in registers and reuses
+K/V shared storage during exact-bit state transfers. It achieves 48,384 bytes
+shared memory, 240 registers, and no local/spill allocation, but still fails:
+fixed/candidate = 0.738 (16K hot), 0.993 (128K hot), both below the approximately
+1.15 progression threshold. Five FP64/memcheck cases and dynamic-map racecheck
+pass. The conservative allocation bound is 0.153 GPU hours. No further dynamic
+layout iteration is justified by these measurements; see
+`results/kernel_ablation_v3/qualification.json`.
+
+The 48-case strict 2×2 comparison is retained in `results/kernel_ablation_v2/`.
+Region-partial execution is often faster despite writing full canonical rows;
+the current evidence does not support a general performance benefit from
+cross-region state residency. This partial implementation is not an optimized
+packed E3 reproduction.
+
+An additional fixed-row masked union can tile across owner-region boundaries,
+eliminating their individual short-tail padding. It passes six FP64 tests and
+memcheck (zero errors). It is a stronger existing-mechanism control, not a new
+contribution; five independent comparisons are running. All eight frozen QMSum
+development documents have older-30B captures; official 4B weights are now
+verified against immutable HF hashes. Official 30B-FP8 weights are still
+downloading. A separate `.venv-engine` now imports official vLLM 0.31.0 and
+Torch 2.13.0+cu130 successfully; actual target TP2 model deployment is not yet
+qualified.
+
+The goal remains active. Evidence currently argues against the core performance
+hypothesis. The missing target-checkpoint/application/quality, fixed-partition,
+and exact hierarchy evaluations must not be described as completed.
