@@ -1,0 +1,75 @@
+{
+  "schema": 1,
+  "protocol_id": "native-physical-alias-causal-control-v1-20261016",
+  "code_sha256": {
+    "scripts/bench_native_physical_alias.py": "799b4414455af309a4e9a2da191b254efaac4a4d525ce6273f711f6cf4761700",
+    "scripts/compare_attention.py": "a23b40b1139e93fbb2bd7f5e8794b1885e4df8778bc83114e845829fb1a7e2e2",
+    "src/flashinfer_baseline.py": "942eb00c9442393871af9cdab140e83de00bb05c30d2c36fa04a1d0735bc50fa",
+    "src/branchtile/attention.py": "2878475c1273f527f95f629090e275c5a99f9dbad6c67646c40657692c20673d",
+    ".venv-latest/lib/python3.12/site-packages/flashinfer/decode.py": "de1f242bf2f598bc973a9d2f9625f8db1e4ccfc24085f686b2d0304c9076b20d"
+  },
+  "sources": [
+    {
+      "id": "docfinqa256",
+      "directory": "results/captures/main30b_tp2_docfinqa256_suffix_v2/rank0",
+      "document_sha256": "c0f11a67aae850fc423d60b5c3839769c083888b4d2e73c6d47b359547f44e46",
+      "files_sha256": {
+        "metadata.json": "c8edc90d6751ed8cef30b7cc4a38151d0bfbce900aea1d2429c366d177123da6",
+        "source_l15.pt": "69f573933c7ad55e3d0206a086e0b0d52cfd6d7cb9c8dab76dc4bbfa4948fa60",
+        "decode_q0_l15_s64.pt": "93dec2055abcfb2b10a0266d52748f35f85e471dc8499d2dc53b6f7fab0190d6",
+        "decode_q1_l15_s64.pt": "6a7c57c711ffd70f08ce3408aaf1c89b77cf5fef655cb2ffcc79d85d6cef1cbf",
+        "decode_q2_l15_s64.pt": "6803762ce5640f2936e7be1b9e61ca7432be9682b76a36cb2e77ea6487d169f3",
+        "masks_l15_b4096.pt": "e89d7e7dc9970adeec9c71241ad7d9bb88896a8cbd727bd7c085129b0c857c0d",
+        "masks_l15_b8192.pt": "5c099ba24db43f3958b7896f9369433bed0c6a3c6cf33c576eb2c02efd037436",
+        "masks_l15_b16384.pt": "02864c1a0dfa1aab353613ffac9869017461eea2ed9283501e5a8880449f7314",
+        "masks_l15_b32768.pt": "c39dc97d085a2a13e1ef40ab20701ca519ea17457815ff3797906c6b111499bc"
+      }
+    },
+    {
+      "id": "publicdev1_256",
+      "directory": "results/captures/main30b_tp2_publicdev1_256_suffix_v2/rank0",
+      "document_sha256": "593ec0c33f45ea02d1139d061d3f5fcec367a50c2e44b7f29e815611bc65124b",
+      "files_sha256": {
+        "metadata.json": "84df3ed55785205691953e7d2152cb20e7a0a7c58478f5c520e7443c808ea311",
+        "source_l15.pt": "503e64cdcebe00527730657ab6134d10a5327a78deec75753c150d09897080ed",
+        "decode_q0_l15_s64.pt": "4907b7f5dc8622b0e3fd8dfd46fc5e97cde857b4866f9cd3edde84084435b4b5",
+        "decode_q1_l15_s64.pt": "e42b70c03769ff9cc8a9b4f3bcd3c064bd92accb38aca4f8fddc9f4ade6e6288",
+        "decode_q2_l15_s64.pt": "865d6a180b2104d3805c5b0dd836e1d90b92d050b874ce570dcf8d5fa93dfd8a",
+        "masks_l15_b4096.pt": "4dc8c095655a6473c169720f13e4337c636d8f012388b7b3dc6cd371109350b0",
+        "masks_l15_b8192.pt": "490184038a9b1452ce97dfc0ba86eabfff8350c2285312457653c4639026a959",
+        "masks_l15_b16384.pt": "cc4d3c21c71c1d7c28139694840277515639a05dd5e5fbd40362ba2663f3c1be",
+        "masks_l15_b32768.pt": "499686b5932d967a25900b9dd0d1abef44e6a1fce573273e2e1c1e0be8dc70fd"
+      }
+    }
+  ],
+  "budgets": [
+    4096,
+    8192,
+    16384,
+    32768
+  ],
+  "arms": [
+    "shared0",
+    "private0",
+    "shared1",
+    "private1",
+    "shared2",
+    "private2"
+  ],
+  "random_seed": 20261016,
+  "bootstrap_seed": 20261017,
+  "paired_blocks": 30,
+  "hot_repetitions": 32,
+  "scope": "Single real layer15 step64 B3 GQA8 head2 capture; production BH page1 native E0 O-only plus mandatory output copy. Not full model.",
+  "qualification": "All arms same logical support order/lengths/native plan, BF16 input replicas bitwise; output and raw LSE bitwise, output FP64 atol .006 rtol .015. Any failure stops timing and remains charged.",
+  "cache_regimes": {
+    "hot": "Self-warm before every 32-call graph chain; repeated one-layer working set.",
+    "cold": "One call only, >2 L2 flush outside timer; retain 2.048us event quantization limit. No cold chain averaging."
+  },
+  "interpretation": "Only effects of physical address sharing on this native operation. Active footprint, TLB, partitioning and cache reuse may all contribute. No DRAM/L2-counter or application claim. 8 cells on 8 GPUs; within-cell paired effects only, no cross-budget device causal claim.",
+  "cold_reporting_gate": "For a directional latency claim require bootstrap ratio CI excludes 1, median absolute latency difference >=2.048us, and difference exceeds both A/A absolute shifts; otherwise unresolved at this timing resolution.",
+  "retry_policy": "No automatic retry; retain failures.",
+  "maximum_allocated_gpu_hours_including_15s_cleanup": 0.3,
+  "mapping_installation": "One wrapper/plan/Q/output/workspace/indices buffer shared by all arms; copy prepared arm indices to that buffer outside timer before hot self-warm or cold flush. Installation is not included in attention time.",
+  "address_sensitive_graph_qualification": "For every captured graph, replace each physical replica V with 17, require only mapped request rows change to 17 within BF16 .05 absolute, unmapped requests bitwise unchanged; restore and require original output bitwise."
+}
