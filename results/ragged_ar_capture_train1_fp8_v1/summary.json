@@ -1,0 +1,4319 @@
+{
+  "status": "completed",
+  "args": {
+    "protocol": "configs/native_opportunity_b8_training_v1.json",
+    "document_id": "docfinqa-680456070a0a0714",
+    "kv_dtype": "fp8_e4m3",
+    "steps": 8,
+    "output": "results/ragged_ar_capture_train1_fp8_v1"
+  },
+  "protocol": {
+    "schema": 1,
+    "protocol_id": "native-opportunity-dense-b8-training-v1-20261016",
+    "status": "proposed_not_launched",
+    "model_path": "data/models/Qwen3-30B-A3B-Thinking-2507-FP8",
+    "model_revision": "60d80c83c53c3b611c642dbb8c942b3f90c5948a",
+    "manifest": "data/manifests/docfinqa_training_large_group_pilot_v1.json",
+    "documents": [
+      {
+        "document_id": "docfinqa-680456070a0a0714",
+        "document_sha256": "680456070a0a07142bb8ab69842ecd2dd5b80eb36348d7a1ab394dd268d5b36f",
+        "prompt_lengths": [
+          120571,
+          120563,
+          120576,
+          120574,
+          120560,
+          120570,
+          120565,
+          120560
+        ],
+        "prompt_token_hashes": [
+          "5033ca2afc1cfd46f060bd7a57f0adc8211da336e721efa0ed00f2b84ec504c7",
+          "f528e57b38ed764db31bb9b99b439e36bcc426be1a1294d938a7d5d422552843",
+          "e4e2e6bf1181909d6497563f422cc70ae2b3e6e245b95ffad97b7e83cf815f1a",
+          "0ad1471b404de9913c6cada5c8337c6f61eb5102e88e41b9e54fa7445c6c5d2c",
+          "6fdeddd4d741bcaa803d39433afb5137109b80041275ef1068ab14b7e815b290",
+          "d93019830831218280e56c94f233c78b8ce6be52aae71fb3141e5f7b0d53e59d",
+          "a1c37620b37851e55e89145fa121e69848e609c4ca5594e78ce0ba9556225471",
+          "5de3433caca4325cea8582787dbddda805885a9a98045c8608ff1db213e7754d"
+        ],
+        "document_token_range": [
+          34,
+          120540
+        ]
+      },
+      {
+        "document_id": "docfinqa-f1d5c3003725d29c",
+        "document_sha256": "f1d5c3003725d29c89cd85fde3885ff6e6891d69b22a87357f15574f7b4ed5d5",
+        "prompt_lengths": [
+          144616,
+          144612,
+          144624,
+          144612,
+          144616,
+          144604,
+          144615,
+          144624
+        ],
+        "prompt_token_hashes": [
+          "77a43ae7dcee68ba9b069ff15f197f91c35ad27712d4eb69d45c0559ea1fda6b",
+          "dc8a9d6f83bf7febdaf482e7d238f27f23b0644f93c9bdd67d9b0dffa3f3ee05",
+          "b89f3cd71bc622924a1074193b64a55a5957b63be637d7149de7ecc181acd8d4",
+          "b8c2c153ace45acd140faf81b6228c5182325a298ae21b006d9d808255d9b4a2",
+          "891d3c82f724d941ca1a7cc6f3deda414c8689a9e524fedad7633044ae8525cc",
+          "b7f99f20bf91f558414d524675bc82eb6b2a54f13a9dd28892b5844b6fb90344",
+          "32580d871f318fe23f8297609ffccf1979947aa363b30e3f4b1c817f6687b4bc",
+          "5e845f18b5ded23d2b8655a27f7d4c33ba55a0d9972e9ff2740c442fdb2b7120"
+        ],
+        "document_token_range": [
+          34,
+          144583
+        ]
+      }
+    ],
+    "engine": {
+      "tensor_parallel_size": 2,
+      "dtype": "bfloat16",
+      "block_size": 16,
+      "max_model_len": 163840,
+      "max_num_seqs": 8,
+      "max_num_batched_tokens": 4096,
+      "enable_prefix_caching": true,
+      "enforce_eager": false,
+      "gpu_memory_utilization": 0.9,
+      "disable_custom_all_reduce": true,
+      "enable_batch_sharded_sampling": false,
+      "compilation_config": {
+        "mode": 3,
+        "cudagraph_mode": "FULL_DECODE_ONLY",
+        "cudagraph_capture_sizes": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8
+        ]
+      },
+      "attention_config": {
+        "backend": "FLASHINFER"
+      },
+      "seed": 20261016
+    },
+    "seed": 20261016,
+    "sampling": {
+      "temperature": 0.6,
+      "top_p": 0.95,
+      "seed": 20261016,
+      "max_tokens": 8192,
+      "ignore_eos": false,
+      "top_k": 0,
+      "min_p": 0.0,
+      "repetition_penalty": 1.0
+    },
+    "purpose": "Measure dense APC-warm B8 whole-model opportunity on natural questions, not rerun failed sparse B8 dynamic kernel.",
+    "source_audit": "results/dense_b8_opportunity_v1/audit.json",
+    "limitations": [
+      "Baseline-only measurement; neither a candidate speedup nor formal quality result.",
+      "Fixed128 valid generation ignores EOS; same cap is not a guarantee of same cross-precision token work.",
+      "Graph profiling is separate from unprofiled wall measurements; no rank-time summation.",
+      "These two training documents do not establish general agent fanout or arrival distributions.",
+      "Root must freeze launch sources and resource accounting before use; no GPU was launched by this audit."
+    ]
+  },
+  "uid": 1000,
+  "python": "/home/qcjz/iscas/.venv-engine/bin/python",
+  "scope": "Capture real consecutive AR states for causal multi-query attention replay.",
+  "source_sha256": {
+    "scripts/capture_ragged_verify_state.py": "4175bcd483d77bef8cbd596c46c86c9bc84602d2b29c54b851b53acf028e3474",
+    "scripts/vllm_ragged_state_capture_worker.py": "0288af5ca469bb9e0d170328a49bb39ac3910588814b3df318db6e8b1a729886",
+    "scripts/vllm_native_precision_worker.py": "0b48d53b15d17c47f73b99e0399e112bde237f449f874d38f8485a520d60504f",
+    "scripts/vllm_native_backend_worker.py": "08cbe98802c91f42bfd97b6192dab91756e1abdf7688f4e6c3dd388d5e9a7c61"
+  },
+  "engine": {
+    "tensor_parallel_size": 2,
+    "dtype": "bfloat16",
+    "block_size": 16,
+    "max_model_len": 163840,
+    "max_num_seqs": 8,
+    "max_num_batched_tokens": 4096,
+    "enable_prefix_caching": true,
+    "enforce_eager": true,
+    "gpu_memory_utilization": 0.9,
+    "disable_custom_all_reduce": true,
+    "enable_batch_sharded_sampling": false,
+    "compilation_config": {
+      "mode": 3,
+      "cudagraph_mode": "FULL_DECODE_ONLY",
+      "cudagraph_capture_sizes": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ]
+    },
+    "attention_config": {
+      "backend": "FLASHINFER"
+    },
+    "seed": 20261016,
+    "model": "data/models/Qwen3-30B-A3B-Thinking-2507-FP8",
+    "kv_cache_dtype": "fp8_e4m3",
+    "worker_extension_cls": "scripts.vllm_ragged_state_capture_worker.RaggedStateCaptureWorker"
+  },
+  "initialization_seconds": 40.52468813769519,
+  "configured": [
+    {
+      "rank": 0,
+      "layers": [
+        {
+          "name": "model.layers.0.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.1.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.2.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.3.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.4.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.5.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.6.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.7.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.8.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.9.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.10.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.11.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.12.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.13.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.14.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.15.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.16.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.17.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.18.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.19.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.20.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.21.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.22.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.23.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.24.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.25.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.26.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.27.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.28.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.29.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.30.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.31.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.32.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.33.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.34.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.35.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.36.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.37.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.38.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.39.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.40.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.41.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.42.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.43.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.44.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.45.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.46.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.47.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        }
+      ],
+      "graph_descriptors": [],
+      "source_sha256": "08cbe98802c91f42bfd97b6192dab91756e1abdf7688f4e6c3dd388d5e9a7c61",
+      "deployment": {
+        "pid": 1509759,
+        "tp_world_size": 2,
+        "rank_in_group": 0,
+        "device_name": "NVIDIA GeForce RTX 5090",
+        "device_capability": [
+          12,
+          0
+        ],
+        "device_properties": "_CudaDeviceProperties(name='NVIDIA GeForce RTX 5090', major=12, minor=0, total_memory=32109MB, multi_processor_count=170, uuid=a968eb06-fbdc-36af-d507-50240e0e50a3, pci_bus_id=12, pci_device_id=0, pci_domain_id=0, L2_cache_size=96MB)",
+        "parameter_elements_by_dtype": {
+          "torch.bfloat16": 323958784,
+          "torch.float8_e4m3fn": 14948499456,
+          "torch.int32": 32342016
+        },
+        "quantization_methods": {
+          "vllm.model_executor.layers.vocab_parallel_embedding.UnquantizedEmbeddingMethod": {
+            "count": 2,
+            "resolved_fp8_backends": []
+          },
+          "vllm.model_executor.layers.quantization.fp8.Fp8LinearMethod": {
+            "count": 96,
+            "resolved_fp8_backends": []
+          },
+          "vllm.model_executor.layers.quantization.fp8.Fp8KVCacheMethod": {
+            "count": 48,
+            "resolved_fp8_backends": []
+          },
+          "vllm.model_executor.layers.linear.UnquantizedLinearMethod": {
+            "count": 48,
+            "resolved_fp8_backends": []
+          },
+          "vllm.model_executor.layers.quantization.fp8.Fp8MoEMethod": {
+            "count": 48,
+            "resolved_fp8_backends": [
+              "Fp8MoeBackend.DEEPGEMM"
+            ]
+          }
+        },
+        "memory_free_bytes": 1905852416,
+        "memory_total_bytes": 33668726784,
+        "torch_peak_allocated_bytes": 30704572928,
+        "torch_peak_reserved_bytes": 30742151168,
+        "cache_dtype": "fp8_e4m3",
+        "model_dtype": "torch.bfloat16",
+        "actual_kv_tensor_dtypes": [
+          "torch.uint8"
+        ],
+        "cache_block_size": 16,
+        "cache_num_gpu_blocks": 35621,
+        "max_model_len": 163840
+      },
+      "scope": "Native model/attention/cache execution unchanged; only CPU metadata identity and step timing records.",
+      "precision_probe_identity": "Prompt hash from CPU admission; no GPU token readback in graph wrapper. CPU hashing remains charged."
+    },
+    {
+      "rank": 1,
+      "layers": [
+        {
+          "name": "model.layers.0.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.1.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.2.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.3.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.4.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.5.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.6.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.7.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.8.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.9.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.10.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.11.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.12.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.13.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.14.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.15.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.16.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.17.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.18.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.19.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.20.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.21.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.22.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.23.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.24.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.25.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.26.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.27.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.28.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.29.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.30.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.31.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.32.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.33.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.34.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.35.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.36.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.37.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.38.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.39.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.40.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.41.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.42.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.43.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.44.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.45.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.46.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.47.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        }
+      ],
+      "graph_descriptors": [],
+      "source_sha256": "08cbe98802c91f42bfd97b6192dab91756e1abdf7688f4e6c3dd388d5e9a7c61",
+      "deployment": {
+        "pid": 1509760,
+        "tp_world_size": 2,
+        "rank_in_group": 1,
+        "device_name": "NVIDIA GeForce RTX 5090",
+        "device_capability": [
+          12,
+          0
+        ],
+        "device_properties": "_CudaDeviceProperties(name='NVIDIA GeForce RTX 5090', major=12, minor=0, total_memory=32109MB, multi_processor_count=170, uuid=ae92c55e-dadf-1a1d-e921-b36b5a212fa5, pci_bus_id=50, pci_device_id=0, pci_domain_id=0, L2_cache_size=96MB)",
+        "parameter_elements_by_dtype": {
+          "torch.bfloat16": 323958784,
+          "torch.float8_e4m3fn": 14948499456,
+          "torch.int32": 32342016
+        },
+        "quantization_methods": {
+          "vllm.model_executor.layers.vocab_parallel_embedding.UnquantizedEmbeddingMethod": {
+            "count": 2,
+            "resolved_fp8_backends": []
+          },
+          "vllm.model_executor.layers.quantization.fp8.Fp8LinearMethod": {
+            "count": 96,
+            "resolved_fp8_backends": []
+          },
+          "vllm.model_executor.layers.quantization.fp8.Fp8KVCacheMethod": {
+            "count": 48,
+            "resolved_fp8_backends": []
+          },
+          "vllm.model_executor.layers.linear.UnquantizedLinearMethod": {
+            "count": 48,
+            "resolved_fp8_backends": []
+          },
+          "vllm.model_executor.layers.quantization.fp8.Fp8MoEMethod": {
+            "count": 48,
+            "resolved_fp8_backends": [
+              "Fp8MoeBackend.DEEPGEMM"
+            ]
+          }
+        },
+        "memory_free_bytes": 1956315136,
+        "memory_total_bytes": 33668726784,
+        "torch_peak_allocated_bytes": 30704572928,
+        "torch_peak_reserved_bytes": 30742151168,
+        "cache_dtype": "fp8_e4m3",
+        "model_dtype": "torch.bfloat16",
+        "actual_kv_tensor_dtypes": [
+          "torch.uint8"
+        ],
+        "cache_block_size": 16,
+        "cache_num_gpu_blocks": 35621,
+        "max_model_len": 163840
+      },
+      "scope": "Native model/attention/cache execution unchanged; only CPU metadata identity and step timing records.",
+      "precision_probe_identity": "Prompt hash from CPU admission; no GPU token readback in graph wrapper. CPU hashing remains charged."
+    }
+  ],
+  "armed": [
+    {
+      "rank": 0,
+      "armed": true
+    },
+    {
+      "rank": 1,
+      "armed": true
+    }
+  ],
+  "outputs": [
+    {
+      "tokens": [
+        40,
+        1184,
+        311,
+        1477,
+        279,
+        11414,
+        315,
+        7225,
+        52042,
+        6649,
+        4221
+      ],
+      "finish_reason": "length"
+    },
+    {
+      "tokens": [
+        40,
+        1184,
+        311,
+        1477,
+        279,
+        11414,
+        315,
+        7225,
+        52042,
+        3613,
+        2878
+      ],
+      "finish_reason": "length"
+    },
+    {
+      "tokens": [
+        40,
+        1184,
+        311,
+        1477,
+        279,
+        11341,
+        315,
+        8350,
+        323,
+        8350,
+        85006
+      ],
+      "finish_reason": "length"
+    },
+    {
+      "tokens": [
+        40,
+        1184,
+        311,
+        1477,
+        1995,
+        911,
+        279,
+        23390,
+        315,
+        21863,
+        12120
+      ],
+      "finish_reason": "length"
+    },
+    {
+      "tokens": [
+        40,
+        1184,
+        311,
+        1477,
+        279,
+        2790,
+        897,
+        315,
+        57065,
+        504,
+        279
+      ],
+      "finish_reason": "length"
+    },
+    {
+      "tokens": [
+        40,
+        1184,
+        311,
+        1477,
+        279,
+        44868,
+        1372,
+        315,
+        2790,
+        8353,
+        6457
+      ],
+      "finish_reason": "length"
+    },
+    {
+      "tokens": [
+        40,
+        1184,
+        311,
+        1477,
+        279,
+        897,
+        315,
+        279,
+        2790,
+        47507,
+        323
+      ],
+      "finish_reason": "length"
+    },
+    {
+      "tokens": [
+        40,
+        1184,
+        311,
+        1477,
+        279,
+        2790,
+        897,
+        315,
+        11770,
+        369,
+        19858
+      ],
+      "finish_reason": "length"
+    }
+  ],
+  "workers": [
+    {
+      "status": "completed",
+      "rank": 0,
+      "files": [
+        {
+          "layer": 0,
+          "path": "/home/qcjz/iscas/results/ragged_ar_capture_train1_fp8_v1/rank0/ragged_capture/layer0.pt",
+          "bytes": 62745545,
+          "sha256": "a42dd9c73800b14c9670fbc4cd8d60bdbfd0a7e3007959c88c328e5f12cfbd4d",
+          "common_prefix_tokens": 120528,
+          "query_steps": 8
+        },
+        {
+          "layer": 15,
+          "path": "/home/qcjz/iscas/results/ragged_ar_capture_train1_fp8_v1/rank0/ragged_capture/layer15.pt",
+          "bytes": 62745557,
+          "sha256": "eec0694acb1dd741cc4afff516cb2f11ab9ef75d28648fc4307d4729c6ba1c56",
+          "common_prefix_tokens": 120528,
+          "query_steps": 8
+        },
+        {
+          "layer": 31,
+          "path": "/home/qcjz/iscas/results/ragged_ar_capture_train1_fp8_v1/rank0/ragged_capture/layer31.pt",
+          "bytes": 62745557,
+          "sha256": "40115191776835129481cb0c7494596cda651e7a4cb3310ead6022bd183a7d0f",
+          "common_prefix_tokens": 120528,
+          "query_steps": 8
+        },
+        {
+          "layer": 47,
+          "path": "/home/qcjz/iscas/results/ragged_ar_capture_train1_fp8_v1/rank0/ragged_capture/layer47.pt",
+          "bytes": 62745557,
+          "sha256": "bd0af1faf861fa46e1549fc3a9f64cd7f1f7f8dffe0e68e05468074b13cca07b",
+          "common_prefix_tokens": 120528,
+          "query_steps": 8
+        }
+      ],
+      "steps": {
+        "0": 8,
+        "15": 8,
+        "31": 8,
+        "47": 8
+      },
+      "source_sha256": "0288af5ca469bb9e0d170328a49bb39ac3910588814b3df318db6e8b1a729886"
+    },
+    {
+      "status": "completed",
+      "rank": 1,
+      "files": [
+        {
+          "layer": 0,
+          "path": "/home/qcjz/iscas/results/ragged_ar_capture_train1_fp8_v1/rank1/ragged_capture/layer0.pt",
+          "bytes": 62745545,
+          "sha256": "cfb53f01766b98d86e97f6bb1e30fddd4142900e9c5e1f350fda5326ed5365ff",
+          "common_prefix_tokens": 120528,
+          "query_steps": 8
+        },
+        {
+          "layer": 15,
+          "path": "/home/qcjz/iscas/results/ragged_ar_capture_train1_fp8_v1/rank1/ragged_capture/layer15.pt",
+          "bytes": 62745557,
+          "sha256": "9d7394e7c98f90e1842502c1b9847e47aaceb8e2ef24dcec9f29b1f277afe86f",
+          "common_prefix_tokens": 120528,
+          "query_steps": 8
+        },
+        {
+          "layer": 31,
+          "path": "/home/qcjz/iscas/results/ragged_ar_capture_train1_fp8_v1/rank1/ragged_capture/layer31.pt",
+          "bytes": 62745557,
+          "sha256": "c8b660765685416c6fa93e629ad93bb3247d213e2d68f936d9866bb8664c844f",
+          "common_prefix_tokens": 120528,
+          "query_steps": 8
+        },
+        {
+          "layer": 47,
+          "path": "/home/qcjz/iscas/results/ragged_ar_capture_train1_fp8_v1/rank1/ragged_capture/layer47.pt",
+          "bytes": 62745557,
+          "sha256": "fc88073b34c10aa5517ccf8854a34e4a1c21fb0bd58a200668ad2c828b010e2e",
+          "common_prefix_tokens": 120528,
+          "query_steps": 8
+        }
+      ],
+      "steps": {
+        "0": 8,
+        "15": 8,
+        "31": 8,
+        "47": 8
+      },
+      "source_sha256": "0288af5ca469bb9e0d170328a49bb39ac3910588814b3df318db6e8b1a729886"
+    }
+  ],
+  "native_receipts": [
+    {
+      "rank": 0,
+      "expected_cache_dtype": "fp8_e4m3",
+      "layers": [
+        {
+          "layer": 0,
+          "name": "model.layers.0.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 0,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 1,
+          "name": "model.layers.1.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 291807232,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 2,
+          "name": "model.layers.2.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 583614464,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 3,
+          "name": "model.layers.3.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 875421696,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 4,
+          "name": "model.layers.4.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 1167228928,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 5,
+          "name": "model.layers.5.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 1459036160,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 6,
+          "name": "model.layers.6.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 1750843392,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 7,
+          "name": "model.layers.7.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 2042650624,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 8,
+          "name": "model.layers.8.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 2334457856,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 9,
+          "name": "model.layers.9.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 2626265088,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 10,
+          "name": "model.layers.10.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 2918072320,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 11,
+          "name": "model.layers.11.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 3209879552,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 12,
+          "name": "model.layers.12.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 3501686784,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 13,
+          "name": "model.layers.13.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 3793494016,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 14,
+          "name": "model.layers.14.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 4085301248,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 15,
+          "name": "model.layers.15.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 4377108480,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 16,
+          "name": "model.layers.16.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 4668915712,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 17,
+          "name": "model.layers.17.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 4960722944,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 18,
+          "name": "model.layers.18.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 5252530176,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 19,
+          "name": "model.layers.19.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 5544337408,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 20,
+          "name": "model.layers.20.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 5836144640,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 21,
+          "name": "model.layers.21.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 6127951872,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 22,
+          "name": "model.layers.22.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 6419759104,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 23,
+          "name": "model.layers.23.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 6711566336,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 24,
+          "name": "model.layers.24.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 7003373568,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 25,
+          "name": "model.layers.25.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 7295180800,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 26,
+          "name": "model.layers.26.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 7586988032,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 27,
+          "name": "model.layers.27.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 7878795264,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 28,
+          "name": "model.layers.28.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 8170602496,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 29,
+          "name": "model.layers.29.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 8462409728,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 30,
+          "name": "model.layers.30.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 8754216960,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 31,
+          "name": "model.layers.31.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 9046024192,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 32,
+          "name": "model.layers.32.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 9337831424,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 33,
+          "name": "model.layers.33.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 9629638656,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 34,
+          "name": "model.layers.34.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 9921445888,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 35,
+          "name": "model.layers.35.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 10213253120,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 36,
+          "name": "model.layers.36.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 10505060352,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 37,
+          "name": "model.layers.37.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 10796867584,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 38,
+          "name": "model.layers.38.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 11088674816,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 39,
+          "name": "model.layers.39.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 11380482048,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 40,
+          "name": "model.layers.40.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 11672289280,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 41,
+          "name": "model.layers.41.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 11964096512,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 42,
+          "name": "model.layers.42.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 12255903744,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 43,
+          "name": "model.layers.43.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 12547710976,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 44,
+          "name": "model.layers.44.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 12839518208,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 45,
+          "name": "model.layers.45.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 13131325440,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 46,
+          "name": "model.layers.46.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 13423132672,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 47,
+          "name": "model.layers.47.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 13714939904,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        }
+      ],
+      "cache_unique_storage_bytes": 14006747136,
+      "allocated_cache_token_capacity": 569936,
+      "allocated_bytes": 30993979904,
+      "reserved_bytes": 31218204672,
+      "peak_allocated_bytes": 31057133056,
+      "peak_reserved_bytes": 31218204672,
+      "device_free_bytes": 1429798912,
+      "device_total_bytes": 33668726784,
+      "actual_metadata": [
+        {
+          "type": "vllm.v1.attention.backends.flashinfer.FlashInferMetadata",
+          "kv_cache_layout": "KVCacheLayout.LBNHC",
+          "q_data_type_prefill": "torch.bfloat16",
+          "q_data_type_decode": "torch.bfloat16",
+          "use_cascade": "False",
+          "causal": "True",
+          "prefill": {
+            "type": "vllm.v1.attention.backends.flashinfer.FIPrefill",
+            "wrapper_type": "flashinfer.prefill.BatchPrefillWithPagedKVCacheWrapper",
+            "_backend": "fa2",
+            "is_cuda_graph_enabled": "False"
+          }
+        },
+        {
+          "type": "vllm.v1.attention.backends.flashinfer.FlashInferMetadata",
+          "kv_cache_layout": "KVCacheLayout.LBNHC",
+          "q_data_type_prefill": "torch.bfloat16",
+          "q_data_type_decode": "torch.bfloat16",
+          "use_cascade": "False",
+          "causal": "True",
+          "decode": {
+            "type": "vllm.v1.attention.backends.flashinfer.FlashInferTrtllmAPIDecode",
+            "kernel": "FlashInferDecodeKernel.XQA"
+          }
+        }
+      ],
+      "graphs": [],
+      "admission_identity_records": [
+        {
+          "request_id": "0-9828547d",
+          "question": 0,
+          "phase": "warmup",
+          "prompt_tokens": 120571,
+          "source": "scheduler CPU prefill_token_ids before original add_requests",
+          "CPU_identity_wall_seconds": 0.008286070078611374
+        },
+        {
+          "request_id": "1-8646e21f",
+          "question": 0,
+          "phase": "actual_consecutive_ar_capture",
+          "prompt_tokens": 120571,
+          "source": "scheduler CPU prefill_token_ids before original add_requests",
+          "CPU_identity_wall_seconds": 0.008563886396586895
+        },
+        {
+          "request_id": "2-a4c18b02",
+          "question": 1,
+          "phase": "actual_consecutive_ar_capture",
+          "prompt_tokens": 120563,
+          "source": "scheduler CPU prefill_token_ids before original add_requests",
+          "CPU_identity_wall_seconds": 0.00822778046131134
+        },
+        {
+          "request_id": "3-b3bec047",
+          "question": 2,
+          "phase": "actual_consecutive_ar_capture",
+          "prompt_tokens": 120576,
+          "source": "scheduler CPU prefill_token_ids before original add_requests",
+          "CPU_identity_wall_seconds": 0.00867186114192009
+        },
+        {
+          "request_id": "4-b2d3003e",
+          "question": 3,
+          "phase": "actual_consecutive_ar_capture",
+          "prompt_tokens": 120574,
+          "source": "scheduler CPU prefill_token_ids before original add_requests",
+          "CPU_identity_wall_seconds": 0.008130911737680435
+        },
+        {
+          "request_id": "5-953a3661",
+          "question": 4,
+          "phase": "actual_consecutive_ar_capture",
+          "prompt_tokens": 120560,
+          "source": "scheduler CPU prefill_token_ids before original add_requests",
+          "CPU_identity_wall_seconds": 0.008093064650893211
+        },
+        {
+          "request_id": "6-8479a684",
+          "question": 5,
+          "phase": "actual_consecutive_ar_capture",
+          "prompt_tokens": 120570,
+          "source": "scheduler CPU prefill_token_ids before original add_requests",
+          "CPU_identity_wall_seconds": 0.008154192939400673
+        },
+        {
+          "request_id": "7-b57d8281",
+          "question": 6,
+          "phase": "actual_consecutive_ar_capture",
+          "prompt_tokens": 120565,
+          "source": "scheduler CPU prefill_token_ids before original add_requests",
+          "CPU_identity_wall_seconds": 0.008086556568741798
+        },
+        {
+          "request_id": "8-b907baae",
+          "question": 7,
+          "phase": "actual_consecutive_ar_capture",
+          "prompt_tokens": 120560,
+          "source": "scheduler CPU prefill_token_ids before original add_requests",
+          "CPU_identity_wall_seconds": 0.00808656681329012
+        }
+      ],
+      "worker_source_sha256": "0b48d53b15d17c47f73b99e0399e112bde237f449f874d38f8485a520d60504f",
+      "scope": "Read-only RPC outside measured generation. No attention or CUDA graph alteration; inherited CPU identity/step hooks remain charged."
+    },
+    {
+      "rank": 1,
+      "expected_cache_dtype": "fp8_e4m3",
+      "layers": [
+        {
+          "layer": 0,
+          "name": "model.layers.0.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 0,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 1,
+          "name": "model.layers.1.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 291807232,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 2,
+          "name": "model.layers.2.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 583614464,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 3,
+          "name": "model.layers.3.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 875421696,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 4,
+          "name": "model.layers.4.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 1167228928,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 5,
+          "name": "model.layers.5.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 1459036160,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 6,
+          "name": "model.layers.6.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 1750843392,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 7,
+          "name": "model.layers.7.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 2042650624,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 8,
+          "name": "model.layers.8.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 2334457856,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 9,
+          "name": "model.layers.9.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 2626265088,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 10,
+          "name": "model.layers.10.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 2918072320,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 11,
+          "name": "model.layers.11.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 3209879552,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 12,
+          "name": "model.layers.12.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 3501686784,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 13,
+          "name": "model.layers.13.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 3793494016,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 14,
+          "name": "model.layers.14.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 4085301248,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 15,
+          "name": "model.layers.15.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 4377108480,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 16,
+          "name": "model.layers.16.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 4668915712,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 17,
+          "name": "model.layers.17.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 4960722944,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 18,
+          "name": "model.layers.18.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 5252530176,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 19,
+          "name": "model.layers.19.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 5544337408,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 20,
+          "name": "model.layers.20.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 5836144640,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 21,
+          "name": "model.layers.21.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 6127951872,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 22,
+          "name": "model.layers.22.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 6419759104,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 23,
+          "name": "model.layers.23.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 6711566336,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 24,
+          "name": "model.layers.24.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 7003373568,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 25,
+          "name": "model.layers.25.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 7295180800,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 26,
+          "name": "model.layers.26.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 7586988032,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 27,
+          "name": "model.layers.27.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 7878795264,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 28,
+          "name": "model.layers.28.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 8170602496,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 29,
+          "name": "model.layers.29.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 8462409728,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 30,
+          "name": "model.layers.30.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 8754216960,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 31,
+          "name": "model.layers.31.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 9046024192,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 32,
+          "name": "model.layers.32.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 9337831424,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 33,
+          "name": "model.layers.33.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 9629638656,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 34,
+          "name": "model.layers.34.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 9921445888,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 35,
+          "name": "model.layers.35.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 10213253120,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 36,
+          "name": "model.layers.36.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 10505060352,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 37,
+          "name": "model.layers.37.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 10796867584,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 38,
+          "name": "model.layers.38.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 11088674816,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 39,
+          "name": "model.layers.39.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 11380482048,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 40,
+          "name": "model.layers.40.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 11672289280,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 41,
+          "name": "model.layers.41.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 11964096512,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 42,
+          "name": "model.layers.42.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 12255903744,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 43,
+          "name": "model.layers.43.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 12547710976,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 44,
+          "name": "model.layers.44.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 12839518208,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 45,
+          "name": "model.layers.45.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 13131325440,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 46,
+          "name": "model.layers.46.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 13423132672,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        },
+        {
+          "layer": 47,
+          "name": "model.layers.47.self_attn",
+          "backend": "FLASHINFER",
+          "implementation": "vllm.v1.attention.backends.flashinfer.FlashInferImpl",
+          "logical_cache_dtype": "fp8_e4m3",
+          "storage_dtype": "torch.uint8",
+          "shape": [
+            35621,
+            2,
+            16,
+            256
+          ],
+          "stride": [
+            8192,
+            256,
+            512,
+            1
+          ],
+          "payload_bytes": 291807232,
+          "storage_offset": 13714939904,
+          "scales": {
+            "_q_scale": 1.0,
+            "_k_scale": 1.0,
+            "_v_scale": 1.0
+          },
+          "host_scales": {
+            "_q_scale_float": 1.0,
+            "_k_scale_float": 1.0,
+            "_v_scale_float": 1.0
+          }
+        }
+      ],
+      "cache_unique_storage_bytes": 14006747136,
+      "allocated_cache_token_capacity": 569936,
+      "allocated_bytes": 30993979904,
+      "reserved_bytes": 31218204672,
+      "peak_allocated_bytes": 31057131520,
+      "peak_reserved_bytes": 31218204672,
+      "device_free_bytes": 1480261632,
+      "device_total_bytes": 33668726784,
+      "actual_metadata": [
+        {
+          "type": "vllm.v1.attention.backends.flashinfer.FlashInferMetadata",
+          "kv_cache_layout": "KVCacheLayout.LBNHC",
+          "q_data_type_prefill": "torch.bfloat16",
+          "q_data_type_decode": "torch.bfloat16",
+          "use_cascade": "False",
+          "causal": "True",
+          "prefill": {
+            "type": "vllm.v1.attention.backends.flashinfer.FIPrefill",
+            "wrapper_type": "flashinfer.prefill.BatchPrefillWithPagedKVCacheWrapper",
+            "_backend": "fa2",
+            "is_cuda_graph_enabled": "False"
+          }
+        },
+        {
+          "type": "vllm.v1.attention.backends.flashinfer.FlashInferMetadata",
+          "kv_cache_layout": "KVCacheLayout.LBNHC",
+          "q_data_type_prefill": "torch.bfloat16",
+          "q_data_type_decode": "torch.bfloat16",
+          "use_cascade": "False",
+          "causal": "True",
+          "decode": {
+            "type": "vllm.v1.attention.backends.flashinfer.FlashInferTrtllmAPIDecode",
+            "kernel": "FlashInferDecodeKernel.XQA"
+          }
+        }
+      ],
+      "graphs": [],
+      "admission_identity_records": [
+        {
+          "request_id": "0-9828547d",
+          "question": 0,
+          "phase": "warmup",
+          "prompt_tokens": 120571,
+          "source": "scheduler CPU prefill_token_ids before original add_requests",
+          "CPU_identity_wall_seconds": 0.01430344209074974
+        },
+        {
+          "request_id": "1-8646e21f",
+          "question": 0,
+          "phase": "actual_consecutive_ar_capture",
+          "prompt_tokens": 120571,
+          "source": "scheduler CPU prefill_token_ids before original add_requests",
+          "CPU_identity_wall_seconds": 0.008611357770860195
+        },
+        {
+          "request_id": "2-a4c18b02",
+          "question": 1,
+          "phase": "actual_consecutive_ar_capture",
+          "prompt_tokens": 120563,
+          "source": "scheduler CPU prefill_token_ids before original add_requests",
+          "CPU_identity_wall_seconds": 0.008241313509643078
+        },
+        {
+          "request_id": "3-b3bec047",
+          "question": 2,
+          "phase": "actual_consecutive_ar_capture",
+          "prompt_tokens": 120576,
+          "source": "scheduler CPU prefill_token_ids before original add_requests",
+          "CPU_identity_wall_seconds": 0.008328372612595558
+        },
+        {
+          "request_id": "4-b2d3003e",
+          "question": 3,
+          "phase": "actual_consecutive_ar_capture",
+          "prompt_tokens": 120574,
+          "source": "scheduler CPU prefill_token_ids before original add_requests",
+          "CPU_identity_wall_seconds": 0.008827355690300465
+        },
+        {
+          "request_id": "5-953a3661",
+          "question": 4,
+          "phase": "actual_consecutive_ar_capture",
+          "prompt_tokens": 120560,
+          "source": "scheduler CPU prefill_token_ids before original add_requests",
+          "CPU_identity_wall_seconds": 0.008135069161653519
+        },
+        {
+          "request_id": "6-8479a684",
+          "question": 5,
+          "phase": "actual_consecutive_ar_capture",
+          "prompt_tokens": 120570,
+          "source": "scheduler CPU prefill_token_ids before original add_requests",
+          "CPU_identity_wall_seconds": 0.008718689903616905
+        },
+        {
+          "request_id": "7-b57d8281",
+          "question": 6,
+          "phase": "actual_consecutive_ar_capture",
+          "prompt_tokens": 120565,
+          "source": "scheduler CPU prefill_token_ids before original add_requests",
+          "CPU_identity_wall_seconds": 0.008134781382977962
+        },
+        {
+          "request_id": "8-b907baae",
+          "question": 7,
+          "phase": "actual_consecutive_ar_capture",
+          "prompt_tokens": 120560,
+          "source": "scheduler CPU prefill_token_ids before original add_requests",
+          "CPU_identity_wall_seconds": 0.008163104765117168
+        }
+      ],
+      "worker_source_sha256": "0b48d53b15d17c47f73b99e0399e112bde237f449f874d38f8485a520d60504f",
+      "scope": "Read-only RPC outside measured generation. No attention or CUDA graph alteration; inherited CPU identity/step hooks remain charged."
+    }
+  ]
+}

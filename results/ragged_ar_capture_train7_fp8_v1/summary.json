@@ -1,0 +1,1008 @@
+{
+  "status": "failed",
+  "args": {
+    "protocol": "configs/native_opportunity_b8_training_v1.json",
+    "document_id": "docfinqa-f1d5c3003725d29c",
+    "kv_dtype": "fp8_e4m3",
+    "steps": 8,
+    "output": "results/ragged_ar_capture_train7_fp8_v1"
+  },
+  "protocol": {
+    "schema": 1,
+    "protocol_id": "native-opportunity-dense-b8-training-v1-20261016",
+    "status": "proposed_not_launched",
+    "model_path": "data/models/Qwen3-30B-A3B-Thinking-2507-FP8",
+    "model_revision": "60d80c83c53c3b611c642dbb8c942b3f90c5948a",
+    "manifest": "data/manifests/docfinqa_training_large_group_pilot_v1.json",
+    "documents": [
+      {
+        "document_id": "docfinqa-680456070a0a0714",
+        "document_sha256": "680456070a0a07142bb8ab69842ecd2dd5b80eb36348d7a1ab394dd268d5b36f",
+        "prompt_lengths": [
+          120571,
+          120563,
+          120576,
+          120574,
+          120560,
+          120570,
+          120565,
+          120560
+        ],
+        "prompt_token_hashes": [
+          "5033ca2afc1cfd46f060bd7a57f0adc8211da336e721efa0ed00f2b84ec504c7",
+          "f528e57b38ed764db31bb9b99b439e36bcc426be1a1294d938a7d5d422552843",
+          "e4e2e6bf1181909d6497563f422cc70ae2b3e6e245b95ffad97b7e83cf815f1a",
+          "0ad1471b404de9913c6cada5c8337c6f61eb5102e88e41b9e54fa7445c6c5d2c",
+          "6fdeddd4d741bcaa803d39433afb5137109b80041275ef1068ab14b7e815b290",
+          "d93019830831218280e56c94f233c78b8ce6be52aae71fb3141e5f7b0d53e59d",
+          "a1c37620b37851e55e89145fa121e69848e609c4ca5594e78ce0ba9556225471",
+          "5de3433caca4325cea8582787dbddda805885a9a98045c8608ff1db213e7754d"
+        ],
+        "document_token_range": [
+          34,
+          120540
+        ]
+      },
+      {
+        "document_id": "docfinqa-f1d5c3003725d29c",
+        "document_sha256": "f1d5c3003725d29c89cd85fde3885ff6e6891d69b22a87357f15574f7b4ed5d5",
+        "prompt_lengths": [
+          144616,
+          144612,
+          144624,
+          144612,
+          144616,
+          144604,
+          144615,
+          144624
+        ],
+        "prompt_token_hashes": [
+          "77a43ae7dcee68ba9b069ff15f197f91c35ad27712d4eb69d45c0559ea1fda6b",
+          "dc8a9d6f83bf7febdaf482e7d238f27f23b0644f93c9bdd67d9b0dffa3f3ee05",
+          "b89f3cd71bc622924a1074193b64a55a5957b63be637d7149de7ecc181acd8d4",
+          "b8c2c153ace45acd140faf81b6228c5182325a298ae21b006d9d808255d9b4a2",
+          "891d3c82f724d941ca1a7cc6f3deda414c8689a9e524fedad7633044ae8525cc",
+          "b7f99f20bf91f558414d524675bc82eb6b2a54f13a9dd28892b5844b6fb90344",
+          "32580d871f318fe23f8297609ffccf1979947aa363b30e3f4b1c817f6687b4bc",
+          "5e845f18b5ded23d2b8655a27f7d4c33ba55a0d9972e9ff2740c442fdb2b7120"
+        ],
+        "document_token_range": [
+          34,
+          144583
+        ]
+      }
+    ],
+    "engine": {
+      "tensor_parallel_size": 2,
+      "dtype": "bfloat16",
+      "block_size": 16,
+      "max_model_len": 163840,
+      "max_num_seqs": 8,
+      "max_num_batched_tokens": 4096,
+      "enable_prefix_caching": true,
+      "enforce_eager": false,
+      "gpu_memory_utilization": 0.9,
+      "disable_custom_all_reduce": true,
+      "enable_batch_sharded_sampling": false,
+      "compilation_config": {
+        "mode": 3,
+        "cudagraph_mode": "FULL_DECODE_ONLY",
+        "cudagraph_capture_sizes": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8
+        ]
+      },
+      "attention_config": {
+        "backend": "FLASHINFER"
+      },
+      "seed": 20261016
+    },
+    "seed": 20261016,
+    "sampling": {
+      "temperature": 0.6,
+      "top_p": 0.95,
+      "seed": 20261016,
+      "max_tokens": 8192,
+      "ignore_eos": false,
+      "top_k": 0,
+      "min_p": 0.0,
+      "repetition_penalty": 1.0
+    },
+    "purpose": "Measure dense APC-warm B8 whole-model opportunity on natural questions, not rerun failed sparse B8 dynamic kernel.",
+    "source_audit": "results/dense_b8_opportunity_v1/audit.json",
+    "limitations": [
+      "Baseline-only measurement; neither a candidate speedup nor formal quality result.",
+      "Fixed128 valid generation ignores EOS; same cap is not a guarantee of same cross-precision token work.",
+      "Graph profiling is separate from unprofiled wall measurements; no rank-time summation.",
+      "These two training documents do not establish general agent fanout or arrival distributions.",
+      "Root must freeze launch sources and resource accounting before use; no GPU was launched by this audit."
+    ]
+  },
+  "uid": 1000,
+  "python": "/home/qcjz/iscas/.venv-engine/bin/python",
+  "scope": "Capture real consecutive AR states for causal multi-query attention replay.",
+  "source_sha256": {
+    "scripts/capture_ragged_verify_state.py": "4175bcd483d77bef8cbd596c46c86c9bc84602d2b29c54b851b53acf028e3474",
+    "scripts/vllm_ragged_state_capture_worker.py": "0288af5ca469bb9e0d170328a49bb39ac3910588814b3df318db6e8b1a729886",
+    "scripts/vllm_native_precision_worker.py": "0b48d53b15d17c47f73b99e0399e112bde237f449f874d38f8485a520d60504f",
+    "scripts/vllm_native_backend_worker.py": "08cbe98802c91f42bfd97b6192dab91756e1abdf7688f4e6c3dd388d5e9a7c61"
+  },
+  "engine": {
+    "tensor_parallel_size": 2,
+    "dtype": "bfloat16",
+    "block_size": 16,
+    "max_model_len": 163840,
+    "max_num_seqs": 8,
+    "max_num_batched_tokens": 4096,
+    "enable_prefix_caching": true,
+    "enforce_eager": true,
+    "gpu_memory_utilization": 0.9,
+    "disable_custom_all_reduce": true,
+    "enable_batch_sharded_sampling": false,
+    "compilation_config": {
+      "mode": 3,
+      "cudagraph_mode": "FULL_DECODE_ONLY",
+      "cudagraph_capture_sizes": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ]
+    },
+    "attention_config": {
+      "backend": "FLASHINFER"
+    },
+    "seed": 20261016,
+    "model": "data/models/Qwen3-30B-A3B-Thinking-2507-FP8",
+    "kv_cache_dtype": "fp8_e4m3",
+    "worker_extension_cls": "scripts.vllm_ragged_state_capture_worker.RaggedStateCaptureWorker"
+  },
+  "initialization_seconds": 44.528424735181034,
+  "configured": [
+    {
+      "rank": 0,
+      "layers": [
+        {
+          "name": "model.layers.0.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.1.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.2.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.3.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.4.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.5.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.6.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.7.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.8.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.9.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.10.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.11.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.12.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.13.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.14.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.15.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.16.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.17.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.18.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.19.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.20.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.21.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.22.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.23.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.24.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.25.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.26.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.27.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.28.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.29.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.30.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.31.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.32.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.33.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.34.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.35.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.36.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.37.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.38.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.39.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.40.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.41.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.42.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.43.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.44.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.45.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.46.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.47.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        }
+      ],
+      "graph_descriptors": [],
+      "source_sha256": "08cbe98802c91f42bfd97b6192dab91756e1abdf7688f4e6c3dd388d5e9a7c61",
+      "deployment": {
+        "pid": 1509749,
+        "tp_world_size": 2,
+        "rank_in_group": 0,
+        "device_name": "NVIDIA GeForce RTX 5090",
+        "device_capability": [
+          12,
+          0
+        ],
+        "device_properties": "_CudaDeviceProperties(name='NVIDIA GeForce RTX 5090', major=12, minor=0, total_memory=32109MB, multi_processor_count=170, uuid=e1137499-0902-6746-a5eb-a9fc8e67b61b, pci_bus_id=69, pci_device_id=0, pci_domain_id=0, L2_cache_size=96MB)",
+        "parameter_elements_by_dtype": {
+          "torch.bfloat16": 323958784,
+          "torch.float8_e4m3fn": 14948499456,
+          "torch.int32": 32342016
+        },
+        "quantization_methods": {
+          "vllm.model_executor.layers.vocab_parallel_embedding.UnquantizedEmbeddingMethod": {
+            "count": 2,
+            "resolved_fp8_backends": []
+          },
+          "vllm.model_executor.layers.quantization.fp8.Fp8LinearMethod": {
+            "count": 96,
+            "resolved_fp8_backends": []
+          },
+          "vllm.model_executor.layers.quantization.fp8.Fp8KVCacheMethod": {
+            "count": 48,
+            "resolved_fp8_backends": []
+          },
+          "vllm.model_executor.layers.linear.UnquantizedLinearMethod": {
+            "count": 48,
+            "resolved_fp8_backends": []
+          },
+          "vllm.model_executor.layers.quantization.fp8.Fp8MoEMethod": {
+            "count": 48,
+            "resolved_fp8_backends": [
+              "Fp8MoeBackend.DEEPGEMM"
+            ]
+          }
+        },
+        "memory_free_bytes": 1956315136,
+        "memory_total_bytes": 33668726784,
+        "torch_peak_allocated_bytes": 30704572928,
+        "torch_peak_reserved_bytes": 30742151168,
+        "cache_dtype": "fp8_e4m3",
+        "model_dtype": "torch.bfloat16",
+        "actual_kv_tensor_dtypes": [
+          "torch.uint8"
+        ],
+        "cache_block_size": 16,
+        "cache_num_gpu_blocks": 35621,
+        "max_model_len": 163840
+      },
+      "scope": "Native model/attention/cache execution unchanged; only CPU metadata identity and step timing records.",
+      "precision_probe_identity": "Prompt hash from CPU admission; no GPU token readback in graph wrapper. CPU hashing remains charged."
+    },
+    {
+      "rank": 1,
+      "layers": [
+        {
+          "name": "model.layers.0.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.1.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.2.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.3.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.4.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.5.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.6.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.7.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.8.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.9.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.10.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.11.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.12.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.13.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.14.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.15.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.16.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.17.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.18.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.19.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.20.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.21.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.22.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.23.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.24.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.25.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.26.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.27.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.28.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.29.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.30.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.31.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.32.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.33.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.34.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.35.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.36.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.37.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.38.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.39.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.40.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.41.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.42.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.43.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.44.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.45.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.46.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        },
+        {
+          "name": "model.layers.47.self_attn.attn",
+          "backend": "FLASHINFER",
+          "impl": "vllm.v1.attention.backends.flashinfer.FlashInferImpl"
+        }
+      ],
+      "graph_descriptors": [],
+      "source_sha256": "08cbe98802c91f42bfd97b6192dab91756e1abdf7688f4e6c3dd388d5e9a7c61",
+      "deployment": {
+        "pid": 1509750,
+        "tp_world_size": 2,
+        "rank_in_group": 1,
+        "device_name": "NVIDIA GeForce RTX 5090",
+        "device_capability": [
+          12,
+          0
+        ],
+        "device_properties": "_CudaDeviceProperties(name='NVIDIA GeForce RTX 5090', major=12, minor=0, total_memory=32109MB, multi_processor_count=170, uuid=d07542ee-9ea8-8590-496e-e3a236cc7c20, pci_bus_id=88, pci_device_id=0, pci_domain_id=0, L2_cache_size=96MB)",
+        "parameter_elements_by_dtype": {
+          "torch.bfloat16": 323958784,
+          "torch.float8_e4m3fn": 14948499456,
+          "torch.int32": 32342016
+        },
+        "quantization_methods": {
+          "vllm.model_executor.layers.vocab_parallel_embedding.UnquantizedEmbeddingMethod": {
+            "count": 2,
+            "resolved_fp8_backends": []
+          },
+          "vllm.model_executor.layers.quantization.fp8.Fp8LinearMethod": {
+            "count": 96,
+            "resolved_fp8_backends": []
+          },
+          "vllm.model_executor.layers.quantization.fp8.Fp8KVCacheMethod": {
+            "count": 48,
+            "resolved_fp8_backends": []
+          },
+          "vllm.model_executor.layers.linear.UnquantizedLinearMethod": {
+            "count": 48,
+            "resolved_fp8_backends": []
+          },
+          "vllm.model_executor.layers.quantization.fp8.Fp8MoEMethod": {
+            "count": 48,
+            "resolved_fp8_backends": [
+              "Fp8MoeBackend.DEEPGEMM"
+            ]
+          }
+        },
+        "memory_free_bytes": 1956380672,
+        "memory_total_bytes": 33668726784,
+        "torch_peak_allocated_bytes": 30704572928,
+        "torch_peak_reserved_bytes": 30742151168,
+        "cache_dtype": "fp8_e4m3",
+        "model_dtype": "torch.bfloat16",
+        "actual_kv_tensor_dtypes": [
+          "torch.uint8"
+        ],
+        "cache_block_size": 16,
+        "cache_num_gpu_blocks": 35621,
+        "max_model_len": 163840
+      },
+      "scope": "Native model/attention/cache execution unchanged; only CPU metadata identity and step timing records.",
+      "precision_probe_identity": "Prompt hash from CPU admission; no GPU token readback in graph wrapper. CPU hashing remains charged."
+    }
+  ],
+  "armed": [
+    {
+      "rank": 0,
+      "armed": true
+    },
+    {
+      "rank": 1,
+      "armed": true
+    }
+  ],
+  "outputs": [
+    {
+      "tokens": [
+        40,
+        1184,
+        311,
+        1477,
+        279,
+        4179,
+        18472,
+        304,
+        18651,
+        58895,
+        1813
+      ],
+      "finish_reason": "length"
+    },
+    {
+      "tokens": [
+        40,
+        1184,
+        311,
+        1477,
+        1995,
+        911,
+        279,
+        2820,
+        2453,
+        9149,
+        4379
+      ],
+      "finish_reason": "length"
+    },
+    {
+      "tokens": [
+        40,
+        1184,
+        311,
+        1477,
+        279,
+        2790,
+        5591,
+        5980,
+        5068,
+        4982,
+        22344
+      ],
+      "finish_reason": "length"
+    },
+    {
+      "tokens": [
+        40,
+        1184,
+        311,
+        1477,
+        1995,
+        911,
+        279,
+        330,
+        66566,
+        9149,
+        4379
+      ],
+      "finish_reason": "length"
+    },
+    {
+      "tokens": [
+        40,
+        1184,
+        311,
+        1477,
+        279,
+        11414,
+        315,
+        220,
+        17,
+        15,
+        16
+      ],
+      "finish_reason": "length"
+    },
+    {
+      "tokens": [
+        40,
+        1184,
+        311,
+        1477,
+        279,
+        5461,
+        3601,
+        9775,
+        45880,
+        7540,
+        304
+      ],
+      "finish_reason": "length"
+    },
+    {
+      "tokens": [
+        40,
+        1184,
+        311,
+        1477,
+        279,
+        6672,
+        1948,
+        279,
+        2856,
+        2820,
+        2453
+      ],
+      "finish_reason": "length"
+    },
+    {
+      "tokens": [
+        40,
+        1184,
+        311,
+        1477,
+        1995,
+        911,
+        279,
+        11414,
+        315,
+        12703,
+        304
+      ],
+      "finish_reason": "length"
+    }
+  ],
+  "workers": [
+    {
+      "status": "completed",
+      "rank": 0,
+      "files": [
+        {
+          "layer": 0,
+          "path": "/home/qcjz/iscas/results/ragged_ar_capture_train7_fp8_v1/rank0/ragged_capture/layer0.pt",
+          "bytes": 75126409,
+          "sha256": "7e4cfd80b647aaa784880e6d1cfbd2c549195ddef2d61a512246d23d99509082",
+          "common_prefix_tokens": 144576,
+          "query_steps": 8
+        },
+        {
+          "layer": 15,
+          "path": "/home/qcjz/iscas/results/ragged_ar_capture_train7_fp8_v1/rank0/ragged_capture/layer15.pt",
+          "bytes": 75126421,
+          "sha256": "b59eab491a24aba4e827986eff3cdf1373075b0aca19679a79a060e40186739f",
+          "common_prefix_tokens": 144576,
+          "query_steps": 8
+        },
+        {
+          "layer": 31,
+          "path": "/home/qcjz/iscas/results/ragged_ar_capture_train7_fp8_v1/rank0/ragged_capture/layer31.pt",
+          "bytes": 75126421,
+          "sha256": "f0952314080887ed50e8389753781aef5d4c59b3eb05eaf77b97099dd9a5003b",
+          "common_prefix_tokens": 144576,
+          "query_steps": 8
+        },
+        {
+          "layer": 47,
+          "path": "/home/qcjz/iscas/results/ragged_ar_capture_train7_fp8_v1/rank0/ragged_capture/layer47.pt",
+          "bytes": 75126421,
+          "sha256": "091913e3b65bc3e749b163b84a4bbe0e29a9eaa8e65233d80a12a15ad7ea460f",
+          "common_prefix_tokens": 144576,
+          "query_steps": 8
+        }
+      ],
+      "steps": {
+        "0": 8,
+        "15": 8,
+        "31": 8,
+        "47": 8
+      },
+      "source_sha256": "0288af5ca469bb9e0d170328a49bb39ac3910588814b3df318db6e8b1a729886"
+    },
+    {
+      "status": "completed",
+      "rank": 1,
+      "files": [
+        {
+          "layer": 0,
+          "path": "/home/qcjz/iscas/results/ragged_ar_capture_train7_fp8_v1/rank1/ragged_capture/layer0.pt",
+          "bytes": 75126409,
+          "sha256": "fb26138f69fa5798d52be31549e1f509fbdd1077f59f6a6d31f73c2ad316117c",
+          "common_prefix_tokens": 144576,
+          "query_steps": 8
+        },
+        {
+          "layer": 15,
+          "path": "/home/qcjz/iscas/results/ragged_ar_capture_train7_fp8_v1/rank1/ragged_capture/layer15.pt",
+          "bytes": 75126421,
+          "sha256": "68d4d1081aedceccfe65114cbeb60c3ea9f166b174f099e19aefa68e18e03557",
+          "common_prefix_tokens": 144576,
+          "query_steps": 8
+        },
+        {
+          "layer": 31,
+          "path": "/home/qcjz/iscas/results/ragged_ar_capture_train7_fp8_v1/rank1/ragged_capture/layer31.pt",
+          "bytes": 75126421,
+          "sha256": "a61718a56b5004af989f36f9c60c550804a1088602cddbe9540910e15007f1eb",
+          "common_prefix_tokens": 144576,
+          "query_steps": 8
+        },
+        {
+          "layer": 47,
+          "path": "/home/qcjz/iscas/results/ragged_ar_capture_train7_fp8_v1/rank1/ragged_capture/layer47.pt",
+          "bytes": 75126421,
+          "sha256": "92c92ef9e12125f090cb5d49576f3781ceb476e16baa011a99ef3eb660a2ec0e",
+          "common_prefix_tokens": 144576,
+          "query_steps": 8
+        }
+      ],
+      "steps": {
+        "0": 8,
+        "15": 8,
+        "31": 8,
+        "47": 8
+      },
+      "source_sha256": "0288af5ca469bb9e0d170328a49bb39ac3910588814b3df318db6e8b1a729886"
+    }
+  ],
+  "error": "Traceback (most recent call last):\n  File \"/home/qcjz/iscas/scripts/capture_ragged_verify_state.py\", line 66, in main\n    report['native_receipts'] = llm.collective_rpc('native_precision_receipt', args=(args.kv_dtype, True))\n                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qcjz/iscas/.venv-engine/lib/python3.12/site-packages/vllm/entrypoints/llm.py\", line 601, in collective_rpc\n    return self.llm_engine.collective_rpc(method, timeout, args, kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qcjz/iscas/.venv-engine/lib/python3.12/site-packages/vllm/v1/engine/llm_engine.py\", line 446, in collective_rpc\n    return self.engine_core.collective_rpc(method, timeout, args, kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qcjz/iscas/.venv-engine/lib/python3.12/site-packages/vllm/v1/engine/core_client.py\", line 1078, in collective_rpc\n    return self.call_utility(\"collective_rpc\", method, timeout, args, kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qcjz/iscas/.venv-engine/lib/python3.12/site-packages/vllm/v1/engine/core_client.py\", line 1008, in call_utility\n    return future.result()\n           ^^^^^^^^^^^^^^^\n  File \"/home/qcjz/miniconda3/envs/sglang-vllm-m120/lib/python3.12/concurrent/futures/_base.py\", line 456, in result\n    return self.__get_result()\n           ^^^^^^^^^^^^^^^^^^^\n  File \"/home/qcjz/miniconda3/envs/sglang-vllm-m120/lib/python3.12/concurrent/futures/_base.py\", line 401, in __get_result\n    raise self._exception\nException: Call to collective_rpc method failed: Worker failed with error ''kernel'', please check the stack trace above for the root cause\n"
+}
