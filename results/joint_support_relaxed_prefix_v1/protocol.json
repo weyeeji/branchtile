@@ -1,0 +1,19 @@
+{
+  "scope": "CPU independent minimal top-prefix deployment control under relaxed at-most-k budgets; frozen pooled-score floor only, no O/LSE/task-quality/GPU/capacity/novelty claim. Not an exact-k competitor.",
+  "source_protocol": "results/joint_support_exchange_v1/protocol.json",
+  "source_protocol_sha256": "64ee6faf63a7f7ccec4cda0ba39d5242f464107054ce89eec3e89d754fa92e6f",
+  "helper_source_sha256": "97625c9207a2541ab76cef5eedf5200740ab6bf066abae5d9b89cd49b56aa651",
+  "exchange_results": "results/joint_support_exchange_v1/results.jsonl",
+  "exchange_results_sha256": "3aded32975478ec69dfa52fd59c7ea714ee6a0627fb17488ff06de962ad989b7",
+  "epsilon": [0, 0.001, 0.005, 0.01],
+  "expected_rows": 48,
+  "input_cells": "All same 3 documents, rank0/layer15, B3/B3/B4, both KV heads and budgets4096/16384; 12 head cells per epsilon. Exact source hashes inherited from pinned source protocol.",
+  "selection": "For each request independently, preserve first4/last32 document positions and choose shortest prefix of its optional scores in descending order with lower original token ID tie-break. Start from canonical protected top-k. Never exchange tokens with another request.",
+  "constraint": "Selected cardinality <= original k, NOT exactly k. Actual fsum score loss <= epsilon*original score AND relative loss <= epsilon. Binary search computes actual fsum; no tolerance. Validate immediately shorter prefix fails unless mandatory alone suffices.",
+  "epsilon_zero": "Use the same minimal-prefix rule, no shortcut to exactly-k. Zero-valued or fsum-unresolved trailing scores may theoretically permit fewer tokens; record actual result, do not claim real-arithmetic zero loss.",
+  "private_policy": "Actual partial-page document tail is protected and unchanged; only common-source interval counts toward physical-sharing candidate union. System/question/generated private KV never altered or consumed by this CPU screen.",
+  "outputs": "Every request cardinality, selected-index SHA, actual score loss, previous-prefix infeasibility; sum selected entries and common-source union; per-variant CPU/wall cost; direct comparison to frozen exchange at same floor with different cardinality explicitly labeled.",
+  "freeze": "Commit protocol and implementation after toy self-test, before natural CPU result computation; no post-outcome order/epsilon tuning, rerun refuses existing outputs.",
+  "resource_limit": "CPU only, CUDA_VISIBLE_DEVICES empty, 1 Torch thread, 120 seconds wall timeout; retain failures; no GPU allocation.",
+  "gpu_hours": 0
+}
