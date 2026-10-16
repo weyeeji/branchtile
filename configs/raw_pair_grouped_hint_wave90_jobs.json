@@ -1,0 +1,58 @@
+[
+  {
+    "name": "raw_pair_grouped_hint_normal_v1",
+    "category": "P1",
+    "gpus": [
+      2
+    ],
+    "timeout_seconds": 300,
+    "env": {
+      "VLLM_WORKER_MULTIPROC_METHOD": "spawn",
+      "VLLM_USE_V2_MODEL_RUNNER": "1",
+      "VLLM_BATCH_INVARIANT": "0",
+      "NCCL_DEBUG": "INFO",
+      "NCCL_P2P_DISABLE": "1",
+      "HF_HUB_OFFLINE": "1",
+      "TOKENIZERS_PARALLELISM": "false",
+      "PYTHONPATH": "/home/qcjz/iscas",
+      "CUDA_HOME": "/usr/local/cuda-13.2",
+      "FLASHINFER_CUDA_ARCH_LIST": "12.0",
+      "PATH": "/home/qcjz/iscas/.venv-engine/bin:/usr/local/cuda-13.2/bin:/usr/bin:/bin"
+    },
+    "argv": [
+      ".venv-engine/bin/python",
+      "scripts/diagnose_xqa_raw_pair_snapshot_grouped_hint.py",
+      "--snapshot",
+      "results/raw_pair_eval2_late_same_state_v1/rank1/same_state_first_failure_g1855_l0.pt",
+      "--scan",
+      "--output",
+      "results/raw_pair_eval2_grouped_hint_normal_v1.json"
+    ]
+  },
+  {
+    "name": "raw_pair_grouped_hint_memcheck_v1",
+    "category": "P1",
+    "gpus": [
+      3
+    ],
+    "timeout_seconds": 300,
+    "env": {
+      "VLLM_WORKER_MULTIPROC_METHOD": "spawn",
+      "VLLM_USE_V2_MODEL_RUNNER": "1",
+      "VLLM_BATCH_INVARIANT": "0",
+      "NCCL_DEBUG": "INFO",
+      "NCCL_P2P_DISABLE": "1",
+      "HF_HUB_OFFLINE": "1",
+      "TOKENIZERS_PARALLELISM": "false",
+      "PYTHONPATH": "/home/qcjz/iscas",
+      "CUDA_HOME": "/usr/local/cuda-13.2",
+      "FLASHINFER_CUDA_ARCH_LIST": "12.0",
+      "PATH": "/home/qcjz/iscas/.venv-engine/bin:/usr/local/cuda-13.2/bin:/usr/bin:/bin"
+    },
+    "argv": [
+      ".venv-engine/bin/python",
+      "-c",
+      "import os,sys; os.execvp('compute-sanitizer',['compute-sanitizer','--tool','memcheck','--error-exitcode','99',sys.executable]+['scripts/diagnose_xqa_raw_pair_snapshot_grouped_hint.py', '--snapshot', 'results/raw_pair_eval2_late_same_state_v1/rank1/same_state_first_failure_g1855_l0.pt', '--scan', '--output', 'results/raw_pair_eval2_grouped_hint_memcheck_v1.json'])"
+    ]
+  }
+]
