@@ -4,12 +4,18 @@
     {
       "path": "results/sparse_reference/natural_instruct4b_qmsum0_q01.json",
       "sha256": "3fbf69bb993bd315693914581ec69243dfdf2d416754b09d3ca13be1a10eebf4",
-      "model_revision": "cdbee75f17c01a7cc42f958dc650907174af0554"
+      "model_revision": "cdbee75f17c01a7cc42f958dc650907174af0554",
+      "model_initialization_seconds": 2.9402643628418446,
+      "script_sha256": "a8278f3a7bf0ce96c71d0ddda3100a42f6ccfd423dd1135df879a2c020536b13",
+      "core_sha256": "ff1390f43bb56806306d3e1b2ad11c050b427433a62d8a13aea88a6dd90c0db7"
     },
     {
       "path": "results/sparse_reference/natural_instruct4b_qmsum0_q23.json",
       "sha256": "a6e2049e1ba1216cfceb9f89c0285e3233af13626f393ab29fb671cb681e8e04",
-      "model_revision": "cdbee75f17c01a7cc42f958dc650907174af0554"
+      "model_revision": "cdbee75f17c01a7cc42f958dc650907174af0554",
+      "model_initialization_seconds": 2.990392914041877,
+      "script_sha256": "a8278f3a7bf0ce96c71d0ddda3100a42f6ccfd423dd1135df879a2c020536b13",
+      "core_sha256": "ff1390f43bb56806306d3e1b2ad11c050b427433a62d8a13aea88a6dd90c0db7"
     }
   ],
   "metric": "calibrated original ROUGE-1.5.5 author-linked flags",
@@ -17,18 +23,96 @@
   "calibration_sha256": "74fe99b6b3f15bcd6c4ce0d507e2cf94164f5b1f37dd013de8295bc223b4e184",
   "metric_limit": "Published calibration fixture differs by up to 0.011 score points",
   "cost_limit": "HF instrumented reference costs, including physical per-head gather. No serving latency or speedup claim.",
+  "cost_accounting": "Model initialization and dense prefix prefill are listed by actual execution; group0 prefix ran twice on separate question shards. Selector is shared across budgets and is a component of instrumented question prefill, not additive to it. Decode includes periodic checkpoint writes. Per-row sums must not double-count shared costs.",
+  "missing_cost_fields": "Pilot group0 predates audit/export sub-timers; absent fields are omitted, never estimated. New cost fields have 28/32 observations per budget.",
+  "output_parsing": "Official Instruct free-text summaries need no JSON/answer delimiter. Report empty outputs and unexpected thinking/chat delimiters; no postprocessing beyond tokenizer skip_special_tokens.",
+  "generation": {
+    "temperature": 0.6,
+    "top_p": 0.95,
+    "seed": 20261016,
+    "natural_eos": true,
+    "min_tokens": null,
+    "max_new_tokens": 8192
+  },
+  "source_group_prefill_costs": [
+    {
+      "source_path": "results/sparse_reference/natural_instruct4b_qmsum0_q01.json",
+      "group_index": 0,
+      "dense_prefix_prefill_seconds": 0.945383439771831
+    },
+    {
+      "source_path": "results/sparse_reference/natural_instruct4b_qmsum0_q23.json",
+      "group_index": 0,
+      "dense_prefix_prefill_seconds": 0.9324892042204738
+    }
+  ],
   "cohorts": {
     "0.1": {
-      "documents": 1,
       "questions": 4,
       "natural_eos": 4,
       "cap_hits": 0,
-      "total_generated_tokens": 442,
+      "output_parsing_counts": {
+        "nonempty_free_text": 4
+      },
+      "thinking_delimiter_outputs": 0,
+      "chat_delimiter_outputs": 0,
+      "generated_token_distribution": {
+        "count": 4,
+        "minimum": 100,
+        "median": 111.0,
+        "mean": 110.5,
+        "maximum": 120,
+        "sum": 442
+      },
       "macro_f1_percent": {
         "1": 37.863,
         "2": 10.7865,
         "L": 31.57025
       },
+      "reference_cost_seconds": {
+        "decode_seconds": {
+          "count": 4,
+          "minimum": 2.1532587073743343,
+          "median": 2.390073858667165,
+          "mean": 2.397673631552607,
+          "maximum": 2.657288101501763,
+          "sum": 9.590694526210427
+        },
+        "gather_seconds": {
+          "count": 4,
+          "minimum": 0.006368695758283138,
+          "median": 0.028098586481064558,
+          "mean": 0.028079536510631442,
+          "maximum": 0.049752277322113514,
+          "sum": 0.11231814604252577
+        },
+        "topk_and_support_seconds": {
+          "count": 4,
+          "minimum": 0.005584200844168663,
+          "median": 0.026398777030408382,
+          "mean": 0.026406250428408384,
+          "maximum": 0.04724324680864811,
+          "sum": 0.10562500171363354
+        },
+        "selector_observer_seconds": {
+          "count": 4,
+          "minimum": 0.03817533049732447,
+          "median": 0.0806663534604013,
+          "mean": 0.08034627349115908,
+          "maximum": 0.12187705654650927,
+          "sum": 0.3213850939646363
+        },
+        "question_prefill_including_instrumented_selector_seconds": {
+          "count": 4,
+          "minimum": 0.07972165662795305,
+          "median": 0.14391079498454928,
+          "mean": 0.14346186467446387,
+          "maximum": 0.20630421210080385,
+          "sum": 0.5738474586978555
+        }
+      },
+      "documents": 1,
+      "total_generated_tokens": 442,
       "official_bootstrap_average_percent": {
         "1": {
           "R": 53.993,
@@ -46,14 +130,101 @@
           "F": 31.574
         }
       },
+      "raw_perl_path": "results/sparse_reference/perl/qmsum0_quality_fraction0p1.perl.txt",
+      "raw_perl_sha256": "cfc1b392e598f9589ec8bd4efe6ca63d325da5d0e12e0be112714c6822ee899b",
+      "per_document": {
+        "0": {
+          "questions": 4,
+          "natural_eos": 4,
+          "cap_hits": 0,
+          "output_parsing_counts": {
+            "nonempty_free_text": 4
+          },
+          "thinking_delimiter_outputs": 0,
+          "chat_delimiter_outputs": 0,
+          "generated_token_distribution": {
+            "count": 4,
+            "minimum": 100,
+            "median": 111.0,
+            "mean": 110.5,
+            "maximum": 120,
+            "sum": 442
+          },
+          "macro_f1_percent": {
+            "1": 37.863,
+            "2": 10.7865,
+            "L": 31.57025
+          },
+          "reference_cost_seconds": {
+            "decode_seconds": {
+              "count": 4,
+              "minimum": 2.1532587073743343,
+              "median": 2.390073858667165,
+              "mean": 2.397673631552607,
+              "maximum": 2.657288101501763,
+              "sum": 9.590694526210427
+            },
+            "gather_seconds": {
+              "count": 4,
+              "minimum": 0.006368695758283138,
+              "median": 0.028098586481064558,
+              "mean": 0.028079536510631442,
+              "maximum": 0.049752277322113514,
+              "sum": 0.11231814604252577
+            },
+            "topk_and_support_seconds": {
+              "count": 4,
+              "minimum": 0.005584200844168663,
+              "median": 0.026398777030408382,
+              "mean": 0.026406250428408384,
+              "maximum": 0.04724324680864811,
+              "sum": 0.10562500171363354
+            },
+            "selector_observer_seconds": {
+              "count": 4,
+              "minimum": 0.03817533049732447,
+              "median": 0.0806663534604013,
+              "mean": 0.08034627349115908,
+              "maximum": 0.12187705654650927,
+              "sum": 0.3213850939646363
+            },
+            "question_prefill_including_instrumented_selector_seconds": {
+              "count": 4,
+              "minimum": 0.07972165662795305,
+              "median": 0.14391079498454928,
+              "mean": 0.14346186467446387,
+              "maximum": 0.20630421210080385,
+              "sum": 0.5738474586978555
+            }
+          },
+          "delta_vs_full_budget_points": {
+            "1": 2.3810000000000002,
+            "2": 1.3027499999999996,
+            "L": 1.0282500000000034
+          }
+        }
+      },
       "median_reference_decode_seconds": 2.390073858667165,
       "per_question": [
         {
           "group_index": 0,
           "question_index": 0,
           "question_sha256": "2e0e10e9ac806a2e42caedcd1f6f53e746cbee9337bf52d5cfb3de802f16afa0",
+          "source_path": "results/sparse_reference/natural_instruct4b_qmsum0_q01.json",
+          "model_revision": "cdbee75f17c01a7cc42f958dc650907174af0554",
+          "seed": 20261016,
+          "fraction": 0.1,
+          "document_path": "data/documents/qmsum-399061a27b352694.txt",
+          "document_sha256": "399061a27b352694a3b198ef2309813c41ca8ee57d168018441f349ced4e02f8",
+          "question": "What did Project Manager think about choosing a stylish fruit for remote design?",
           "prediction": "The Project Manager thought that choosing a stylish fruit for the remote control design was a good idea, as it would make the remote look fancy and innovative. They agreed that the remote should resemble a fruit or vegetable, citing trends in fashion and design. Specifically, they supported the idea of a banana shape, noting it would be ergonomic, colorful (yellow), and align with the company's branding. The banana was also seen as innovative, as it combined a unique form with functionality. The Project Manager ultimately decided to go with a banana shape as the final design.",
           "reference": "Project Manager supported spongy material because of its robust quality and wanted to prioritize the wheel since it differentiated their remote from competitors. Project Manager also thought that the banana would be a good choice since it will be easy to find.",
+          "output_parsing": {
+            "status": "nonempty_free_text",
+            "characters": 582,
+            "contains_think_delimiter": false,
+            "contains_chat_delimiter": false
+          },
           "natural_eos": true,
           "hit_cap": false,
           "generated_tokens": 112,
@@ -62,6 +233,7 @@
           "gather_seconds": 0.049752277322113514,
           "topk_and_support_seconds": 0.04724324680864811,
           "selector_observer_seconds": 0.12155569065362215,
+          "question_prefill_including_instrumented_selector_seconds": 0.20630421210080385,
           "rouge": {
             "1": {
               "recall": 0.5,
@@ -78,14 +250,32 @@
               "precision": 0.20408,
               "f1": 0.28571
             }
+          },
+          "delta_vs_full_budget_points": {
+            "1": -3.5399999999999987,
+            "2": -1.1770000000000003,
+            "L": -4.968999999999996
           }
         },
         {
           "group_index": 0,
           "question_index": 1,
           "question_sha256": "3de89881af5e773dc62d84bfcdfccd60802c8d608506ddbfd32594e0f4ee8928",
+          "source_path": "results/sparse_reference/natural_instruct4b_qmsum0_q01.json",
+          "model_revision": "cdbee75f17c01a7cc42f958dc650907174af0554",
+          "seed": 20261017,
+          "fraction": 0.1,
+          "document_path": "data/documents/qmsum-399061a27b352694.txt",
+          "document_sha256": "399061a27b352694a3b198ef2309813c41ca8ee57d168018441f349ced4e02f8",
+          "question": "What did Marketing think about choosing a stylish fruit for remote design?",
           "prediction": "Marketing believed that the remote control should have a stylish, fancy look and feel, and suggested that it should resemble a fruit or vegetable to align with current trends. They specifically mentioned that fruits and vegetables were the most important theme in fashion for clothes, shoes, and furnishings. Marketing proposed ideas like a pear or a banana, and emphasized that the design should be spongy and natural, reflecting the trend. They also noted that the remote should be easy to use and innovative, and that the design could be innovative by using a fruit-like shape.",
           "reference": "Marketing believed that the trend of fruits and vegetables that fashion watchers have detected in Milan and Paris is a good indication of what kind of style the remote should have. It could make for a fancy and technologically innovative device. Marketing thought that the pear would make a good shape because it's easy to hold and that the remote should be spongy.",
+          "output_parsing": {
+            "status": "nonempty_free_text",
+            "characters": 580,
+            "contains_think_delimiter": false,
+            "contains_chat_delimiter": false
+          },
           "natural_eos": true,
           "hit_cap": false,
           "generated_tokens": 110,
@@ -94,6 +284,7 @@
           "gather_seconds": 0.006368695758283138,
           "topk_and_support_seconds": 0.005584200844168663,
           "selector_observer_seconds": 0.03977701626718044,
+          "question_prefill_including_instrumented_selector_seconds": 0.08181507047265768,
           "rouge": {
             "1": {
               "recall": 0.60938,
@@ -110,14 +301,32 @@
               "precision": 0.3125,
               "f1": 0.375
             }
+          },
+          "delta_vs_full_budget_points": {
+            "1": 1.1309999999999987,
+            "2": 7.418999999999998,
+            "L": 0.4630000000000023
           }
         },
         {
           "group_index": 0,
           "question_index": 2,
           "question_sha256": "87c56c117023da2aadacd2692a52eda49086fa3d54cf44e53078b871ea012e0d",
+          "source_path": "results/sparse_reference/natural_instruct4b_qmsum0_q23.json",
+          "model_revision": "cdbee75f17c01a7cc42f958dc650907174af0554",
+          "seed": 20261018,
+          "fraction": 0.1,
+          "document_path": "data/documents/qmsum-399061a27b352694.txt",
+          "document_sha256": "399061a27b352694a3b198ef2309813c41ca8ee57d168018441f349ced4e02f8",
+          "question": "Summarize the discussion about choosing a stylish fruit for remote design.",
           "prediction": "The team discussed incorporating a fruit or vegetable theme to make the remote control look stylish and innovative, aligning with current market trends. After brainstorming, the team considered several options, including bananas, pears, and apples. The banana was ultimately chosen as the preferred shape due to its ergonomic fit, spongy texture, and natural yellow color, which matches the company’s branding. The banana design was also noted for its intuitive appeal and ease of use. The decision was made to proceed with a banana-shaped, spongy remote control to achieve a fancy, modern look while maintaining functionality.",
           "reference": "Marketing introduced market research that suggested the best remote design would be spongy and take the form of a fruit or vegetable. The initial contenders for the remote shape were banana, apple, and pear. Banana won because of its colour and easily identifiable shape.",
+          "output_parsing": {
+            "status": "nonempty_free_text",
+            "characters": 627,
+            "contains_think_delimiter": false,
+            "contains_chat_delimiter": false
+          },
           "natural_eos": true,
           "hit_cap": false,
           "generated_tokens": 120,
@@ -126,6 +335,7 @@
           "gather_seconds": 0.04966439586132765,
           "topk_and_support_seconds": 0.047059603966772556,
           "selector_observer_seconds": 0.12187705654650927,
+          "question_prefill_including_instrumented_selector_seconds": 0.2060065194964409,
           "rouge": {
             "1": {
               "recall": 0.56818,
@@ -142,14 +352,32 @@
               "precision": 0.23711,
               "f1": 0.32624
             }
+          },
+          "delta_vs_full_budget_points": {
+            "1": 4.691999999999997,
+            "2": 0.9649999999999999,
+            "L": 6.587999999999999
           }
         },
         {
           "group_index": 0,
           "question_index": 3,
           "question_sha256": "a2e083a54a824703f266ba28e4a5e1e3c1373e50cb7784f3968b62b1af4baaa0",
+          "source_path": "results/sparse_reference/natural_instruct4b_qmsum0_q23.json",
+          "model_revision": "cdbee75f17c01a7cc42f958dc650907174af0554",
+          "seed": 20261019,
+          "fraction": 0.1,
+          "document_path": "data/documents/qmsum-399061a27b352694.txt",
+          "document_sha256": "399061a27b352694a3b198ef2309813c41ca8ee57d168018441f349ced4e02f8",
+          "question": "What did User Interface think about functional features to include in the remote?",
           "prediction": "The User Interface thought that the remote should have only essential functional features: a simple interface with a volume button, a power button, and a channel wheel to change channels. They rejected the inclusion of plastic covers or plastic buttons, as these would be difficult to use and could break. They also opposed the use of a plastic cover for the remote, as it would be inconvenient and potentially break. The team decided to keep the design simple and functional, avoiding unnecessary features like voice recognition or LCD screens.",
           "reference": "User Interface was concerned with voice activation and the light. The manufacturing division of the company already had a voice chip that they could adopt. User Interface thought that the light should be continuous since that would make the remote easier to find and that the cost of the motion sensor could be higher than expected.",
+          "output_parsing": {
+            "status": "nonempty_free_text",
+            "characters": 545,
+            "contains_think_delimiter": false,
+            "contains_chat_delimiter": false
+          },
           "natural_eos": true,
           "hit_cap": false,
           "generated_tokens": 100,
@@ -158,6 +386,7 @@
           "gather_seconds": 0.006532777100801468,
           "topk_and_support_seconds": 0.0057379500940442085,
           "selector_observer_seconds": 0.03817533049732447,
+          "question_prefill_including_instrumented_selector_seconds": 0.07972165662795305,
           "rouge": {
             "1": {
               "recall": 0.48214,
@@ -174,21 +403,81 @@
               "precision": 0.22472,
               "f1": 0.27586
             }
+          },
+          "delta_vs_full_budget_points": {
+            "1": 7.241000000000003,
+            "2": -1.995999999999999,
+            "L": 2.0309999999999997
           }
         }
       ]
     },
     "0.25": {
-      "documents": 1,
       "questions": 4,
       "natural_eos": 4,
       "cap_hits": 0,
-      "total_generated_tokens": 538,
+      "output_parsing_counts": {
+        "nonempty_free_text": 4
+      },
+      "thinking_delimiter_outputs": 0,
+      "chat_delimiter_outputs": 0,
+      "generated_token_distribution": {
+        "count": 4,
+        "minimum": 112,
+        "median": 139.0,
+        "mean": 134.5,
+        "maximum": 148,
+        "sum": 538
+      },
       "macro_f1_percent": {
         "1": 36.72125,
         "2": 11.17325,
         "L": 31.884
       },
+      "reference_cost_seconds": {
+        "decode_seconds": {
+          "count": 4,
+          "minimum": 2.4251319468021393,
+          "median": 2.9847538340836763,
+          "mean": 2.8928461689502,
+          "maximum": 3.1767450608313084,
+          "sum": 11.5713846758008
+        },
+        "gather_seconds": {
+          "count": 4,
+          "minimum": 0.006401868537068367,
+          "median": 0.006496833637356758,
+          "mean": 0.006489329505711794,
+          "maximum": 0.006561782211065292,
+          "sum": 0.025957318022847176
+        },
+        "topk_and_support_seconds": {
+          "count": 4,
+          "minimum": 0.005554563365876675,
+          "median": 0.005645097699016333,
+          "mean": 0.005657906178385019,
+          "maximum": 0.005786865949630737,
+          "sum": 0.022631624713540077
+        },
+        "selector_observer_seconds": {
+          "count": 4,
+          "minimum": 0.03817533049732447,
+          "median": 0.0806663534604013,
+          "mean": 0.08034627349115908,
+          "maximum": 0.12187705654650927,
+          "sum": 0.3213850939646363
+        },
+        "question_prefill_including_instrumented_selector_seconds": {
+          "count": 4,
+          "minimum": 0.07972165662795305,
+          "median": 0.14391079498454928,
+          "mean": 0.14346186467446387,
+          "maximum": 0.20630421210080385,
+          "sum": 0.5738474586978555
+        }
+      },
+      "documents": 1,
+      "total_generated_tokens": 538,
       "official_bootstrap_average_percent": {
         "1": {
           "R": 59.482,
@@ -206,14 +495,101 @@
           "F": 31.887
         }
       },
+      "raw_perl_path": "results/sparse_reference/perl/qmsum0_quality_fraction0p25.perl.txt",
+      "raw_perl_sha256": "b72365970bddabe6932dd74e0909ed27cd7d01e77ee3f2c1f0cd7e1d9286764b",
+      "per_document": {
+        "0": {
+          "questions": 4,
+          "natural_eos": 4,
+          "cap_hits": 0,
+          "output_parsing_counts": {
+            "nonempty_free_text": 4
+          },
+          "thinking_delimiter_outputs": 0,
+          "chat_delimiter_outputs": 0,
+          "generated_token_distribution": {
+            "count": 4,
+            "minimum": 112,
+            "median": 139.0,
+            "mean": 134.5,
+            "maximum": 148,
+            "sum": 538
+          },
+          "macro_f1_percent": {
+            "1": 36.72125,
+            "2": 11.17325,
+            "L": 31.884
+          },
+          "reference_cost_seconds": {
+            "decode_seconds": {
+              "count": 4,
+              "minimum": 2.4251319468021393,
+              "median": 2.9847538340836763,
+              "mean": 2.8928461689502,
+              "maximum": 3.1767450608313084,
+              "sum": 11.5713846758008
+            },
+            "gather_seconds": {
+              "count": 4,
+              "minimum": 0.006401868537068367,
+              "median": 0.006496833637356758,
+              "mean": 0.006489329505711794,
+              "maximum": 0.006561782211065292,
+              "sum": 0.025957318022847176
+            },
+            "topk_and_support_seconds": {
+              "count": 4,
+              "minimum": 0.005554563365876675,
+              "median": 0.005645097699016333,
+              "mean": 0.005657906178385019,
+              "maximum": 0.005786865949630737,
+              "sum": 0.022631624713540077
+            },
+            "selector_observer_seconds": {
+              "count": 4,
+              "minimum": 0.03817533049732447,
+              "median": 0.0806663534604013,
+              "mean": 0.08034627349115908,
+              "maximum": 0.12187705654650927,
+              "sum": 0.3213850939646363
+            },
+            "question_prefill_including_instrumented_selector_seconds": {
+              "count": 4,
+              "minimum": 0.07972165662795305,
+              "median": 0.14391079498454928,
+              "mean": 0.14346186467446387,
+              "maximum": 0.20630421210080385,
+              "sum": 0.5738474586978555
+            }
+          },
+          "delta_vs_full_budget_points": {
+            "1": 1.2392499999999984,
+            "2": 1.689499999999999,
+            "L": 1.3420000000000023
+          }
+        }
+      },
       "median_reference_decode_seconds": 2.9847538340836763,
       "per_question": [
         {
           "group_index": 0,
           "question_index": 0,
           "question_sha256": "2e0e10e9ac806a2e42caedcd1f6f53e746cbee9337bf52d5cfb3de802f16afa0",
+          "source_path": "results/sparse_reference/natural_instruct4b_qmsum0_q01.json",
+          "model_revision": "cdbee75f17c01a7cc42f958dc650907174af0554",
+          "seed": 20261016,
+          "fraction": 0.25,
+          "document_path": "data/documents/qmsum-399061a27b352694.txt",
+          "document_sha256": "399061a27b352694a3b198ef2309813c41ca8ee57d168018441f349ced4e02f8",
+          "question": "What did Project Manager think about choosing a stylish fruit for remote design?",
           "prediction": "The Project Manager thought that choosing a stylish fruit for the remote design was a good idea, as it would make the remote look fancy and innovative. They agreed that the design should reflect current trends, such as fruits and vegetables, and specifically mentioned that a banana or pear would be ergonomic, easy to find, and aligned with the company's color scheme. The Manager also noted that the banana shape would be innovative, easy to use, and recognizable, which would enhance the remote's appeal. They concluded that the banana design, with its yellow color and spongy feel, fits well with the goal of creating a fancy, innovative, and user-friendly product.",
           "reference": "Project Manager supported spongy material because of its robust quality and wanted to prioritize the wheel since it differentiated their remote from competitors. Project Manager also thought that the banana would be a good choice since it will be easy to find.",
+          "output_parsing": {
+            "status": "nonempty_free_text",
+            "characters": 669,
+            "contains_think_delimiter": false,
+            "contains_chat_delimiter": false
+          },
           "natural_eos": true,
           "hit_cap": false,
           "generated_tokens": 132,
@@ -222,6 +598,7 @@
           "gather_seconds": 0.006445296108722687,
           "topk_and_support_seconds": 0.005561858415603638,
           "selector_observer_seconds": 0.12155569065362215,
+          "question_prefill_including_instrumented_selector_seconds": 0.20630421210080385,
           "rouge": {
             "1": {
               "recall": 0.57143,
@@ -238,14 +615,32 @@
               "precision": 0.19469,
               "f1": 0.28387
             }
+          },
+          "delta_vs_full_budget_points": {
+            "1": -2.5719999999999965,
+            "2": 0.44399999999999995,
+            "L": -5.152999999999997
           }
         },
         {
           "group_index": 0,
           "question_index": 1,
           "question_sha256": "3de89881af5e773dc62d84bfcdfccd60802c8d608506ddbfd32594e0f4ee8928",
+          "source_path": "results/sparse_reference/natural_instruct4b_qmsum0_q01.json",
+          "model_revision": "cdbee75f17c01a7cc42f958dc650907174af0554",
+          "seed": 20261017,
+          "fraction": 0.25,
+          "document_path": "data/documents/qmsum-399061a27b352694.txt",
+          "document_sha256": "399061a27b352694a3b198ef2309813c41ca8ee57d168018441f349ced4e02f8",
+          "question": "What did Marketing think about choosing a stylish fruit for remote design?",
           "prediction": "Marketing believed that the remote control should have a \"fancy look and feel,\" with the most important aspect being its appearance. They noted that fruits and vegetables would be a key theme in fashion trends for clothing, shoes, and furniture, and suggested that the remote control should be designed to resemble a fruit or vegetable. Specifically, they proposed options like a pear or banana, citing the pear's ergonomic fit and the banana's appealing shape and yellow color, which would make it easy to identify. Marketing also mentioned that a spongy material would be appropriate for the design and that the banana shape would align well with the company's color scheme. They supported the idea of using a fruit form to make the remote stand out and feel innovative.",
           "reference": "Marketing believed that the trend of fruits and vegetables that fashion watchers have detected in Milan and Paris is a good indication of what kind of style the remote should have. It could make for a fancy and technologically innovative device. Marketing thought that the pear would make a good shape because it's easy to hold and that the remote should be spongy.",
+          "output_parsing": {
+            "status": "nonempty_free_text",
+            "characters": 772,
+            "contains_think_delimiter": false,
+            "contains_chat_delimiter": false
+          },
           "natural_eos": true,
           "hit_cap": false,
           "generated_tokens": 148,
@@ -254,6 +649,7 @@
           "gather_seconds": 0.006401868537068367,
           "topk_and_support_seconds": 0.005554563365876675,
           "selector_observer_seconds": 0.03977701626718044,
+          "question_prefill_including_instrumented_selector_seconds": 0.08181507047265768,
           "rouge": {
             "1": {
               "recall": 0.67188,
@@ -270,14 +666,32 @@
               "precision": 0.28244,
               "f1": 0.37948
             }
+          },
+          "delta_vs_full_budget_points": {
+            "1": -3.5169999999999977,
+            "2": 3.7470000000000003,
+            "L": 0.9110000000000007
           }
         },
         {
           "group_index": 0,
           "question_index": 2,
           "question_sha256": "87c56c117023da2aadacd2692a52eda49086fa3d54cf44e53078b871ea012e0d",
+          "source_path": "results/sparse_reference/natural_instruct4b_qmsum0_q23.json",
+          "model_revision": "cdbee75f17c01a7cc42f958dc650907174af0554",
+          "seed": 20261018,
+          "fraction": 0.25,
+          "document_path": "data/documents/qmsum-399061a27b352694.txt",
+          "document_sha256": "399061a27b352694a3b198ef2309813c41ca8ee57d168018441f349ced4e02f8",
+          "question": "Summarize the discussion about choosing a stylish fruit for remote design.",
           "prediction": "The team discussed incorporating a fruit or vegetable theme for the remote control's design, aligning with market trends. They considered options like a banana, pear, and apple, with the banana being favored for its ergonomic shape, vibrant yellow color (making it easy to spot), and strong association with the company's color scheme. The pear was also mentioned as a good ergonomic fit. Ultimately, the banana was selected as the primary design choice, with the remote to be shaped like a spongy banana to match the trend of \"fancy look and feel.\"",
           "reference": "Marketing introduced market research that suggested the best remote design would be spongy and take the form of a fruit or vegetable. The initial contenders for the remote shape were banana, apple, and pear. Banana won because of its colour and easily identifiable shape.",
+          "output_parsing": {
+            "status": "nonempty_free_text",
+            "characters": 549,
+            "contains_think_delimiter": false,
+            "contains_chat_delimiter": false
+          },
           "natural_eos": true,
           "hit_cap": false,
           "generated_tokens": 112,
@@ -286,6 +700,7 @@
           "gather_seconds": 0.006561782211065292,
           "topk_and_support_seconds": 0.005786865949630737,
           "selector_observer_seconds": 0.12187705654650927,
+          "question_prefill_including_instrumented_selector_seconds": 0.2060065194964409,
           "rouge": {
             "1": {
               "recall": 0.63636,
@@ -302,14 +717,32 @@
               "precision": 0.24731,
               "f1": 0.33577
             }
+          },
+          "delta_vs_full_budget_points": {
+            "1": 10.107,
+            "2": 2.616999999999999,
+            "L": 7.541000000000003
           }
         },
         {
           "group_index": 0,
           "question_index": 3,
           "question_sha256": "a2e083a54a824703f266ba28e4a5e1e3c1373e50cb7784f3968b62b1af4baaa0",
+          "source_path": "results/sparse_reference/natural_instruct4b_qmsum0_q23.json",
+          "model_revision": "cdbee75f17c01a7cc42f958dc650907174af0554",
+          "seed": 20261019,
+          "fraction": 0.25,
+          "document_path": "data/documents/qmsum-399061a27b352694.txt",
+          "document_sha256": "399061a27b352694a3b198ef2309813c41ca8ee57d168018441f349ced4e02f8",
+          "question": "What did User Interface think about functional features to include in the remote?",
           "prediction": "The User Interface thought that the remote should have only basic functional features: a wheel to change channels, volume buttons, a power on/off button, and a simple channel digit button. They believed the interface should be as simple as possible, rejecting unnecessary buttons (like input or other complex functions) to keep it user-friendly and easy to use. They also opposed the idea of plastic covers on the channel buttons, stating they would make the remote harder to use and more fragile. Instead, they suggested placing channel numbers in a separate, accessible area. Additionally, they considered the use of voice recognition and LCD screens as unnecessary and too expensive, aligning with the team's decision to keep the design simple, low-cost, and functional.",
           "reference": "User Interface was concerned with voice activation and the light. The manufacturing division of the company already had a voice chip that they could adopt. User Interface thought that the light should be continuous since that would make the remote easier to find and that the cost of the motion sensor could be higher than expected.",
+          "output_parsing": {
+            "status": "nonempty_free_text",
+            "characters": 773,
+            "contains_think_delimiter": false,
+            "contains_chat_delimiter": false
+          },
           "natural_eos": true,
           "hit_cap": false,
           "generated_tokens": 146,
@@ -318,6 +751,7 @@
           "gather_seconds": 0.0065483711659908295,
           "topk_and_support_seconds": 0.0057283369824290276,
           "selector_observer_seconds": 0.03817533049732447,
+          "question_prefill_including_instrumented_selector_seconds": 0.07972165662795305,
           "rouge": {
             "1": {
               "recall": 0.5,
@@ -334,21 +768,81 @@
               "precision": 0.2,
               "f1": 0.27624
             }
+          },
+          "delta_vs_full_budget_points": {
+            "1": 0.939000000000001,
+            "2": -0.050000000000000044,
+            "L": 2.0689999999999986
           }
         }
       ]
     },
     "0.5": {
-      "documents": 1,
       "questions": 4,
       "natural_eos": 4,
       "cap_hits": 0,
-      "total_generated_tokens": 578,
+      "output_parsing_counts": {
+        "nonempty_free_text": 4
+      },
+      "thinking_delimiter_outputs": 0,
+      "chat_delimiter_outputs": 0,
+      "generated_token_distribution": {
+        "count": 4,
+        "minimum": 125,
+        "median": 137.0,
+        "mean": 144.5,
+        "maximum": 179,
+        "sum": 578
+      },
       "macro_f1_percent": {
         "1": 35.009,
         "2": 10.29475,
         "L": 30.22475
       },
+      "reference_cost_seconds": {
+        "decode_seconds": {
+          "count": 4,
+          "minimum": 2.6457504080608487,
+          "median": 2.9397401390597224,
+          "mean": 3.1163474910426885,
+          "maximum": 3.9401592779904604,
+          "sum": 12.465389964170754
+        },
+        "gather_seconds": {
+          "count": 4,
+          "minimum": 0.006398513913154602,
+          "median": 0.0066461460664868355,
+          "mean": 0.006645190995186567,
+          "maximum": 0.006889957934617996,
+          "sum": 0.02658076398074627
+        },
+        "topk_and_support_seconds": {
+          "count": 4,
+          "minimum": 0.005519095808267593,
+          "median": 0.005662263371050358,
+          "mean": 0.006089511560276151,
+          "maximum": 0.007514423690736294,
+          "sum": 0.024358046241104603
+        },
+        "selector_observer_seconds": {
+          "count": 4,
+          "minimum": 0.03817533049732447,
+          "median": 0.0806663534604013,
+          "mean": 0.08034627349115908,
+          "maximum": 0.12187705654650927,
+          "sum": 0.3213850939646363
+        },
+        "question_prefill_including_instrumented_selector_seconds": {
+          "count": 4,
+          "minimum": 0.07972165662795305,
+          "median": 0.14391079498454928,
+          "mean": 0.14346186467446387,
+          "maximum": 0.20630421210080385,
+          "sum": 0.5738474586978555
+        }
+      },
+      "documents": 1,
+      "total_generated_tokens": 578,
       "official_bootstrap_average_percent": {
         "1": {
           "R": 59.163,
@@ -366,14 +860,101 @@
           "F": 30.229
         }
       },
+      "raw_perl_path": "results/sparse_reference/perl/qmsum0_quality_fraction0p5.perl.txt",
+      "raw_perl_sha256": "42c50a0061e20558d64fc5e35fe2ae8203709c99fcad0dc9874d2aeb50649cd1",
+      "per_document": {
+        "0": {
+          "questions": 4,
+          "natural_eos": 4,
+          "cap_hits": 0,
+          "output_parsing_counts": {
+            "nonempty_free_text": 4
+          },
+          "thinking_delimiter_outputs": 0,
+          "chat_delimiter_outputs": 0,
+          "generated_token_distribution": {
+            "count": 4,
+            "minimum": 125,
+            "median": 137.0,
+            "mean": 144.5,
+            "maximum": 179,
+            "sum": 578
+          },
+          "macro_f1_percent": {
+            "1": 35.009,
+            "2": 10.29475,
+            "L": 30.22475
+          },
+          "reference_cost_seconds": {
+            "decode_seconds": {
+              "count": 4,
+              "minimum": 2.6457504080608487,
+              "median": 2.9397401390597224,
+              "mean": 3.1163474910426885,
+              "maximum": 3.9401592779904604,
+              "sum": 12.465389964170754
+            },
+            "gather_seconds": {
+              "count": 4,
+              "minimum": 0.006398513913154602,
+              "median": 0.0066461460664868355,
+              "mean": 0.006645190995186567,
+              "maximum": 0.006889957934617996,
+              "sum": 0.02658076398074627
+            },
+            "topk_and_support_seconds": {
+              "count": 4,
+              "minimum": 0.005519095808267593,
+              "median": 0.005662263371050358,
+              "mean": 0.006089511560276151,
+              "maximum": 0.007514423690736294,
+              "sum": 0.024358046241104603
+            },
+            "selector_observer_seconds": {
+              "count": 4,
+              "minimum": 0.03817533049732447,
+              "median": 0.0806663534604013,
+              "mean": 0.08034627349115908,
+              "maximum": 0.12187705654650927,
+              "sum": 0.3213850939646363
+            },
+            "question_prefill_including_instrumented_selector_seconds": {
+              "count": 4,
+              "minimum": 0.07972165662795305,
+              "median": 0.14391079498454928,
+              "mean": 0.14346186467446387,
+              "maximum": 0.20630421210080385,
+              "sum": 0.5738474586978555
+            }
+          },
+          "delta_vs_full_budget_points": {
+            "1": -0.472999999999999,
+            "2": 0.8109999999999999,
+            "L": -0.3172499999999978
+          }
+        }
+      },
       "median_reference_decode_seconds": 2.9397401390597224,
       "per_question": [
         {
           "group_index": 0,
           "question_index": 0,
           "question_sha256": "2e0e10e9ac806a2e42caedcd1f6f53e746cbee9337bf52d5cfb3de802f16afa0",
+          "source_path": "results/sparse_reference/natural_instruct4b_qmsum0_q01.json",
+          "model_revision": "cdbee75f17c01a7cc42f958dc650907174af0554",
+          "seed": 20261016,
+          "fraction": 0.5,
+          "document_path": "data/documents/qmsum-399061a27b352694.txt",
+          "document_sha256": "399061a27b352694a3b198ef2309813c41ca8ee57d168018441f349ced4e02f8",
+          "question": "What did Project Manager think about choosing a stylish fruit for remote design?",
           "prediction": "The Project Manager thought that choosing a stylish fruit for the remote design was a good idea, as it would make the remote look fancy and innovative. They agreed that the remote should resemble a fruit or vegetable, with a focus on ergonomics and recognizability. Specific fruits like a banana or pear were discussed, with the banana being particularly favored due to its ergonomic shape, yellow color (making it easy to find), and alignment with the company's color scheme. The Manager also noted that the spongy, fruit-like material would enhance the look and feel, and the design would be both innovative and user-friendly.",
           "reference": "Project Manager supported spongy material because of its robust quality and wanted to prioritize the wheel since it differentiated their remote from competitors. Project Manager also thought that the banana would be a good choice since it will be easy to find.",
+          "output_parsing": {
+            "status": "nonempty_free_text",
+            "characters": 628,
+            "contains_think_delimiter": false,
+            "contains_chat_delimiter": false
+          },
           "natural_eos": true,
           "hit_cap": false,
           "generated_tokens": 125,
@@ -382,6 +963,7 @@
           "gather_seconds": 0.006604423746466637,
           "topk_and_support_seconds": 0.005519095808267593,
           "selector_observer_seconds": 0.12155569065362215,
+          "question_prefill_including_instrumented_selector_seconds": 0.20630421210080385,
           "rouge": {
             "1": {
               "recall": 0.59524,
@@ -398,14 +980,32 @@
               "precision": 0.21698,
               "f1": 0.31081
             }
+          },
+          "delta_vs_full_budget_points": {
+            "1": 0.24399999999999977,
+            "2": 1.0069999999999997,
+            "L": -2.459
           }
         },
         {
           "group_index": 0,
           "question_index": 1,
           "question_sha256": "3de89881af5e773dc62d84bfcdfccd60802c8d608506ddbfd32594e0f4ee8928",
+          "source_path": "results/sparse_reference/natural_instruct4b_qmsum0_q01.json",
+          "model_revision": "cdbee75f17c01a7cc42f958dc650907174af0554",
+          "seed": 20261017,
+          "fraction": 0.5,
+          "document_path": "data/documents/qmsum-399061a27b352694.txt",
+          "document_sha256": "399061a27b352694a3b198ef2309813c41ca8ee57d168018441f349ced4e02f8",
+          "question": "What did Marketing think about choosing a stylish fruit for remote design?",
           "prediction": "Marketing believed that the remote control should have a stylish, fancy look and feel, and specifically suggested that it should resemble a fruit or vegetable to align with current design trends. They noted that fruits and vegetables were the most important theme in fashion for clothes, shoes, and furniture. Marketing proposed options like a pear or banana, citing that a pear is ergonomic and easy to hold, while a banana is recognizable and yellow—making it easy to find. They also mentioned that the material should be spongy to enhance the look and feel, and that the design should be innovative and easy to use. Ultimately, Marketing supported using a fruit shape (like a banana or pear) to make the remote visually appealing and aligned with market trends.",
           "reference": "Marketing believed that the trend of fruits and vegetables that fashion watchers have detected in Milan and Paris is a good indication of what kind of style the remote should have. It could make for a fancy and technologically innovative device. Marketing thought that the pear would make a good shape because it's easy to hold and that the remote should be spongy.",
+          "output_parsing": {
+            "status": "nonempty_free_text",
+            "characters": 764,
+            "contains_think_delimiter": false,
+            "contains_chat_delimiter": false
+          },
           "natural_eos": true,
           "hit_cap": false,
           "generated_tokens": 147,
@@ -414,6 +1014,7 @@
           "gather_seconds": 0.006398513913154602,
           "topk_and_support_seconds": 0.005544465035200119,
           "selector_observer_seconds": 0.03977701626718044,
+          "question_prefill_including_instrumented_selector_seconds": 0.08181507047265768,
           "rouge": {
             "1": {
               "recall": 0.67188,
@@ -430,14 +1031,32 @@
               "precision": 0.28125,
               "f1": 0.375
             }
+          },
+          "delta_vs_full_budget_points": {
+            "1": -2.8270000000000017,
+            "2": 2.9560000000000004,
+            "L": 0.4630000000000023
           }
         },
         {
           "group_index": 0,
           "question_index": 2,
           "question_sha256": "87c56c117023da2aadacd2692a52eda49086fa3d54cf44e53078b871ea012e0d",
+          "source_path": "results/sparse_reference/natural_instruct4b_qmsum0_q23.json",
+          "model_revision": "cdbee75f17c01a7cc42f958dc650907174af0554",
+          "seed": 20261018,
+          "fraction": 0.5,
+          "document_path": "data/documents/qmsum-399061a27b352694.txt",
+          "document_sha256": "399061a27b352694a3b198ef2309813c41ca8ee57d168018441f349ced4e02f8",
+          "question": "Summarize the discussion about choosing a stylish fruit for remote design.",
           "prediction": "The team discussed incorporating a stylish, spongy fruit or vegetable shape for the remote control's design, aligning with current fashion trends observed in Paris and Milan. While several fruits were considered, the pear and banana were highlighted as ergonomic and user-friendly options. The banana was particularly favored for its yellow color (making it easy to find), familiar shape, and alignment with the company's color scheme. The pear was also noted for its ergonomic fit and natural feel. Ultimately, the banana was selected as the preferred design, with the remote to be shaped like a spongy banana, combining functionality, innovation, and aesthetic appeal.",
           "reference": "Marketing introduced market research that suggested the best remote design would be spongy and take the form of a fruit or vegetable. The initial contenders for the remote shape were banana, apple, and pear. Banana won because of its colour and easily identifiable shape.",
+          "output_parsing": {
+            "status": "nonempty_free_text",
+            "characters": 670,
+            "contains_think_delimiter": false,
+            "contains_chat_delimiter": false
+          },
           "natural_eos": true,
           "hit_cap": false,
           "generated_tokens": 127,
@@ -446,6 +1065,7 @@
           "gather_seconds": 0.006889957934617996,
           "topk_and_support_seconds": 0.005780061706900597,
           "selector_observer_seconds": 0.12187705654650927,
+          "question_prefill_including_instrumented_selector_seconds": 0.2060065194964409,
           "rouge": {
             "1": {
               "recall": 0.54545,
@@ -462,14 +1082,32 @@
               "precision": 0.19048,
               "f1": 0.26846
             }
+          },
+          "delta_vs_full_budget_points": {
+            "1": 1.4459999999999973,
+            "2": 0.6510000000000002,
+            "L": 0.8099999999999996
           }
         },
         {
           "group_index": 0,
           "question_index": 3,
           "question_sha256": "a2e083a54a824703f266ba28e4a5e1e3c1373e50cb7784f3968b62b1af4baaa0",
+          "source_path": "results/sparse_reference/natural_instruct4b_qmsum0_q23.json",
+          "model_revision": "cdbee75f17c01a7cc42f958dc650907174af0554",
+          "seed": 20261019,
+          "fraction": 0.5,
+          "document_path": "data/documents/qmsum-399061a27b352694.txt",
+          "document_sha256": "399061a27b352694a3b198ef2309813c41ca8ee57d168018441f349ced4e02f8",
+          "question": "What did User Interface think about functional features to include in the remote?",
           "prediction": "The User Interface thought that the remote should have very simple functional features, including a big volume control, a big channel control (using a wheel), a mute button, and a power button. They rejected the need for plastic covers on channel digit buttons, as they believed they would be difficult to use and could break. Instead, they suggested placing the channel numbers out of the way, so users could easily access the main buttons. They also considered a possible use of a wheel to control channels, which they felt would be innovative and user-friendly. Additionally, they mentioned that the remote should be easy to use and ergonomically designed, with buttons placed in a way that is accessible to users, especially when using a thumb. They also noted that adding a vibrator or a light to the remote could enhance the user experience. However, they emphasized that the design should remain simple and avoid unnecessary features.",
           "reference": "User Interface was concerned with voice activation and the light. The manufacturing division of the company already had a voice chip that they could adopt. User Interface thought that the light should be continuous since that would make the remote easier to find and that the cost of the motion sensor could be higher than expected.",
+          "output_parsing": {
+            "status": "nonempty_free_text",
+            "characters": 941,
+            "contains_think_delimiter": false,
+            "contains_chat_delimiter": false
+          },
           "natural_eos": true,
           "hit_cap": false,
           "generated_tokens": 179,
@@ -478,6 +1116,7 @@
           "gather_seconds": 0.006687868386507034,
           "topk_and_support_seconds": 0.007514423690736294,
           "selector_observer_seconds": 0.03817533049732447,
+          "question_prefill_including_instrumented_selector_seconds": 0.07972165662795305,
           "rouge": {
             "1": {
               "recall": 0.55357,
@@ -494,21 +1133,81 @@
               "precision": 0.17308,
               "f1": 0.25472
             }
+          },
+          "delta_vs_full_budget_points": {
+            "1": -0.7550000000000001,
+            "2": -1.3700000000000003,
+            "L": -0.08299999999999974
           }
         }
       ]
     },
     "1.0": {
-      "documents": 1,
       "questions": 4,
       "natural_eos": 4,
       "cap_hits": 0,
-      "total_generated_tokens": 583,
+      "output_parsing_counts": {
+        "nonempty_free_text": 4
+      },
+      "thinking_delimiter_outputs": 0,
+      "chat_delimiter_outputs": 0,
+      "generated_token_distribution": {
+        "count": 4,
+        "minimum": 138,
+        "median": 146.5,
+        "mean": 145.75,
+        "maximum": 152,
+        "sum": 583
+      },
       "macro_f1_percent": {
         "1": 35.482,
         "2": 9.48375,
         "L": 30.541999999999998
       },
+      "reference_cost_seconds": {
+        "decode_seconds": {
+          "count": 4,
+          "minimum": 2.9091316536068916,
+          "median": 3.1527941417880356,
+          "mean": 3.1488729496486485,
+          "maximum": 3.380771861411631,
+          "sum": 12.595491798594594
+        },
+        "gather_seconds": {
+          "count": 4,
+          "minimum": 0.006697788834571838,
+          "median": 0.010148314293473959,
+          "mean": 0.010141776874661446,
+          "maximum": 0.013572690077126026,
+          "sum": 0.04056710749864578
+        },
+        "topk_and_support_seconds": {
+          "count": 4,
+          "minimum": 0.005485088564455509,
+          "median": 0.0056426567025482655,
+          "mean": 0.005633490392938256,
+          "maximum": 0.005763559602200985,
+          "sum": 0.022533961571753025
+        },
+        "selector_observer_seconds": {
+          "count": 4,
+          "minimum": 0.03817533049732447,
+          "median": 0.0806663534604013,
+          "mean": 0.08034627349115908,
+          "maximum": 0.12187705654650927,
+          "sum": 0.3213850939646363
+        },
+        "question_prefill_including_instrumented_selector_seconds": {
+          "count": 4,
+          "minimum": 0.07972165662795305,
+          "median": 0.14391079498454928,
+          "mean": 0.14346186467446387,
+          "maximum": 0.20630421210080385,
+          "sum": 0.5738474586978555
+        }
+      },
+      "documents": 1,
+      "total_generated_tokens": 583,
       "official_bootstrap_average_percent": {
         "1": {
           "R": 60.463,
@@ -526,14 +1225,101 @@
           "F": 30.544
         }
       },
+      "raw_perl_path": "results/sparse_reference/perl/qmsum0_quality_fraction1p0.perl.txt",
+      "raw_perl_sha256": "b06f284942a89f7ca991c1b11dc5eb8e7dc2561a7d9a562b35c6cc9a49f0cbfb",
+      "per_document": {
+        "0": {
+          "questions": 4,
+          "natural_eos": 4,
+          "cap_hits": 0,
+          "output_parsing_counts": {
+            "nonempty_free_text": 4
+          },
+          "thinking_delimiter_outputs": 0,
+          "chat_delimiter_outputs": 0,
+          "generated_token_distribution": {
+            "count": 4,
+            "minimum": 138,
+            "median": 146.5,
+            "mean": 145.75,
+            "maximum": 152,
+            "sum": 583
+          },
+          "macro_f1_percent": {
+            "1": 35.482,
+            "2": 9.48375,
+            "L": 30.541999999999998
+          },
+          "reference_cost_seconds": {
+            "decode_seconds": {
+              "count": 4,
+              "minimum": 2.9091316536068916,
+              "median": 3.1527941417880356,
+              "mean": 3.1488729496486485,
+              "maximum": 3.380771861411631,
+              "sum": 12.595491798594594
+            },
+            "gather_seconds": {
+              "count": 4,
+              "minimum": 0.006697788834571838,
+              "median": 0.010148314293473959,
+              "mean": 0.010141776874661446,
+              "maximum": 0.013572690077126026,
+              "sum": 0.04056710749864578
+            },
+            "topk_and_support_seconds": {
+              "count": 4,
+              "minimum": 0.005485088564455509,
+              "median": 0.0056426567025482655,
+              "mean": 0.005633490392938256,
+              "maximum": 0.005763559602200985,
+              "sum": 0.022533961571753025
+            },
+            "selector_observer_seconds": {
+              "count": 4,
+              "minimum": 0.03817533049732447,
+              "median": 0.0806663534604013,
+              "mean": 0.08034627349115908,
+              "maximum": 0.12187705654650927,
+              "sum": 0.3213850939646363
+            },
+            "question_prefill_including_instrumented_selector_seconds": {
+              "count": 4,
+              "minimum": 0.07972165662795305,
+              "median": 0.14391079498454928,
+              "mean": 0.14346186467446387,
+              "maximum": 0.20630421210080385,
+              "sum": 0.5738474586978555
+            }
+          },
+          "delta_vs_full_budget_points": {
+            "1": 0.0,
+            "2": 0.0,
+            "L": 0.0
+          }
+        }
+      },
       "median_reference_decode_seconds": 3.1527941417880356,
       "per_question": [
         {
           "group_index": 0,
           "question_index": 0,
           "question_sha256": "2e0e10e9ac806a2e42caedcd1f6f53e746cbee9337bf52d5cfb3de802f16afa0",
+          "source_path": "results/sparse_reference/natural_instruct4b_qmsum0_q01.json",
+          "model_revision": "cdbee75f17c01a7cc42f958dc650907174af0554",
+          "seed": 20261016,
+          "fraction": 1.0,
+          "document_path": "data/documents/qmsum-399061a27b352694.txt",
+          "document_sha256": "399061a27b352694a3b198ef2309813c41ca8ee57d168018441f349ced4e02f8",
+          "question": "What did Project Manager think about choosing a stylish fruit for remote design?",
           "prediction": "The Project Manager thought that choosing a stylish fruit for the remote design was a good idea, as it would make the remote look fancy and innovative. They agreed that the remote should resemble a fruit or vegetable, with a focus on being ergonomic and easy to use. Specific fruits like a banana or pear were considered, with the banana being particularly praised for its yellow color (making it easy to find), its ergonomic shape, and its alignment with the company's color scheme. The Manager also noted that the spongy, fruit-like material would be robust and suitable for the design. Ultimately, they decided to proceed with a banana-shaped, spongy remote as a stylish and functional choice.",
           "reference": "Project Manager supported spongy material because of its robust quality and wanted to prioritize the wheel since it differentiated their remote from competitors. Project Manager also thought that the banana would be a good choice since it will be easy to find.",
+          "output_parsing": {
+            "status": "nonempty_free_text",
+            "characters": 696,
+            "contains_think_delimiter": false,
+            "contains_chat_delimiter": false
+          },
           "natural_eos": true,
           "hit_cap": false,
           "generated_tokens": 138,
@@ -542,6 +1328,7 @@
           "gather_seconds": 0.013572690077126026,
           "topk_and_support_seconds": 0.00553062092512846,
           "selector_observer_seconds": 0.12155569065362215,
+          "question_prefill_including_instrumented_selector_seconds": 0.20630421210080385,
           "rouge": {
             "1": {
               "recall": 0.64286,
@@ -558,14 +1345,32 @@
               "precision": 0.22689,
               "f1": 0.3354
             }
+          },
+          "delta_vs_full_budget_points": {
+            "1": 0.0,
+            "2": 0.0,
+            "L": 0.0
           }
         },
         {
           "group_index": 0,
           "question_index": 1,
           "question_sha256": "3de89881af5e773dc62d84bfcdfccd60802c8d608506ddbfd32594e0f4ee8928",
+          "source_path": "results/sparse_reference/natural_instruct4b_qmsum0_q01.json",
+          "model_revision": "cdbee75f17c01a7cc42f958dc650907174af0554",
+          "seed": 20261017,
+          "fraction": 1.0,
+          "document_path": "data/documents/qmsum-399061a27b352694.txt",
+          "document_sha256": "399061a27b352694a3b198ef2309813c41ca8ee57d168018441f349ced4e02f8",
+          "question": "What did Marketing think about choosing a stylish fruit for remote design?",
           "prediction": "Marketing believed that the remote control should have a stylish, fancy look and feel, and specifically suggested that it should be designed to resemble a fruit or vegetable, aligning with current trends in fashion. They mentioned that fruits like a pear or banana would be suitable due to their ergonomic shape and natural appeal. A pear was noted for being easy to hold, while a banana was praised for its yellow color, making it easy to find, and its natural shape. Marketing also supported the use of a spongy material, which would give the remote a soft, robust feel. They emphasized that the design should be innovative and appealing, and that using a fruit shape would make the remote stand out in terms of aesthetics.",
           "reference": "Marketing believed that the trend of fruits and vegetables that fashion watchers have detected in Milan and Paris is a good indication of what kind of style the remote should have. It could make for a fancy and technologically innovative device. Marketing thought that the pear would make a good shape because it's easy to hold and that the remote should be spongy.",
+          "output_parsing": {
+            "status": "nonempty_free_text",
+            "characters": 725,
+            "contains_think_delimiter": false,
+            "contains_chat_delimiter": false
+          },
           "natural_eos": true,
           "hit_cap": false,
           "generated_tokens": 143,
@@ -574,6 +1379,7 @@
           "gather_seconds": 0.006697788834571838,
           "topk_and_support_seconds": 0.005485088564455509,
           "selector_observer_seconds": 0.03977701626718044,
+          "question_prefill_including_instrumented_selector_seconds": 0.08181507047265768,
           "rouge": {
             "1": {
               "recall": 0.70312,
@@ -590,14 +1396,32 @@
               "precision": 0.28,
               "f1": 0.37037
             }
+          },
+          "delta_vs_full_budget_points": {
+            "1": 0.0,
+            "2": 0.0,
+            "L": 0.0
           }
         },
         {
           "group_index": 0,
           "question_index": 2,
           "question_sha256": "87c56c117023da2aadacd2692a52eda49086fa3d54cf44e53078b871ea012e0d",
+          "source_path": "results/sparse_reference/natural_instruct4b_qmsum0_q23.json",
+          "model_revision": "cdbee75f17c01a7cc42f958dc650907174af0554",
+          "seed": 20261018,
+          "fraction": 1.0,
+          "document_path": "data/documents/qmsum-399061a27b352694.txt",
+          "document_sha256": "399061a27b352694a3b198ef2309813c41ca8ee57d168018441f349ced4e02f8",
+          "question": "Summarize the discussion about choosing a stylish fruit for remote design.",
           "prediction": "The team discussed styling the remote control to resemble a fruit or vegetable, aligning with current design trends of natural, spongy materials. They considered several options, including a banana and a pear, both of which were deemed ergonomic, recognizable, and visually appealing. The banana was particularly favored for its yellow color (making it easy to find), natural shape, and alignment with the company's color scheme. The pear was also mentioned as ergonomic and easy to hold. Ultimately, the banana was selected as the preferred design, with the remote to be shaped like a banana and have a spongy, robust cover. The design was also noted to be innovative and user-friendly, with the wheel on top and buttons on the sides for easy access.",
           "reference": "Marketing introduced market research that suggested the best remote design would be spongy and take the form of a fruit or vegetable. The initial contenders for the remote shape were banana, apple, and pear. Banana won because of its colour and easily identifiable shape.",
+          "output_parsing": {
+            "status": "nonempty_free_text",
+            "characters": 751,
+            "contains_think_delimiter": false,
+            "contains_chat_delimiter": false
+          },
           "natural_eos": true,
           "hit_cap": false,
           "generated_tokens": 150,
@@ -606,6 +1430,7 @@
           "gather_seconds": 0.013535193167626858,
           "topk_and_support_seconds": 0.005754692479968071,
           "selector_observer_seconds": 0.12187705654650927,
+          "question_prefill_including_instrumented_selector_seconds": 0.2060065194964409,
           "rouge": {
             "1": {
               "recall": 0.59091,
@@ -622,14 +1447,32 @@
               "precision": 0.176,
               "f1": 0.26036
             }
+          },
+          "delta_vs_full_budget_points": {
+            "1": 0.0,
+            "2": 0.0,
+            "L": 0.0
           }
         },
         {
           "group_index": 0,
           "question_index": 3,
           "question_sha256": "a2e083a54a824703f266ba28e4a5e1e3c1373e50cb7784f3968b62b1af4baaa0",
+          "source_path": "results/sparse_reference/natural_instruct4b_qmsum0_q23.json",
+          "model_revision": "cdbee75f17c01a7cc42f958dc650907174af0554",
+          "seed": 20261019,
+          "fraction": 1.0,
+          "document_path": "data/documents/qmsum-399061a27b352694.txt",
+          "document_sha256": "399061a27b352694a3b198ef2309813c41ca8ee57d168018441f349ced4e02f8",
+          "question": "What did User Interface think about functional features to include in the remote?",
           "prediction": "The User Interface thought that the remote should have very simple functional features, including a big volume control, a big channel control, a mute button, and a power button. They rejected the need for plastic covers on channel buttons, as they believed this could make the remote difficult to use and prone to breaking. Instead, they suggested placing the channel numbers out of the way, so the main buttons (volume, channel, mute, and power) remain easily accessible. They also supported using a single wheel for channel control, as it would be innovative and easier to use than standard buttons. Additionally, they mentioned the possibility of adding a vibrator, though it was not prioritized. Overall, the focus was on simplicity, ergonomics, and ease of use.",
           "reference": "User Interface was concerned with voice activation and the light. The manufacturing division of the company already had a voice chip that they could adopt. User Interface thought that the light should be continuous since that would make the remote easier to find and that the cost of the motion sensor could be higher than expected.",
+          "output_parsing": {
+            "status": "nonempty_free_text",
+            "characters": 766,
+            "contains_think_delimiter": false,
+            "contains_chat_delimiter": false
+          },
           "natural_eos": true,
           "hit_cap": false,
           "generated_tokens": 152,
@@ -638,6 +1481,7 @@
           "gather_seconds": 0.00676143541932106,
           "topk_and_support_seconds": 0.005763559602200985,
           "selector_observer_seconds": 0.03817533049732447,
+          "question_prefill_including_instrumented_selector_seconds": 0.07972165662795305,
           "rouge": {
             "1": {
               "recall": 0.48214,
@@ -654,6 +1498,11 @@
               "precision": 0.18548,
               "f1": 0.25555
             }
+          },
+          "delta_vs_full_budget_points": {
+            "1": 0.0,
+            "2": 0.0,
+            "L": 0.0
           }
         }
       ]
@@ -680,5 +1529,15 @@
       "2": 0.0,
       "L": 0.0
     }
-  }
+  },
+  "blind_factual_audit": {
+    "status": "pending; ROUGE is not a factuality assessment",
+    "items": 16,
+    "queue": "results/sparse_reference/qmsum0_quality_blind_audit.jsonl",
+    "queue_sha256": "c792884e74e832c0e2cbcee7c0bfdcf91503a87107ef764f48669d5d250c7551",
+    "separate_mapping": "results/sparse_reference/qmsum0_quality_blind_audit_mapping.json",
+    "mapping_sha256": "79b51a9919eb800d29140b1b3ca4f4f29c33955712d55619a37f02b67ffa69b0",
+    "protocol": "Reviewers see the queue with original question, gold reference, candidate answer, and full source file/line range. All answers retained, including duplicates. Do not open arm mapping until verdicts are frozen. Planned independent LLM-assisted review is not a human evaluation."
+  },
+  "per_question_csv": "results/sparse_reference/qmsum0_quality.csv"
 }
