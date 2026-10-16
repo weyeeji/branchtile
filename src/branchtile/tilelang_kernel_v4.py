@@ -22,6 +22,13 @@ def mma_layout(m):
         forward_index_fn=lambda i,d:(i//16)*16+((d%32)//8)*4+((i%16)//8)*2+d%2)
 
 
+def row_layout(m):
+    # Replicate each row across its four lane subgroups in all four warps.
+    return Fragment((m,),replicate=16,
+        forward_thread_fn=lambda i,rep:(rep%4)*32+(i%8)*4+rep//4,
+        forward_index_fn=lambda i:i//8)
+
+
 @lru_cache(maxsize=128)
 def producer(heads,tokens,rows,dim,regions,splits=64,block_n=64,threads=128):
     assert rows in (24,32) and dim==128 and threads==128
@@ -38,7 +45,9 @@ def producer(heads,tokens,rows,dim,regions,splits=64,block_n=64,threads=128):
         factor=T.alloc_fragment((M,),"float32")
         subtotal=T.alloc_fragment((M,),"float32")
         denominator=T.alloc_fragment((M,),"float32")
-        T.annotate_layout({out:mma_layout(M)})
+        T.annotate_layout({out:mma_layout(M),maximum:row_layout(M),
+                           previous:row_layout(M),factor:row_layout(M),
+                           subtotal:row_layout(M),denominator:row_layout(M)})
         begin=Offsets[h,r]+(Offsets[h,r+1]-Offsets[h,r])*s//splits
         end=Offsets[h,r]+(Offsets[h,r+1]-Offsets[h,r])*(s+1)//splits
         if begin<end:
