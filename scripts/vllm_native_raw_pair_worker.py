@@ -239,7 +239,16 @@ class NativeRawPairWorker(NativePrecisionWorkerExtension):
 
     def finish_dense_cascade_phase(self):
         state,probe=self.raw_pair,self.native_probe
-        result=self.finish_native_phase()
+        metadata_path=probe['output']/f'{probe["phase"]}.json'
+        graph_path=probe['output']/f'{probe["phase"]}_graph.json'
+        metadata_path.write_text(json.dumps({'rank':probe['rank'],'phase':probe['phase'],
+            'method':state['method'],'mechanism':'raw_pair_native_state_continuation',
+            'native_full_history':state['method']=='native','full_history':True,
+            'metadata_types':list(probe['metadata'].values()),
+            'scope':'Native trajectory during qualification; admitted actual B8 uses raw pair in candidate phases, all other steps use native.'},indent=2)+'\n')
+        graph_path.write_text(json.dumps({'rank':probe['rank'],'phase':probe['phase'],
+            'replays':probe['records'],'metadata_types':list(probe['metadata'].values())},indent=2)+'\n')
+        result={'rank':probe['rank'],'metadata':str(metadata_path),'graph_metadata':str(graph_path),'replays':len(probe['records'])}
         checks=state['checks'];passed=bool(checks) and all(x['qualification_passed'] for x in checks)
         phase_valid=all(x['qualification_passed'] for x in checks)
         if checks: state['qualification_completed'] = passed
