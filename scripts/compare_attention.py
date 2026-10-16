@@ -144,6 +144,7 @@ def main():
                 normalize_lse = args.normalize_native_lse and method != "native_raw"
                 op = NativeSparseDecode(q, k, v, supports, use_tensor_cores=bool(threads), fixed_split_size=split,
                                         normalize_lse=normalize_lse)
+                record["native_resolved_backend"] = getattr(op.wrapper, "resolved_backend", None)
                 fn = op.run
                 lse_scale = 1 if normalize_lse else math.log(2)
             else:
