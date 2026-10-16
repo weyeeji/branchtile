@@ -41,3 +41,16 @@
 后两项分析分别在 `results/cached_o_b8_diagnostic_v1/train1_bf16/analysis.json` 和 `train1_fp8/analysis.json`；原文档FP8在 `results/cached_o_diagnostic_v1/original_fp8/analysis.json`。B8与B3文档长度和题目不同，不构成纯batch scaling消融。
 
 **B8场景的固定整模型图有很大机会，但仍不能推出自然任务3倍加速。** 同一train1的自然EOS测量中，8题共同活跃仅BF16的291步/2612总步、FP8的773步/3022总步；冷文档还需约20秒anchor。候选需要支持逐步变化的Q、private tail、B7…B1，并支付元数据/切换成本。实际共享机制只能兑现缓存O乐观参照的一部分。
+
+## 第二份 B3 文档的独立重复
+
+`docfinqa-593ec0c33f45ea02`（约89.8K tokens）在BF16/FP8各完成一次相同协议；账本 `cached_o_new_bf16_v1`、`cached_o_new_fp8_v1` 均 exit0、未超时，分别0.03987/0.04015 GPUh。两rank各48层及最终hidden/logits/当前KV写入槽继续通过逐bit检查，源文件哈希检查通过。
+
+| 精度 | 热图原生→cachedO | 热配对速度比及95% CI | 热耗时下降 | 人工冷耗时下降 |
+| --- | --- | --- | ---: | ---: |
+| BF16 | 8.455→4.909 ms | 1.72265 [1.72081,1.72443] | 41.94% | 41.83% |
+| FP8 | 7.015→4.943 ms | 1.42083 [1.41706,1.42515] | 29.54% | 29.77% |
+
+热条件各rank和max-rank AA置信区间均包含1。FP8人工冷条件rank1 AA为1.00100 [1.00017,1.00230]，存在约0.1%的微小顺序/噪声信号；其max-rank AA区间仍包含1，不能把新增结果描述成“所有单rank AA均包含1”。冷条件的缓存O差异约30%，远大于这一AA偏差。
+
+第二份文档重现B3约42%/30%的替代机会，减少了只由单文档造成的疑虑；它仍仅是每文档一个冻结decode状态，不增加自然EOS任务收益证据。分析路径为 `results/cached_o_diagnostic_v1/new_bf16/analysis.json` 和 `new_fp8/analysis.json`。
