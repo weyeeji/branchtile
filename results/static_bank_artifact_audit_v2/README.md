@@ -1,0 +1,1 @@
+Extended CPU-only artifact review: 18 cases, 108 numerical phases, 15 clean jobs. Includes B3 split128 qualification in wave10. Original GPU JSON remains unchanged. The launch-host gzip/metadata files referenced by this snapshot are retained at results/launch_hosts/. Numerical pass is separate from resource observations; B4 BN64 spills remain reported.
