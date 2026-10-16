@@ -17,8 +17,11 @@ Ten complete performance waves contain 74 clean jobs and 4,532 FP64-qualified
 configurations across 25 distinct real development settings and three documents.
 Owner-task packed partials pass 480 dedicated numerical phases and improve the
 old dynamic operator. An enlarged grid finds one approximately 4.8% hot win;
-fixed-parameter confirmation wins one of eight correlated inputs by about 5.4%.
-Other inputs and preparation amortization still fail the research gate. Eight
+fixed-parameter confirmation beats the adapted FlashInfer control on six of eight
+correlated hot inputs by about 1.05–1.10×, and the per-input selected control on
+one of eight by about 5.4%. The latter is an oracle-style diagnostic, not a
+required deployable baseline. These are partial-head attention call timings;
+end-to-end owner-task gains have not been measured. Eight
 legacy-compilation jobs were stopped early and remain charged as incomplete.
 The [frozen summary](results/operator_8gpu_exploration_summary_v2/summary.json),
 independent audits, all failures and stage diagnostics are retained. The
