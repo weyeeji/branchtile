@@ -1,7 +1,7 @@
 """Runtime lane-local bank selects with only M16/M32 region bodies.
 
 New experimental hypothesis: trade uniform register selects for fewer compiled
-owner-specialized GEMM bodies. Canonical U has no explicit shared staging.
+owner-specialized GEMM bodies. Canonical U uses four independent eight-row banks without shared staging.
 """
 from functools import lru_cache
 import math
@@ -11,9 +11,9 @@ from tilelang.layout import Fragment
 
 
 def canonical_layout():
-    return Fragment((32,128),
+    return Fragment((8,128),
         forward_thread_fn=lambda i,d:(d//32)*32+(i%8)*4+(d%8)//2,
-        forward_index_fn=lambda i,d:(i//8)*8+((d%32)//8)*2+d%2)
+        forward_index_fn=lambda i,d:((d%32)//8)*2+d%2)
 
 
 def mma_layout(m):
@@ -37,15 +37,22 @@ def producer(heads, tokens, rows, dim, regions, splits=64, block_n=64, threads=1
 
     @T.macro
     def do_region(Q, K, V, Indices, Offsets, RowMap, Count, Owner, Labels,
-                  CU, CM, CL, qs, ks, vs, probs, h, s, r, M: T.const):
+                  CU0, CU1, CU2, CU3, CM, CL, qs, ks, vs, probs, h, s, r, M: T.const):
         scores = T.alloc_fragment((M, block_n), "float32")
         out = T.alloc_fragment((M, dim), "float32")
+        OUT0 = T.alloc_fragment((8, dim), "float32")
+        OUT1 = T.alloc_fragment((8, dim), "float32")
+        OUT2 = T.alloc_fragment((8, dim), "float32")
+        OUT3 = T.alloc_fragment((8, dim), "float32")
         maximum = T.alloc_fragment((M,), "float32")
         previous = T.alloc_fragment((M,), "float32")
         factor = T.alloc_fragment((M,), "float32")
         subtotal = T.alloc_fragment((M,), "float32")
         denominator = T.alloc_fragment((M,), "float32")
-        T.annotate_layout({out: mma_layout(M), maximum: row_layout(M),
+        T.annotate_layout({out: mma_layout(M),
+                           OUT0: canonical_layout(), OUT1: canonical_layout(),
+                           OUT2: canonical_layout(), OUT3: canonical_layout(),
+                           maximum: row_layout(M),
                            previous: row_layout(M), factor: row_layout(M),
                            subtotal: row_layout(M), denominator: row_layout(M)})
         begin = Offsets[h, r] + (Offsets[h, r + 1] - Offsets[h, r]) * s // splits
@@ -59,28 +66,28 @@ def producer(heads, tokens, rows, dim, regions, splits=64, block_n=64, threads=1
             if Count[h, r] >= 8:
                 request = RowMap[h, r, 0] // 8
                 for i, d in T.Parallel(8, dim):
-                    out[i, d] = T.if_then_else(request == 0, CU[i, d],
-                        T.if_then_else(request == 1, CU[8 + i, d],
-                            T.if_then_else(request == 2, CU[16 + i, d], CU[24 + i, d])))
+                    out[i, d] = T.if_then_else(request == 0, CU0[i, d],
+                        T.if_then_else(request == 1, CU1[i, d],
+                            T.if_then_else(request == 2, CU2[i, d], CU3[i, d])))
             if Count[h, r] >= 16:
                 request = RowMap[h, r, 8] // 8
                 for i, d in T.Parallel(8, dim):
-                    out[8 + i, d] = T.if_then_else(request == 0, CU[i, d],
-                        T.if_then_else(request == 1, CU[8 + i, d],
-                            T.if_then_else(request == 2, CU[16 + i, d], CU[24 + i, d])))
+                    out[8 + i, d] = T.if_then_else(request == 0, CU0[i, d],
+                        T.if_then_else(request == 1, CU1[i, d],
+                            T.if_then_else(request == 2, CU2[i, d], CU3[i, d])))
             if M == 32:
                 if Count[h, r] >= 24:
                     request = RowMap[h, r, 16] // 8
                     for i, d in T.Parallel(8, dim):
-                        out[16 + i, d] = T.if_then_else(request == 0, CU[i, d],
-                            T.if_then_else(request == 1, CU[8 + i, d],
-                                T.if_then_else(request == 2, CU[16 + i, d], CU[24 + i, d])))
+                        out[16 + i, d] = T.if_then_else(request == 0, CU0[i, d],
+                            T.if_then_else(request == 1, CU1[i, d],
+                                T.if_then_else(request == 2, CU2[i, d], CU3[i, d])))
                 if Count[h, r] >= 32:
                     request = RowMap[h, r, 24] // 8
                     for i, d in T.Parallel(8, dim):
-                        out[24 + i, d] = T.if_then_else(request == 0, CU[i, d],
-                            T.if_then_else(request == 1, CU[8 + i, d],
-                                T.if_then_else(request == 2, CU[16 + i, d], CU[24 + i, d])))
+                        out[24 + i, d] = T.if_then_else(request == 0, CU0[i, d],
+                            T.if_then_else(request == 1, CU1[i, d],
+                                T.if_then_else(request == 2, CU2[i, d], CU3[i, d])))
             for i in T.Parallel(M):
                 src = RowMap[h, r, i]
                 valid = i < Count[h, r]
@@ -113,43 +120,54 @@ def producer(heads, tokens, rows, dim, regions, splits=64, block_n=64, threads=1
                     out[i, d] *= factor[i]
                 T.copy(scores, probs[0:M, 0:block_n])
                 T.gemm(probs[0:M, 0:block_n], vs, out, policy=T.GemmWarpPolicy.FullCol)
+            # Independent copies satisfy BufferUseDefCollector's one-index
+            # rule; all four fixed slot fragments keep the same lane layout.
+            for i, d in T.Parallel(8, dim):
+                OUT0[i, d] = out[i, d]
+            for i, d in T.Parallel(8, dim):
+                OUT1[i, d] = out[8 + i, d]
+            if M == 32:
+                for i, d in T.Parallel(8, dim):
+                    OUT2[i, d] = out[16 + i, d]
+                for i, d in T.Parallel(8, dim):
+                    OUT3[i, d] = out[24 + i, d]
             if Owner[h, r, 0] != 0:
                 slot = 0
                 for i, d in T.Parallel(8, dim):
                     if M == 16:
-                        CU[i, d] = T.if_then_else(slot == 0, out[i, d], out[8 + i, d])
+                        CU0[i, d] = T.if_then_else(slot == 0, OUT0[i, d], OUT1[i, d])
                     else:
-                        CU[i, d] = T.if_then_else(slot == 0, out[i, d],
-                            T.if_then_else(slot == 1, out[8 + i, d],
-                                T.if_then_else(slot == 2, out[16 + i, d], out[24 + i, d])))
+                        CU0[i, d] = T.if_then_else(slot == 0, OUT0[i, d],
+                            T.if_then_else(slot == 1, OUT1[i, d],
+                                T.if_then_else(slot == 2, OUT2[i, d], OUT3[i, d])))
             if Owner[h, r, 8] != 0:
                 slot = (label & 1)
                 for i, d in T.Parallel(8, dim):
                     if M == 16:
-                        CU[8 + i, d] = T.if_then_else(slot == 0, out[i, d], out[8 + i, d])
+                        CU1[i, d] = T.if_then_else(slot == 0, OUT0[i, d], OUT1[i, d])
                     else:
-                        CU[8 + i, d] = T.if_then_else(slot == 0, out[i, d],
-                            T.if_then_else(slot == 1, out[8 + i, d],
-                                T.if_then_else(slot == 2, out[16 + i, d], out[24 + i, d])))
+                        CU1[i, d] = T.if_then_else(slot == 0, OUT0[i, d],
+                            T.if_then_else(slot == 1, OUT1[i, d],
+                                T.if_then_else(slot == 2, OUT2[i, d], OUT3[i, d])))
             if Owner[h, r, 16] != 0:
                 slot = (label & 1) + ((label >> 1) & 1)
                 for i, d in T.Parallel(8, dim):
                     if M == 16:
-                        CU[16 + i, d] = T.if_then_else(slot == 0, out[i, d], out[8 + i, d])
+                        CU2[i, d] = T.if_then_else(slot == 0, OUT0[i, d], OUT1[i, d])
                     else:
-                        CU[16 + i, d] = T.if_then_else(slot == 0, out[i, d],
-                            T.if_then_else(slot == 1, out[8 + i, d],
-                                T.if_then_else(slot == 2, out[16 + i, d], out[24 + i, d])))
+                        CU2[i, d] = T.if_then_else(slot == 0, OUT0[i, d],
+                            T.if_then_else(slot == 1, OUT1[i, d],
+                                T.if_then_else(slot == 2, OUT2[i, d], OUT3[i, d])))
             if rows == 32:
                 if Owner[h, r, 24] != 0:
                     slot = (label & 1) + ((label >> 1) & 1) + ((label >> 2) & 1)
                     for i, d in T.Parallel(8, dim):
                         if M == 16:
-                            CU[24 + i, d] = T.if_then_else(slot == 0, out[i, d], out[8 + i, d])
+                            CU3[i, d] = T.if_then_else(slot == 0, OUT0[i, d], OUT1[i, d])
                         else:
-                            CU[24 + i, d] = T.if_then_else(slot == 0, out[i, d],
-                                T.if_then_else(slot == 1, out[8 + i, d],
-                                    T.if_then_else(slot == 2, out[16 + i, d], out[24 + i, d])))
+                            CU3[i, d] = T.if_then_else(slot == 0, OUT0[i, d],
+                                T.if_then_else(slot == 1, OUT1[i, d],
+                                    T.if_then_else(slot == 2, OUT2[i, d], OUT3[i, d])))
             for i in T.Parallel(M):
                 src = RowMap[h, r, i]
                 if i < Count[h, r]:
@@ -176,21 +194,35 @@ def producer(heads, tokens, rows, dim, regions, splits=64, block_n=64, threads=1
             probs = T.alloc_shared((32, block_n), "bfloat16")
             cm = T.alloc_shared((32,), "float32")
             cl = T.alloc_shared((32,), "float32")
-            cu = T.alloc_fragment((32, dim), "float32")
-            T.annotate_layout({cu: canonical_layout()})
-            T.clear(cu)
+            cu0 = T.alloc_fragment((8, dim), "float32")
+            cu1 = T.alloc_fragment((8, dim), "float32")
+            cu2 = T.alloc_fragment((8, dim), "float32")
+            cu3 = T.alloc_fragment((8, dim), "float32")
+            T.annotate_layout({cu0: canonical_layout(), cu1: canonical_layout(),
+                               cu2: canonical_layout(), cu3: canonical_layout()})
+            T.clear(cu0)
+            T.clear(cu1)
+            T.clear(cu2)
+            T.clear(cu3)
             T.fill(cm, -T.infinity("float32"))
             T.clear(cl)
             for r in T.serial(regions):
                 if Count[h, r] <= 16:
                     do_region(Q, K, V, Indices, Offsets, RowMap, Count, Owner, Labels,
-                              cu, cm, cl, qs, ks, vs, probs, h, s, r, 16)
+                              cu0, cu1, cu2, cu3, cm, cl, qs, ks, vs, probs, h, s, r, 16)
                 else:
                     do_region(Q, K, V, Indices, Offsets, RowMap, Count, Owner, Labels,
-                              cu, cm, cl, qs, ks, vs, probs, h, s, r, 32)
+                              cu0, cu1, cu2, cu3, cm, cl, qs, ks, vs, probs, h, s, r, 32)
                 T.sync_threads()
-            for i, d in T.Parallel(rows, dim):
-                U[h, s, i, d] = cu[i, d]
+            for i, d in T.Parallel(8, dim):
+                U[h, s, i, d] = cu0[i, d]
+            for i, d in T.Parallel(8, dim):
+                U[h, s, 8 + i, d] = cu1[i, d]
+            for i, d in T.Parallel(8, dim):
+                U[h, s, 16 + i, d] = cu2[i, d]
+            if rows == 32:
+                for i, d in T.Parallel(8, dim):
+                    U[h, s, 24 + i, d] = cu3[i, d]
             for i in T.Parallel(rows):
                 Mout[h, s, i] = cm[i]
                 Lout[h, s, i] = cl[i]

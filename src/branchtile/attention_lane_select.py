@@ -1,4 +1,4 @@
-"""Runtime lane-local selects with two region shapes (experimental)."""
+"""Runtime lane-local selects with independent eight-row banks (experimental)."""
 import torch
 import triton
 from .attention import _merge
