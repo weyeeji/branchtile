@@ -1,16 +1,14 @@
 # 论文实验推进台账
 
-Latest continuation, 2026-10-16: the user requested broad eight-GPU operator
-experiments and accepted a single-user multi-agent scope. See
-[operator status](docs/operator_exploration_status_20261016.md),
-[comparison protocol](docs/operator_comparison_protocol_20261016.md), and
-`configs/operator_qualification_wave4_protocol.json`. The new investigation
-retains the previous failed gates; it does not turn earlier negative results
-into paper evidence. Two fresh overhead waves complete 740/740 FP64-qualified
-configurations. Static register-bank code is still being qualified; an isolated
-FullCol control passes numerical and mutable-graph qualification. The paper
-objective remains incomplete.
-
+Latest continuation, 2026-10-16 22:03: see [the eight-GPU operator report](docs/operator_8gpu_exploration_report_20261016.md).
+Seven complete performance waves contain 2,852 qualified configurations and
+50 clean jobs across 17 unique development settings. Static/runtime banks and
+warp-width controls have numerical and compiled-artifact evidence, with no
+net win over strong controls. Compiler failures, partial numerical passes,
+spills and one SIGSEGV remain explicit. Owner-task packed partials are a missing
+strong E3 control under CPU qualification; they are not a novelty claim.
+Single-user multi-agent scope and the paired-replay/natural-EOS protocol apply.
+The full paper objective remains incomplete.
 
 2026-10-16 17:10 语义更正：旧 TP-rank 算子导出在短 question suffix 时误将文档 Q 回填到32。
 历史主模型/B8算子和容量结果保留为不同观察窗变体，不再等同预定 QC-SnapKV；
@@ -50,7 +48,7 @@ objective remains incomplete.
 | 原生 BF16/FP8 KV 精度强基线 | unit-scale FP8 clean-exit资格；两文两精度两cold A/A、24记录全EOS | 数值与开发部署通过，质量非劣未证明 | 校准FP8适用性、跨文档/seed正式质量和公平成本；固定池容量增加不等于进程显存减半 |
 | 候选独立数据流贡献 | v1/v2/v3 没有目标性能收益 | 未满足 | 新增量的可证伪预测、相对所有适用强对照稳定约15%完整 call 信号 |
 | 全 alive 子集、数值、logit、full-budget | 当前算子 FP64/内存检查；native 小形状 LSE 失败保留 | 部分完成 | 全子集和生命周期、层/logit、稀疏自然生成；开发冻结原生校准容差 |
-| 引擎共享源安全与连续补入 | 原生APC、固定cohort共享plan、等长mask安装/identity失效和1440次新mask检查 | 固定cohort资格通过，生命周期未完成 | COW、reader、取消/抢占、引用/slot generation、连续补入和不等待兄弟请求 |
+| 单用户共享源生命周期与连续补入 | 原生APC、固定cohort共享plan、等长mask安装/identity失效和1440次新mask检查 | 固定cohort资格通过，生命周期未完成 | COW、reader、取消/抢占、引用/slot generation、连续补入和不等待兄弟请求 |
 | 100 报告/三 seed/公司聚类质量 | 无正式评价 | 未完成 | 全分母、公司身份、10000次聚类区间、2pp 非劣界、有限样本保守界 |
 | QMSum 官方 ROUGE/盲审 | 原Perl1.5.5、279条fixture最大0.011点残差；A4A4开发128条及A2新96条完整来源匿名审计 | 评分与单judge开发审计完成 | 绝对预算新56盲审已完成；第二judge32抽样已完成，正式test/人工多评审仍未完成，不能只凭ROUGE或单LLM判断 |
 | 完整应用约5%净改善 | 强E0/union已集成；opt-in joint图资格通过，额外准备成本不利 | 未满足 | 候选同质量、同资源、冷暖/复用摊销、TP通信、自然长度/失败计费的净收益 |
@@ -61,7 +59,7 @@ objective remains incomplete.
 任何“部分完成”都不能在最终完成审计中当作完成。算子计时、逻辑机会、
 任务质量和实际应用费用分别提供证据，不用一个范围代替另一个。
 
-## 当前工作与预算（20:45 更新）
+## 上一轮工作与预算（20:45 历史快照；本轮见文首）
 
 - GPU0–7全部释放，没有后台GPU作业。八卡物理地址对照与单TP2 TinyGEMM资格作业全部正常结束。
 - TinyGEMM未通过冻结的逐位路由替换门：576点中540点通过，原生actual图复现全部通过；差异只涉及极少BF16舍入、权重和一行专家顺序，不是数学错误或已测性能失败。依协议未进行候选计时。

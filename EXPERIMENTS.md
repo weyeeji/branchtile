@@ -675,3 +675,10 @@ are11.071951/4.506292GPUh, every job terminal, all eight devices free. Subagents
 and automatic goal continuation encountered a platform usage limit; result
 archiving was completed by the root agent after the interruption. The paper
 objective remains unmet.
+
+
+## 2026-10-16 22:03 — eight-GPU operator continuation
+
+Completed seven fresh performance waves (1/2/5/7/9/12/16): 50 clean jobs, 2,852 FP64-qualified configurations, 17 unique real development settings, three documents. All native/fixed/tree controls remain; no candidate wins the measured strong controls. Static banks remove explicit shared-U staging but can spill at B4/N64; runtime bank selection removes the spill but does not yield net speed. Qualification failures and interrupted partial passes are retained separately from clean jobs. See `docs/operator_8gpu_exploration_report_20261016.md`, per-wave independent audits and wave16 PNG/PDF.
+
+Completed-allocation totals: P1 12.9422466370 / P2 5.4192919940 GPUh; reserves remain1/1.05, no unmatched start or anomaly. Owner-task packed-active partials are being prepared as missing E3 strong control, not a claimed new mechanism; CPU descriptor preparation and graph rebuild costs will be reported. No root, only project virtual environments.
