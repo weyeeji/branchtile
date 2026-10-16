@@ -14,3 +14,16 @@ First collect native actual Q/KV/O on layers 0/11/23/35 (and all36 layer Q/O), w
 ```
 
 The capture CPU preflight verified exact prompt hashes and CUDA remained uninitialized. Per-layer captures are approximately 0.5GB each and are raw local artifacts, not git blobs. Qualification next compares fresh same-B native PDL-on, AA, PDL-off, unshared continuation and direct quad bit patterns; original capture O is a full-B8 check only. FP64 rows, dummy-length-one graph capture followed by real lengths, swapped membership, poisoned state, and actual private-tail growth are required. Complete-call timing includes both kernels and native merge; setup and capture are reported separately. No whole-model candidate experiment is eligible until these new Hkv8 gates pass.
+
+The independent GPU qualification and timing runner is now frozen. Suggested first jobs (root allocation only):
+
+```bash
+# A short synthetic B8 qualification plus native/AA/PDLoff/unshared controls.
+.venv-engine/bin/python scripts/qualify_benchmark_tp1_direct_quad.py --batch 8 --prefix 120528 --blocks 30 --output results/tp1_direct_quad_gate_v1/synthetic_b8.json
+# Once TP1 capture completed, use its actual original page layout and O.
+.venv-engine/bin/python scripts/qualify_benchmark_tp1_direct_quad.py --capture results/thinking_tp1_native_capture_v1/rank0/dense_capture/layer35.pt --batch 8 --blocks 30 --output results/tp1_direct_quad_gate_v1/actual_l35_b8.json
+# Meaningful odd/long-tail stress; this synthetic extension is labeled as such.
+.venv-engine/bin/python scripts/qualify_benchmark_tp1_direct_quad.py --capture results/thinking_tp1_native_capture_v1/rank0/dense_capture/layer35.pt --batch 7 --extra-tail 8192 --blocks 30 --output results/tp1_direct_quad_gate_v1/actual_l35_b7_tail8192.json
+```
+
+Allow 180 seconds for a normal case, 300 seconds for compute-sanitizer (`--tool memcheck --error-exitcode 99`) on B7. First actual O/FP64 qualification precedes any model integration. The runner verifies capture summary/worker/file SHA provenance, preserves original B8 O parity, recomputes all subset native outputs, checks graph replay after Q/length changes and reversed cohort membership, poisons raw state, rejects foreign physical prefix and retains original native PDL-on as the performance baseline. Thirty randomized paired blocks report hot and eviction-controlled measurements. No timing winner is selected as a per-input policy.
