@@ -1,0 +1,75 @@
+{
+  "method": "FastKVzip-NVIDIA global mask reference",
+  "decision": "Use pinned NVIDIA default semantics, agreed before natural generation. Preserve global unequal head/layer allocation and native protection.",
+  "source_revisions": {
+    "fastkvzip": {
+      "sha": "e04afaa6007c58d18500d0698d2d8ae592ff22c2",
+      "url": "https://github.com/Janghyun1230/FastKVzip/commit/e04afaa6007c58d18500d0698d2d8ae592ff22c2"
+    },
+    "kvpress": {
+      "sha": "7136c224105ba7b046a6e538742c3589698680b8",
+      "url": "https://github.com/NVIDIA/kvpress/commit/7136c224105ba7b046a6e538742c3589698680b8"
+    }
+  },
+  "gate": {
+    "repo": "Jang-Hyun/Fast-KVzip",
+    "revision": "67ce1265f510a946bf22486a30269f99066b3cbb",
+    "file": "qwen3-4b-instruct-2507/q4_dim16_sink16.pt",
+    "path": "data/models/FastKVzip-Qwen3-4B-Instruct-2507/q4_dim16_sink16.pt",
+    "bytes": 118537671,
+    "sha256": "5b3f75dbaada8f7252a5e365262f02b5cbca9149db1f3f4cc411aaeb3dfc1368",
+    "official_hf_lfs_verified": true,
+    "download_seconds": 254.7467596642673,
+    "source_revisions": {
+      "fastkvzip": {
+        "sha": "e04afaa6007c58d18500d0698d2d8ae592ff22c2",
+        "url": "https://github.com/Janghyun1230/FastKVzip/commit/e04afaa6007c58d18500d0698d2d8ae592ff22c2"
+      },
+      "kvpress": {
+        "sha": "7136c224105ba7b046a6e538742c3589698680b8",
+        "url": "https://github.com/NVIDIA/kvpress/commit/7136c224105ba7b046a6e538742c3589698680b8"
+      }
+    }
+  },
+  "source_files": [
+    {
+      "path": "cache/fastkvzip/fastkvzip/prefill/attention/gate.py",
+      "sha256": "f27e25c54c0ddacdf5b6595296753c215ecae6797e6549d0c0fd6ffcddb6f59d"
+    },
+    {
+      "path": "cache/fastkvzip/fastkvzip/prefill/attention/score.py",
+      "sha256": "4a918f5ccf36dfb4aaede29660ef1f0cf4b37080bf47405b973176413a94cceb"
+    },
+    {
+      "path": "cache/fastkvzip/fastkvzip/prefill/model/wrapper.py",
+      "sha256": "4418b753de4009051f84b11caf2fa5c1d92490347c4ff3156560900bff67ccb2"
+    },
+    {
+      "path": "cache/fastkvzip/kvpress/kvpress/presses/fastkvzip_press.py",
+      "sha256": "a2ea3552a739f5cf1927aa962dfd239e42dd6d52d04f06bd4c2847b1ff41d675"
+    }
+  ],
+  "native_nvidia": {
+    "gate": "Low-rank sink attention, original BF16 projections and FP32 norm/sink parameters preserved",
+    "score_inputs": "Attention module pre-normalized input hidden states from complete system+document dense prefill only",
+    "scoring_reuse": "Once per document; no question or answer enters gate; masks reused unchanged across every natural question",
+    "allocation": "layerwise=False: global bottom-k pruned positions determine each layer count, followed by per-layer across-head bottom-k",
+    "budget_denominator": "L*Hkv*complete shared prefix tokens; system and document retained-pair counts reported independently",
+    "protection": "First4 shared-prefill positions and final2% (floor,max1) for shared length<32000; final4096 otherwise; scores set1",
+    "private_kv": "All question and generated token KV retained; original full absolute position_ids"
+  },
+  "author_difference": {
+    "post_prefill": "System prefix outside document budget; final floor(2%*doc) if doc<16000, else4096, score raised to maximum; global strict score>threshold can retain fewer due ties",
+    "real_conflict_evidence": "qualification_g3.json:20896-document,4096-window,10% target produces zero document pairs using original strict threshold rule",
+    "optimized_chunk_prefill_eviction": "Not ported. No complete original optimized implementation or speedup claim."
+  },
+  "implementation": "Dense original KV plus exact per-query-head attention masks; no physical KV gather/compaction. Preserves global allocation instead of equalizing head budgets.",
+  "qualification": {
+    "gpu_result": "results/fastkvzip_reference/qualification_g3.json",
+    "cpu_tests": "tests/test_fastkvzip_reference.py;3 passed",
+    "upstream_class_loading": "AST extracts unchanged original gate/press method bodies, avoids old-API surrounding imports and network side effects",
+    "gate_loading": "torch.load(weights_only=True) with minimal NVIDIA numpy safe_globals; file SHA256 verified"
+  },
+  "comparison_scope": "Same HF stack and sampling temperature0.6/top_p0.95/no top_k/seed+question_index as A4. A2 source budget includes system prefix; A4 is document-only. Neither instrumented reference establishes vLLM application acceleration.",
+  "model_scope": "Exact official Qwen3-4B-Instruct-2507 gate; no released compatible gate established for official30B FP8 TP2 and no transfer of4B gate."
+}
