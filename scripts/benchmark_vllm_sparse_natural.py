@@ -50,7 +50,8 @@ def main():
     report['source_sha256']={str(p):hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in (
         'scripts/benchmark_vllm_sparse_natural.py','scripts/vllm_sparse_production_worker.py',
         'scripts/vllm_shared_plan_graph_worker.py','scripts/vllm_sparse_graph_worker.py',
-        'src/vllm_shared_decode_plan.py','src/vllm_shared_union_plan.py')}
+        'scripts/vllm_sparse_worker.py','src/vllm_sparse_selector.py','src/selector_baseline.py',
+        'src/vllm_sparse_executor.py','src/vllm_shared_decode_plan.py','src/vllm_shared_union_plan.py')}
     def save():(out/'summary.json').write_text(json.dumps(report,indent=2)+'\n')
     engine=dict(model=model,tensor_parallel_size=2,dtype='bfloat16',kv_cache_dtype='auto',max_model_len=args.max_model_len,
         max_num_seqs=len(inputs),max_num_batched_tokens=4096,enable_prefix_caching=True,enforce_eager=False,gpu_memory_utilization=.80,
