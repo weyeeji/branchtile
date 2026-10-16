@@ -3,7 +3,7 @@
 Experiments for `proposal-iscas.md` on eight RTX 5090 GPUs. The current dynamic
 query-row implementations are numerically validated but have **not** met the
 proposal's performance threshold for full application integration. See
-[experiment log](EXPERIMENTS.md), [kernel audit](results/kernel_audit.json), and
+[Chinese feasibility report](FEASIBILITY.md), [experiment log](EXPERIMENTS.md), [kernel audit](results/kernel_audit.json), and
 the raw JSON results. Negative results and failed configurations are retained.
 
 ## Environment
@@ -26,6 +26,11 @@ The paths are machine-specific; on another host create an equivalent venv.
 Model serving has a separate `.venv-engine` with official vLLM 0.31.0 and
 Torch 2.13.0+cu130; its inventory is recorded separately. Native-engine results
 must not be mixed with operator results from the other environment.
+The final native controls use `.venv-latest`: the same Torch/TileLang base with
+FlashInfer core/cubin 0.7.2. See `results/platform/latest_flashinfer_environment.json`
+for immutable version details and `configs/native_union_paired.json` for commands.
+The final package inventories describe the final environment, not a historical
+lockfile for each earlier run.
 
 ## Reproduce a bounded experiment
 
@@ -51,6 +56,10 @@ CUDA_VISIBLE_DEVICES=0 .venv/bin/python scripts/compare_attention.py \
   --tokens 16384 --pattern cross --gqa 8 --include-union \
   --normalize-native-lse --output results/local_comparison.json
 ```
+
+For the strongest current native control, use `.venv-latest/bin/python` and add
+`--include-native-raw --include-native-union` to this command. The native joint
+paged-prefill control expresses the exact union mask without copying KV payload.
 
 Every configuration is checked against FP64 before timing. Hot and cold cache
 have independent tuning, paired randomized/reversed orders, fixed A/A, and
@@ -81,3 +90,15 @@ Nsight Compute hardware counters are unavailable to the normal user on this
 host (`ERR_NVGPUCTRPERM`). Resource allocations are compiler evidence, logical
 tile counts are analytical estimates, and neither is reported as measured
 DRAM traffic or board energy savings.
+
+## Numerical qualification limits
+
+The current dynamic/fixed/union implementations pass their documented FP64 and
+sanitizer checks. The additional native-joint tests retain **4 passes and 3 LSE
+precision failures**; direct FlashInfer single-prefill reproduces these failures.
+The suite is intentionally not advertised as entirely green. Actual timed
+configurations must pass the original output and LSE checks; failed configs
+remain in the raw JSON. See `results/platform/native_union_qualification_status.json`.
+The final native joint control removes the large hot-cache union advantage seen
+against separate native decode. This is a bounded negative feasibility result,
+not a completed main-model application evaluation.

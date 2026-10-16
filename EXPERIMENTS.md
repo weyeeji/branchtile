@@ -32,7 +32,7 @@ evidence from a completed application evaluation.
 - A sandbox launcher failed before any experiment; subsequent commands use the
   normal user after the permission profile changed. This did not grant/use root.
 
-## Work in progress
+## Initial work plan
 
 1. Implement exact same-mask fixed-row and changing-row on-chip attention,
    then validate against a high-precision reference before timing.
@@ -127,6 +127,44 @@ downloading. A separate `.venv-engine` now imports official vLLM 0.31.0 and
 Torch 2.13.0+cu130 successfully; actual target TP2 model deployment is not yet
 qualified.
 
-The goal remains active. Evidence currently argues against the core performance
+At this checkpoint the goal remained active. Evidence argued against the core performance
 hypothesis. The missing target-checkpoint/application/quality, fixed-partition,
 and exact hierarchy evaluations must not be described as completed.
+
+## Final bounded feasibility decision (2026-10-16 13:52 CST)
+
+The current dynamic-row implementation is a **no-go for full integration** under
+the proposal's operator progression gate. This completes the bounded feasibility
+investigation, not the unperformed full application/quality study. The Chinese
+report `FEASIBILITY.md` records the final evidence and limitations.
+
+- Official 4B and older-30B diagnostic captures each cover eight exploratory
+  QMSum documents, four questions, four layers and four steps (1024 principal
+  snapshots total). Dense trajectories hit the 256-token instrumentation cap;
+  they are not complete-answer or sparse-quality results.
+- FlashInfer 0.7.2 (released October 15) is qualified in `.venv-latest` with
+  unchanged Torch/TileLang. Eight concurrent repeat jobs retain the dynamic
+  negative result and initially show a fixed-union gain versus separate decode.
+- A stronger native joint-query paged-prefill wrapper reuses the same physical
+  payload with an exact custom mask. Four official-4B paired comparisons show
+  native joint raw hot 9.55/10.17/12.43/11.80 us versus our fixed union
+  10.15/10.25/13.07/12.19 us. Including native log2-to-ln conversion leaves only
+  approximately 3–10% hot speedup for our union, below the 15% progression gate.
+- Native-union qualification retains 4 passed and 3 failed small-shape tests.
+  Direct native single-prefill reproduces all three LSE tolerance failures;
+  inputs, references and tolerances were not relaxed. Actual performance
+  configurations are timed only after passing the frozen FP64 checks.
+- Dynamic/fixed validation in the latest environment passes 23 tests. V3 and
+  union sanitizer evidence remains in `results/validation/`. This is not a
+  claim that the entire repository test suite passes: the native failures are
+  deliberate retained evidence of unsupported numerical cases.
+- All 69 ledger jobs ended, including failed attempts; P1 ledger time is
+  0.937 GPUh, P2 3.093 GPUh. Early manually timed probes are incomplete, so
+  additional reserves are explicitly reported rather than invented exact costs.
+  See `results/budget_audit.json`. All GPUs and the monitor were released.
+- The formal 30B-2507 FP8 download was stopped with resumable files retained
+  after the no-go decision. No TP2 main-model, application speedup, quality
+  noninferiority, energy reduction, or universal impossibility is claimed.
+- Literature and raw measurements remain versioned; an existing fixed-union
+  mechanism is not relabeled as a new idea. Strong native joint attention is
+  now a required baseline for any future pivot.
