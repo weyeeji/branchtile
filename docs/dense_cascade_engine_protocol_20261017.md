@@ -32,3 +32,18 @@ CPU审计工具 `scripts/audit_dense_cascade_model.py` 核对源哈希、48层�
 额外图/plan初始化分别2.469和2.389秒，以上cold文档wall未含这项；首次使用须另加。生产阶段prepare记录elapsed约9–10ms包含 `.item()` 等待前一GPU步的时间，不能直接把它称为9–10ms新增CPU计算开销或从wall中再次扣除；资格阶段同步后的约0.4ms也不构成严格因果overhead分解。下一步应在同一真实decode快照内直接比较native与真实cascade完整模型图，分离prefill和逐步CPU准备，保留实际算法计算而非预知O。
 
 CPU审计结果：`results/dense_cascade_natural_v1/train1_fp8/analysis.json`、`train7_fp8/analysis.json`。逐rank记录覆盖B8自然收缩至B1、全部完整tail/实际共享页和图topology检查，未发生遗漏private suffix或越界plan变化。
+
+## BF16：独立FP64裁决与完整测量
+
+原BF16失败快照的CPU FP64审计表明，唯一pairwise失败元素两侧误差方向相反：candidate=-0.1689453125、native=-0.16015625、FP64=-0.166339348589，candidate/native各自对FP64仍满足原0.006/0.015门槛。新独立reference版本保留原pairwise结果，仅在pairwise失败层对两臂计算完整FP64 reference并使用相同不变门槛；pairwise已通过层不冒称独立FP64认证。数值失败只记录，各rank完成资格phase后driver共同判定，避免单rank先raise造成TP挂起。
+
+train1资格1440次逐层检查中有1项 `pair_failed_but_reference_passed`，train7没有。两作业完成，SHA/两rank轨迹/真实共享页/完整private tail/topology审计通过。固定128输出tokens完整生成ready比为train1的1.20771和train7的1.24765；含cold anchor仅1.02075和1.01860。native AA波动max/min为1.00973/1.01339，同方法两次token相同、跨方法token不同，APC和调度positions一致，依然不能称严格相同内部工作量。
+
+| 文档 | BF16自然native/cascade ready wall | BF16自然native/cascade cold wall | ready比值 |
+| --- | --- | --- | ---: |
+| train1 | 33.698 / 24.875 s | 53.523 / 44.685 s | 1.35471 |
+| train7 | 44.782 / 46.605 s | 73.021 / 74.844 s | 0.96087 |
+
+BF16共32个自然输出均正常stop，无cap。train1输出长度明显缩短；train7最长输出从3726增到4148。结合FP8，四个单seed条件中两个自然ready wall正向、两个负向；这支持开展预先冻结多seed评估，不能从单个收益好的条件挑选结论。已另行冻结三个新增seed20261017/18/19，方法顺序BA/AB/BA，与原20261016的AB构成两AB两BA；保留全部负结果和质量差异。
+
+原始与分析目录为 `results/dense_cascade_reference_natural_v1/train1_bf16/` 和 `train7_bf16/`；高精度失败裁决见 `results/dense_cascade_failure_fp64_audit_v1/audit.json`。原失败未删除、未重新标成pairwise通过。
