@@ -48,6 +48,7 @@ def main():
  validate_offline_records(records,sources,fp,list(range(4,9)),2);checks['bothrank_all5B_offline']=True
  for name,modify in [('missingB4',lambda r:r[1]['checks'].pop(0)),('oldsource',lambda r:r[0].update(source_sha256={'build':'old_pair'}))]:
   rs=copy.deepcopy(records);modify(rs)
+  if name=='missingB4':rs[1]['qualification_steps']=4
   try:validate_offline_records(rs,sources,fp,list(range(4,9)),2)
   except ValueError:checks[name+'_rejected']=True
   else:checks[name+'_rejected']=False
