@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "protocol_id": "operator-comparison-design-v1-20261016",
+  "status": "CPU_only_design_specification_no_GPU_job_authorization",
+  "scope": "Next operator candidate; no retrospective changes to frozen existing experiments.",
+  "document": "docs/operator_comparison_protocol_20261016.md",
+  "single_user_scope": true,
+  "execution_layer": {
+    "question": "Does implementation execute the same actual work faster?",
+    "paired_identity": ["Q", "KV_bytes_dtype_scales_strides", "mask_indices", "positions_private_tail", "physical_sharing", "output_contract"],
+    "state_source": "Frozen baseline natural trajectories; candidate-source matched replay is a separately reported trajectory sensitivity check.",
+    "batch_coverage": "Actual survivor states B3/B2/B1, frozen early/middle/late positions; cropped B3 rows are shape diagnostics only.",
+    "primary_cost": "Complete call including required preparation, copies and synchronization, plus trace-weighted full attention chain estimate; not model JCT.",
+    "timing": ["same_GPU_pair_interleaved_random_reverse", "AA", "host_synchronized_wall", "CUDA_events_separate", "hot_and_artificial_cold_separate"],
+    "statistics": {"unit": "whole random/reverse measurement block", "bootstrap_resamples": 10000, "confidence": 0.95},
+    "TP": "Per-rank max is a proxy; application uses measured jointly running TP wall.",
+    "teacher_forcing": "Optional separately labeled fixed-work diagnostic; never natural quality evidence."
+  },
+  "natural_layer": {
+    "question": "Does the complete method save total cost while preserving task quality?",
+    "same_seed_means_same_trajectory": false,
+    "minimum_formal_paired_seeds": 3,
+    "stop": "Natural EOS with identical frozen cap; all cap/parse/service/OOM/timeout outcomes retained under frozen scoring.",
+    "freeze": ["model_tokenizer_template", "splits_clusters", "candidate_and_strong_baselines", "sampling_all_parameters", "resource_limits", "seeds", "metrics_failure_rules"],
+    "primary_metrics": ["full_denominator_task_quality", "complete_group_JCT", "measured_per_request_latency_if_collected", "allocated_GPU_wall_times_card_count_including_failures"],
+    "secondary_metrics": ["output_length_finish_reason", "actual_active_batch_and_request_positions", "group_token_throughput", "per_token_TPOT_only_if_token_timestamps_measured", "actual_cache_capacity_and_process_memory"],
+    "separate_costs": ["tokenization", "initialization_load_JIT_capture", "first_document_prefill_or_anchor", "selector_CPU_D2H_H2D_install", "online_prepare_decode_TP_communication", "audit_export", "cold_vs_cached_prefix"],
+    "statistics": {"pair": "question_and_seed", "seed_handling": "average_within_question_first", "resample": "whole verified independent source cluster, same draws for both methods", "bootstrap_resamples": 10000, "confidence": 0.95, "quality_margin": 0.02, "guard": "src/paired_statistics.py degenerate interval guard", "cost_estimand": "must be frozen before formal execution"}
+  },
+  "prohibited_inferences": [
+    "Force or crop natural outputs to equal length and call the result natural application speedup.",
+    "Remove failures or retain only common successes in the primary denominator.",
+    "Use same seed as proof of identical trajectory across methods.",
+    "Call group wall divided by total tokens per-user TPOT.",
+    "Call fixed-state attention-chain time measured model JCT.",
+    "Treat seeds, layers, ranks, requests from one document or device replicas as independent documents.",
+    "Infer application speedup directly from kernel-sum fractions or assumed perfect overlap."
+  ],
+  "existing_project_gates": {"complete_operator_speed_ratio_signal": 1.15, "application_net_improvement": 0.05, "formal_quality_noninferiority_margin": 0.02},
+  "existing_evidence": ["configs/native_precision_natural_development_v1.json", "configs/joint_real48_replay_protocol_v1.json", "src/paired_statistics.py"],
+  "GPU_experiments_started_by_this_specification": 0
+}
