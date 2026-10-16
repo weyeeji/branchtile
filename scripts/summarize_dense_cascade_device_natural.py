@@ -51,6 +51,12 @@ def summarize(directory):
             group = next(g for g in json.loads((ROOT/data['protocol']['manifest']).read_text())['groups']
                          if g['document_id'] == data['args']['document_id'])
             assert group['document_sha256'] == data['document_sha256']
+            old_runs = {r['phase']:r for r in old['runs']}
+            tokens_equal_by_phase = {}
+            for run in data['runs']:
+                assert len(run['answers']) == len(old_runs[run['phase']]['answers']) == 8
+                tokens_equal_by_phase[run['phase']] = [a['tokens'] == b['tokens'] for a,b in
+                    zip(run['answers'],old_runs[run['phase']]['answers'])]
             arms = {}
             for run in data['runs']:
                 if not run['natural_eos_enabled']:
@@ -67,6 +73,7 @@ def summarize(directory):
                     'ready_including_validation_export_seconds': run['generate_plus_phase_validation_wall_seconds'],
                     'cold_including_validation_export_seconds': device['anchor_plus_generate_plus_phase_validation_wall_seconds'],
                     'output_tokens': run['total_output_tokens'], 'cap_hits': phase['cap_hits'], 'score': score,
+                    'APC_hits': phase['num_cached_tokens'],
                     'answers': details, 'batch_steps': phase['batch_steps'],
                     'candidate_batch_steps': phase['candidate_batch_steps'],
                     'device_receipts': device['ranks'],
@@ -77,6 +84,7 @@ def summarize(directory):
             assert set(arms) == {'native', 'cascade'}
             n, c = arms['native'], arms['cascade']
             assert n['sampling'] == c['sampling']
+            assert n['APC_hits'] == c['APC_hits']
             ratios = {key:n[key]/c[key] for key in ('ready_seconds', 'cold_seconds',
                 'ready_including_validation_export_seconds', 'cold_including_validation_export_seconds')}
             ratios['conservative_first_use_cold_including_all_candidate_setup'] = n['cold_including_validation_export_seconds'] / (
@@ -92,6 +100,7 @@ def summarize(directory):
                 str(path):sha(path), str(old_path):sha(old_path)}, 'clean_exit': terminal(path,ledger),
                 'qualified_layer_checks': audited['phases'][0]['same_Q_layer_checks_two_ranks'],
                 'pair_failed_but_reference_passed': audited['phases'][0]['pair_failed_but_reference_passed_count'],
+                'old_implementation_tokens_equal_per_phase_and_question': tokens_equal_by_phase,
                 'candidate_setup_seconds': data['candidate_plan_and_capture_wall_seconds'],
                 'fixed': fixed, 'natural_arms': arms, 'natural_native_over_candidate': ratios})
     return output
