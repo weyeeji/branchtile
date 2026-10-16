@@ -27,3 +27,5 @@
 图历史身份必须由实际最终 masks 生成，并显式带 independent/new 两份身份。同一份新 mask 必须同时提供给 native E0 与 union；原 independent E0/union 不得被覆盖。用于自然开发的最低控制集合是官方 FLASHINFER/XQA full-history、同一 FLASHINFER prefill/cache 基础上的 independent native E0，以及同新 mask 的 native E0/union。若只运行某个 executor，不能把新 mask 带来的变化归因为共享执行收益。自然生成仍 cold reset + 同 q0 dense anchor + atomic enqueue，同 seed/资源；计时分别记录一次性准备、anchor、generation，完整 FINAL/错误/cap/EOS 留存。
 
 当前门：先等待独立 actual-Q O/LSE probe；并完成官方 FLASHINFER bridge 的实际 cache/layout/full-budget qualification。随后才由 root 冻结单一有界 pilot 配置。需要 CPU 数组等价测试（原 frozen 函数逐位）、保护/预算/score-loss 边界和拒绝不完整 cohort 的测试，再做同 mask 算子资格。自然多层调用与任务质量目前未验证；没有新颖性或正式非劣结论。
+
+CPU 模块已新增为 [joint_support_exchange.py](../src/joint_support_exchange.py)，尚未导入生产 selector。已完成 [10个边界测试](../results/joint_support_exchange_integration_v1/unit_tests.json)，以及三份冻结真实 pooled-score 数据的 [48个cohort配置/96个head配置逐位等价检查](../results/joint_support_exchange_integration_v1/cpu_qualification.json)：全部epsilon/order均保留，支持集与事件完全匹配原冻结函数，CPU wall约3.65秒、GPU费用0。独立 [接入协议](../results/joint_support_exchange_integration_v1/protocol.json)把后续开发候选32K、epsilon0.001/0.01、ascending与必需控制列明；文档/作业配置和cohort生命周期资格仍待补，未执行自然pilot。
