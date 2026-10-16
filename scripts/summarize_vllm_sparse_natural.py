@@ -43,7 +43,7 @@ def main():
         for rank in (0,1):
             path=directory/f'rank{rank}/{run["phase"]}_graph.json';meta_path=directory/f'rank{rank}/{run["phase"]}.json'
             graph=json.loads(path.read_text());meta=json.loads(meta_path.read_text());replays=graph['replays']
-            masks=meta['frozen_mask_file_sha256'];reference_masks.setdefault(rank,masks)
+            masks=meta.get('frozen_mask_file_sha256');reference_masks.setdefault(rank,masks)
             by_batch={}
             for batch in (1,2,3):
                 # Consecutive same-B preparation-start intervals contain engine
@@ -60,7 +60,8 @@ def main():
                     transitions.append({'state':[state[0],list(state[1])],'positions':r['positions']})
             workers.append({'rank':rank,'raw_graph':str(path),'raw_sha256':sha(path),'graph_replays':len(replays),
                 'replay_batch_counts':dict(Counter(r['batch'] for r in replays)),
-                'ready_group_transitions':transitions,'same_frozen_mask_hash_across_methods':masks==reference_masks[rank],
+                'ready_group_transitions':transitions,'same_frozen_mask_hash_across_methods':masks==reference_masks[rank] if masks is not None else None,
+                'native_full_history':meta.get('native_full_history',False),'actual_backend_metadata':meta.get('metadata_types'),
                 'shadow_check_count':sum(len(r.get('shadow_checks',[])) for r in replays),'logit_copy_count':meta['logits_count'],
                 'mixed_redundant_dense_layer_calls':sum(r['mixed_redundant_dense'] for r in meta['records']),
                 'by_batch':by_batch,'selector_summary':{k:v for k,v in meta.get('selector',{}).items() if k!='records'}})
@@ -80,7 +81,7 @@ def main():
         'metric_protocol':'results/metric_calibration_docfinqa.md','independent_documents':1,'questions_per_run':len(questions),
         'pending_method_repeats':sorted(wanted-actual),'rows':rows,
         'budget':data['budget'],'budget_request':data.get('budget_request',str(data['budget'])),
-        'one_time_costs':{k:data.get(k) for k in ('initialization_wall_seconds','selector_dense_warmup_wall_seconds','stochastic_sampler_warmup_wall_seconds','graph_capture','production_configuration')},
+        'one_time_costs':{k:data.get(k) for k in ('generator_input_preparation_wall_seconds','initialization_wall_seconds','selector_dense_warmup_wall_seconds','stochastic_sampler_warmup_wall_seconds','graph_capture','production_configuration')},
         'limitations':data['limitations']+['FINAL exact/rounded match is not official execution accuracy or factual reasoning assessment.','Natural trajectories differ. Neither JCT ratio nor token/s ratio isolates executor speed or proves quality noninferiority.',('Stochastic sampler was warmed before all measured arms; warmup cost remains separate.' if 'stochastic_sampler_warmup_wall_seconds' in data else 'First dense run included previously unwarmed stochastic-sampler JIT, as recorded in the job log; no causal method speedup is inferred.'),'CPU preparation-start intervals include model and scheduler work, not synchronized kernel latency; rank intervals are not independent samples.']}
     path=directory/'natural_execution_summary.json';path.write_text(json.dumps(result,indent=2,ensure_ascii=False)+'\n')
     print(json.dumps({'status':result['status'],'runs':[{'method':r['method'],'natural':r['all_natural_stop'],'tokens':r['total_output_tokens'],'wall':r['complete_generate_wall_seconds'],'exact':r['score']['exact_accuracy'],'rounded':r['score']['rounded_accuracy']} for r in rows]}))
