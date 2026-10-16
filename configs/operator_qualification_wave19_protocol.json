@@ -1,0 +1,22 @@
+{
+  "schema": "owner-task-expanded-granularity-qualification-wave19",
+  "created_utc": "2026-10-16T14:18:03.321030+00:00",
+  "code_sha256": {
+    "scripts/qualify_owner_tasks_grid.py": "0cba61a4dfd65e3aac6dc2971ec5d9d066e71cad3eaa0bf85c235d4bfcb171d0",
+    "scripts/qualify_owner_tasks.py": "11f116bc41407ef24f9bd0d2629d8a5507e2e0249ee0bc944967763bcee1101e",
+    "scripts/qualify_static_bank_v2.py": "6aaa8744b0672a20fd5cf80fc135fc5420e3e7ec3339a6fc028cf79ce6811ee7",
+    "scripts/compare_attention.py": "a23b40b1139e93fbb2bd7f5e8794b1885e4df8778bc83114e845829fb1a7e2e2",
+    "src/branchtile/attention.py": "2878475c1273f527f95f629090e275c5a99f9dbad6c67646c40657692c20673d",
+    "src/branchtile/attention_owner_tasks.py": "cc9d59e704cff075eaba2b4e92b5fa199e52475de4b5241ee58d6d2b6aa3987d",
+    "src/branchtile/owner_tasks_plan.py": "e1d41289a183518f716fbd43bf6c98d4412f9da24ebf8ae7070cce3a739f4ec2",
+    "src/branchtile/triton_kernel_owner_tasks.py": "48e8cd01e2aeae1d8f8c06e6370f06c3f186c7d3a51e2b1ba614ad3ede9e698e",
+    "configs/operator_qualification_wave19_jobs.json": "3f92f183f1e9c561a65ccfe6815ab5336b022eabd14851724f386da40458ca40"
+  },
+  "rationale": "Wave18 all616configs passed but owner still slower than strongest control. Chunk256 was fastest boundary at4K while chunk1024 fastest boundary at128K; expand both ends explicitly instead of claiming old3-point grid optimized. Underlying owner producer/merge/planner unchanged; new qualifier only accepts64/128/2048/4096 alongside old points.",
+  "configuration": "8disjoint GPUs; B3/B4 each includes four new chunk extremes across N32/N64;8197 synthetic tokens plus32K real input covers multi-chunk large granularities; descriptor chunk is runtime metadata, not compile-time kernel shape.",
+  "expected_complete_cases": 40,
+  "expected_complete_FP64_phases": 240,
+  "maximum_P1_GPU_hours": 0.43333333333333335,
+  "qualification": "Full unchanged six-phase FP64 O/LSE, including fixed-topology changedQ/KV/Indices and separate topology rebuild+newgraph, empty/allmasks/unequal/onetoken+real, allartifact/resource evidence retained. CPU mathematical coverage source supports arbitrary positive chunk, expandedC4096B4N32CPUcontract passed.",
+  "failure_rule": "No automatic retry, no overwrites, no disabledchecks. Graph topology contract unchanged; direct replay bypasseshostguard; CPU preparation separately charged; no performanceclaim."
+}
