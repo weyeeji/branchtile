@@ -16,6 +16,7 @@ import random
 import statistics
 import sys
 import time
+import importlib.metadata
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
@@ -105,6 +106,7 @@ def main():
     p.add_argument("--blocks", type=int, default=30)
     p.add_argument("--include-union", action="store_true", help="Also tune fixed rows across owner-region boundaries")
     p.add_argument("--normalize-native-lse", action="store_true", help="Include native log2-to-ln conversion in timed complete call")
+    p.add_argument("--include-native-raw", action="store_true", help="Also time the original log2-LSE native API separately")
     p.add_argument("--output", required=True)
     args = p.parse_args()
     assert os.geteuid() != 0 and sys.prefix != sys.base_prefix
@@ -127,21 +129,23 @@ def main():
     flush = torch.zeros(max(2*pdev.L2_cache_size, 256*1024*1024)//4, device="cuda", dtype=torch.float32)
     tuning, best = [], {"hot": {}, "cold": {}}
     tile_methods = ("compact", "fixed", "union") if args.include_union else ("compact", "fixed")
-    comparison_methods = (*tile_methods, "native")
+    native_methods = ("native", "native_raw") if args.include_native_raw else ("native",)
+    comparison_methods = (*tile_methods, *native_methods)
     configs = [(method, bn, split, threads) for method in tile_methods
                for bn, split, threads in itertools.product((32, 64), map(int, args.splits.split(",")), map(int, args.threads.split(",")))]
-    configs += [("native", 0, split, int(tc)) for tc in (False, True)
+    configs += [(method, 0, split, int(tc)) for method in native_methods for tc in (False, True)
                 for split in ((None, 128, 256, 512, 1024) if tc else (None,))]
     rng.shuffle(configs)
     for method, bn, split, threads in configs:
         record = {"method": method, "block_n": bn, "split": split, "threads_or_tensor_cores": threads}
         try:
             start = time.monotonic()
-            if method == "native":
+            if method in native_methods:
+                normalize_lse = args.normalize_native_lse and method != "native_raw"
                 op = NativeSparseDecode(q, k, v, supports, use_tensor_cores=bool(threads), fixed_split_size=split,
-                                        normalize_lse=args.normalize_native_lse)
+                                        normalize_lse=normalize_lse)
                 fn = op.run
-                lse_scale = 1 if args.normalize_native_lse else math.log(2)
+                lse_scale = 1 if normalize_lse else math.log(2)
             else:
                 op = (FixedUnion(plan, owners, split, bn, threads) if method == "union" else
                       Attention(plan, split, bn, threads, compact=(method == "compact")))
@@ -151,6 +155,9 @@ def main():
             torch.cuda.synchronize()
             record["initialization_seconds_including_jit"] = time.monotonic()-start
             record["max_abs_error_fp64"] = float((out.double()-ref).abs().max())
+            record["max_relative_error_fp64_denominator_floor_1e_minus8"] = float(((out.double()-ref).abs()/ref.abs().clamp_min(1e-8)).max())
+            record["relative_l2_error_fp64"] = float(torch.linalg.vector_norm(out.double()-ref)/torch.linalg.vector_norm(ref).clamp_min(1e-12))
+            record["max_abs_error_vs_rounded_bf16_reference"] = float((out.double()-ref.to(torch.bfloat16).double()).abs().max())
             record["max_lse_error_fp64"] = float((lse.double()*lse_scale-ref_lse).nan_to_num().abs().max())
             torch.testing.assert_close(out.float(), ref.float(), atol=0.006, rtol=0.015)
             torch.testing.assert_close((lse*lse_scale).float(), ref_lse.float(), atol=0.0003, rtol=0.0001)
@@ -160,7 +167,7 @@ def main():
             cold_graph = graph_of(fn, 1)
             cold_times = [elapsed(cold_graph, 1, flush) for _ in range(5)]
             record["tuning_us_by_cache"] = {"hot": record["tuning_us"], "cold": statistics.median(cold_times)}
-            record["workspace_bytes"] = op.workspace.numel() if method == "native" else sum(t.numel()*t.element_size() for t in (op.u,op.m,op.l,op.output,op.lse))
+            record["workspace_bytes"] = op.workspace.numel() if method in native_methods else sum(t.numel()*t.element_size() for t in (op.u,op.m,op.l,op.output,op.lse))
             for regime in best:
                 if method not in best[regime] or record["tuning_us_by_cache"][regime] < best[regime][method][0]["tuning_us_by_cache"][regime]:
                     best[regime][method] = (record.copy(), op, fn)
@@ -195,7 +202,9 @@ def main():
             boot = np.median(r[brng.integers(0, args.blocks, size=(10000,args.blocks))], axis=(1,2))
             summary[regime][m+"_over_compact"] = {"median": float(np.median(r)), "paired_block_bootstrap95": np.quantile(boot,[0.025,0.975]).tolist()}
     result = {"protocol_version": 2, "methods": comparison_methods, "scope": "same-mask operator replay; no application or quality claim", "uid": os.geteuid(),
+              "packages": {p: importlib.metadata.version(p) for p in ("torch", "triton", "tilelang", "flashinfer-python", "numpy")},
               "native_lse_contract": "natural log; conversion timed" if args.normalize_native_lse else "native log2; conversion only in validation",
+              "native_raw_lse_contract": "native log2; conversion only in validation" if args.include_native_raw else None,
               "python": sys.executable, "gpu_uuid": str(pdev.uuid), "q_shape": list(q.shape), "k_shape": list(k.shape),
               "provenance": provenance, "plan": plan.statistics(), "source_bytes": k.numel()*k.element_size()*2,
               "l2_bytes": pdev.L2_cache_size, "tuning": tuning,

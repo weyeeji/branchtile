@@ -74,19 +74,34 @@ v3 的最后两点也完整保留。16K hot 候选 19.7568 μs、固定区域 14
 
 自然支持的逻辑机会也偏小。旧 30B 的 8 组诊断输入在预算4096、N32 下，按文档 token 统计的动态/最佳固定划分 tile 比为约 0.9889–1.0218；即使去掉区域尾块取整，放松模型的比值约为 0.9586–0.9871。这只是枚举固定划分后的逻辑 M/N tile 估计，未包含 prefix/suffix、真实缓存、执行资源或调度，不能直接当作可实现加速上界。它表明大范围交叉关系的“存在”不足以提供大的剩余计算机会。[8 组原始机会统计及计算规则](results/data_natural_tail_opportunity.json)
 
-**官方 4B 边界实验待补。** 已核验官方 Qwen3-4B-Thinking-2507 权重身份；8 组 QMSum exploratory capture 已完成，模型为 GQA4、8 KV heads。自然生成允许 EOS，但这批每组四题均到达 256-token 仪器上限，不能计作完成回答、自然 EOS 或质量合格。[权重校验](results/data_4b_download_identity.json)、[8 组 capture 索引与机会统计](results/data_official4b_opportunity.json)、[QMSum0 示例元数据](results/captures/official4b_boundary/qmsum0/metadata.json)
+**官方 4B 边界实验。** 已核验官方 Qwen3-4B-Thinking-2507 权重身份；8 组 QMSum exploratory capture 已完成，模型为 GQA4、8 KV heads。自然生成允许 EOS，但这批每组四题均到达 256-token 仪器上限，不能计作完成回答、自然 EOS 或质量合格。[权重校验](results/data_4b_download_identity.json)、[8 组 capture 索引与机会统计](results/data_official4b_opportunity.json)、[QMSum0 示例元数据](results/captures/official4b_boundary/qmsum0/metadata.json)
 
 GQA4/B4 总共只有 M16 行，动态压紧不能减少最小 M tile；已有文档部分的逻辑分析中，预算4096、N32 的动态/最佳固定 tile 比约为 1.0425–1.0530，去除区域尾块取整后为 1.0。这是边界机会分析，不是 GPU 性能结果。[官方 4B 机会原始记录](results/data_official4b_opportunity.json)
 
-**待补：官方 4B 四层、全部 8 KV heads 的配对执行结果正在运行，本版不填入延迟或胜负。** 收尾时应加入对应 raw 路径、实际达到的 step/活跃请求、各方法数值误差、各自调参结果、hot/cold 配对区间和失败配置。capture 完成与配对执行完成分别记录，不把进行中的作业算作成功结果。
+官方 4B 的 QMSum0 四个预定层已完成配对重放，使用全部 8 KV heads、B4/GQA4、预算4096、自然到达 step1；Q 形状为 `[8,16,128]`。本组原生 FlashInfer 0.6.12 **已将 log2→自然对数 LSE 转换计入计时**，与前述历史 native 列不同。每层独立调参，30个随机/反序配对 block，固定 A/A；四层来自同一文档，不能当作四份独立任务。
 
-**未完成范围。** 官方 Qwen3-30B-A3B-Thinking-2507-FP8 的下载/部署资格和 TP2 主应用未完成，旧 BF16 30B 结果始终保留诊断标签；官方 4B 不能替代 GQA8 主模型。[主模型下载记录](results/Qwen3-30B-A3B-Thinking-2507-FP8_download.json)、[旧模型身份](results/data_local_old_30b_identity.json)
+| 层与原始结果 | 缓存 | 动态 v2 μs | 固定区域 μs | 固定 union μs | Native（含转换）μs |
+|---|---|---:|---:|---:|---:|
+| [L0](results/official4b_paired/official4b_qmsum0_l0_b4096_s1_allheads.json) | hot | 27.2664 | 22.5896 | 10.3552 | 17.3152 |
+| 同上 | cold | 40.9600 | 36.8640 | 24.5760 | 28.6720 |
+| [L11](results/official4b_paired/official4b_qmsum0_l11_b4096_s1_allheads.json) | hot | 29.2560 | 24.8528 | 10.3120 | 17.2736 |
+| 同上 | cold | 47.0720 | 38.8800 | 26.5920 | 28.6720 |
+| [L23](results/official4b_paired/official4b_qmsum0_l23_b4096_s1_allheads.json) | hot | 29.5480 | 24.8920 | 10.4696 | 17.2352 |
+| 同上 | cold | 47.1040 | 40.9440 | 26.5920 | 28.6720 |
+| [L35](results/official4b_paired/official4b_qmsum0_l35_b4096_s1_allheads.json) | hot | 28.6488 | 23.9328 | 10.3344 | 17.3760 |
+| 同上 | cold | 42.9760 | 38.8800 | 24.5760 | 28.6720 |
+
+动态版本仍慢于固定区域和固定 union，未通过推进门槛。固定 union 热缓存约10.3–10.5 μs，明显快于本组 native 约17.2–17.4 μs；这是既有机制在本形状上的正向工程结果，不能证明动态压紧有效或建立新颖性。最新 FlashInfer 0.7.2 的独立环境复查正在准备，尚不能宣称优于最新原生实现。
+
+数值检查沿用预先使用的 `atol=0.006, rtol=0.015`，没有为4B放宽。L35动态/固定/union对FP64最大绝对误差约0.03055，native约0.05174；相对容差下通过。这些大幅值BF16输出的绝对误差不能隐去，也不能由逐算子通过推导整层/logit或任务质量非劣。另有[原生vLLM 0.31.0单卡部署记录](results/platform/engine_official4b_tp1.json)：官方权重可加载、四请求及APC可运行；首轮含额外JIT且两轮缓存状态不同，不作为A/A或加速比较。
+
+**未完成范围。** 官方 Qwen3-30B-A3B-Thinking-2507-FP8 的下载在动态算子未过门槛后停止，保留可续传文件；部署资格和 TP2 主应用未完成，旧 BF16 30B 结果始终保留诊断标签；官方 4B 不能替代 GQA8 主模型。[主模型下载记录](results/Qwen3-30B-A3B-Thinking-2507-FP8_download.json)、[旧模型身份](results/data_local_old_30b_identity.json)
 
 DocFinQA 原始 dev 与转换后的 validation 已逐行核验，且保留冻结文档 ID；这解决的是输入身份问题。历史正式划分仍未恢复，当前 exploratory manifest 不能冒充原 8 开发报告、100 公司年度主评价或 QMSum 官方 test35。上下文长度检查也不等于容量与运行资格。[DocFinQA 校验](results/data_docfinqa_parquet_validation.json)、[当前 exploratory manifest](data/manifests/docfinqa_exploratory_dev8.json)、[上下文审计](results/data_context_audit.json)、[QMSum exploratory manifest](data/manifests/qmsum_train_exploratory8.json)
 
 尚缺的核心证据包括：真实共同 ready 与生命周期、自然完成及全部失败分母、完整 JCT/TTFT/TPOT、A0–A4 应用替代、任务质量与三 seed 非劣检验、TP 通信/选择/准备摊销、正式能量/EDP；算子侧还缺全部固定划分的执行级 E1、QUILT-exact/Cascade 的 E4，以及适用 PAT/PageWeaver、Fused3S、cuDNN BSA 原生或明确标注移植的比较。当前枚举逻辑 tile 的机会分析不等于完成这些强执行基线，2×2 partial 也不等于优化 E3。[方案中完整评价约定](proposal-iscas.md)、[审计的未支持主张](results/kernel_audit.json)
 
-**下一研究方向及重新投入条件。** 当前动态行 v3 搜索已经结束。先完成正在运行的官方 4B 边界记录并整理负面证据；无需为缺少主张而继续无界扩大 layout、pipeline 或 split 搜索。
+**下一研究方向及重新投入条件。** 当前动态行 v3 搜索已经结束。官方 4B 边界记录已完成，接着核查固定 union 正向结果的最新基线并整理证据；无需为缺少主张而继续无界扩大 layout、pipeline 或 split 搜索。
 
 若开启新一轮，值得研究的问题是：**在精确固定 union、最佳固定划分及层次共享之后，自然输入是否还存在足够大的、可付清计划费用的执行空间。** 本轮暴露出短 owner 区域与 N 轴尾块的代价，可以作为候选假设；直接使用跨区域固定 union 只是采用既有机制，不能据此改名宣称新 idea。任何新的布局或执行选择方法先给出区别于这些基线的可检验增量，再决定是否实现。
 

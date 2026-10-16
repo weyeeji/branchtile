@@ -12,13 +12,14 @@ from huggingface_hub import HfApi, snapshot_download, hf_hub_download, get_hf_fi
 
 p = argparse.ArgumentParser()
 p.add_argument("repo")
+p.add_argument("--revision", help="Immutable HF commit for reproducible resume")
 p.add_argument("--output", required=True)
 p.add_argument("--aria2", action="store_true")
 p.add_argument("--modelscope-mirror", action="store_true",
                help="Download payload from Qwen's public mirror; verify HF revision SHA256")
 a = p.parse_args()
 assert os.geteuid() != 0 and sys.prefix != sys.base_prefix
-info = HfApi().model_info(a.repo)
+info = HfApi().model_info(a.repo, revision=a.revision)
 record = {"repo": a.repo, "revision": info.sha,
           "started_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
           "path": str(Path(a.output).resolve()), "complete": False,
