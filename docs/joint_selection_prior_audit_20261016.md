@@ -6,6 +6,8 @@
 
 任务上下文给出的主模型 4K 独立 QC mask 质量退化，是本方向的前置障碍；本轮没有重读或重新统计质量结果。待 8/16/32K 开发网格确定哪些预算可保留质量后，才能从合格点筛查共享空间。不能用“与已退化的 4K 同样差”证明质量保持。
 
+2026-10-16 后续数据修正：旧 TP exporter 会在短 suffix 时用 document Q 回填观察窗，旧导出 mask 不能作为 QC 的证据；生产 `FrozenQCSelector` 不受该 exporter 问题影响。后续探针仅使用 `*_suffix_v2/rank0/selector_q*_l*.pt` 中标记为真实 suffix-only 的 `pooled_scores/supports`。原文第 3 节的零松弛结论意味着有意义的加性评分交换研究通常必须**显式允许正 score loss epsilon**，并与 epsilon=0 控制并列。预冻结的 `[0,0.001,0.005,0.01]` 是相对原选择 pooled-score 总量的探索损失阈值；pooled attention score/mass 不是任务质量，也不是自然生成无损证明。独立的 CPU 前置证伪可在质量网格完成前运行，但不得据此宣称候选质量合格或启动部署。
+
 ## 1. 已有工作覆盖到哪里
 
 这里的 request 指同一文档上的不同用户问题；query 指 attention 内的一行 Q。它们不能互换。跨 GQA heads 的共享也不等于跨 request 联合选择。
