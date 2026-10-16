@@ -23,4 +23,4 @@ Default developer input is the original exploratory B3 DocFinQA document, not fo
 
 ## Current status
 
-CPU support checks and offline compilation pass. GPU and model qualification have not yet been executed by this implementation agent; root owns all GPU allocation and experiment accounting. The first attempted CPU import initialized CUDA through FlashInfer and was rejected before any explicit kernel/qualification; its incident record is retained separately.
+CPU support checks and offline compilation pass. Root-scheduled `paged_owner_gpu_v1` then completed with exit 0: 528 FP64 output/LSE checks passed, maximum output absolute error 0.0040671800 and maximum LSE absolute error 6.7349742e-7. The allocation lasted 9.029 seconds (0.00250806 GPU-hours). Real-model qualification and performance remain pending; root owns all GPU allocation and experiment accounting. The first attempted CPU import initialized CUDA through FlashInfer and was rejected before any explicit kernel/qualification; its incident record is retained separately.
