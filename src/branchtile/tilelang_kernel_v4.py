@@ -45,7 +45,18 @@ def producer(heads,tokens,rows,dim,regions,splits=64,block_n=64,threads=128):
             for i,d in T.Parallel(M,dim):
                 src=T.if_then_else(i<8,a*8+i,T.if_then_else(i<16,b*8+i-8,T.if_then_else(i<24,c*8+i-16,dq*8+i-24)))
                 qs[i,d]=T.if_then_else(i<active,Q[h,T.min(src,rows-1),d],0)
-                out[i,d]=T.if_then_else(i<active,CU[src,d],0)
+            T.clear(out)
+            for i,d in T.Parallel(8,dim):
+                out[i,d]=CU[a*8+i,d]
+            if active>=16:
+                for i,d in T.Parallel(8,dim):
+                    out[8+i,d]=CU[b*8+i,d]
+            if active>=24:
+                for i,d in T.Parallel(8,dim):
+                    out[16+i,d]=CU[c*8+i,d]
+            if active>=32:
+                for i,d in T.Parallel(8,dim):
+                    out[24+i,d]=CU[dq*8+i,d]
             for i in T.Parallel(M):
                 src=T.if_then_else(i<8,a*8+i,T.if_then_else(i<16,b*8+i-8,T.if_then_else(i<24,c*8+i-16,dq*8+i-24)))
                 maximum[i]=T.if_then_else(i<active,CM[src],-T.infinity("float32"))
@@ -73,10 +84,17 @@ def producer(heads,tokens,rows,dim,regions,splits=64,block_n=64,threads=128):
                     out[i,d]*=factor[i]
                 T.copy(scores,probs[0:M,0:block_n])
                 T.gemm(probs[0:M,0:block_n],vs,out,policy=T.GemmWarpPolicy.FullCol)
-            for i,d in T.Parallel(M,dim):
-                src=T.if_then_else(i<8,a*8+i,T.if_then_else(i<16,b*8+i-8,T.if_then_else(i<24,c*8+i-16,dq*8+i-24)))
-                if i<active:
-                    CU[src,d]=out[i,d]
+            for i,d in T.Parallel(8,dim):
+                CU[a*8+i,d]=out[i,d]
+            if active>=16:
+                for i,d in T.Parallel(8,dim):
+                    CU[b*8+i,d]=out[8+i,d]
+            if active>=24:
+                for i,d in T.Parallel(8,dim):
+                    CU[c*8+i,d]=out[16+i,d]
+            if active>=32:
+                for i,d in T.Parallel(8,dim):
+                    CU[dq*8+i,d]=out[24+i,d]
             for i in T.Parallel(M):
                 src=T.if_then_else(i<8,a*8+i,T.if_then_else(i<16,b*8+i-8,T.if_then_else(i<24,c*8+i-16,dq*8+i-24)))
                 if i<active:
