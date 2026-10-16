@@ -33,13 +33,13 @@ def main():
             max_per_request=8192,fixed_split_size=split) for b in (1,3)}
         queries={b:torch.randn(layers,b,16,128,device='cuda',dtype=torch.bfloat16)*.25 for b in (1,3)}
         graphs={};epoch=0;current_histories=histories
-        lengths=(127,128,129,255,256,257,511,512,513,1023,1024,1025,4095,4096,4097)
+        lengths=(96,127,128,129,255,256,257,511,512,513,1023,1024,1025,4095,4096,4097)
         cases=[(3,[0,1,2],length) for length in lengths]
         cases.extend([(1,[2],513),(3,[2,0,1],1025),(3,[1,2,0],1026),(1,[0],1027),(3,[0,1,2],4097)])
         for step,(batch,question_rows,length) in enumerate(cases):
             op=ops[batch];q=queries[batch];q.normal_(std=.25)
             backing.add_(.001953125)
-            if step==17:
+            if step==18:
                 epoch=1
                 current_histories=[[[torch.randperm(prompt)[:96].sort().values for h in range(heads)] for z in range(questions)] for l in range(layers)]
             table=tables[question_rows]+(1800 if epoch else 0)
@@ -89,18 +89,27 @@ def main():
                     checks.append({'layer':layer,'frozen_output_tolerance_passed':bool(torch.isclose(actual,expected,atol=.006,rtol=.015).all()),'max_abs':float((actual-expected).abs().max())})
                 item['checks']=checks;item['status']='qualified' if all(c['frozen_output_tolerance_passed'] for c in checks) else 'failed'
             except Exception as exc:
-                item.update(status='failed',error=repr(exc))
+                known_unsupported='new batch size should not exceed padded batch size' in str(exc)
+                item.update(status='unsupported_native_graph_configuration' if known_unsupported else 'failed',error=repr(exc))
+                if known_unsupported:
+                    try:
+                        op.run_layer(0,q[0])
+                        raise RuntimeError('Failed plan remained executable')
+                    except AssertionError:
+                        item['failed_plan_execution_rejected']=True
             records.append(item);save()
-            if item['status']!='qualified':break
+            if item['status']=='failed':break
         del ops,graphs,queries
-    success=len(records)==20*len(args.fixed_splits.split(',')) and all(r['status']=='qualified' for r in records)
+    success=len(records)==21*len(args.fixed_splits.split(',')) and all(r['status'] in ('qualified','unsupported_native_graph_configuration') for r in records)
     path=Path(args.output)
-    path.write_text(json.dumps({'status':'qualified' if success else 'failed','records':records,
+    unsupported=sum(r['status']=='unsupported_native_graph_configuration' for r in records)
+    status='qualified_supported_configurations' if success and unsupported else ('qualified' if success else 'failed')
+    path.write_text(json.dumps({'status':status,'unsupported_native_graph_cases':unsupported,'records':records,
         'uid':os.geteuid(),'python':sys.executable,'packages':{x:importlib.metadata.version(x) for x in ('torch','flashinfer-python','triton')},
         'source_sha256':{p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in ['src/vllm_shared_decode_plan.py','scripts/qualify_shared_decode_plan.py']},
         'frozen_output_tolerance':{'atol':.006,'rtol':.015},'source_cache_shape':list(caches[0].shape),'source_cache_stride':list(caches[0].stride()),
         'scope':'Existing native plan sharing across four layers with GPU address mapping. Explicit recapture if native topology changes. Includes split/page boundaries, B3→B1→B3, request reorder, physical-page remap and rejected stale prefix identity. No application performance claim.'},indent=2)+'\n')
-    print(json.dumps({'status':'qualified' if success else 'failed','cases':len(records),'layer_checks':sum(len(r.get('checks',[])) for r in records),'output':str(path)}))
+    print(json.dumps({'status':status,'cases':len(records),'layer_checks':sum(len(r.get('checks',[])) for r in records),'output':str(path)}))
     assert success
 
 

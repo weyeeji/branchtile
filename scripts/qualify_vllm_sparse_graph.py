@@ -18,6 +18,7 @@ def main():
     p=argparse.ArgumentParser()
     p.add_argument('--output',required=True)
     p.add_argument('--steps',type=int,default=8)
+    p.add_argument('--shared-decode-plan',action='store_true')
     args=p.parse_args()
     assert os.geteuid()!=0 and sys.prefix!=sys.base_prefix
     from transformers import AutoTokenizer
@@ -41,7 +42,7 @@ def main():
         max_model_len=98304,max_num_seqs=3,max_num_batched_tokens=4096,enable_prefix_caching=True,
         enforce_eager=False,gpu_memory_utilization=.80,disable_custom_all_reduce=True,enable_batch_sharded_sampling=False,
         compilation_config={'mode':0,'cudagraph_mode':'FULL_DECODE_ONLY','cudagraph_capture_sizes':[1,2,3]},
-        worker_extension_cls='scripts.vllm_sparse_graph_worker.SparseGraphWorkerExtension',seed=20261016)
+        worker_extension_cls=('scripts.vllm_shared_plan_graph_worker.SharedPlanGraphWorkerExtension' if args.shared_decode_plan else 'scripts.vllm_sparse_graph_worker.SparseGraphWorkerExtension'),seed=20261016)
     report['engine_configuration']=engine;save()
     llm=LLM(**engine)
     config={'output':str(out.resolve()),'document_token_range':[start,end],
@@ -52,8 +53,9 @@ def main():
     warm=SamplingParams(temperature=0,max_tokens=1,ignore_eos=False)
     llm.generate([{'prompt_token_ids':inputs[0]}],warm,use_tqdm=False)
     generate_ready_group(llm,[{'prompt_token_ids':ids} for ids in inputs],warm)
-    report['graph_capture']=llm.collective_rpc('capture_sparse_graphs',args=(('e0','union'),));save()
-    for phase,method in [('e0_graph_A','e0'),('e0_graph_B','e0'),('union_graph','union')]:
+    report['graph_capture']=llm.collective_rpc('capture_sparse_graphs',args=(('e0',) if args.shared_decode_plan else ('e0','union'),));save()
+    phases=[('e0_graph_A','e0'),('e0_graph_B','e0')]+([] if args.shared_decode_plan else [('union_graph','union')])
+    for phase,method in phases:
         assert llm.reset_prefix_cache()
         llm.collective_rpc('set_sparse_phase',args=(phase+'_anchor_prepare','dense'))
         llm.generate([{'prompt_token_ids':inputs[0]}],warm,use_tqdm=False)

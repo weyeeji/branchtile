@@ -60,6 +60,9 @@ class SparseGraphWorkerExtension(SparseAttentionWorkerExtension):
                 'metadata_complete_host_seconds':pending['metadata_seconds'],
                 'graph_submit_host_seconds':time.perf_counter()-started,
                 'candidate_graph_replayed':True,'dense_attention_executed_for_pure_decode':False}
+            if 'shared_prepare' in pending:
+                record['shared_native_prepare']=pending['shared_prepare']
+                record['extra_shadow_metadata_host_seconds']=pending['extra_shadow_metadata_seconds']
             if state['config'].get('graph_shadow_check'):
                 checks=[]
                 for layer in range(48):

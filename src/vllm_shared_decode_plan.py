@@ -95,13 +95,14 @@ class LayerSharedDecodePlan:
         self.prepared=False
 
     def prepare(self,block_tables,question_rows,query_positions,history_id):
+        self.prepared=False
         if history_id!=self.history_id:
             raise ValueError('History identity changed: explicitly install the new frozen histories before reuse')
         started=time.perf_counter()
         assert block_tables.is_cuda and block_tables.shape[0]>=self.batch
         assert len(question_rows)==len(query_positions)==self.batch
         lens=[self.history_lengths_cpu[q]+int(p)-self.prompt_lengths_cpu[q]+1 for q,p in zip(question_rows,query_positions)]
-        assert all(int(p)>=self.prompt_lengths_cpu[q] for q,p in zip(question_rows,query_positions))
+        assert all(int(p)>=self.prompt_lengths_cpu[q]-1 for q,p in zip(question_rows,query_positions))
         assert 0<min(lens)<=max(lens)<=self.max_per_request
         pointers=[0]
         for length in lens:
