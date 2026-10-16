@@ -548,3 +548,40 @@ real48-layer cost check is being frozen; natural quality expansion remains gated
 
 Completed allocation totals are10.18569 P1 and4.50629 P2 GPUh; all jobs terminal,
 no audit anomaly. No root privileges were used; all experiments use virtual envs.
+
+## 2026-10-16 18:22 — real-layer signal and explicit stop decision
+
+Four TP2 jobs run simultaneously on all8 cards and complete at0.309298 P1 GPUh.
+Both documents have two device replicas. The actual seventh B3 graph dispatch
+supplies Q, original strided KV, positions and a7-token private generated tail;
+all last-step attention outputs/indices reproduce bitwise.4608 own-mask SIMT
+checks pass. B1/B2 are row-prefix subsets of this B3 snapshot, not natural survivor
+trajectories. All variants use the same E0 graph buffers and include output.copy_.
+
+Primary complete host calls include native prepare and all48 layers. The1%
+exchange has1.05160–1.06205x speed ratio and105.00–120.74us paired saving across
+the eight B3 document/device/cache cells. A/A is0.99743–1.00285; B1 is near1.
+Independent analysis reproduces all864 statistics exactly, with six random/reverse
+blocks kept clustered. Separate rank timing maxima are a diagnostic composition,
+not measured synchronized TP2 model latency. All primary1% intervals remain below
+the frozen1.15x gate. This is a real small signal, not a performance success.
+
+Selection+D2H costs2.813–2.925s per chosen configuration; conditional break-even
+is24,024–27,021 B3 steps versus observed independent-E0 B3 upper counts1138/1774.
+Even granting B3 savings through the longest tail cannot recover that cost. Stop
+the current joint-E0 application extension; do not launch the prepared natural
+pilot. The source cache remains allocated, and no task-quality/new-algorithm claim
+is established. Original negative results and classical stronger geometry controls
+remain in scope.
+
+The actual model trace identifies1536 required output copies across8 ranks and
+four steps each, excluding other identically named copies. Native FI+required-copy
+duration is20.62–24.62% of instrumented model CUDA-event duration. Kernel-sum and
+same-four-graph denominators are separately retained; none is a critical-path
+speedup bound. Raw traces are losslessly compressed with original SHA receipts.
+
+The next engineering gap is the mature native FP8-KV control: local/official source
+supports the geometry, but the checkpoint has no KV scales and vLLM0.31 removed
+calculate_kv_scales. A bounded unit-scale numerical/graph qualification is being
+prepared separately; it is neither a new idea nor a calibrated-FP8 quality result.
+Completed totals are10.49499 P1/4.50629 P2 GPUh, all terminal, no audit anomaly.
