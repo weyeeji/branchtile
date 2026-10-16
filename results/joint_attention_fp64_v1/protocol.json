@@ -1,0 +1,2939 @@
+{
+  "schema": 1,
+  "protocol_id": "joint-support-heldout-fp64-attention-v1-20261016",
+  "rank": 0,
+  "layer": 15,
+  "local_kv_heads": [
+    0,
+    1
+  ],
+  "gqa": 8,
+  "budgets": [
+    4096,
+    16384
+  ],
+  "epsilon": [
+    0,
+    0.001,
+    0.005,
+    0.01
+  ],
+  "request_orders": [
+    "ascending",
+    "descending"
+  ],
+  "max_rounds": 2,
+  "heldout_anchor_steps": [
+    16,
+    64,
+    256
+  ],
+  "expected_rows": 1080,
+  "expected_per_query_head_metrics": 8640,
+  "script_path": "scripts/probe_joint_attention_fp64.py",
+  "script_sha256": "8539f41ef9e45e6442ffd0fc65ae711f20e631a81771d407bec10d7e3a1322e2",
+  "cpu_constructor_path": "scripts/probe_joint_support_exchange.py",
+  "cpu_constructor_sha256": "97625c9207a2541ab76cef5eedf5200740ab6bf066abae5d9b89cd49b56aa651",
+  "cpu_results_path": "results/joint_support_exchange_v1/results.jsonl",
+  "cpu_results_sha256": "3aded32975478ec69dfa52fd59c7ea714ee6a0627fb17488ff06de962ad989b7",
+  "proposal_sha256": "ec3852ea02812faa7b68211d243d9f6ddf7197ea9c3c7f9d53df36c6fc7a8a54",
+  "scope": "Descriptive FP64 counterfactual attention on captured dense trajectories only; masks fixed solely from suffix-only prefill pooled scores before opening held-out decode Q. All epsilon/order results retained. No on-policy sparse generation, task-quality guarantee, performance claim, novelty claim, production change, or physical KV capacity release.",
+  "numerics": {
+    "qkv_input_dtype": "original captured BF16 converted exactly to FP64",
+    "compute_dtype": "FP64",
+    "softmax_scale": "1/sqrt(128)",
+    "lse_base": "natural log",
+    "relative_l2_denominator_floor": 1e-12,
+    "different_support_quality_threshold": null,
+    "threshold_reason": "Proposal section 5.7 specifies same-mask BF16-versus-FP64 native-calibrated tolerances, not a success threshold for different-support quality. This screen therefore describes errors only.",
+    "epsilon_zero_check": "Independent and epsilon-zero output and LSE must be bitwise equal for every request, KV head, budget and anchor."
+  },
+  "context_assembly": "Keep every system prefix position and complete request-private suffix; common document supports are indexed in original positions. The two protected document-tail positions in the private suffix are included once. Context length must equal captured query_token_position+1. Same-forward group metadata frozen; actual prediction_step may differ by request from group anchor.",
+  "metrics": [
+    "per-request/KV-head flattened-G and each individual query-head relative L2, max absolute error and cosine versus dense and independent",
+    "signed change from independent in error against dense",
+    "per-query-head natural-log LSE and differences",
+    "total dense-softmax mass retained",
+    "document-conditional dense-softmax mass retained, including private document tail",
+    "mass versus exp(LSE_sparse-LSE_dense) identity residual",
+    "exact epsilon-zero O/LSE and selected support hashes"
+  ],
+  "compute_allocation": {
+    "category": "P2",
+    "gpu_ids": [
+      2,
+      3
+    ],
+    "jobs_timeout_seconds_each": 330,
+    "max_allocated_gpu_hours_before_termination_grace": 0.18333333333333332,
+    "approved_initial_gpu_hours": 0.2,
+    "parent_runner": "scripts/run_jobs.py",
+    "notes": "Single-card independent documents; times are accounting only, not a latency benchmark. The reused CPU constructor sets CUDA_VISIBLE_DEVICES empty at import; this wrapper restores run_jobs assigned visibility before any CUDA initialization."
+  },
+  "sources": [
+    {
+      "id": "docfinqa256",
+      "directory": "results/captures/main30b_tp2_docfinqa256_suffix_v2/rank0",
+      "metadata_sha256": "c8edc90d6751ed8cef30b7cc4a38151d0bfbce900aea1d2429c366d177123da6",
+      "document_sha256": "c0f11a67aae850fc423d60b5c3839769c083888b4d2e73c6d47b359547f44e46",
+      "expected_B": 3,
+      "selectors": [
+        {
+          "name": "selector_q0_l15.pt",
+          "sha256": "b4e9532db7a9e15028c54813077fc0e8eace56275416892a2c15135f15dda2e6",
+          "bytes": 1524345
+        },
+        {
+          "name": "selector_q1_l15.pt",
+          "sha256": "ccda483d2346e90cfb38c2b6fa983bfd32ff3fc57a11f6dfb9c52f481a8ba0d3",
+          "bytes": 1482297
+        },
+        {
+          "name": "selector_q2_l15.pt",
+          "sha256": "d4307a6eef23db61e67c8041b316ca6ee170bea6373dc1d5367e2ebabc137cad",
+          "bytes": 1478201
+        }
+      ],
+      "source_file": {
+        "name": "source_l15.pt",
+        "sha256": "69f573933c7ad55e3d0206a086e0b0d52cfd6d7cb9c8dab76dc4bbfa4948fa60",
+        "bytes": 88901693,
+        "schema": {
+          "prefix_k": {
+            "shape": [
+              1,
+              2,
+              34,
+              128
+            ],
+            "dtype": "torch.bfloat16"
+          },
+          "prefix_v": {
+            "shape": [
+              1,
+              2,
+              34,
+              128
+            ],
+            "dtype": "torch.bfloat16"
+          },
+          "document_k": {
+            "shape": [
+              1,
+              2,
+              86782,
+              128
+            ],
+            "dtype": "torch.bfloat16"
+          },
+          "document_v": {
+            "shape": [
+              1,
+              2,
+              86782,
+              128
+            ],
+            "dtype": "torch.bfloat16"
+          }
+        }
+      },
+      "decode_files": [
+        {
+          "name": "decode_q0_l15_s16.pt",
+          "sha256": "ef1530fe9e4121b37eb376511fd72d8a1d761b9932153d713bfb873b64c2af7c",
+          "bytes": 57403,
+          "schema": {
+            "query": {
+              "shape": [
+                1,
+                16,
+                1,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_k": {
+              "shape": [
+                1,
+                2,
+                49,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_v": {
+              "shape": [
+                1,
+                2,
+                49,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            }
+          },
+          "metadata": {
+            "request_id": "1-86d98ef7",
+            "question_index": 0,
+            "prompt_length": 86850,
+            "prompt_token_sha256": "ad8bdbeddcb4cadf40fdb0202f15b6b25b2cf770f4f6fcedeeab4cf15efe508f",
+            "phase": "apc_warm_natural_group",
+            "layer": 15,
+            "rank": 0,
+            "prediction_step": 16,
+            "query_token_position": 86864,
+            "generated_inputs_consumed": 15,
+            "shared_prefix_end": 86816,
+            "document_token_range": [
+              34,
+              86818
+            ],
+            "private_document_tail_tokens": 2,
+            "physical_full_prefix_pages_match": true,
+            "hooked_kv_matches_actual_cache": true,
+            "actual_scheduled_request_ids": [
+              "1-86d98ef7",
+              "2-bdae58f7",
+              "3-a854aa56"
+            ],
+            "query_start_loc": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "ready_group_anchor_step": 16,
+            "same_event_query_positions": [
+              [
+                86864
+              ],
+              [
+                86853
+              ],
+              [
+                86851
+              ]
+            ],
+            "sequence_lengths": [
+              86865,
+              86854,
+              86852
+            ],
+            "slot_mapping": [
+              87232
+            ],
+            "monotonic": 4578987.246119116
+          }
+        },
+        {
+          "name": "decode_q1_l15_s16.pt",
+          "sha256": "3b04076f0cb8b60bed9ec827f418822b2f61e728e725a6716a3b5437a04fb958",
+          "bytes": 46139,
+          "schema": {
+            "query": {
+              "shape": [
+                1,
+                16,
+                1,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_k": {
+              "shape": [
+                1,
+                2,
+                38,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_v": {
+              "shape": [
+                1,
+                2,
+                38,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            }
+          },
+          "metadata": {
+            "request_id": "2-bdae58f7",
+            "question_index": 1,
+            "prompt_length": 86840,
+            "prompt_token_sha256": "437bfde1f9403e5d5642f6400ff9f7c32250664e068de2e4ebd5332bdae677b4",
+            "phase": "apc_warm_natural_group",
+            "layer": 15,
+            "rank": 0,
+            "prediction_step": 15,
+            "query_token_position": 86853,
+            "generated_inputs_consumed": 14,
+            "shared_prefix_end": 86816,
+            "document_token_range": [
+              34,
+              86818
+            ],
+            "private_document_tail_tokens": 2,
+            "physical_full_prefix_pages_match": true,
+            "hooked_kv_matches_actual_cache": true,
+            "actual_scheduled_request_ids": [
+              "1-86d98ef7",
+              "2-bdae58f7",
+              "3-a854aa56"
+            ],
+            "query_start_loc": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "ready_group_anchor_step": 16,
+            "same_event_query_positions": [
+              [
+                86864
+              ],
+              [
+                86853
+              ],
+              [
+                86851
+              ]
+            ],
+            "sequence_lengths": [
+              86865,
+              86854,
+              86852
+            ],
+            "slot_mapping": [
+              87205
+            ],
+            "monotonic": 4578987.247055642
+          }
+        },
+        {
+          "name": "decode_q2_l15_s16.pt",
+          "sha256": "56a1225a753830f80e48bba0977396d1e6c4cd02e1f73ce001f5c0ca7d4ed660",
+          "bytes": 44091,
+          "schema": {
+            "query": {
+              "shape": [
+                1,
+                16,
+                1,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_k": {
+              "shape": [
+                1,
+                2,
+                36,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_v": {
+              "shape": [
+                1,
+                2,
+                36,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            }
+          },
+          "metadata": {
+            "request_id": "3-a854aa56",
+            "question_index": 2,
+            "prompt_length": 86839,
+            "prompt_token_sha256": "71fbbebb494d983ab00a8efe683d6b9fa194c2de09bbee0759db26c3a34e6973",
+            "phase": "apc_warm_natural_group",
+            "layer": 15,
+            "rank": 0,
+            "prediction_step": 14,
+            "query_token_position": 86851,
+            "generated_inputs_consumed": 13,
+            "shared_prefix_end": 86816,
+            "document_token_range": [
+              34,
+              86818
+            ],
+            "private_document_tail_tokens": 2,
+            "physical_full_prefix_pages_match": true,
+            "hooked_kv_matches_actual_cache": true,
+            "actual_scheduled_request_ids": [
+              "1-86d98ef7",
+              "2-bdae58f7",
+              "3-a854aa56"
+            ],
+            "query_start_loc": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "ready_group_anchor_step": 16,
+            "same_event_query_positions": [
+              [
+                86864
+              ],
+              [
+                86853
+              ],
+              [
+                86851
+              ]
+            ],
+            "sequence_lengths": [
+              86865,
+              86854,
+              86852
+            ],
+            "slot_mapping": [
+              87219
+            ],
+            "monotonic": 4578987.247969608
+          }
+        },
+        {
+          "name": "decode_q0_l15_s64.pt",
+          "sha256": "93dec2055abcfb2b10a0266d52748f35f85e471dc8499d2dc53b6f7fab0190d6",
+          "bytes": 106555,
+          "schema": {
+            "query": {
+              "shape": [
+                1,
+                16,
+                1,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_k": {
+              "shape": [
+                1,
+                2,
+                97,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_v": {
+              "shape": [
+                1,
+                2,
+                97,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            }
+          },
+          "metadata": {
+            "request_id": "1-86d98ef7",
+            "question_index": 0,
+            "prompt_length": 86850,
+            "prompt_token_sha256": "ad8bdbeddcb4cadf40fdb0202f15b6b25b2cf770f4f6fcedeeab4cf15efe508f",
+            "phase": "apc_warm_natural_group",
+            "layer": 15,
+            "rank": 0,
+            "prediction_step": 64,
+            "query_token_position": 86912,
+            "generated_inputs_consumed": 63,
+            "shared_prefix_end": 86816,
+            "document_token_range": [
+              34,
+              86818
+            ],
+            "private_document_tail_tokens": 2,
+            "physical_full_prefix_pages_match": true,
+            "hooked_kv_matches_actual_cache": true,
+            "actual_scheduled_request_ids": [
+              "1-86d98ef7",
+              "2-bdae58f7",
+              "3-a854aa56"
+            ],
+            "query_start_loc": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "ready_group_anchor_step": 64,
+            "same_event_query_positions": [
+              [
+                86912
+              ],
+              [
+                86901
+              ],
+              [
+                86899
+              ]
+            ],
+            "sequence_lengths": [
+              86913,
+              86902,
+              86900
+            ],
+            "slot_mapping": [
+              87376
+            ],
+            "monotonic": 4578991.005836994
+          }
+        },
+        {
+          "name": "decode_q1_l15_s64.pt",
+          "sha256": "6a7c57c711ffd70f08ce3408aaf1c89b77cf5fef655cb2ffcc79d85d6cef1cbf",
+          "bytes": 95291,
+          "schema": {
+            "query": {
+              "shape": [
+                1,
+                16,
+                1,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_k": {
+              "shape": [
+                1,
+                2,
+                86,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_v": {
+              "shape": [
+                1,
+                2,
+                86,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            }
+          },
+          "metadata": {
+            "request_id": "2-bdae58f7",
+            "question_index": 1,
+            "prompt_length": 86840,
+            "prompt_token_sha256": "437bfde1f9403e5d5642f6400ff9f7c32250664e068de2e4ebd5332bdae677b4",
+            "phase": "apc_warm_natural_group",
+            "layer": 15,
+            "rank": 0,
+            "prediction_step": 63,
+            "query_token_position": 86901,
+            "generated_inputs_consumed": 62,
+            "shared_prefix_end": 86816,
+            "document_token_range": [
+              34,
+              86818
+            ],
+            "private_document_tail_tokens": 2,
+            "physical_full_prefix_pages_match": true,
+            "hooked_kv_matches_actual_cache": true,
+            "actual_scheduled_request_ids": [
+              "1-86d98ef7",
+              "2-bdae58f7",
+              "3-a854aa56"
+            ],
+            "query_start_loc": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "ready_group_anchor_step": 64,
+            "same_event_query_positions": [
+              [
+                86912
+              ],
+              [
+                86901
+              ],
+              [
+                86899
+              ]
+            ],
+            "sequence_lengths": [
+              86913,
+              86902,
+              86900
+            ],
+            "slot_mapping": [
+              87349
+            ],
+            "monotonic": 4578991.006843143
+          }
+        },
+        {
+          "name": "decode_q2_l15_s64.pt",
+          "sha256": "6803762ce5640f2936e7be1b9e61ca7432be9682b76a36cb2e77ea6487d169f3",
+          "bytes": 93243,
+          "schema": {
+            "query": {
+              "shape": [
+                1,
+                16,
+                1,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_k": {
+              "shape": [
+                1,
+                2,
+                84,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_v": {
+              "shape": [
+                1,
+                2,
+                84,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            }
+          },
+          "metadata": {
+            "request_id": "3-a854aa56",
+            "question_index": 2,
+            "prompt_length": 86839,
+            "prompt_token_sha256": "71fbbebb494d983ab00a8efe683d6b9fa194c2de09bbee0759db26c3a34e6973",
+            "phase": "apc_warm_natural_group",
+            "layer": 15,
+            "rank": 0,
+            "prediction_step": 62,
+            "query_token_position": 86899,
+            "generated_inputs_consumed": 61,
+            "shared_prefix_end": 86816,
+            "document_token_range": [
+              34,
+              86818
+            ],
+            "private_document_tail_tokens": 2,
+            "physical_full_prefix_pages_match": true,
+            "hooked_kv_matches_actual_cache": true,
+            "actual_scheduled_request_ids": [
+              "1-86d98ef7",
+              "2-bdae58f7",
+              "3-a854aa56"
+            ],
+            "query_start_loc": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "ready_group_anchor_step": 64,
+            "same_event_query_positions": [
+              [
+                86912
+              ],
+              [
+                86901
+              ],
+              [
+                86899
+              ]
+            ],
+            "sequence_lengths": [
+              86913,
+              86902,
+              86900
+            ],
+            "slot_mapping": [
+              87363
+            ],
+            "monotonic": 4578991.007817048
+          }
+        },
+        {
+          "name": "decode_q0_l15_s256.pt",
+          "sha256": "c3834ca9ab9d3260950b791347fbaf2c8e64f5005db1cf01d8d569bd936c36b3",
+          "bytes": 303172,
+          "schema": {
+            "query": {
+              "shape": [
+                1,
+                16,
+                1,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_k": {
+              "shape": [
+                1,
+                2,
+                289,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_v": {
+              "shape": [
+                1,
+                2,
+                289,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            }
+          },
+          "metadata": {
+            "request_id": "1-86d98ef7",
+            "question_index": 0,
+            "prompt_length": 86850,
+            "prompt_token_sha256": "ad8bdbeddcb4cadf40fdb0202f15b6b25b2cf770f4f6fcedeeab4cf15efe508f",
+            "phase": "apc_warm_natural_group",
+            "layer": 15,
+            "rank": 0,
+            "prediction_step": 256,
+            "query_token_position": 87104,
+            "generated_inputs_consumed": 255,
+            "shared_prefix_end": 86816,
+            "document_token_range": [
+              34,
+              86818
+            ],
+            "private_document_tail_tokens": 2,
+            "physical_full_prefix_pages_match": true,
+            "hooked_kv_matches_actual_cache": true,
+            "actual_scheduled_request_ids": [
+              "1-86d98ef7",
+              "2-bdae58f7",
+              "3-a854aa56"
+            ],
+            "query_start_loc": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "ready_group_anchor_step": 256,
+            "same_event_query_positions": [
+              [
+                87104
+              ],
+              [
+                87093
+              ],
+              [
+                87091
+              ]
+            ],
+            "sequence_lengths": [
+              87105,
+              87094,
+              87092
+            ],
+            "slot_mapping": [
+              87952
+            ],
+            "monotonic": 4579005.918647258
+          }
+        },
+        {
+          "name": "decode_q1_l15_s256.pt",
+          "sha256": "e5572375b8d325419af347c75166946de806487c84ce333dce33644642392fd0",
+          "bytes": 291908,
+          "schema": {
+            "query": {
+              "shape": [
+                1,
+                16,
+                1,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_k": {
+              "shape": [
+                1,
+                2,
+                278,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_v": {
+              "shape": [
+                1,
+                2,
+                278,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            }
+          },
+          "metadata": {
+            "request_id": "2-bdae58f7",
+            "question_index": 1,
+            "prompt_length": 86840,
+            "prompt_token_sha256": "437bfde1f9403e5d5642f6400ff9f7c32250664e068de2e4ebd5332bdae677b4",
+            "phase": "apc_warm_natural_group",
+            "layer": 15,
+            "rank": 0,
+            "prediction_step": 255,
+            "query_token_position": 87093,
+            "generated_inputs_consumed": 254,
+            "shared_prefix_end": 86816,
+            "document_token_range": [
+              34,
+              86818
+            ],
+            "private_document_tail_tokens": 2,
+            "physical_full_prefix_pages_match": true,
+            "hooked_kv_matches_actual_cache": true,
+            "actual_scheduled_request_ids": [
+              "1-86d98ef7",
+              "2-bdae58f7",
+              "3-a854aa56"
+            ],
+            "query_start_loc": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "ready_group_anchor_step": 256,
+            "same_event_query_positions": [
+              [
+                87104
+              ],
+              [
+                87093
+              ],
+              [
+                87091
+              ]
+            ],
+            "sequence_lengths": [
+              87105,
+              87094,
+              87092
+            ],
+            "slot_mapping": [
+              87925
+            ],
+            "monotonic": 4579005.919839488
+          }
+        },
+        {
+          "name": "decode_q2_l15_s256.pt",
+          "sha256": "cd6930b97910353b1fcae3e6bb939881ed603add87f551c5443cb0e13db3d9f6",
+          "bytes": 289860,
+          "schema": {
+            "query": {
+              "shape": [
+                1,
+                16,
+                1,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_k": {
+              "shape": [
+                1,
+                2,
+                276,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_v": {
+              "shape": [
+                1,
+                2,
+                276,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            }
+          },
+          "metadata": {
+            "request_id": "3-a854aa56",
+            "question_index": 2,
+            "prompt_length": 86839,
+            "prompt_token_sha256": "71fbbebb494d983ab00a8efe683d6b9fa194c2de09bbee0759db26c3a34e6973",
+            "phase": "apc_warm_natural_group",
+            "layer": 15,
+            "rank": 0,
+            "prediction_step": 254,
+            "query_token_position": 87091,
+            "generated_inputs_consumed": 253,
+            "shared_prefix_end": 86816,
+            "document_token_range": [
+              34,
+              86818
+            ],
+            "private_document_tail_tokens": 2,
+            "physical_full_prefix_pages_match": true,
+            "hooked_kv_matches_actual_cache": true,
+            "actual_scheduled_request_ids": [
+              "1-86d98ef7",
+              "2-bdae58f7",
+              "3-a854aa56"
+            ],
+            "query_start_loc": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "ready_group_anchor_step": 256,
+            "same_event_query_positions": [
+              [
+                87104
+              ],
+              [
+                87093
+              ],
+              [
+                87091
+              ]
+            ],
+            "sequence_lengths": [
+              87105,
+              87094,
+              87092
+            ],
+            "slot_mapping": [
+              87939
+            ],
+            "monotonic": 4579005.920996108
+          }
+        }
+      ]
+    },
+    {
+      "id": "publicdev1_256",
+      "directory": "results/captures/main30b_tp2_publicdev1_256_suffix_v2/rank0",
+      "metadata_sha256": "84df3ed55785205691953e7d2152cb20e7a0a7c58478f5c520e7443c808ea311",
+      "document_sha256": "593ec0c33f45ea02d1139d061d3f5fcec367a50c2e44b7f29e815611bc65124b",
+      "expected_B": 3,
+      "selectors": [
+        {
+          "name": "selector_q0_l15.pt",
+          "sha256": "c3c0bd714ca0f70318ee0b7df89c10ee2d474aa8bddacd5ed71d7506cf9c890f",
+          "bytes": 1571321
+        },
+        {
+          "name": "selector_q1_l15.pt",
+          "sha256": "f4d3e1ff5e30a6f0f2c172f88b0a6dc64ef2371e615965da69bf340647f04398",
+          "bytes": 1566393
+        },
+        {
+          "name": "selector_q2_l15.pt",
+          "sha256": "f24f3354b299db13349dd025f8be6c22139107b9d5cdf474bd7a25374b250cea",
+          "bytes": 1550009
+        }
+      ],
+      "source_file": {
+        "name": "source_l15.pt",
+        "sha256": "503e64cdcebe00527730657ab6134d10a5327a78deec75753c150d09897080ed",
+        "bytes": 91916349,
+        "schema": {
+          "prefix_k": {
+            "shape": [
+              1,
+              2,
+              34,
+              128
+            ],
+            "dtype": "torch.bfloat16"
+          },
+          "prefix_v": {
+            "shape": [
+              1,
+              2,
+              34,
+              128
+            ],
+            "dtype": "torch.bfloat16"
+          },
+          "document_k": {
+            "shape": [
+              1,
+              2,
+              89726,
+              128
+            ],
+            "dtype": "torch.bfloat16"
+          },
+          "document_v": {
+            "shape": [
+              1,
+              2,
+              89726,
+              128
+            ],
+            "dtype": "torch.bfloat16"
+          }
+        }
+      },
+      "decode_files": [
+        {
+          "name": "decode_q0_l15_s16.pt",
+          "sha256": "95a75b367cd65962c82a83ae2e96db581fb962ddef00697382dabfc909ff6586",
+          "bytes": 65595,
+          "schema": {
+            "query": {
+              "shape": [
+                1,
+                16,
+                1,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_k": {
+              "shape": [
+                1,
+                2,
+                57,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_v": {
+              "shape": [
+                1,
+                2,
+                57,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            }
+          },
+          "metadata": {
+            "request_id": "1-8778da93",
+            "question_index": 0,
+            "prompt_length": 89802,
+            "prompt_token_sha256": "c72bff89a378298746eabc1845b7a5e2e6be65cfad336a833b9d055973727aea",
+            "phase": "apc_warm_natural_group",
+            "layer": 15,
+            "rank": 0,
+            "prediction_step": 16,
+            "query_token_position": 89816,
+            "generated_inputs_consumed": 15,
+            "shared_prefix_end": 89760,
+            "document_token_range": [
+              34,
+              89770
+            ],
+            "private_document_tail_tokens": 10,
+            "physical_full_prefix_pages_match": true,
+            "hooked_kv_matches_actual_cache": true,
+            "actual_scheduled_request_ids": [
+              "1-8778da93",
+              "2-9ef21ead",
+              "3-bae46a2d"
+            ],
+            "query_start_loc": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "ready_group_anchor_step": 16,
+            "same_event_query_positions": [
+              [
+                89816
+              ],
+              [
+                89814
+              ],
+              [
+                89809
+              ]
+            ],
+            "sequence_lengths": [
+              89817,
+              89815,
+              89810
+            ],
+            "slot_mapping": [
+              90184
+            ],
+            "monotonic": 4584702.9546832
+          }
+        },
+        {
+          "name": "decode_q1_l15_s16.pt",
+          "sha256": "10cf9c7adc6ef9d3f517ef90a67adab180d40de4e1f66fddd88b00f9ed67d113",
+          "bytes": 63547,
+          "schema": {
+            "query": {
+              "shape": [
+                1,
+                16,
+                1,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_k": {
+              "shape": [
+                1,
+                2,
+                55,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_v": {
+              "shape": [
+                1,
+                2,
+                55,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            }
+          },
+          "metadata": {
+            "request_id": "2-9ef21ead",
+            "question_index": 1,
+            "prompt_length": 89801,
+            "prompt_token_sha256": "964e01d50176701614554bf25625765f21d81598c54234734f0299ac4cd7e080",
+            "phase": "apc_warm_natural_group",
+            "layer": 15,
+            "rank": 0,
+            "prediction_step": 15,
+            "query_token_position": 89814,
+            "generated_inputs_consumed": 14,
+            "shared_prefix_end": 89760,
+            "document_token_range": [
+              34,
+              89770
+            ],
+            "private_document_tail_tokens": 10,
+            "physical_full_prefix_pages_match": true,
+            "hooked_kv_matches_actual_cache": true,
+            "actual_scheduled_request_ids": [
+              "1-8778da93",
+              "2-9ef21ead",
+              "3-bae46a2d"
+            ],
+            "query_start_loc": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "ready_group_anchor_step": 16,
+            "same_event_query_positions": [
+              [
+                89816
+              ],
+              [
+                89814
+              ],
+              [
+                89809
+              ]
+            ],
+            "sequence_lengths": [
+              89817,
+              89815,
+              89810
+            ],
+            "slot_mapping": [
+              90198
+            ],
+            "monotonic": 4584702.955625367
+          }
+        },
+        {
+          "name": "decode_q2_l15_s16.pt",
+          "sha256": "82d032e6a088b16e160b64145945312575c0a31f5fe809add59b41af196a63e8",
+          "bytes": 58427,
+          "schema": {
+            "query": {
+              "shape": [
+                1,
+                16,
+                1,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_k": {
+              "shape": [
+                1,
+                2,
+                50,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_v": {
+              "shape": [
+                1,
+                2,
+                50,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            }
+          },
+          "metadata": {
+            "request_id": "3-bae46a2d",
+            "question_index": 2,
+            "prompt_length": 89797,
+            "prompt_token_sha256": "b394863903a018adf6baacc6b98d8f824877b495676e278449de527d4d9c50ec",
+            "phase": "apc_warm_natural_group",
+            "layer": 15,
+            "rank": 0,
+            "prediction_step": 14,
+            "query_token_position": 89809,
+            "generated_inputs_consumed": 13,
+            "shared_prefix_end": 89760,
+            "document_token_range": [
+              34,
+              89770
+            ],
+            "private_document_tail_tokens": 10,
+            "physical_full_prefix_pages_match": true,
+            "hooked_kv_matches_actual_cache": true,
+            "actual_scheduled_request_ids": [
+              "1-8778da93",
+              "2-9ef21ead",
+              "3-bae46a2d"
+            ],
+            "query_start_loc": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "ready_group_anchor_step": 16,
+            "same_event_query_positions": [
+              [
+                89816
+              ],
+              [
+                89814
+              ],
+              [
+                89809
+              ]
+            ],
+            "sequence_lengths": [
+              89817,
+              89815,
+              89810
+            ],
+            "slot_mapping": [
+              90209
+            ],
+            "monotonic": 4584702.956575896
+          }
+        },
+        {
+          "name": "decode_q0_l15_s64.pt",
+          "sha256": "4907b7f5dc8622b0e3fd8dfd46fc5e97cde857b4866f9cd3edde84084435b4b5",
+          "bytes": 114747,
+          "schema": {
+            "query": {
+              "shape": [
+                1,
+                16,
+                1,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_k": {
+              "shape": [
+                1,
+                2,
+                105,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_v": {
+              "shape": [
+                1,
+                2,
+                105,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            }
+          },
+          "metadata": {
+            "request_id": "1-8778da93",
+            "question_index": 0,
+            "prompt_length": 89802,
+            "prompt_token_sha256": "c72bff89a378298746eabc1845b7a5e2e6be65cfad336a833b9d055973727aea",
+            "phase": "apc_warm_natural_group",
+            "layer": 15,
+            "rank": 0,
+            "prediction_step": 64,
+            "query_token_position": 89864,
+            "generated_inputs_consumed": 63,
+            "shared_prefix_end": 89760,
+            "document_token_range": [
+              34,
+              89770
+            ],
+            "private_document_tail_tokens": 10,
+            "physical_full_prefix_pages_match": true,
+            "hooked_kv_matches_actual_cache": true,
+            "actual_scheduled_request_ids": [
+              "1-8778da93",
+              "2-9ef21ead",
+              "3-bae46a2d"
+            ],
+            "query_start_loc": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "ready_group_anchor_step": 64,
+            "same_event_query_positions": [
+              [
+                89864
+              ],
+              [
+                89862
+              ],
+              [
+                89857
+              ]
+            ],
+            "sequence_lengths": [
+              89865,
+              89863,
+              89858
+            ],
+            "slot_mapping": [
+              90328
+            ],
+            "monotonic": 4584706.667012978
+          }
+        },
+        {
+          "name": "decode_q1_l15_s64.pt",
+          "sha256": "e42b70c03769ff9cc8a9b4f3bcd3c064bd92accb38aca4f8fddc9f4ade6e6288",
+          "bytes": 112699,
+          "schema": {
+            "query": {
+              "shape": [
+                1,
+                16,
+                1,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_k": {
+              "shape": [
+                1,
+                2,
+                103,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_v": {
+              "shape": [
+                1,
+                2,
+                103,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            }
+          },
+          "metadata": {
+            "request_id": "2-9ef21ead",
+            "question_index": 1,
+            "prompt_length": 89801,
+            "prompt_token_sha256": "964e01d50176701614554bf25625765f21d81598c54234734f0299ac4cd7e080",
+            "phase": "apc_warm_natural_group",
+            "layer": 15,
+            "rank": 0,
+            "prediction_step": 63,
+            "query_token_position": 89862,
+            "generated_inputs_consumed": 62,
+            "shared_prefix_end": 89760,
+            "document_token_range": [
+              34,
+              89770
+            ],
+            "private_document_tail_tokens": 10,
+            "physical_full_prefix_pages_match": true,
+            "hooked_kv_matches_actual_cache": true,
+            "actual_scheduled_request_ids": [
+              "1-8778da93",
+              "2-9ef21ead",
+              "3-bae46a2d"
+            ],
+            "query_start_loc": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "ready_group_anchor_step": 64,
+            "same_event_query_positions": [
+              [
+                89864
+              ],
+              [
+                89862
+              ],
+              [
+                89857
+              ]
+            ],
+            "sequence_lengths": [
+              89865,
+              89863,
+              89858
+            ],
+            "slot_mapping": [
+              90342
+            ],
+            "monotonic": 4584706.667993243
+          }
+        },
+        {
+          "name": "decode_q2_l15_s64.pt",
+          "sha256": "865d6a180b2104d3805c5b0dd836e1d90b92d050b874ce570dcf8d5fa93dfd8a",
+          "bytes": 107579,
+          "schema": {
+            "query": {
+              "shape": [
+                1,
+                16,
+                1,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_k": {
+              "shape": [
+                1,
+                2,
+                98,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_v": {
+              "shape": [
+                1,
+                2,
+                98,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            }
+          },
+          "metadata": {
+            "request_id": "3-bae46a2d",
+            "question_index": 2,
+            "prompt_length": 89797,
+            "prompt_token_sha256": "b394863903a018adf6baacc6b98d8f824877b495676e278449de527d4d9c50ec",
+            "phase": "apc_warm_natural_group",
+            "layer": 15,
+            "rank": 0,
+            "prediction_step": 62,
+            "query_token_position": 89857,
+            "generated_inputs_consumed": 61,
+            "shared_prefix_end": 89760,
+            "document_token_range": [
+              34,
+              89770
+            ],
+            "private_document_tail_tokens": 10,
+            "physical_full_prefix_pages_match": true,
+            "hooked_kv_matches_actual_cache": true,
+            "actual_scheduled_request_ids": [
+              "1-8778da93",
+              "2-9ef21ead",
+              "3-bae46a2d"
+            ],
+            "query_start_loc": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "ready_group_anchor_step": 64,
+            "same_event_query_positions": [
+              [
+                89864
+              ],
+              [
+                89862
+              ],
+              [
+                89857
+              ]
+            ],
+            "sequence_lengths": [
+              89865,
+              89863,
+              89858
+            ],
+            "slot_mapping": [
+              90353
+            ],
+            "monotonic": 4584706.668949869
+          }
+        },
+        {
+          "name": "decode_q0_l15_s256.pt",
+          "sha256": "909a76c8cf1fd558ca3ff8be97f931e12de3721a5964e8147c8e9de41895592a",
+          "bytes": 311364,
+          "schema": {
+            "query": {
+              "shape": [
+                1,
+                16,
+                1,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_k": {
+              "shape": [
+                1,
+                2,
+                297,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_v": {
+              "shape": [
+                1,
+                2,
+                297,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            }
+          },
+          "metadata": {
+            "request_id": "1-8778da93",
+            "question_index": 0,
+            "prompt_length": 89802,
+            "prompt_token_sha256": "c72bff89a378298746eabc1845b7a5e2e6be65cfad336a833b9d055973727aea",
+            "phase": "apc_warm_natural_group",
+            "layer": 15,
+            "rank": 0,
+            "prediction_step": 256,
+            "query_token_position": 90056,
+            "generated_inputs_consumed": 255,
+            "shared_prefix_end": 89760,
+            "document_token_range": [
+              34,
+              89770
+            ],
+            "private_document_tail_tokens": 10,
+            "physical_full_prefix_pages_match": true,
+            "hooked_kv_matches_actual_cache": true,
+            "actual_scheduled_request_ids": [
+              "1-8778da93",
+              "2-9ef21ead",
+              "3-bae46a2d"
+            ],
+            "query_start_loc": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "ready_group_anchor_step": 256,
+            "same_event_query_positions": [
+              [
+                90056
+              ],
+              [
+                90054
+              ],
+              [
+                90049
+              ]
+            ],
+            "sequence_lengths": [
+              90057,
+              90055,
+              90050
+            ],
+            "slot_mapping": [
+              90904
+            ],
+            "monotonic": 4584721.472328909
+          }
+        },
+        {
+          "name": "decode_q1_l15_s256.pt",
+          "sha256": "93b38f8ca3aa7ae59380f23facc9b26b2c1689cbf8141117464cb73bd5511ae8",
+          "bytes": 309316,
+          "schema": {
+            "query": {
+              "shape": [
+                1,
+                16,
+                1,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_k": {
+              "shape": [
+                1,
+                2,
+                295,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_v": {
+              "shape": [
+                1,
+                2,
+                295,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            }
+          },
+          "metadata": {
+            "request_id": "2-9ef21ead",
+            "question_index": 1,
+            "prompt_length": 89801,
+            "prompt_token_sha256": "964e01d50176701614554bf25625765f21d81598c54234734f0299ac4cd7e080",
+            "phase": "apc_warm_natural_group",
+            "layer": 15,
+            "rank": 0,
+            "prediction_step": 255,
+            "query_token_position": 90054,
+            "generated_inputs_consumed": 254,
+            "shared_prefix_end": 89760,
+            "document_token_range": [
+              34,
+              89770
+            ],
+            "private_document_tail_tokens": 10,
+            "physical_full_prefix_pages_match": true,
+            "hooked_kv_matches_actual_cache": true,
+            "actual_scheduled_request_ids": [
+              "1-8778da93",
+              "2-9ef21ead",
+              "3-bae46a2d"
+            ],
+            "query_start_loc": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "ready_group_anchor_step": 256,
+            "same_event_query_positions": [
+              [
+                90056
+              ],
+              [
+                90054
+              ],
+              [
+                90049
+              ]
+            ],
+            "sequence_lengths": [
+              90057,
+              90055,
+              90050
+            ],
+            "slot_mapping": [
+              90918
+            ],
+            "monotonic": 4584721.473719026
+          }
+        },
+        {
+          "name": "decode_q2_l15_s256.pt",
+          "sha256": "3ac15319486f228c4b29e2be0fa2d17e36a77a04f0c6b99fb47909ca35850e2b",
+          "bytes": 304196,
+          "schema": {
+            "query": {
+              "shape": [
+                1,
+                16,
+                1,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_k": {
+              "shape": [
+                1,
+                2,
+                290,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_v": {
+              "shape": [
+                1,
+                2,
+                290,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            }
+          },
+          "metadata": {
+            "request_id": "3-bae46a2d",
+            "question_index": 2,
+            "prompt_length": 89797,
+            "prompt_token_sha256": "b394863903a018adf6baacc6b98d8f824877b495676e278449de527d4d9c50ec",
+            "phase": "apc_warm_natural_group",
+            "layer": 15,
+            "rank": 0,
+            "prediction_step": 254,
+            "query_token_position": 90049,
+            "generated_inputs_consumed": 253,
+            "shared_prefix_end": 89760,
+            "document_token_range": [
+              34,
+              89770
+            ],
+            "private_document_tail_tokens": 10,
+            "physical_full_prefix_pages_match": true,
+            "hooked_kv_matches_actual_cache": true,
+            "actual_scheduled_request_ids": [
+              "1-8778da93",
+              "2-9ef21ead",
+              "3-bae46a2d"
+            ],
+            "query_start_loc": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "ready_group_anchor_step": 256,
+            "same_event_query_positions": [
+              [
+                90056
+              ],
+              [
+                90054
+              ],
+              [
+                90049
+              ]
+            ],
+            "sequence_lengths": [
+              90057,
+              90055,
+              90050
+            ],
+            "slot_mapping": [
+              90929
+            ],
+            "monotonic": 4584721.474912736
+          }
+        }
+      ]
+    },
+    {
+      "id": "publicdev6_256",
+      "directory": "results/captures/main30b_tp2_publicdev6_256_suffix_v2/rank0",
+      "metadata_sha256": "b02af458bfb492deb1fac3b956131c45c29ce0cd55845175d544c160db838740",
+      "document_sha256": "1de35dc1f087296d3992a6fb656ffec31579737352a3f71b11eb55d35863fdb6",
+      "expected_B": 4,
+      "selectors": [
+        {
+          "name": "selector_q0_l15.pt",
+          "sha256": "f609ab09654a6a9d20e70b48b11d6e3af65ad3447d86f827605b3c3c0f15f069",
+          "bytes": 2903225
+        },
+        {
+          "name": "selector_q1_l15.pt",
+          "sha256": "828f7929806a6e1e938b6cdd535bd6b88c8a035d986cb3200463101a1cfa2cff",
+          "bytes": 2906425
+        },
+        {
+          "name": "selector_q2_l15.pt",
+          "sha256": "b4411d136ded2134b0a8cd38ec894394f962d7e4fc2439f531a7e0b11ac4e2da",
+          "bytes": 2873593
+        },
+        {
+          "name": "selector_q3_l15.pt",
+          "sha256": "e28c8adfa3852a272cc2d32192177d6eb22694a4e37f33270999c14697097725",
+          "bytes": 2906425
+        }
+      ],
+      "source_file": {
+        "name": "source_l15.pt",
+        "sha256": "2b6f6ec10342614c139c27af2760ed1015703579023471d12028b0a1713da46b",
+        "bytes": 177424445,
+        "schema": {
+          "prefix_k": {
+            "shape": [
+              1,
+              2,
+              34,
+              128
+            ],
+            "dtype": "torch.bfloat16"
+          },
+          "prefix_v": {
+            "shape": [
+              1,
+              2,
+              34,
+              128
+            ],
+            "dtype": "torch.bfloat16"
+          },
+          "document_k": {
+            "shape": [
+              1,
+              2,
+              173230,
+              128
+            ],
+            "dtype": "torch.bfloat16"
+          },
+          "document_v": {
+            "shape": [
+              1,
+              2,
+              173230,
+              128
+            ],
+            "dtype": "torch.bfloat16"
+          }
+        }
+      },
+      "decode_files": [
+        {
+          "name": "decode_q0_l15_s16.pt",
+          "sha256": "a6ce354b037c3cc1e02d68f3816d55121172013126a87cd3ad5423bc57c17cd0",
+          "bytes": 56379,
+          "schema": {
+            "query": {
+              "shape": [
+                1,
+                16,
+                1,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_k": {
+              "shape": [
+                1,
+                2,
+                48,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_v": {
+              "shape": [
+                1,
+                2,
+                48,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            }
+          },
+          "metadata": {
+            "request_id": "1-a73ec262",
+            "question_index": 0,
+            "prompt_length": 173297,
+            "prompt_token_sha256": "09e9b832bd1e96b2cba999c715ed96069ce868cb7e8d13c74bbae48385997f3c",
+            "phase": "apc_warm_natural_group",
+            "layer": 15,
+            "rank": 0,
+            "prediction_step": 16,
+            "query_token_position": 173311,
+            "generated_inputs_consumed": 15,
+            "shared_prefix_end": 173264,
+            "document_token_range": [
+              34,
+              173266
+            ],
+            "private_document_tail_tokens": 2,
+            "physical_full_prefix_pages_match": true,
+            "hooked_kv_matches_actual_cache": true,
+            "actual_scheduled_request_ids": [
+              "1-a73ec262",
+              "2-b5e40bc0",
+              "3-bcc40b17",
+              "4-a13945c8"
+            ],
+            "query_start_loc": [
+              0,
+              1,
+              2,
+              3,
+              4
+            ],
+            "ready_group_anchor_step": 16,
+            "same_event_query_positions": [
+              [
+                173311
+              ],
+              [
+                173322
+              ],
+              [
+                173302
+              ],
+              [
+                173327
+              ]
+            ],
+            "sequence_lengths": [
+              173312,
+              173323,
+              173303,
+              173328
+            ],
+            "slot_mapping": [
+              173583
+            ],
+            "monotonic": 4584732.386970454
+          }
+        },
+        {
+          "name": "decode_q1_l15_s16.pt",
+          "sha256": "39240b8a0569f8f3a6c36e79dcfb90faf743c60c878e0b4876780734364166cb",
+          "bytes": 67643,
+          "schema": {
+            "query": {
+              "shape": [
+                1,
+                16,
+                1,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_k": {
+              "shape": [
+                1,
+                2,
+                59,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_v": {
+              "shape": [
+                1,
+                2,
+                59,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            }
+          },
+          "metadata": {
+            "request_id": "2-b5e40bc0",
+            "question_index": 1,
+            "prompt_length": 173310,
+            "prompt_token_sha256": "7ab13e9e36793f4dce308b89ca139d7d9be9f20428cce111b193b75edf502169",
+            "phase": "apc_warm_natural_group",
+            "layer": 15,
+            "rank": 0,
+            "prediction_step": 14,
+            "query_token_position": 173322,
+            "generated_inputs_consumed": 13,
+            "shared_prefix_end": 173264,
+            "document_token_range": [
+              34,
+              173266
+            ],
+            "private_document_tail_tokens": 2,
+            "physical_full_prefix_pages_match": true,
+            "hooked_kv_matches_actual_cache": true,
+            "actual_scheduled_request_ids": [
+              "1-a73ec262",
+              "2-b5e40bc0",
+              "3-bcc40b17",
+              "4-a13945c8"
+            ],
+            "query_start_loc": [
+              0,
+              1,
+              2,
+              3,
+              4
+            ],
+            "ready_group_anchor_step": 16,
+            "same_event_query_positions": [
+              [
+                173311
+              ],
+              [
+                173322
+              ],
+              [
+                173302
+              ],
+              [
+                173327
+              ]
+            ],
+            "sequence_lengths": [
+              173312,
+              173323,
+              173303,
+              173328
+            ],
+            "slot_mapping": [
+              173738
+            ],
+            "monotonic": 4584732.387940914
+          }
+        },
+        {
+          "name": "decode_q2_l15_s16.pt",
+          "sha256": "97848916c86941c407819677f6ec7930999801dcc8b476815e0e405f20b7484b",
+          "bytes": 47163,
+          "schema": {
+            "query": {
+              "shape": [
+                1,
+                16,
+                1,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_k": {
+              "shape": [
+                1,
+                2,
+                39,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_v": {
+              "shape": [
+                1,
+                2,
+                39,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            }
+          },
+          "metadata": {
+            "request_id": "3-bcc40b17",
+            "question_index": 2,
+            "prompt_length": 173290,
+            "prompt_token_sha256": "f8c1b0365d24038f72dc8541603cd927bdb1442d87ad95b05ba1cf67eb6c65bc",
+            "phase": "apc_warm_natural_group",
+            "layer": 15,
+            "rank": 0,
+            "prediction_step": 14,
+            "query_token_position": 173302,
+            "generated_inputs_consumed": 13,
+            "shared_prefix_end": 173264,
+            "document_token_range": [
+              34,
+              173266
+            ],
+            "private_document_tail_tokens": 2,
+            "physical_full_prefix_pages_match": true,
+            "hooked_kv_matches_actual_cache": true,
+            "actual_scheduled_request_ids": [
+              "1-a73ec262",
+              "2-b5e40bc0",
+              "3-bcc40b17",
+              "4-a13945c8"
+            ],
+            "query_start_loc": [
+              0,
+              1,
+              2,
+              3,
+              4
+            ],
+            "ready_group_anchor_step": 16,
+            "same_event_query_positions": [
+              [
+                173311
+              ],
+              [
+                173322
+              ],
+              [
+                173302
+              ],
+              [
+                173327
+              ]
+            ],
+            "sequence_lengths": [
+              173312,
+              173323,
+              173303,
+              173328
+            ],
+            "slot_mapping": [
+              173750
+            ],
+            "monotonic": 4584732.388914908
+          }
+        },
+        {
+          "name": "decode_q3_l15_s16.pt",
+          "sha256": "8d34c27a06cdafbc9f15d8e150aab06eec18fef37723d0405f691f1014aacebf",
+          "bytes": 72763,
+          "schema": {
+            "query": {
+              "shape": [
+                1,
+                16,
+                1,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_k": {
+              "shape": [
+                1,
+                2,
+                64,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_v": {
+              "shape": [
+                1,
+                2,
+                64,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            }
+          },
+          "metadata": {
+            "request_id": "4-a13945c8",
+            "question_index": 3,
+            "prompt_length": 173315,
+            "prompt_token_sha256": "ed3c5ac1f1a745f765e7530e5a3fe88f405c5cb209a0285b3f231b2b60b452d6",
+            "phase": "apc_warm_natural_group",
+            "layer": 15,
+            "rank": 0,
+            "prediction_step": 14,
+            "query_token_position": 173327,
+            "generated_inputs_consumed": 13,
+            "shared_prefix_end": 173264,
+            "document_token_range": [
+              34,
+              173266
+            ],
+            "private_document_tail_tokens": 2,
+            "physical_full_prefix_pages_match": true,
+            "hooked_kv_matches_actual_cache": true,
+            "actual_scheduled_request_ids": [
+              "1-a73ec262",
+              "2-b5e40bc0",
+              "3-bcc40b17",
+              "4-a13945c8"
+            ],
+            "query_start_loc": [
+              0,
+              1,
+              2,
+              3,
+              4
+            ],
+            "ready_group_anchor_step": 16,
+            "same_event_query_positions": [
+              [
+                173311
+              ],
+              [
+                173322
+              ],
+              [
+                173302
+              ],
+              [
+                173327
+              ]
+            ],
+            "sequence_lengths": [
+              173312,
+              173323,
+              173303,
+              173328
+            ],
+            "slot_mapping": [
+              173727
+            ],
+            "monotonic": 4584732.389892842
+          }
+        },
+        {
+          "name": "decode_q0_l15_s64.pt",
+          "sha256": "511c71958a60613429a3eeae4ec77199e2ebe4535583a6c784340dba31b4a93f",
+          "bytes": 105531,
+          "schema": {
+            "query": {
+              "shape": [
+                1,
+                16,
+                1,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_k": {
+              "shape": [
+                1,
+                2,
+                96,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_v": {
+              "shape": [
+                1,
+                2,
+                96,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            }
+          },
+          "metadata": {
+            "request_id": "1-a73ec262",
+            "question_index": 0,
+            "prompt_length": 173297,
+            "prompt_token_sha256": "09e9b832bd1e96b2cba999c715ed96069ce868cb7e8d13c74bbae48385997f3c",
+            "phase": "apc_warm_natural_group",
+            "layer": 15,
+            "rank": 0,
+            "prediction_step": 64,
+            "query_token_position": 173359,
+            "generated_inputs_consumed": 63,
+            "shared_prefix_end": 173264,
+            "document_token_range": [
+              34,
+              173266
+            ],
+            "private_document_tail_tokens": 2,
+            "physical_full_prefix_pages_match": true,
+            "hooked_kv_matches_actual_cache": true,
+            "actual_scheduled_request_ids": [
+              "1-a73ec262",
+              "2-b5e40bc0",
+              "3-bcc40b17",
+              "4-a13945c8"
+            ],
+            "query_start_loc": [
+              0,
+              1,
+              2,
+              3,
+              4
+            ],
+            "ready_group_anchor_step": 64,
+            "same_event_query_positions": [
+              [
+                173359
+              ],
+              [
+                173370
+              ],
+              [
+                173350
+              ],
+              [
+                173375
+              ]
+            ],
+            "sequence_lengths": [
+              173360,
+              173371,
+              173351,
+              173376
+            ],
+            "slot_mapping": [
+              173903
+            ],
+            "monotonic": 4584736.160303317
+          }
+        },
+        {
+          "name": "decode_q1_l15_s64.pt",
+          "sha256": "21211f76b7a9047edb209f33df2059ba1846ab1c331d068e2585eb9c3afbd39b",
+          "bytes": 116795,
+          "schema": {
+            "query": {
+              "shape": [
+                1,
+                16,
+                1,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_k": {
+              "shape": [
+                1,
+                2,
+                107,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_v": {
+              "shape": [
+                1,
+                2,
+                107,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            }
+          },
+          "metadata": {
+            "request_id": "2-b5e40bc0",
+            "question_index": 1,
+            "prompt_length": 173310,
+            "prompt_token_sha256": "7ab13e9e36793f4dce308b89ca139d7d9be9f20428cce111b193b75edf502169",
+            "phase": "apc_warm_natural_group",
+            "layer": 15,
+            "rank": 0,
+            "prediction_step": 62,
+            "query_token_position": 173370,
+            "generated_inputs_consumed": 61,
+            "shared_prefix_end": 173264,
+            "document_token_range": [
+              34,
+              173266
+            ],
+            "private_document_tail_tokens": 2,
+            "physical_full_prefix_pages_match": true,
+            "hooked_kv_matches_actual_cache": true,
+            "actual_scheduled_request_ids": [
+              "1-a73ec262",
+              "2-b5e40bc0",
+              "3-bcc40b17",
+              "4-a13945c8"
+            ],
+            "query_start_loc": [
+              0,
+              1,
+              2,
+              3,
+              4
+            ],
+            "ready_group_anchor_step": 64,
+            "same_event_query_positions": [
+              [
+                173359
+              ],
+              [
+                173370
+              ],
+              [
+                173350
+              ],
+              [
+                173375
+              ]
+            ],
+            "sequence_lengths": [
+              173360,
+              173371,
+              173351,
+              173376
+            ],
+            "slot_mapping": [
+              173930
+            ],
+            "monotonic": 4584736.161353355
+          }
+        },
+        {
+          "name": "decode_q2_l15_s64.pt",
+          "sha256": "947aa56970192abdb162b2fbdf2424147d0947cc5981ed0dc9ae447665047ebf",
+          "bytes": 96315,
+          "schema": {
+            "query": {
+              "shape": [
+                1,
+                16,
+                1,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_k": {
+              "shape": [
+                1,
+                2,
+                87,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_v": {
+              "shape": [
+                1,
+                2,
+                87,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            }
+          },
+          "metadata": {
+            "request_id": "3-bcc40b17",
+            "question_index": 2,
+            "prompt_length": 173290,
+            "prompt_token_sha256": "f8c1b0365d24038f72dc8541603cd927bdb1442d87ad95b05ba1cf67eb6c65bc",
+            "phase": "apc_warm_natural_group",
+            "layer": 15,
+            "rank": 0,
+            "prediction_step": 62,
+            "query_token_position": 173350,
+            "generated_inputs_consumed": 61,
+            "shared_prefix_end": 173264,
+            "document_token_range": [
+              34,
+              173266
+            ],
+            "private_document_tail_tokens": 2,
+            "physical_full_prefix_pages_match": true,
+            "hooked_kv_matches_actual_cache": true,
+            "actual_scheduled_request_ids": [
+              "1-a73ec262",
+              "2-b5e40bc0",
+              "3-bcc40b17",
+              "4-a13945c8"
+            ],
+            "query_start_loc": [
+              0,
+              1,
+              2,
+              3,
+              4
+            ],
+            "ready_group_anchor_step": 64,
+            "same_event_query_positions": [
+              [
+                173359
+              ],
+              [
+                173370
+              ],
+              [
+                173350
+              ],
+              [
+                173375
+              ]
+            ],
+            "sequence_lengths": [
+              173360,
+              173371,
+              173351,
+              173376
+            ],
+            "slot_mapping": [
+              173942
+            ],
+            "monotonic": 4584736.162401152
+          }
+        },
+        {
+          "name": "decode_q3_l15_s64.pt",
+          "sha256": "4897aba4fe5d1bac14e116881ef44412254d36346614ed47d5850a38a59d5dfd",
+          "bytes": 121915,
+          "schema": {
+            "query": {
+              "shape": [
+                1,
+                16,
+                1,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_k": {
+              "shape": [
+                1,
+                2,
+                112,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_v": {
+              "shape": [
+                1,
+                2,
+                112,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            }
+          },
+          "metadata": {
+            "request_id": "4-a13945c8",
+            "question_index": 3,
+            "prompt_length": 173315,
+            "prompt_token_sha256": "ed3c5ac1f1a745f765e7530e5a3fe88f405c5cb209a0285b3f231b2b60b452d6",
+            "phase": "apc_warm_natural_group",
+            "layer": 15,
+            "rank": 0,
+            "prediction_step": 62,
+            "query_token_position": 173375,
+            "generated_inputs_consumed": 61,
+            "shared_prefix_end": 173264,
+            "document_token_range": [
+              34,
+              173266
+            ],
+            "private_document_tail_tokens": 2,
+            "physical_full_prefix_pages_match": true,
+            "hooked_kv_matches_actual_cache": true,
+            "actual_scheduled_request_ids": [
+              "1-a73ec262",
+              "2-b5e40bc0",
+              "3-bcc40b17",
+              "4-a13945c8"
+            ],
+            "query_start_loc": [
+              0,
+              1,
+              2,
+              3,
+              4
+            ],
+            "ready_group_anchor_step": 64,
+            "same_event_query_positions": [
+              [
+                173359
+              ],
+              [
+                173370
+              ],
+              [
+                173350
+              ],
+              [
+                173375
+              ]
+            ],
+            "sequence_lengths": [
+              173360,
+              173371,
+              173351,
+              173376
+            ],
+            "slot_mapping": [
+              173919
+            ],
+            "monotonic": 4584736.163406132
+          }
+        },
+        {
+          "name": "decode_q0_l15_s256.pt",
+          "sha256": "edcb70ebc3c11226aa8476fd6d6d031948e1982224e06de74752cb49e22f35cb",
+          "bytes": 302212,
+          "schema": {
+            "query": {
+              "shape": [
+                1,
+                16,
+                1,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_k": {
+              "shape": [
+                1,
+                2,
+                288,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_v": {
+              "shape": [
+                1,
+                2,
+                288,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            }
+          },
+          "metadata": {
+            "request_id": "1-a73ec262",
+            "question_index": 0,
+            "prompt_length": 173297,
+            "prompt_token_sha256": "09e9b832bd1e96b2cba999c715ed96069ce868cb7e8d13c74bbae48385997f3c",
+            "phase": "apc_warm_natural_group",
+            "layer": 15,
+            "rank": 0,
+            "prediction_step": 256,
+            "query_token_position": 173551,
+            "generated_inputs_consumed": 255,
+            "shared_prefix_end": 173264,
+            "document_token_range": [
+              34,
+              173266
+            ],
+            "private_document_tail_tokens": 2,
+            "physical_full_prefix_pages_match": true,
+            "hooked_kv_matches_actual_cache": true,
+            "actual_scheduled_request_ids": [
+              "1-a73ec262",
+              "2-b5e40bc0",
+              "3-bcc40b17",
+              "4-a13945c8"
+            ],
+            "query_start_loc": [
+              0,
+              1,
+              2,
+              3,
+              4
+            ],
+            "ready_group_anchor_step": 256,
+            "same_event_query_positions": [
+              [
+                173551
+              ],
+              [
+                173562
+              ],
+              [
+                173542
+              ],
+              [
+                173567
+              ]
+            ],
+            "sequence_lengths": [
+              173552,
+              173563,
+              173543,
+              173568
+            ],
+            "slot_mapping": [
+              174671
+            ],
+            "monotonic": 4584751.194422802
+          }
+        },
+        {
+          "name": "decode_q1_l15_s256.pt",
+          "sha256": "a991fd6bec81cda554c716a7c13ed561706a3a62ccd206f1f00b38c7bf291599",
+          "bytes": 313476,
+          "schema": {
+            "query": {
+              "shape": [
+                1,
+                16,
+                1,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_k": {
+              "shape": [
+                1,
+                2,
+                299,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_v": {
+              "shape": [
+                1,
+                2,
+                299,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            }
+          },
+          "metadata": {
+            "request_id": "2-b5e40bc0",
+            "question_index": 1,
+            "prompt_length": 173310,
+            "prompt_token_sha256": "7ab13e9e36793f4dce308b89ca139d7d9be9f20428cce111b193b75edf502169",
+            "phase": "apc_warm_natural_group",
+            "layer": 15,
+            "rank": 0,
+            "prediction_step": 254,
+            "query_token_position": 173562,
+            "generated_inputs_consumed": 253,
+            "shared_prefix_end": 173264,
+            "document_token_range": [
+              34,
+              173266
+            ],
+            "private_document_tail_tokens": 2,
+            "physical_full_prefix_pages_match": true,
+            "hooked_kv_matches_actual_cache": true,
+            "actual_scheduled_request_ids": [
+              "1-a73ec262",
+              "2-b5e40bc0",
+              "3-bcc40b17",
+              "4-a13945c8"
+            ],
+            "query_start_loc": [
+              0,
+              1,
+              2,
+              3,
+              4
+            ],
+            "ready_group_anchor_step": 256,
+            "same_event_query_positions": [
+              [
+                173551
+              ],
+              [
+                173562
+              ],
+              [
+                173542
+              ],
+              [
+                173567
+              ]
+            ],
+            "sequence_lengths": [
+              173552,
+              173563,
+              173543,
+              173568
+            ],
+            "slot_mapping": [
+              174698
+            ],
+            "monotonic": 4584751.195622859
+          }
+        },
+        {
+          "name": "decode_q2_l15_s256.pt",
+          "sha256": "e8d8f768d363f3e5568d479dd26e7ba9509385b3262f0ab56367dac563b94f02",
+          "bytes": 292996,
+          "schema": {
+            "query": {
+              "shape": [
+                1,
+                16,
+                1,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_k": {
+              "shape": [
+                1,
+                2,
+                279,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_v": {
+              "shape": [
+                1,
+                2,
+                279,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            }
+          },
+          "metadata": {
+            "request_id": "3-bcc40b17",
+            "question_index": 2,
+            "prompt_length": 173290,
+            "prompt_token_sha256": "f8c1b0365d24038f72dc8541603cd927bdb1442d87ad95b05ba1cf67eb6c65bc",
+            "phase": "apc_warm_natural_group",
+            "layer": 15,
+            "rank": 0,
+            "prediction_step": 254,
+            "query_token_position": 173542,
+            "generated_inputs_consumed": 253,
+            "shared_prefix_end": 173264,
+            "document_token_range": [
+              34,
+              173266
+            ],
+            "private_document_tail_tokens": 2,
+            "physical_full_prefix_pages_match": true,
+            "hooked_kv_matches_actual_cache": true,
+            "actual_scheduled_request_ids": [
+              "1-a73ec262",
+              "2-b5e40bc0",
+              "3-bcc40b17",
+              "4-a13945c8"
+            ],
+            "query_start_loc": [
+              0,
+              1,
+              2,
+              3,
+              4
+            ],
+            "ready_group_anchor_step": 256,
+            "same_event_query_positions": [
+              [
+                173551
+              ],
+              [
+                173562
+              ],
+              [
+                173542
+              ],
+              [
+                173567
+              ]
+            ],
+            "sequence_lengths": [
+              173552,
+              173563,
+              173543,
+              173568
+            ],
+            "slot_mapping": [
+              174710
+            ],
+            "monotonic": 4584751.196801088
+          }
+        },
+        {
+          "name": "decode_q3_l15_s256.pt",
+          "sha256": "4061507b38db99da20bab11ab53c91f5d6bb0f1c311e1fdf3225be120297d4c2",
+          "bytes": 318596,
+          "schema": {
+            "query": {
+              "shape": [
+                1,
+                16,
+                1,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_k": {
+              "shape": [
+                1,
+                2,
+                304,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            },
+            "private_suffix_v": {
+              "shape": [
+                1,
+                2,
+                304,
+                128
+              ],
+              "dtype": "torch.bfloat16"
+            }
+          },
+          "metadata": {
+            "request_id": "4-a13945c8",
+            "question_index": 3,
+            "prompt_length": 173315,
+            "prompt_token_sha256": "ed3c5ac1f1a745f765e7530e5a3fe88f405c5cb209a0285b3f231b2b60b452d6",
+            "phase": "apc_warm_natural_group",
+            "layer": 15,
+            "rank": 0,
+            "prediction_step": 254,
+            "query_token_position": 173567,
+            "generated_inputs_consumed": 253,
+            "shared_prefix_end": 173264,
+            "document_token_range": [
+              34,
+              173266
+            ],
+            "private_document_tail_tokens": 2,
+            "physical_full_prefix_pages_match": true,
+            "hooked_kv_matches_actual_cache": true,
+            "actual_scheduled_request_ids": [
+              "1-a73ec262",
+              "2-b5e40bc0",
+              "3-bcc40b17",
+              "4-a13945c8"
+            ],
+            "query_start_loc": [
+              0,
+              1,
+              2,
+              3,
+              4
+            ],
+            "ready_group_anchor_step": 256,
+            "same_event_query_positions": [
+              [
+                173551
+              ],
+              [
+                173562
+              ],
+              [
+                173542
+              ],
+              [
+                173567
+              ]
+            ],
+            "sequence_lengths": [
+              173552,
+              173563,
+              173543,
+              173568
+            ],
+            "slot_mapping": [
+              174687
+            ],
+            "monotonic": 4584751.198169953
+          }
+        }
+      ]
+    }
+  ]
+}
