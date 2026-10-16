@@ -39,8 +39,7 @@ class Attention:
         self.l = torch.empty_like(self.m)
         self.output = torch.empty((heads, plan.rows, 128), dtype=torch.bfloat16, device=device)
         self.lse = torch.empty((heads, plan.rows), dtype=torch.float32, device=device)
-        self._metadata_versions = {name: getattr(plan, name)._version for name in ("offsets", "counts", "row_map")}
-        self._labels = tuple(plan.labels)
+        self._freeze_plan_topology()
         buffers = {"packed_U": self.u, "packed_M": self.m, "packed_L": self.l,
                    "task_descriptors": self.tasks, "merge_indices": self.merge_indices,
                    "contribution_counts": self.contribution_counts, "output": self.output, "LSE": self.lse}
@@ -60,14 +59,39 @@ class Attention:
                          "merge_streaming_group": 16,
                          "structure_sha256": layout["structure_sha256"],
                          "payload_aliases_source": True,
-                         "graph_topology_contract": "Q/K/V/Indices values may change in place. Offsets/labels/counts/row_map changes require rebuild and graph recapture. graph.replay bypasses host version checks; callers must enforce this contract."}
+                         "graph_topology_contract": "Q/K/V and original Indices values may change in place. Replacing the plan or any plan tensor, changing tensor storage/layout, or changing offsets/labels/counts/row_map requires rebuild and graph recapture. graph.replay bypasses host identity/version checks; callers must enforce this contract."}
         torch.cuda.synchronize(device)
         self.prepare_ms = (time.perf_counter()-started)*1000
 
+    def _freeze_plan_topology(self):
+        # Strong references prevent tensor-id/address reuse from masking replacement.
+        self._original_plan = self.plan
+        self._plan_tensors = {name: getattr(self.plan, name)
+                              for name in ("indices", "offsets", "counts", "row_map")}
+        self._plan_tensor_ptrs = {name: tensor.data_ptr() for name, tensor in self._plan_tensors.items()}
+        self._plan_tensor_layouts = {
+            name: (tuple(tensor.shape), tuple(tensor.stride()), tensor.storage_offset(), tensor.device, tensor.dtype)
+            for name, tensor in self._plan_tensors.items()}
+        self._metadata_versions = {name: self._plan_tensors[name]._version
+                                   for name in ("offsets", "counts", "row_map")}
+        self._labels = tuple(self.plan.labels)
+        self._plan_static_layout = self.plan.batch, self.plan.gqa, self.plan.rows
+
     def validate_plan(self):
-        if tuple(self.plan.labels) != self._labels or any(getattr(self.plan, name)._version != version
-                                                         for name, version in self._metadata_versions.items()):
-            raise RuntimeError("Owner-task topology metadata changed: rebuild Attention outside replay and recapture the graph")
+        message = "Owner-task topology metadata changed: rebuild Attention outside replay and recapture the graph"
+        if self.plan is not self._original_plan:
+            raise RuntimeError(message)
+        if ((self.plan.batch, self.plan.gqa, self.plan.rows) != self._plan_static_layout
+                or tuple(self.plan.labels) != self._labels):
+            raise RuntimeError(message)
+        for name, original in self._plan_tensors.items():
+            tensor = getattr(self.plan, name, None)
+            if (tensor is not original or tensor.data_ptr() != self._plan_tensor_ptrs[name]
+                    or (tuple(tensor.shape), tuple(tensor.stride()), tensor.storage_offset(), tensor.device, tensor.dtype)
+                    != self._plan_tensor_layouts[name]):
+                raise RuntimeError(message)
+        if any(self._plan_tensors[name]._version != version for name, version in self._metadata_versions.items()):
+            raise RuntimeError(message)
 
     def __call__(self, q, k, v):
         self.validate_plan()

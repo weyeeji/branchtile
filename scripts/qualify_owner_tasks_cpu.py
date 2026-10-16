@@ -132,18 +132,47 @@ def check_case(batch, name, chunk):
 def version_guard_check():
     tree = ast.parse((ROOT / "src/branchtile/attention_owner_tasks.py").read_text())
     cls = next(node for node in tree.body if isinstance(node, ast.ClassDef) and node.name == "Attention")
-    method = next(node for node in cls.body if isinstance(node, ast.FunctionDef) and node.name == "validate_plan")
+    methods = [node for node in cls.body if isinstance(node, ast.FunctionDef)
+               and node.name in ("_freeze_plan_topology", "validate_plan")]
     scope = {}
-    exec(compile(ast.Module(body=[method], type_ignores=[]), "owner_task_version_guard", "exec"), scope)
-    plan = SimpleNamespace(labels=[1], **{name: SimpleNamespace(_version=0) for name in ("offsets", "counts", "row_map")})
-    op = SimpleNamespace(plan=plan, _labels=(1,), _metadata_versions={name: 0 for name in ("offsets", "counts", "row_map")})
-    scope["validate_plan"](op)
-    plan.offsets._version = 1
-    try:
+    exec(compile(ast.Module(body=methods, type_ignores=[]), "owner_task_version_guard", "exec"), scope)
+    class HostTensor:
+        def __init__(self, pointer):
+            self._version, self.pointer = 0, pointer
+            self.shape, self.device, self.dtype = (2, 16), "cpu", "int32"
+        def data_ptr(self):
+            return self.pointer
+        def stride(self):
+            return (16, 1)
+        def storage_offset(self):
+            return 0
+    def fresh():
+        plan = SimpleNamespace(labels=[1], batch=3, gqa=8, rows=24,
+                               **{name: HostTensor(i+1) for i, name in enumerate(("indices", "offsets", "counts", "row_map"))})
+        op = SimpleNamespace(plan=plan)
+        scope["_freeze_plan_topology"](op)
         scope["validate_plan"](op)
-    except RuntimeError:
-        return True
-    raise AssertionError("Stale topology was accepted")
+        return op
+    changes = [lambda op: setattr(op.plan.offsets, "_version", 1),
+               lambda op: setattr(op.plan, "row_map", HostTensor(4)),
+               lambda op: setattr(op, "plan", SimpleNamespace(**vars(op.plan))),
+               lambda op: setattr(op.plan, "indices", HostTensor(1)),
+               lambda op: setattr(op.plan.indices, "shape", (1, 32)),
+               lambda op: setattr(op.plan.indices, "pointer", 999),
+               lambda op: setattr(op.plan, "batch", 4),
+               lambda op: setattr(op.plan, "labels", [2])]
+    for change in changes:
+        op = fresh()
+        change(op)
+        try:
+            scope["validate_plan"](op)
+        except RuntimeError:
+            continue
+        raise AssertionError("Changed topology or tensor replacement was accepted")
+    op = fresh()
+    op.plan.indices._version += 1  # Indices values are allowed to change in place.
+    scope["validate_plan"](op)
+    return True
 
 
 def invalid_metadata_checks():
