@@ -50,7 +50,7 @@ def main():
   'all_reported_five_case_checks_pass':True,'exhaustive_CPU_resume_geometry_cases':geometry,
   'CPU_prospective_pair_MMA_active_mapping_count':mapping,'CPU_prospective_pair_row_scalar_map':scalars,
   'limitations':['GPU equality used torch.equal on BF16, which does not distinguish signed zero. Strict int16-view equality remains needed.',
-  'Only B8/S10 and short ~4K histories; at most two native sequence iterations per split.',
+  'Only B8/S10 and short ~4K histories; nonempty-checkpoint cases have at most two native sequence iterations per split (zero-checkpoint cases reach three).',
   'Prefix16 and prefix0 both checkpoint zero tiles; partial-empty-checkpoint geometry lacks a GPU case.',
   'Graph replay used unchanged inputs once; dynamic same-address replay not tested.',
   'No cross-request sharing, performance or whole-model evidence.',

@@ -23,7 +23,7 @@ An independent symbolic CPU check exhausts 4,096 active accumulator coordinates 
 ## Coverage gaps to close in the next independent runner
 
 - Existing `torch.equal` comparisons operate on BF16 values, so +0 and -0 compare equal. Use `.view(torch.int16)` for the next strict bitwise gate. This does not imply an observed signed-zero mismatch in the frozen result.
-- All five GPU cases use B8/S10 and roughly 4K histories, with at most two sequence iterations per split. Prefix 16 is rounded to the same zero-tile checkpoint as prefix 0. Add prefix 256 or 768 to exercise a mixture of empty and nonempty checkpoints, and actual 120K history for many hint updates.
+- All five GPU cases use B8/S10 and roughly 4K histories, with at most two sequence iterations per split in the nonempty-checkpoint cases (zero-checkpoint cases reach three). Prefix 16 is rounded to the same zero-tile checkpoint as prefix 0. Add prefix 256 or 768 to exercise a mixture of empty and nonempty checkpoints, and actual 120K history for many hint updates.
 - The graph replay uses unchanged inputs once. Mutate Q, physical page bindings and unequal lengths at the same addresses, then compare to fresh native output. This catches stale state and metadata dependency errors.
 - Existing cases include unequal tails, checkpoints on a 256-token boundary, a prefix only 16-token aligned and splits with no remaining tail. Keep these in the pair path, which introduces a different mapping and shared/private address contract. Add an all-shared/no-tail case and the first private tile crossing a 256-token boundary if not covered there.
 - Runtime candidate PDL is disabled. Native PDL-on/off matches in the five cases, but candidate PDL-on is unqualified. Retain the qualified mode until separately tested.
