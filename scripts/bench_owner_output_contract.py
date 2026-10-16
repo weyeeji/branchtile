@@ -6,6 +6,7 @@ This remains an operator diagnostic, not an engine or request speedup.
 import argparse
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import random
@@ -57,14 +58,25 @@ def main():
         value = fn()
         torch.testing.assert_close(value.float(), ref.float(), atol=.006, rtol=.015)
         checks[name] = {'max_O_abs_error': float((value.double()-ref).abs().max()), 'passed': True}
+    native_raw()
+    torch.testing.assert_close(native.lse.view(ref_lse.shape)*math.log(2), ref_lse.float(), atol=.0003, rtol=.0001)
+    _, native_ln = native.run()
+    torch.testing.assert_close(native_ln, ref_lse.float(), atol=.0003, rtol=.0001)
     actual, lse = owner(q, k, v)
     torch.testing.assert_close(lse, ref_lse.float(), atol=.0003, rtol=.0001)
-    flush = torch.zeros(max(256*1024*1024, 2*torch.cuda.get_device_properties(0).L2_cache_size), device='cuda')
+    flush = torch.zeros(max(256*1024*1024, 2*torch.cuda.get_device_properties(0).L2_cache_size), device='cuda', dtype=torch.uint8)
     rows, summaries = [], {}
     rng = random.Random(20261016)
     for cache, reps in [('hot', 20), ('cold', 1)]:
         graphs = {name: graph_of(fn, reps) for name, fn in methods.items()}
         graphs['native_O_only_AA'] = graph_of(native_o, reps)
+        for name, graph in graphs.items():
+            if cache == 'cold':
+                flush.add_(1)
+            graph.replay()
+            actual = owner.output if name.startswith('owner_') else native.out.view(q.shape)
+            torch.testing.assert_close(actual.float(), ref.float(), atol=.006, rtol=.015)
+            checks[cache+'_'+name] = {'graph_O_passed': True}
         for block in range(args.blocks):
             order = list(graphs)
             rng.shuffle(order)
@@ -85,6 +97,7 @@ def main():
     sources = ['scripts/bench_owner_output_contract.py', 'src/flashinfer_baseline.py',
                'src/branchtile/attention_owner_tasks.py', 'src/branchtile/triton_kernel_owner_tasks.py']
     report = {'status': 'completed', 'args': vars(args), 'provenance': provenance, 'checks': checks,
+              'flush_allocated_bytes': flush.numel()*flush.element_size(),
               'source_sha256': {s: hashlib.sha256((ROOT/s).read_bytes()).hexdigest() for s in sources},
               'summary': summaries, 'measurements': rows, 'uid': os.geteuid(), 'python': sys.executable,
               'scope': 'O-only application output contract diagnostic; native fixed TC=True, owner fixed C128/N64; no preparation in graph times.',
