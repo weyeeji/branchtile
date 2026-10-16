@@ -26,6 +26,10 @@ def main():
     p.add_argument('--max-model-len',type=int,default=98304)
     p.add_argument('--attention-backend',choices=['FLASH_ATTN','FLASHINFER'],default=None)
     args=p.parse_args();assert os.geteuid()!=0 and sys.prefix!=sys.base_prefix
+    requested_methods=args.methods.split(',')
+    assert set(requested_methods)<=set(('dense','e0','union')) and len(set(requested_methods))==len(requested_methods)
+    capture_methods=tuple(m for m in ('e0','union') if m in requested_methods)
+    assert capture_methods, 'Use benchmark_vllm_native_backend.py for native-only execution'
     from transformers import AutoTokenizer
     from vllm import LLM,SamplingParams
     from capture_model import make_inputs
@@ -71,7 +75,8 @@ def main():
     llm.generate([{'prompt_token_ids':inputs[0]}],warm,use_tqdm=False)
     generate_ready_group(llm,[{'prompt_token_ids':ids} for ids in inputs],warm)
     report['selector_dense_warmup_wall_seconds']=time.perf_counter()-started
-    report['graph_capture']=llm.collective_rpc('capture_sparse_graphs',args=(('e0','union'),));save()
+    report['requested_sparse_graph_methods']=list(capture_methods)
+    report['graph_capture']=llm.collective_rpc('capture_sparse_graphs',args=(capture_methods,));save()
     report['production_configuration']=llm.collective_rpc('enable_production_sparse');save()
     # Warm the same stochastic sampler before any measured arm. The historical
     # 4K run predates this step and keeps its first-dense JIT limitation.

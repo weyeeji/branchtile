@@ -28,6 +28,10 @@ def main():
     names=[s['name'] for s in specifications];assert len(names)==len(set(names))
     assert 1<=args.steps<=8192 and args.budget==protocol['budget']
     assert args.qualify == (protocol['mode']=='qualification')
+    assert args.steps==protocol['steps'], 'Use the frozen protocol generation cap'
+    if not args.qualify:
+        assert args.seed in protocol['seeds']
+        assert args.document_id in {d['document_id'] for d in protocol['documents']}
     if args.qualify:
         assert names==['independent','epsilon0','epsilon001','epsilon01']
         phases=[('independent_A','independent'),('epsilon0_A','epsilon0'),
@@ -41,6 +45,8 @@ def main():
     from scripts.vllm_batch_admission import generate_ready_group
     model='data/models/Qwen3-30B-A3B-Thinking-2507-FP8';manifest=ROOT/args.manifest
     group=next(g for g in json.loads(manifest.read_text())['groups'] if g['document_id']==args.document_id)
+    if not args.qualify:
+        assert group['document_sha256']==next(d['document_sha256'] for d in protocol['documents'] if d['document_id']==args.document_id)
     inputs,start,end=make_inputs(AutoTokenizer.from_pretrained(model,local_files_only=True),group)
     assert 1<=len(inputs)<=3 and max(map(len,inputs))+args.steps<=98304 and 36<=args.budget<=end-start
     out=Path(args.output);out.mkdir(parents=True,exist_ok=True)

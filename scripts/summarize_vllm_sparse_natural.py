@@ -66,8 +66,12 @@ def main():
                 'mixed_redundant_dense_layer_calls':sum(r['mixed_redundant_dense'] for r in meta['records']),
                 'by_batch':by_batch,'selector_summary':{k:v for k,v in meta.get('selector',{}).items() if k!='records'}})
         rows.append({'phase':run['phase'],'method':run['method'],'repeat':run['repeat'],
+            'variant':run.get('variant'),
             'complete_generate_wall_seconds':run['complete_generate_wall_seconds'],'dense_anchor_wall_seconds':run['anchor_wall_seconds'],
             'anchor_plus_generate_wall_seconds':run['anchor_wall_seconds']+run['complete_generate_wall_seconds'],
+            'variant_install_RPC_wall_seconds':run.get('variant_install_RPC_wall_seconds',0),
+            'anchor_install_generate_wall_seconds':run.get('anchor_install_generate_wall_seconds',run['anchor_wall_seconds']+run['complete_generate_wall_seconds']),
+            'audit_export_RPC_wall_seconds':run.get('audit_export_RPC_wall_seconds'),
             'all_natural_stop':all(a['finish_reason']=='stop' for a in answers),
             'any_cap_hit':any(a['finish_reason']=='length' for a in answers),'total_output_tokens':run['total_output_tokens'],
             'descriptive_output_tokens_per_wall_second':run['tokens_per_generate_wall_second'],
@@ -81,8 +85,19 @@ def main():
         'metric_protocol':'results/metric_calibration_docfinqa.md','independent_documents':1,'questions_per_run':len(questions),
         'pending_method_repeats':sorted(wanted-actual),'rows':rows,
         'budget':data['budget'],'budget_request':data.get('budget_request',str(data['budget'])),
-        'one_time_costs':{k:data.get(k) for k in ('generator_input_preparation_wall_seconds','initialization_wall_seconds','selector_dense_warmup_wall_seconds','stochastic_sampler_warmup_wall_seconds','graph_capture','production_configuration')},
+        'one_time_costs':{k:data.get(k) for k in ('generator_input_preparation_wall_seconds','initialization_wall_seconds','selector_dense_warmup_wall_seconds','stochastic_sampler_warmup_wall_seconds','graph_capture','production_configuration','joint_finalize_RPC_wall_seconds')},
         'limitations':data['limitations']+['FINAL exact/rounded match is not official execution accuracy or factual reasoning assessment.','Natural trajectories differ. Neither JCT ratio nor token/s ratio isolates executor speed or proves quality noninferiority.',('Stochastic sampler was warmed before all measured arms; warmup cost remains separate.' if 'stochastic_sampler_warmup_wall_seconds' in data else 'First dense run included previously unwarmed stochastic-sampler JIT, as recorded in the job log; no causal method speedup is inferred.'),'CPU preparation-start intervals include model and scheduler work, not synchronized kernel latency; rank intervals are not independent samples.']}
+    if 'frozen_variants' in data:
+        result['mask_policy']='Explicit different selection policies, same native E0 executor; cross-variant masks deliberately differ.'
+        result['variant_protocol']=data['variant_protocol']
+        result['variant_protocol_sha256']=data['variant_protocol_sha256']
+        result['one_time_costs']['joint_worker_preparation']=[{
+            'rank':r['rank'],'freeze_all_variants_wall_seconds':r['freeze_all_variants_wall_seconds'],
+            'shared_score_D2H_bytes':r['shared_score_D2H_bytes'],
+            'shared_score_transfer_and_copy_wall_seconds':r['shared_score_transfer_and_copy_wall_seconds'],
+            'variants':{name:{k:v.get(k) for k in ('enabled','CPU_finalize_wall_seconds','CPU_finalize_process_seconds',
+                'peak_retained_pending_score_bytes','retained_independent_mask_bytes')} for name,v in r['variants'].items()}
+            } for r in data['frozen_variants']]
     path=directory/'natural_execution_summary.json';path.write_text(json.dumps(result,indent=2,ensure_ascii=False)+'\n')
     print(json.dumps({'status':result['status'],'runs':[{'method':r['method'],'natural':r['all_natural_stop'],'tokens':r['total_output_tokens'],'wall':r['complete_generate_wall_seconds'],'exact':r['score']['exact_accuracy'],'rounded':r['score']['rounded_accuracy']} for r in rows]}))
 

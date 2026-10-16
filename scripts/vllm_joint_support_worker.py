@@ -52,6 +52,7 @@ class JointSupportWorkerExtension(ProductionSparseWorkerExtension):
         (state['output']/'joint_variants.json').write_text(json.dumps(result,indent=2)+'\n')
         return result
 
+    @torch.inference_mode()
     def install_joint_variant(self, name):
         state=self.sparse_state;started=time.perf_counter()
         assert name in state['joint_variants'] and state['graph_enabled']
