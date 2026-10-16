@@ -34,3 +34,11 @@ After successful current-source preparation, root may assign each task index 0, 
 ```
 
 A 2400-second limit per task is a conservative initial allocation; timeout/failure remains a result. `--setup-only` is an optional diagnostic that does not establish task benefit. The CPU test verifies provenance rejection (including the actual old qualification), transfer coverage, clearing ownership, unchanged computational hooks/capture, energy ordering, complete cost arithmetic and null preservation. It uses mock numerical receipts only and does not fabricate GPU evidence.
+
+The separate terminal auditor checks full source/generated CUDA provenance, exact training receipt bytes, transferred shape coverage, all eight ordered phase/doc records, per-rank stable cut pointers, monotonic document generations, physical-binding receipts and survivor guards, native S, actual native Q/O aliases, output/APC/trajectory identity, and independently recomputes setup and phase counter differences and first-task costs:
+
+```bash
+CUDA_VISIBLE_DEVICES='' .venv-engine/bin/python scripts/audit_raw_pair_next8_transfer_cpu.py --summary results/raw_pair_direct_next8_transfer_energy_v1/task0/summary.json --output results/raw_pair_direct_next8_transfer_energy_v1/task0_audit.json
+```
+
+Its structural/negative energy arithmetic checks pass without CUDA. Actual terminal auditing awaits completed GPU runs. Physical page arrays are not persisted by the worker; the audit checks executed binding receipts plus frozen source guards and must not be described as independent reconstruction of every physical page. Root's process/incident ledger separately governs GPU timing/energy exclusivity.
