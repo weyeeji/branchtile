@@ -70,7 +70,9 @@ def docfinqa_groups(path: Path) -> list[dict]:
         g["company_year_candidates"] = candidates
         g["identity_mapping_status"] = "unique_exact_question_match" if len(candidates) == 1 else "ambiguous_or_missing"
         g["company_year"] = candidates[0] if len(candidates) == 1 else None
-        g["company"] = candidates[0].rsplit("_", 1)[0] if len(candidates) == 1 else None
+        companies = sorted({c.rsplit("_", 1)[0] for c in candidates})
+        g["company"] = companies[0] if len(companies) == 1 else None
+        g["company_mapping_status"] = "unique_across_exact_question_matches" if len(companies) == 1 else "ambiguous_or_missing"
         qs = g.pop("questions_by_sha")
         g["natural_question_count"] = len(qs)
         g["questions"] = [qs[k] for k in sorted(qs)[:4]]
@@ -123,12 +125,107 @@ def freeze_groups(groups: list[dict], out: Path, split: str, count: int | None, 
             "lengths": [g["document_tokens"] for g in manifest]}
 
 
+def supplement_docfinqa_questions() -> None:
+    """Keep frozen documents and one exploratory representative; add exact-context QAs."""
+    import pyarrow.parquet as pq
+    manifest_path = ROOT / "data/manifests/docfinqa_exploratory_dev8.json"
+    original_path = manifest_path.with_name("docfinqa_exploratory_dev8_devquestions_v1.json")
+    if not original_path.exists():
+        original_path.write_bytes(manifest_path.read_bytes())
+    manifest = json.loads(original_path.read_text())
+    assert manifest.get("question_scope") != "all_official_splits_exact_context"
+    identities = finqa_identity()
+    revision = json.loads((ROOT / "results/data_docfinqa_parquet_revision.json").read_text())
+    expected = {item["name"].split("/")[1]: item["lfs"] for item in revision["files"] if item.get("lfs")}
+    source_records = []
+    for split, info in expected.items():
+        path = ROOT / f"data/raw/docfinqa/parquet/{split}.parquet"
+        digest = hashlib.sha256()
+        with path.open("rb") as stream:
+            while chunk := stream.read(8 * 1024 * 1024):
+                digest.update(chunk)
+        assert path.stat().st_size == info["size"] and digest.hexdigest() == info["sha256"], split
+        source_records.append({"path": str(path.relative_to(ROOT)), "split": split, "sha256": digest.hexdigest(),
+                               "bytes": path.stat().st_size, "revision": revision["revision"]})
+    raw_dev = json.loads((ROOT / "data/raw/docfinqa/dev.json").read_text())
+    converted_dev = pq.read_table(ROOT / "data/raw/docfinqa/parquet/validation.parquet").to_pylist()
+    assert raw_dev == converted_dev, "Converted validation must match raw official dev row-for-row in all fields"
+    validation = {"status": "verified", "raw_dev_matches_converted_validation": True,
+                  "comparison": "all rows, original order, all four fields, exact strings", "rows": len(raw_dev),
+                  "raw_dev_sha256": sha((ROOT / "data/raw/docfinqa/dev.json").read_bytes()),
+                  "converted_revision": revision["revision"], "sources": source_records}
+    del raw_dev, converted_dev
+    targets = {g["document_sha256"]: {} for g in manifest["groups"]}
+    split_rows = {}
+    for split in ("validation", "train", "test"):
+        count = 0
+        parquet = pq.ParquetFile(ROOT / f"data/raw/docfinqa/parquet/{split}.parquet")
+        for batch in parquet.iter_batches(batch_size=16):
+            for row in batch.to_pylist():
+                index = count
+                count += 1
+                dh = sha(row["Context"])
+                if dh not in targets:
+                    continue
+                qh = sha(row["Question"])
+                qs = targets[dh]
+                occurrence = {"split": split, "row": index, "program_sha256": sha(row["Program"])}
+                if qh not in qs:
+                    qs[qh] = {"question_sha256": qh, "question": row["Question"], "answer": row["Answer"],
+                              "source_occurrences": []}
+                assert qs[qh]["answer"] == row["Answer"], "Conflicting answer for exact document/question pair"
+                qs[qh]["source_occurrences"].append(occurrence)
+        split_rows[split] = count
+    for group in manifest["groups"]:
+        qs = targets[group["document_sha256"]]
+        representative = group["questions"][0]["question_sha256"]
+        assert representative in qs
+        selected = [representative] + [qh for qh in sorted(qs) if qh != representative][:3]
+        group["dev_only_question_count_v1"] = group["natural_question_count"]
+        group["exploratory_representative_question_sha256"] = representative
+        group["natural_question_count"] = len(qs)
+        group["available_questions"] = [qs[qh] for qh in sorted(qs)]
+        group["questions"] = [qs[qh] for qh in selected]
+        group["B"] = len(selected)
+        group["question_scope"] = "all_official_splits_exact_context"
+        candidates = sorted({identity for q in qs.values() for identity in identities.get(q["question"], [])})
+        group["company_year_candidates"] = candidates
+        group["company_year"] = candidates[0] if len(candidates) == 1 else None
+        group["identity_mapping_status"] = "unique_exact_question_match" if len(candidates) == 1 else "ambiguous_or_missing"
+        companies = sorted({c.rsplit("_", 1)[0] for c in candidates})
+        group["company"] = companies[0] if len(companies) == 1 else None
+        group["company_mapping_status"] = "unique_across_exact_question_matches" if len(companies) == 1 else "ambiguous_or_missing"
+    manifest.update({"schema": 2, "question_scope": "all_official_splits_exact_context",
+                     "question_rule": "keep first question of frozen exploratory dev-only v1 as representative, then exact-question SHA order up to four from all official splits with byte-identical Context; no historical representative is claimed",
+                     "previous_manifest": str(original_path.relative_to(ROOT)), "previous_manifest_sha256": sha(original_path.read_bytes()),
+                     "supplement_source_validation": "results/data_docfinqa_parquet_validation.json",
+                     "supplement_before_docfinqa_model_experiment": True})
+    write_json(manifest_path, manifest)
+    validation.update({"split_rows": split_rows, "frozen_document_ids_unchanged": True,
+                       "all_question_counts": [g["natural_question_count"] for g in manifest["groups"]],
+                       "result_manifest_sha256": sha(manifest_path.read_bytes())})
+    write_json(ROOT / "results/data_docfinqa_parquet_validation.json", validation)
+    summary_path = ROOT / "results/data_preparation.json"
+    summary = json.loads(summary_path.read_text())
+    summary["manifests"]["docfinqa_exploratory_dev8"].update({"sha256": sha(manifest_path.read_bytes()),
+        "questions": sum(g["B"] for g in manifest["groups"]),
+        "B_histogram": dict(collections.Counter(g["B"] for g in manifest["groups"])),
+        "question_scope": manifest["question_scope"], "previous_manifest": manifest["previous_manifest"]})
+    summary["docfinqa_supplement_validation"] = "results/data_docfinqa_parquet_validation.json"
+    write_json(summary_path, summary)
+    print(json.dumps(validation, indent=2))
+
+
 def main() -> None:
     assert os.geteuid() != 0, "Running data preparation as root is forbidden"
     assert sys.prefix != sys.base_prefix, "Run data preparation using the experiment virtual environment"
     parser = argparse.ArgumentParser()
     parser.add_argument("--tokenizer", default=str(ROOT / "data/models/Qwen3-4B-Thinking-2507"))
+    parser.add_argument("--supplement-docfinqa-questions", action="store_true")
     args = parser.parse_args()
+    if args.supplement_docfinqa_questions:
+        supplement_docfinqa_questions()
+        return
     from transformers import AutoTokenizer
     tokenizer = AutoTokenizer.from_pretrained(args.tokenizer, local_files_only=True)
     summaries = {}

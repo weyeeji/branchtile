@@ -216,7 +216,7 @@ class Capture:
 
 
 @torch.inference_mode()
-def run(args):
+def run(args, model=None, tokenizer=None):
     assert os.geteuid() != 0, "Running capture as root is forbidden"
     assert sys.prefix != sys.base_prefix, "Run capture using the experiment virtual environment"
     start_epoch = time.time()
@@ -224,19 +224,25 @@ def run(args):
     torch.manual_seed(args.seed)
     manifest = json.loads(Path(args.manifest).read_text())
     group = manifest["groups"][args.group_index]
-    out = Path(args.output or f'results/captures/{Path(args.model).name}/{group["document_id"]}')
+    out = Path(args.output or f'results/captures/{Path(args.model).name}/{group["document_id"]}').resolve()
     out.mkdir(parents=True, exist_ok=True)
-    tokenizer = AutoTokenizer.from_pretrained(args.model, local_files_only=True)
+    tokenizer = tokenizer or AutoTokenizer.from_pretrained(args.model, local_files_only=True)
+    torch.cuda.init()
+    for i in range(torch.cuda.device_count()):
+        torch.cuda.reset_peak_memory_stats(i)
     inputs, doc_start, doc_end = make_inputs(tokenizer, group)
     metadata = {"schema": 1, "status": "running", "document_id": group["document_id"],
                 "dataset": group["dataset"], "manifest": args.manifest, "manifest_sha256": sha_bytes(Path(args.manifest).read_bytes()),
                 "historical_split_restored": False, "group_index": args.group_index,
+                "capture_script_sha256": sha_bytes(Path(__file__).read_bytes()),
                 "document_sha256": group["document_sha256"], "input_ids_sha256": [tensor_sha(torch.tensor(ids, dtype=torch.int64)) for ids in inputs],
                 "shared_prefix_ids_sha256": tensor_sha(torch.tensor(inputs[0][:doc_end], dtype=torch.int64)),
                 "document_token_range": [doc_start, doc_end], "input_lengths": [len(x) for x in inputs],
                 "model_path": args.model, "model_config_sha256": sha_bytes((Path(args.model) / "config.json").read_bytes()),
                 "tokenizer_config_sha256": sha_bytes((Path(args.model) / "tokenizer_config.json").read_bytes()),
                 "model_revision": args.model_revision, "cuda_visible_devices": os.environ.get("CUDA_VISIBLE_DEVICES"),
+                "weights_manifest": args.weights_manifest,
+                "weights_manifest_sha256": sha_bytes(Path(args.weights_manifest).read_bytes()) if args.weights_manifest else None,
                 "process_id": os.getpid(), "started_epoch_seconds": start_epoch,
                 "virtual_environment": sys.prefix, "effective_user_id": os.geteuid(),
                 "gpu_uuid": str(torch.cuda.get_device_properties(0).uuid),
@@ -258,21 +264,33 @@ def run(args):
         metadata["ended_epoch_seconds"] = time.time()
         dump_json(out / "metadata.json", metadata)
         print(json.dumps({"status": metadata["status"], "input_lengths": metadata["input_lengths"]}), flush=True)
-        return
+        return model, tokenizer
     t0 = time.monotonic()
     load_kwargs = {}
     if args.device_map != "cuda":
         load_kwargs["max_memory"] = {i: args.max_memory_per_gpu for i in range(torch.cuda.device_count())}
         load_kwargs["max_memory"]["cpu"] = 0
-    model = AutoModelForCausalLM.from_pretrained(args.model, dtype=torch.bfloat16, device_map=args.device_map,
-                                               attn_implementation="sdpa", local_files_only=True, **load_kwargs).eval()
-    assert not any(str(v) in ("cpu", "disk") for v in model.hf_device_map.values()), "CPU/disk parameter offload is outside this capture deployment"
+    reused_model = model is not None
+    if model is None:
+        model = AutoModelForCausalLM.from_pretrained(args.model, dtype=torch.bfloat16, device_map=args.device_map,
+                                                   attn_implementation="sdpa", local_files_only=True, **load_kwargs).eval()
+    actual_device_map = getattr(model, "hf_device_map", None)
+    if actual_device_map is None:
+        # Transformers may skip Accelerate dispatch for the single-device path.
+        actual_device_map = {"": str(next(model.parameters()).device)}
+    assert all(parameter.device.type == "cuda" for parameter in model.parameters()), "CPU/disk parameter offload is outside this capture deployment"
     synchronize_devices()
     input_device = model.get_input_embeddings().weight.device
-    metadata["actual_device_map"] = {k: str(v) for k, v in model.hf_device_map.items()}
+    metadata["actual_device_map"] = {k: str(v) for k, v in actual_device_map.items()}
     metadata["model_load_seconds"] = time.monotonic() - t0
+    metadata["model_reused_from_previous_group_in_worker"] = reused_model
     metadata["gqa"] = model.config.num_attention_heads // model.config.num_key_value_heads
     metadata["kv_heads"] = model.config.num_key_value_heads
+    metadata["query_heads"] = model.config.num_attention_heads
+    metadata["head_dim"] = model.config.head_dim
+    metadata["num_hidden_layers"] = model.config.num_hidden_layers
+    metadata["actual_rope_parameters"] = getattr(model.config, "rope_parameters", None)
+    metadata["native_max_position_embeddings"] = model.config.max_position_embeddings
     capture = Capture(args, model, out, doc_start, doc_end)
     cache = DynamicCache(config=model.config)
     prefix = torch.tensor(inputs[0][:doc_end], dtype=torch.long, device=input_device)[None]
@@ -331,17 +349,23 @@ def run(args):
                      "generation_limit_warning": "A capped exploratory trajectory does not establish full natural output length or common-ready lifetime."})
     dump_json(out / "metadata.json", metadata)
     print(json.dumps({"status": "completed", "output": str(out), "snapshots": len(capture.snapshots)}), flush=True)
+    for handle in capture.handles:
+        handle.remove()
+    return model, tokenizer
 
 
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--model", default="data/models/Qwen3-4B-Thinking-2507")
     p.add_argument("--model-revision", default="768f209d9ea81521153ed38c47d515654e938aea")
+    p.add_argument("--weights-manifest")
     p.add_argument("--device-map", default="cuda", choices=["cuda", "auto", "balanced", "sequential"])
     p.add_argument("--max-memory-per-gpu", default="22GiB")
     p.add_argument("--manifest", default="data/manifests/qmsum_train_exploratory8.json")
     p.add_argument("--group-index", type=int, default=0)
+    p.add_argument("--group-indices", type=int, nargs="+")
     p.add_argument("--output")
+    p.add_argument("--output-root")
     p.add_argument("--layers")
     p.add_argument("--budgets", default="4096,8192,16384,32768")
     p.add_argument("--prefill-chunk", type=int, default=1024)
@@ -352,17 +376,22 @@ def main():
     p.add_argument("--cpu-threads", type=int, default=8)
     p.add_argument("--seed", type=int, default=42)
     args = p.parse_args()
-    try:
-        run(args)
-    except Exception as exc:
-        group = json.loads(Path(args.manifest).read_text())["groups"][args.group_index]
-        out = Path(args.output or f'results/captures/{Path(args.model).name}/{group["document_id"]}')
-        path = out / "metadata.json"
-        metadata = json.loads(path.read_text()) if path.exists() else {}
-        metadata.update({"status": "failed", "exception_type": type(exc).__name__, "exception": str(exc),
-                         "ended_epoch_seconds": time.time(), "allocated_gpu_count": torch.cuda.device_count()})
-        dump_json(path, metadata)
-        raise
+    model = tokenizer = None
+    for index in args.group_indices or [args.group_index]:
+        args.group_index = index
+        group = json.loads(Path(args.manifest).read_text())["groups"][index]
+        if args.output_root:
+            args.output = str(Path(args.output_root) / f'{group["dataset"].lower()}{index}')
+        try:
+            model, tokenizer = run(args, model=model, tokenizer=tokenizer)
+        except Exception as exc:
+            out = Path(args.output or f'results/captures/{Path(args.model).name}/{group["document_id"]}').resolve()
+            path = out / "metadata.json"
+            metadata = json.loads(path.read_text()) if path.exists() else {}
+            metadata.update({"status": "failed", "exception_type": type(exc).__name__, "exception": str(exc),
+                             "ended_epoch_seconds": time.time(), "allocated_gpu_count": torch.cuda.device_count()})
+            dump_json(path, metadata)
+            raise
 
 
 if __name__ == "__main__":
