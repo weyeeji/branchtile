@@ -109,33 +109,33 @@ def producer(heads,tokens,rows,dim,regions,splits=64,block_n=64,threads=128):
                 label=Labels[r]
                 if label == 1:
                     do_region(Q,K,V,Indices,Offsets,cu,cm,cl,qs,ks,vs,probs,h,s,r,8,16,0,0,0,0)
-                elif label == 2:
+                if label == 2:
                     do_region(Q,K,V,Indices,Offsets,cu,cm,cl,qs,ks,vs,probs,h,s,r,8,16,1,0,0,0)
-                elif label == 3:
+                if label == 3:
                     do_region(Q,K,V,Indices,Offsets,cu,cm,cl,qs,ks,vs,probs,h,s,r,16,16,0,1,0,0)
-                elif label == 4:
+                if label == 4:
                     do_region(Q,K,V,Indices,Offsets,cu,cm,cl,qs,ks,vs,probs,h,s,r,8,16,2,0,0,0)
-                elif label == 5:
+                if label == 5:
                     do_region(Q,K,V,Indices,Offsets,cu,cm,cl,qs,ks,vs,probs,h,s,r,16,16,0,2,0,0)
-                elif label == 6:
+                if label == 6:
                     do_region(Q,K,V,Indices,Offsets,cu,cm,cl,qs,ks,vs,probs,h,s,r,16,16,1,2,0,0)
-                elif label == 7:
+                if label == 7:
                     do_region(Q,K,V,Indices,Offsets,cu,cm,cl,qs,ks,vs,probs,h,s,r,24,32,0,1,2,0)
-                elif label == 8:
+                if label == 8:
                     do_region(Q,K,V,Indices,Offsets,cu,cm,cl,qs,ks,vs,probs,h,s,r,8,16,3,0,0,0)
-                elif label == 9:
+                if label == 9:
                     do_region(Q,K,V,Indices,Offsets,cu,cm,cl,qs,ks,vs,probs,h,s,r,16,16,0,3,0,0)
-                elif label == 10:
+                if label == 10:
                     do_region(Q,K,V,Indices,Offsets,cu,cm,cl,qs,ks,vs,probs,h,s,r,16,16,1,3,0,0)
-                elif label == 11:
+                if label == 11:
                     do_region(Q,K,V,Indices,Offsets,cu,cm,cl,qs,ks,vs,probs,h,s,r,24,32,0,1,3,0)
-                elif label == 12:
+                if label == 12:
                     do_region(Q,K,V,Indices,Offsets,cu,cm,cl,qs,ks,vs,probs,h,s,r,16,16,2,3,0,0)
-                elif label == 13:
+                if label == 13:
                     do_region(Q,K,V,Indices,Offsets,cu,cm,cl,qs,ks,vs,probs,h,s,r,24,32,0,2,3,0)
-                elif label == 14:
+                if label == 14:
                     do_region(Q,K,V,Indices,Offsets,cu,cm,cl,qs,ks,vs,probs,h,s,r,24,32,1,2,3,0)
-                elif label == 15:
+                if label == 15:
                     do_region(Q,K,V,Indices,Offsets,cu,cm,cl,qs,ks,vs,probs,h,s,r,32,32,0,1,2,3)
             for i,d in T.Parallel(rows,dim):
                 U[h,s,i,d]=cu[i,d]
