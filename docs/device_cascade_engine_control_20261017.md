@@ -37,7 +37,7 @@ Strict FINAL quality is also insufficient for a task-success claim: train7 BF16 
 
 The complete first-seed audit is `results/dense_cascade_device_natural_audit_v1/audit.json`, produced by `scripts/summarize_dense_cascade_device_natural.py`. It records runtime source hashes, clean-exit ledger receipts, 48-layer checks, dynamic metadata flags, costs, per-question quality, batch survival, and exact historical token comparisons. Per-session correctness/cost auditing is in `scripts/audit_dense_cascade_device_model.py`.
 
-The additional seeds 20261017, 20261018, and 20261019 retain the previously declared BA/AB/BA orders and sampling settings in `configs/dense_cascade_multiseed_natural_v1.json`. The new independent runner `scripts/benchmark_dense_cascade_device_multiseed.py` changes the phase list and seed only, reusing the frozen device worker/plan and inclusive timing contract. `scripts/audit_dense_cascade_device_four_seeds.py` will combine all four seeds without filtering positive/negative timing, caps, or parsing failures. No multi-seed conclusion is asserted before those jobs finish.
+The additional seeds 20261017, 20261018, and 20261019 retain the previously declared BA/AB/BA orders and sampling settings in `configs/dense_cascade_multiseed_natural_v1.json`. The independent runner `scripts/benchmark_dense_cascade_device_multiseed.py` changes the phase list and seed only, reusing the frozen device worker/plan and inclusive timing contract. `scripts/audit_dense_cascade_device_four_seeds.py` combines all four seeds without filtering positive/negative timing, caps, or parsing failures; the completed results follow.
 
 ## Completed four-seed audit
 
