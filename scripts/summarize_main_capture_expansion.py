@@ -107,8 +107,14 @@ def main():
             assert result["provenance"]["ready_lifetime_measured"]
             expected_partitions, expected_trees = (5, 3) if group["B"] == 3 else (15, 15)
             assert len(result["partitions"]) == expected_partitions and len(result["hierarchies"]) == expected_trees
+            qualified_partitions = {json.dumps(t["partition"]) for t in result["tuning"] if t["status"] == "ok" and "partition" in t}
+            qualified_trees = {json.dumps(t["tree"]) for t in result["tuning"] if t["status"] == "ok" and "tree" in t}
+            if result["tuning_complete"]:
+                assert len(qualified_partitions) == expected_partitions
+                assert len(qualified_trees) == expected_trees
             summary["replays"].append({"group_index": group_index, "budget": budget, "path": str(result_path),
                 "B": result["batch"], "GQA": result["gqa"], "partitions": expected_partitions, "hierarchies": expected_trees,
+                "executed_qualified_partitions": len(qualified_partitions), "executed_qualified_hierarchies": len(qualified_trees),
                 "tuning_completed": result["tuning_completed"], "tuning_planned": result["tuning_planned"],
                 "tuning_complete": result["tuning_complete"], "qualified_candidates": sum(t["status"] == "ok" for t in result["tuning"]),
                 "failed_candidates": sum(t["status"] != "ok" for t in result["tuning"]),
