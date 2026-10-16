@@ -1,0 +1,245 @@
+{
+  "schema": "primary_source_static_audit_v1",
+  "as_of": "2026-10-16",
+  "created_utc": "2026-10-16T10:13:33.449721+00:00",
+  "uid": 1000,
+  "python_executable": "/home/qcjz/iscas/.venv/bin/python",
+  "python_prefix": "/home/qcjz/iscas/.venv",
+  "python_base_prefix": "/home/qcjz/miniconda3/envs/sglang-vllm-m120",
+  "third_party_installed": false,
+  "third_party_imported_or_executed": false,
+  "gpu_jobs": 0,
+  "gpu_hours": 0,
+  "formal_evaluation_modified": false,
+  "scope": "Read-only third-party source review; source archive files and this audit are the only task writes. No compatibility qualification or performance replication. Source absence conclusions apply only to inspected paths.",
+  "sources": {
+    "pqhsa": {
+      "paper": "https://arxiv.org/abs/2609.33746v1",
+      "submitted": "2026-09-27",
+      "repository": "https://github.com/KunmingSHAO/pqhsa_release",
+      "commit": "dbdcc7c13868a90b3d223383974787b34c0163ca",
+      "tree": "5760eab4c20836471e26eea8e65fdc2c25a06cc1",
+      "commit_time": "2026-09-26T00:00:00+00:00",
+      "commit_message": "Batched index build: empty-cluster re-seeding and FP32 norms are now the default",
+      "license": "Apache-2.0",
+      "checkout_clean": true,
+      "checkout_command": "git -c core.hooksPath=/dev/null clone --depth 1 https://github.com/KunmingSHAO/pqhsa_release.git data/external/pqhsa_release"
+    },
+    "hisparse": {
+      "paper": "https://arxiv.org/abs/2608.07009v1",
+      "submitted": "2026-08-07",
+      "repository": "https://github.com/sgl-project/sglang",
+      "commit": "2adc76ad61a9c036304716a4548093b1b27b10fb",
+      "commit_time": "2026-10-16T09:55:25Z",
+      "commit_message": "[Perf] [AMD] dsv4: reuse the q_lora fp8 quant for the C4 indexer wq_b (4/8) (#41903)",
+      "source_download": "Six explicitly named files at immutable commit; no checkout, installation or import.",
+      "live_docs": "https://docs.sglang.io/docs/advanced_features/hisparse_guide",
+      "official_blog": "https://www.lmsys.org/blog/2026-04-10-sglang-hisparse/",
+      "api_tree_truncated": false
+    }
+  },
+  "key_static_findings": [
+    "PQ-HSA device-backed paged serving retains full engine KV and adds index; core API separately exposes CPU/offload.",
+    "PQ-HSA batch runtime creates per-request sidecars, digest uses full prompt, and loops request replay; optional within-layer codebook sharing exists.",
+    "PQ-HSA fast paged CUDA explicitly reads at::Half; BF16 direct use is not qualified.",
+    "PQ-HSA default architecture is 9.0, while is_hopper accepts major>=9; neither proves SM120 compatibility.",
+    "PQ-HSA TP worker entry and TP launcher knob exist; V2 request-state adapter explicitly not ported; target 0.31 V2/FP8 weights/BF16 KV/TP2 is unqualified.",
+    "PQ-HSA default periodic batched deferred flush includes EMA, full retrieval gather in paged mode, whole list-id sorting, and possible graph invalidation.",
+    "HiSparse current pinned validator excludes ordinary Qwen GQA and requires radix cache disabled; pinned docs require PD mode and describe SM120 GLM DSA FP8 support.",
+    "Both are prior art constraints; this review establishes no new algorithm, quality recovery, capacity release, or speedup on this project."
+  ],
+  "files": [
+    {
+      "local_path": "data/external/pqhsa_release/README.md",
+      "url": "https://github.com/KunmingSHAO/pqhsa_release/blob/dbdcc7c13868a90b3d223383974787b34c0163ca/README.md",
+      "bytes": 15778,
+      "sha256": "8e7564f39e49fe842cb890257a43ec56c77e39c431fd7a9e354f0cc61719beb8"
+    },
+    {
+      "local_path": "data/external/pqhsa_release/LICENSE",
+      "url": "https://github.com/KunmingSHAO/pqhsa_release/blob/dbdcc7c13868a90b3d223383974787b34c0163ca/LICENSE",
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    {
+      "local_path": "data/external/pqhsa_release/requirements.txt",
+      "url": "https://github.com/KunmingSHAO/pqhsa_release/blob/dbdcc7c13868a90b3d223383974787b34c0163ca/requirements.txt",
+      "bytes": 747,
+      "sha256": "fca060d26be9e45e63ad9d2f9a3e607e8f41f643b4417a2ba602119c33dd272c"
+    },
+    {
+      "local_path": "data/external/pqhsa_release/pq_hsa/kernels/cuda/compile.py",
+      "url": "https://github.com/KunmingSHAO/pqhsa_release/blob/dbdcc7c13868a90b3d223383974787b34c0163ca/pq_hsa/kernels/cuda/compile.py",
+      "bytes": 1265,
+      "sha256": "0afdb9161a57f983914bc8225465224c655d810fc428cec64c5e2e649352b6ae"
+    },
+    {
+      "local_path": "data/external/pqhsa_release/pq_hsa/kernels/device.py",
+      "url": "https://github.com/KunmingSHAO/pqhsa_release/blob/dbdcc7c13868a90b3d223383974787b34c0163ca/pq_hsa/kernels/device.py",
+      "bytes": 1121,
+      "sha256": "a6db427aeb18117c05df73f6c60c7bab4dc8ebad192f0adb4851dad8e99cb8ea"
+    },
+    {
+      "local_path": "data/external/pqhsa_release/pq_hsa/kernels/cuda/pq_fused_h20.py",
+      "url": "https://github.com/KunmingSHAO/pqhsa_release/blob/dbdcc7c13868a90b3d223383974787b34c0163ca/pq_hsa/kernels/cuda/pq_fused_h20.py",
+      "bytes": 26196,
+      "sha256": "df079966eb37c25299c3530fe03cf908db9fb1e8cb26dfef0838f33a0ae1b542"
+    },
+    {
+      "local_path": "data/external/pqhsa_release/pq_hsa/kernels/cuda/pq_fused_h20.cu",
+      "url": "https://github.com/KunmingSHAO/pqhsa_release/blob/dbdcc7c13868a90b3d223383974787b34c0163ca/pq_hsa/kernels/cuda/pq_fused_h20.cu",
+      "bytes": 161322,
+      "sha256": "e5194d6ca47fa5ac52147060ca812230b7bf29abd45e8b617ebcf78f0bfa64d1"
+    },
+    {
+      "local_path": "data/external/pqhsa_release/pq_hsa/index/ivfpq.py",
+      "url": "https://github.com/KunmingSHAO/pqhsa_release/blob/dbdcc7c13868a90b3d223383974787b34c0163ca/pq_hsa/index/ivfpq.py",
+      "bytes": 64144,
+      "sha256": "7d5514f5fbe7001ecbd1136d3fba70f5739c61a060065727184c30f8ce469ccb"
+    },
+    {
+      "local_path": "data/external/pqhsa_release/pq_hsa/index/batched_build.py",
+      "url": "https://github.com/KunmingSHAO/pqhsa_release/blob/dbdcc7c13868a90b3d223383974787b34c0163ca/pq_hsa/index/batched_build.py",
+      "bytes": 9706,
+      "sha256": "2bdda134690f0eea4287d92cd5b942e2bef0f541293f34125ac9ed483ce5912b"
+    },
+    {
+      "local_path": "data/external/pqhsa_release/pq_hsa/attention/kv_cache.py",
+      "url": "https://github.com/KunmingSHAO/pqhsa_release/blob/dbdcc7c13868a90b3d223383974787b34c0163ca/pq_hsa/attention/kv_cache.py",
+      "bytes": 56289,
+      "sha256": "349061b911512560ca3b07429a6729162a95c4266087acedc3a2ad9d692755f4"
+    },
+    {
+      "local_path": "data/external/pqhsa_release/pq_hsa/attention/decode_adapter.py",
+      "url": "https://github.com/KunmingSHAO/pqhsa_release/blob/dbdcc7c13868a90b3d223383974787b34c0163ca/pq_hsa/attention/decode_adapter.py",
+      "bytes": 4726,
+      "sha256": "4e49398f719c6c4d047125f321fad5b4a67d4e5a715b45b1efaba8d8abab18ed"
+    },
+    {
+      "local_path": "data/external/pqhsa_release/pq_hsa/attention/multihead.py",
+      "url": "https://github.com/KunmingSHAO/pqhsa_release/blob/dbdcc7c13868a90b3d223383974787b34c0163ca/pq_hsa/attention/multihead.py",
+      "bytes": 11419,
+      "sha256": "7f84e4b7fd8acfd6f06c4b0f3a07db32198eccd9300361bfaf77da8556c97203"
+    },
+    {
+      "local_path": "data/external/pqhsa_release/pq_hsa_vllm/pyproject.toml",
+      "url": "https://github.com/KunmingSHAO/pqhsa_release/blob/dbdcc7c13868a90b3d223383974787b34c0163ca/pq_hsa_vllm/pyproject.toml",
+      "bytes": 933,
+      "sha256": "4ff0c154a516115c534abd19df750489c7201de5b2bbc620e5c815f1b4d36443"
+    },
+    {
+      "local_path": "data/external/pqhsa_release/pq_hsa_vllm/src/pq_hsa_vllm/plugin.py",
+      "url": "https://github.com/KunmingSHAO/pqhsa_release/blob/dbdcc7c13868a90b3d223383974787b34c0163ca/pq_hsa_vllm/src/pq_hsa_vllm/plugin.py",
+      "bytes": 3614,
+      "sha256": "a6d28772cd67f4e60abcf919860345aa9fe8d2823d9a6cdaa13ea9fcc55c7555"
+    },
+    {
+      "local_path": "data/external/pqhsa_release/pq_hsa_vllm/src/pq_hsa_vllm/config.py",
+      "url": "https://github.com/KunmingSHAO/pqhsa_release/blob/dbdcc7c13868a90b3d223383974787b34c0163ca/pq_hsa_vllm/src/pq_hsa_vllm/config.py",
+      "bytes": 9446,
+      "sha256": "6735a4f8d4481dabff9eb292a92db98e8a8078cdfcd8612bf85924aa8b7c82d7"
+    },
+    {
+      "local_path": "data/external/pqhsa_release/benchmarks/speed/plugin_speed.py",
+      "url": "https://github.com/KunmingSHAO/pqhsa_release/blob/dbdcc7c13868a90b3d223383974787b34c0163ca/benchmarks/speed/plugin_speed.py",
+      "bytes": 16672,
+      "sha256": "a7d573e768b7bc3c45291a82056d8c57e7b048c0382d8d474a63762eb288c920"
+    },
+    {
+      "local_path": "data/external/pqhsa_release/benchmarks/vllm_backend/pq_hsa_decode_runtime.py",
+      "url": "https://github.com/KunmingSHAO/pqhsa_release/blob/dbdcc7c13868a90b3d223383974787b34c0163ca/benchmarks/vllm_backend/pq_hsa_decode_runtime.py",
+      "bytes": 35187,
+      "sha256": "5778f4f38d5124ef4ab9b90638ba549448dedf6408cab8f0be60030f4897b171"
+    },
+    {
+      "local_path": "data/external/pqhsa_release/benchmarks/vllm_backend/pq_hsa_batch_decode.py",
+      "url": "https://github.com/KunmingSHAO/pqhsa_release/blob/dbdcc7c13868a90b3d223383974787b34c0163ca/benchmarks/vllm_backend/pq_hsa_batch_decode.py",
+      "bytes": 19083,
+      "sha256": "ef268aafa2980d6d44da9be098e5917dd446db35dd2d8a404d8b91176c762b2c"
+    },
+    {
+      "local_path": "data/external/pqhsa_release/benchmarks/vllm_backend/compat_v029.py",
+      "url": "https://github.com/KunmingSHAO/pqhsa_release/blob/dbdcc7c13868a90b3d223383974787b34c0163ca/benchmarks/vllm_backend/compat_v029.py",
+      "bytes": 4107,
+      "sha256": "ef4ebcd0da1914a01b7fe7d9347567c033bc95082abce32d8990af42ab4a2475"
+    },
+    {
+      "local_path": "data/external/pqhsa_release/benchmarks/vllm_backend/paged_kv_fa.py",
+      "url": "https://github.com/KunmingSHAO/pqhsa_release/blob/dbdcc7c13868a90b3d223383974787b34c0163ca/benchmarks/vllm_backend/paged_kv_fa.py",
+      "bytes": 6810,
+      "sha256": "7796aca2c2e23f97bc7f762bf2fc8aaadd5a66cec972b5aef2c2adbb5cf43dbd"
+    },
+    {
+      "local_path": "data/external/pqhsa_release/benchmarks/vllm_backend/gqa_sidecar_fast.py",
+      "url": "https://github.com/KunmingSHAO/pqhsa_release/blob/dbdcc7c13868a90b3d223383974787b34c0163ca/benchmarks/vllm_backend/gqa_sidecar_fast.py",
+      "bytes": 7487,
+      "sha256": "f9cd50b6bacc851303d12546c161862897e6920fd9b8d79dae0c74b5ff8ef9bd"
+    },
+    {
+      "local_path": "data/external/pqhsa_release/benchmarks/e2e_pq_param_sweep.py",
+      "url": "https://github.com/KunmingSHAO/pqhsa_release/blob/dbdcc7c13868a90b3d223383974787b34c0163ca/benchmarks/e2e_pq_param_sweep.py",
+      "bytes": 386219,
+      "sha256": "4319359a765afe1f91379c60d7a0b6f04bbb65875ebaf412b513a352fe93592b"
+    },
+    {
+      "local_path": "data/external/primary_audit_20261016/sglang/docs/docs/advanced_features/hisparse_guide.mdx",
+      "url": "https://raw.githubusercontent.com/sgl-project/sglang/2adc76ad61a9c036304716a4548093b1b27b10fb/docs/docs/advanced_features/hisparse_guide.mdx",
+      "bytes": 9822,
+      "sha256": "9a86e90bfee876fe8b201d0d91b92937acaf69a9cbd1a3501daf0fd2be362f40"
+    },
+    {
+      "local_path": "data/external/primary_audit_20261016/sglang/python/sglang/kernels/jit/csrc/kvcacheio/hisparse.cuh",
+      "url": "https://raw.githubusercontent.com/sgl-project/sglang/2adc76ad61a9c036304716a4548093b1b27b10fb/python/sglang/kernels/jit/csrc/kvcacheio/hisparse.cuh",
+      "bytes": 41121,
+      "sha256": "9daae4e368a8561b08f358193be270e512d659936bf13a812219be04e846cf0a"
+    },
+    {
+      "local_path": "data/external/primary_audit_20261016/sglang/python/sglang/kernels/ops/kvcache/hisparse.py",
+      "url": "https://raw.githubusercontent.com/sgl-project/sglang/2adc76ad61a9c036304716a4548093b1b27b10fb/python/sglang/kernels/ops/kvcache/hisparse.py",
+      "bytes": 16874,
+      "sha256": "f922d4a52f7d24d252d21e4b7f9a70f9264bb751710626c8610eb2fc662f7e99"
+    },
+    {
+      "local_path": "data/external/primary_audit_20261016/sglang/python/sglang/srt/arg_groups/hisparse_hook.py",
+      "url": "https://raw.githubusercontent.com/sgl-project/sglang/2adc76ad61a9c036304716a4548093b1b27b10fb/python/sglang/srt/arg_groups/hisparse_hook.py",
+      "bytes": 5999,
+      "sha256": "966a20270e85dcaf0ff270008f98aa00ecdd440d7b06090e1e5ed1f56ad1eef8"
+    },
+    {
+      "local_path": "data/external/primary_audit_20261016/sglang/python/sglang/srt/managers/hisparse_coordinator.py",
+      "url": "https://raw.githubusercontent.com/sgl-project/sglang/2adc76ad61a9c036304716a4548093b1b27b10fb/python/sglang/srt/managers/hisparse_coordinator.py",
+      "bytes": 67896,
+      "sha256": "80b0f3885eff24e3a7d383da32b5dbf69eb6fac3d28c8a4be4b87e1d9d4ec15c"
+    },
+    {
+      "local_path": "data/external/primary_audit_20261016/sglang/python/sglang/srt/mem_cache/hisparse_memory_pool.py",
+      "url": "https://raw.githubusercontent.com/sgl-project/sglang/2adc76ad61a9c036304716a4548093b1b27b10fb/python/sglang/srt/mem_cache/hisparse_memory_pool.py",
+      "bytes": 9136,
+      "sha256": "74b46cc95e8336407348e7251ad08c730f1ab6a676f9a44632007d9ae3b72480"
+    },
+    {
+      "local_path": "data/external/primary_audit_20261016/pqhsa_v1.html",
+      "url": "https://arxiv.org/html/2609.33746v1",
+      "bytes": 312672,
+      "sha256": "abcbd8211016f1980261d319f02622dd83f8472d017f711f33e4561471fb0762"
+    },
+    {
+      "local_path": "data/external/primary_audit_20261016/hisparse_v1.html",
+      "url": "https://arxiv.org/html/2608.07009v1",
+      "bytes": 248688,
+      "sha256": "f3c523f5e772dee1338ed7e3f7cf21ab0e905ad30458ec1f07fa636a64bb10b1"
+    },
+    {
+      "local_path": "data/external/primary_audit_20261016/sglang_commit_api.json",
+      "url": "https://api.github.com/repos/sgl-project/sglang/commits?until=2026-10-16T23%3A59%3A59Z&per_page=1",
+      "bytes": 5377,
+      "sha256": "d48ace561974c89e675721ec5ec2171e679252e44ad3d0dc1b7b15727d356733"
+    },
+    {
+      "local_path": "data/external/primary_audit_20261016/sglang_tree_api.json",
+      "url": "https://api.github.com/repos/sgl-project/sglang/git/trees/2adc76ad61a9c036304716a4548093b1b27b10fb?recursive=1",
+      "bytes": 3987709,
+      "sha256": "afc2ccdcc8743be43918caca1d5aec418c47862a85708f20d9b25810deafc00e"
+    }
+  ]
+}
