@@ -26,3 +26,20 @@ The two real FP8 files in `results/xqa_pair_padding_v1/` used CPU-exported int64
 ## Evidence boundary
 
 The public GQA16 adapter is an existing-kernel diagnostic, not a new algorithm. It shares the complete prefix, has no independent private suffix, and is tested on four captures with six mutations each. Broader rank/layer tests and natural membership subsets are separate runs. Subset v3 selects initial captured Q rows using observed survivor membership; it does not claim those Q values came from the later natural step.
+
+## Complete BF16 matrix and survivor subsets
+
+A second independent auditor, `scripts/audit_xqa_pair_bf16_broad_subset.py`, verifies all 16 actual BF16 captures (two documents × two TP ranks × layers 0/15/31/47) and all eight subset cases. Result: `results/xqa_pair_native_capture_audit_v2/broad_subset_audit.json`. Source/capture hashes, page ABI, actual launch grids, mathematical reference consistency and negative controls pass. Across these 24 cells there are 144 fixed-pair bitwise checks, 144 native-AA checks and 144 auto-split output-changing checks.
+
+All 16 B8 cells improve: paired speedups range from 1.560× to 1.619×. This removes the original two-layer selection concern within the captured matrix; it does not establish generalization beyond the two documents or sampled layers.
+
+| Survivor batch | train1 paired speedup [95% within-run interval] | train7 paired speedup [95% within-run interval] |
+|---|---:|---:|
+| B2 | 0.945× [0.943, 0.948] | 0.961× [0.959, 0.964] |
+| B4 | 1.173× [1.159, 1.185] | 1.178× [1.166, 1.187] |
+| B6 | 1.484× [1.474, 1.499] | 1.512× [1.503, 1.522] |
+| B8 | 1.565× [1.559, 1.573] | 1.606× [1.603, 1.609] |
+
+B2 loses in all 20 paired blocks for both documents. B4/B6/B8 win in every block. Therefore an unconditional pair dispatch is contradicted by these results. Native split counts are recalculated for the actual batch: B2=42, B4=21, B6=14, B8=10; the corresponding paired call preserves that same count.
+
+The observed natural traces also limit the opportunity: B≥6 occupies 43.7% of train1 decode steps and 16.6% of train7 steps; B≤2 occupies 33.0% and 70.4%, respectively. These are step counts, not wall-time fractions. Large-batch steps cost more, so counting steps alone cannot predict total savings. Odd batches were not screened here; treating them as equivalent to the next even batch would be unsupported. Real private tails, odd survivors, activation of fallback and end-to-end natural trajectories remain necessary.
