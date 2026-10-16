@@ -1,0 +1,2516 @@
+{
+  "schema": "owner-task-qualification-v1",
+  "status": "passed_numerical_fixed_topology_and_rebuild_recapture_resource_review_pending",
+  "uid": 1000,
+  "python": "/home/qcjz/iscas/.venv-latest/bin/python",
+  "CUDA_VISIBLE_DEVICES": "4",
+  "arguments": {
+    "batch": 4,
+    "block_n": 64,
+    "chunk_tokens": 64,
+    "threads": 128,
+    "splits": 64,
+    "tokens": 8197,
+    "module": "branchtile.attention_owner_tasks",
+    "capture": "results/captures/main30b_tp2_publicdev6_256_suffix_v2/rank0",
+    "layer": 15,
+    "budget": 32768,
+    "step": 64,
+    "heads": 2,
+    "output": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64.json",
+    "cpu_check": false
+  },
+  "started_utc": "2026-10-16T14:18:07.427401+00:00",
+  "code_sha256": {
+    "scripts/qualify_owner_tasks_grid.py": "0cba61a4dfd65e3aac6dc2971ec5d9d066e71cad3eaa0bf85c235d4bfcb171d0",
+    "scripts/qualify_static_bank_v2.py": "6aaa8744b0672a20fd5cf80fc135fc5420e3e7ec3339a6fc028cf79ce6811ee7",
+    "scripts/compare_attention.py": "a23b40b1139e93fbb2bd7f5e8794b1885e4df8778bc83114e845829fb1a7e2e2",
+    "src/branchtile/attention.py": "2878475c1273f527f95f629090e275c5a99f9dbad6c67646c40657692c20673d",
+    "src/branchtile/attention_owner_tasks.py": "cc9d59e704cff075eaba2b4e92b5fa199e52475de4b5241ee58d6d2b6aa3987d",
+    "src/branchtile/owner_tasks_plan.py": "e1d41289a183518f716fbd43bf6c98d4412f9da24ebf8ae7070cce3a739f4ec2",
+    "src/branchtile/triton_kernel_owner_tasks.py": "48e8cd01e2aeae1d8f8c06e6370f06c3f186c7d3a51e2b1ba614ad3ede9e698e"
+  },
+  "contracts": {
+    "O": {
+      "atol": 0.006,
+      "rtol": 0.015
+    },
+    "natural_log_LSE": {
+      "atol": 0.0003,
+      "rtol": 0.0001
+    }
+  },
+  "topology_contract": "Q/K/V/Indices values may change in place. Offsets/counts/row_map/labels changes require Attention rebuild and CUDA graph recapture. graph.replay bypasses host version checks; callers must enforce this contract.",
+  "fixed_topology_phases": [
+    "eager",
+    "graph_baseline",
+    "graph_changed_Q",
+    "graph_changed_KV",
+    "graph_changed_indices"
+  ],
+  "topology_change_phase": "rebuild_and_new_graph_changed_owners",
+  "scope": "Numerical and fixed-topology graph + rebuild/recapture qualification; no performance timing or application claim.",
+  "stage": "completed",
+  "cases": [
+    {
+      "name": "all_masks",
+      "status": "passed_numerical_fixed_topology_graph_and_rebuilt_graph",
+      "batch": 4,
+      "q_shape": [
+        2,
+        32,
+        128
+      ],
+      "k_shape": [
+        2,
+        8197,
+        128
+      ],
+      "provenance": {
+        "kind": "synthetic",
+        "seed": 20261016
+      },
+      "checks": [
+        {
+          "phase": "eager",
+          "status": "passed",
+          "O_max_abs_fp64": 0.0002744825449181032,
+          "O_relative_l2_fp64": 0.0020729138466826836,
+          "LSE_max_abs_fp64_finite_rows": 9.169149972620971e-07,
+          "empty_rows": 0,
+          "O_sha256": "b98dca37a2fb0c2c88bc836fc7af6fd4d44367b8e061e23bce771dd025eb71ff",
+          "Q_sha256": "abb84a97e3ad253b2b47b7ecd64cc36b7945c647c35bb927c1b4fb01f79619ac",
+          "K_sha256": "db39ea4441d33e7f6c9fce5e02e654f9598491aa19c85b0144e45186ff820a4e",
+          "V_sha256": "e22b1f79c5c7d3c7e7ef267cc7d27e28a20b1c227cf9aa37e1fe17b9839a25f4",
+          "owner_sha256": "f776abf5c74c11f893769a580251d5d10ecdce193b8d5ac38dd8551a9cdce79d"
+        },
+        {
+          "phase": "graph_baseline",
+          "status": "passed",
+          "O_max_abs_fp64": 0.0002744825449181032,
+          "O_relative_l2_fp64": 0.0020729138466826836,
+          "LSE_max_abs_fp64_finite_rows": 9.169149972620971e-07,
+          "empty_rows": 0,
+          "O_sha256": "b98dca37a2fb0c2c88bc836fc7af6fd4d44367b8e061e23bce771dd025eb71ff",
+          "Q_sha256": "abb84a97e3ad253b2b47b7ecd64cc36b7945c647c35bb927c1b4fb01f79619ac",
+          "K_sha256": "db39ea4441d33e7f6c9fce5e02e654f9598491aa19c85b0144e45186ff820a4e",
+          "V_sha256": "e22b1f79c5c7d3c7e7ef267cc7d27e28a20b1c227cf9aa37e1fe17b9839a25f4",
+          "owner_sha256": "f776abf5c74c11f893769a580251d5d10ecdce193b8d5ac38dd8551a9cdce79d"
+        },
+        {
+          "phase": "graph_changed_Q",
+          "status": "passed",
+          "O_max_abs_fp64": 0.00028079032232508627,
+          "O_relative_l2_fp64": 0.002103974410696637,
+          "LSE_max_abs_fp64_finite_rows": 8.628990926240476e-07,
+          "empty_rows": 0,
+          "O_sha256": "23aaada63d781a94000876322e805a24ae87714680017df370c829deffffbee0",
+          "Q_sha256": "21e37eba5080ea8a57e2ec1aa4061d2c6798c6f7c330f68a83d32145bbdac1b2",
+          "K_sha256": "db39ea4441d33e7f6c9fce5e02e654f9598491aa19c85b0144e45186ff820a4e",
+          "V_sha256": "e22b1f79c5c7d3c7e7ef267cc7d27e28a20b1c227cf9aa37e1fe17b9839a25f4",
+          "owner_sha256": "f776abf5c74c11f893769a580251d5d10ecdce193b8d5ac38dd8551a9cdce79d"
+        },
+        {
+          "phase": "graph_changed_KV",
+          "status": "passed",
+          "O_max_abs_fp64": 0.0005566175187792233,
+          "O_relative_l2_fp64": 0.001794795564246052,
+          "LSE_max_abs_fp64_finite_rows": 7.249053712854447e-07,
+          "empty_rows": 0,
+          "O_sha256": "200a1c3c496ea30e6c32bb7ff2b7a7729cf4a9ceddbb9e16f504d6cbd4344ffe",
+          "Q_sha256": "21e37eba5080ea8a57e2ec1aa4061d2c6798c6f7c330f68a83d32145bbdac1b2",
+          "K_sha256": "572a669431a1f08d75969e5a116a70e2d918b1afd7c35bfc69ab5f751bdeaaf2",
+          "V_sha256": "25cee2e98c3c6bf4e094fc3ff09a65d843c119dfbff5a64baeda14f1592bd76d",
+          "owner_sha256": "f776abf5c74c11f893769a580251d5d10ecdce193b8d5ac38dd8551a9cdce79d"
+        },
+        {
+          "phase": "graph_changed_indices",
+          "status": "passed",
+          "O_max_abs_fp64": 0.0005709343834893466,
+          "O_relative_l2_fp64": 0.0017802479683656134,
+          "LSE_max_abs_fp64_finite_rows": 8.578989625362965e-07,
+          "empty_rows": 0,
+          "O_sha256": "fe5bc6414b13fb882a1ab6f1d355e39681be30e75a46c710dd2d7eb770c4074c",
+          "Q_sha256": "21e37eba5080ea8a57e2ec1aa4061d2c6798c6f7c330f68a83d32145bbdac1b2",
+          "K_sha256": "572a669431a1f08d75969e5a116a70e2d918b1afd7c35bfc69ab5f751bdeaaf2",
+          "V_sha256": "25cee2e98c3c6bf4e094fc3ff09a65d843c119dfbff5a64baeda14f1592bd76d",
+          "owner_sha256": "58a5a952e89a0a372eea6de35d6202b08cecb0ba88e66c56883a194aa1eb84ec"
+        },
+        {
+          "phase": "rebuild_and_new_graph_changed_owners",
+          "status": "passed",
+          "O_max_abs_fp64": 0.0005663808841032958,
+          "O_relative_l2_fp64": 0.0017818713695456215,
+          "LSE_max_abs_fp64_finite_rows": 7.23050455064822e-07,
+          "empty_rows": 0,
+          "O_sha256": "3a604bb08a4bb9afd9d870df0c5dbfc5a1d1e44e5bb57e3d68d3f293bf5048a3",
+          "Q_sha256": "21e37eba5080ea8a57e2ec1aa4061d2c6798c6f7c330f68a83d32145bbdac1b2",
+          "K_sha256": "572a669431a1f08d75969e5a116a70e2d918b1afd7c35bfc69ab5f751bdeaaf2",
+          "V_sha256": "25cee2e98c3c6bf4e094fc3ff09a65d843c119dfbff5a64baeda14f1592bd76d",
+          "owner_sha256": "ae3127ed62fd766882d7db3905c24d2f99539e0c646ced74bb9d2325c5842451"
+        }
+      ],
+      "initial_plan_prepare_ms": 6.569763645529747,
+      "initial_metadata": {
+        "mechanism": "spatial_owner_tasks_packed_reduction_control",
+        "chunk_tokens": 64,
+        "task_count": 249,
+        "packed_partial_rows": 4216,
+        "requested_splits_compatibility_parameter": 64,
+        "splits_semantics": "Not used for partitioning; fixed chunk_tokens defines tasks. This is not the original equal-split scheme.",
+        "prepare_scope": "CPU metadata D2H, validation, task/table construction, H2D and owned-buffer allocation; first kernel JIT excluded.",
+        "workspace_bytes_by_buffer": {
+          "packed_U": 2158592,
+          "packed_M": 16864,
+          "packed_L": 16864,
+          "task_descriptors": 5976,
+          "merge_indices": 2144,
+          "contribution_counts": 32,
+          "output": 16384,
+          "LSE": 256
+        },
+        "workspace_bytes": 2217112,
+        "max_contributions": 67,
+        "merge_streaming_group": 16,
+        "structure_sha256": "5ac0c87d3a0f14426eed162c32ef5c455e64eab824ac41d7fe4a379eccdd6057",
+        "payload_aliases_source": true,
+        "graph_topology_contract": "Q/K/V and original Indices values may change in place. Replacing the plan or any plan tensor, changing tensor storage/layout, or changing offsets/labels/counts/row_map requires rebuild and graph recapture. graph.replay bypasses host identity/version checks; callers must enforce this contract."
+      },
+      "initial_prepare_ms": 0.9083496406674385,
+      "initial_task_count": 249,
+      "topology_change": {
+        "old_graph_replayed_after_topology_mutation": false,
+        "old_op_validate_plan_rejected": true,
+        "rejection": "Owner-task topology metadata changed: rebuild Attention outside replay and recapture the graph",
+        "graph_replay_bypasses_host_check": true,
+        "offset_values_changed": true,
+        "offset_version_changed_even_if_values_equal": true,
+        "updated_plan_build_wall_seconds": 0.005139023065567017,
+        "old_plan_mutation_and_rejection_wall_seconds": 6.03795051574707e-05,
+        "Attention_rebuild_wall_seconds": 0.0007101390510797501,
+        "warmup_JIT_recapture_first_replay_wall_seconds": 0.001240796409547329,
+        "total_rebuild_sequence_wall_seconds": 0.007150338031351566,
+        "updated_plan_prepare_ms": 5.080663599073887,
+        "Attention_prepare_ms": 0.6908271461725235,
+        "cost_scope": "Diagnostic host wall includes plan construction/D2H/H2D/allocations, old-plan rejection, Attention rebuild, JIT warmup, new graph capture and first replay; excludes artifact export and FP64/hash audits."
+      },
+      "rebuilt_metadata": {
+        "mechanism": "spatial_owner_tasks_packed_reduction_control",
+        "chunk_tokens": 64,
+        "task_count": 249,
+        "packed_partial_rows": 4224,
+        "requested_splits_compatibility_parameter": 64,
+        "splits_semantics": "Not used for partitioning; fixed chunk_tokens defines tasks. This is not the original equal-split scheme.",
+        "prepare_scope": "CPU metadata D2H, validation, task/table construction, H2D and owned-buffer allocation; first kernel JIT excluded.",
+        "workspace_bytes_by_buffer": {
+          "packed_U": 2162688,
+          "packed_M": 16896,
+          "packed_L": 16896,
+          "task_descriptors": 5976,
+          "merge_indices": 2144,
+          "contribution_counts": 32,
+          "output": 16384,
+          "LSE": 256
+        },
+        "workspace_bytes": 2221272,
+        "max_contributions": 67,
+        "merge_streaming_group": 16,
+        "structure_sha256": "f771c6a199c62dff8162ebbb99f7a52e3111bb46200c9e8934ede7be1a3c9a67",
+        "payload_aliases_source": true,
+        "graph_topology_contract": "Q/K/V and original Indices values may change in place. Replacing the plan or any plan tensor, changing tensor storage/layout, or changing offsets/labels/counts/row_map requires rebuild and graph recapture. graph.replay bypasses host identity/version checks; callers must enforce this contract."
+      },
+      "rebuilt_task_count": 249,
+      "resource_review_status": "exported_independent_review_pending",
+      "initial_resources": {
+        "producer": {
+          "status": "saved_for_independent_resource_review",
+          "name": "producer",
+          "n_regs": 128,
+          "n_spills": 0,
+          "Triton_metadata": {
+            "allowed_dot_input_precisions": [
+              "tf32",
+              "tf32x3",
+              "ieee",
+              "bf16x3",
+              "bf16x6"
+            ],
+            "arch": "sm120",
+            "backend_name": "cuda",
+            "debug": false,
+            "default_dot_input_precision": "tf32",
+            "deprecated_fp8_dot_operand_dtypes": [
+              "fp8e4b15"
+            ],
+            "enable_fp_fusion": true,
+            "enable_reflect_ftz": true,
+            "extern_libs": [
+              [
+                "libdevice",
+                "/home/qcjz/miniconda3/envs/sglang-vllm-m120/lib/python3.12/site-packages/triton/backends/nvidia/lib/libdevice.10.bc"
+              ]
+            ],
+            "global_scratch_align": 1,
+            "global_scratch_size": 0,
+            "hash": "de8bf89136d479bfa23a865a92deac188c81f4da6134ac15a86eb98e4d156fdb",
+            "instrumentation_mode": "",
+            "ir_override": null,
+            "launch_cooperative_grid": false,
+            "launch_pdl": false,
+            "max_num_imprecise_acc_default": 0,
+            "maxnreg": null,
+            "name": "producer",
+            "num_ctas": 1,
+            "num_stages": 1,
+            "num_warps": 4,
+            "profile_scratch_align": 1,
+            "profile_scratch_size": 0,
+            "ptx_options": null,
+            "ptx_version": null,
+            "sanitize_overflow": true,
+            "shared": 28672,
+            "supported_fp8_dtypes": [
+              "fp8e4b15",
+              "fp8e4nv",
+              "fp8e5"
+            ],
+            "target": "GPUTarget(backend='cuda', arch=120, warp_size=32)",
+            "tensordesc_meta": [],
+            "tmem_size": 0,
+            "triton_version": "3.6.0",
+            "warp_size": 32
+          },
+          "cubin_resources": {
+            "reg": 128,
+            "stack": 0,
+            "shared": 1024,
+            "local": 0
+          },
+          "SASS_LDL_count": 0,
+          "SASS_STL_count": 0,
+          "explicit_local_traffic_absent": true,
+          "artifacts": {
+            "ptx": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/all_masks_initial_producer.ptx",
+              "sha256": "7a853a7b7c4ab8f50eb16cd32ae4c8b29214f88bef3255daf246eec88b7f8556"
+            },
+            "cubin": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/all_masks_initial_producer.cubin",
+              "sha256": "66f463988e9c5a19c87abb8ad87721e47b7cb7d399d500ade047f1550f5f01ba"
+            },
+            "resources": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/all_masks_initial_producer.resources.txt",
+              "sha256": "db50891d3e3fbaf80cef6cef769e4d320a1e323af8cb39033f0a2b6a88740cf6"
+            },
+            "sass": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/all_masks_initial_producer.sass",
+              "sha256": "8ed418153d3b24f74b545ce833762247a8e50c4e11997889ddd7a86b6d6ad2de"
+            }
+          }
+        },
+        "merge": {
+          "status": "saved_for_independent_resource_review",
+          "name": "merge",
+          "n_regs": 42,
+          "n_spills": 0,
+          "Triton_metadata": {
+            "allowed_dot_input_precisions": [
+              "tf32",
+              "tf32x3",
+              "ieee",
+              "bf16x3",
+              "bf16x6"
+            ],
+            "arch": "sm120",
+            "backend_name": "cuda",
+            "debug": false,
+            "default_dot_input_precision": "tf32",
+            "deprecated_fp8_dot_operand_dtypes": [
+              "fp8e4b15"
+            ],
+            "enable_fp_fusion": true,
+            "enable_reflect_ftz": true,
+            "extern_libs": [
+              [
+                "libdevice",
+                "/home/qcjz/miniconda3/envs/sglang-vllm-m120/lib/python3.12/site-packages/triton/backends/nvidia/lib/libdevice.10.bc"
+              ]
+            ],
+            "global_scratch_align": 1,
+            "global_scratch_size": 0,
+            "hash": "ca4e7b5a39101510bf8edd3ec7fdca3a1a2235858afd755a1fb440bfd680bdcf",
+            "instrumentation_mode": "",
+            "ir_override": null,
+            "launch_cooperative_grid": false,
+            "launch_pdl": false,
+            "max_num_imprecise_acc_default": 0,
+            "maxnreg": null,
+            "name": "merge",
+            "num_ctas": 1,
+            "num_stages": 3,
+            "num_warps": 4,
+            "profile_scratch_align": 1,
+            "profile_scratch_size": 0,
+            "ptx_options": null,
+            "ptx_version": null,
+            "sanitize_overflow": true,
+            "shared": 2048,
+            "supported_fp8_dtypes": [
+              "fp8e4b15",
+              "fp8e4nv",
+              "fp8e5"
+            ],
+            "target": "GPUTarget(backend='cuda', arch=120, warp_size=32)",
+            "tensordesc_meta": [],
+            "tmem_size": 0,
+            "triton_version": "3.6.0",
+            "warp_size": 32
+          },
+          "cubin_resources": {
+            "reg": 42,
+            "stack": 0,
+            "shared": 1024,
+            "local": 0
+          },
+          "SASS_LDL_count": 0,
+          "SASS_STL_count": 0,
+          "explicit_local_traffic_absent": true,
+          "artifacts": {
+            "ptx": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/all_masks_initial_merge.ptx",
+              "sha256": "d735d80182d65f1b0265523ab8878ab583ea21b6adad19dc33d0cb90fadff796"
+            },
+            "cubin": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/all_masks_initial_merge.cubin",
+              "sha256": "49e0c598caa314d3d5f2232dfc92f12986a480ee706915f6d4793da1c934f165"
+            },
+            "resources": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/all_masks_initial_merge.resources.txt",
+              "sha256": "84fab37ac9ef3468413685227f84a81a61df7ad85f61b42c0e51650df6cab85e"
+            },
+            "sass": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/all_masks_initial_merge.sass",
+              "sha256": "4bfa5b232f4fa5bddbb864b4d5d58a337e5ea4ffb7ecb0b3e80a47af043168b5"
+            }
+          }
+        }
+      },
+      "rebuilt_resources": {
+        "producer": {
+          "status": "saved_for_independent_resource_review",
+          "name": "producer",
+          "n_regs": 128,
+          "n_spills": 0,
+          "Triton_metadata": {
+            "allowed_dot_input_precisions": [
+              "tf32",
+              "tf32x3",
+              "ieee",
+              "bf16x3",
+              "bf16x6"
+            ],
+            "arch": "sm120",
+            "backend_name": "cuda",
+            "debug": false,
+            "default_dot_input_precision": "tf32",
+            "deprecated_fp8_dot_operand_dtypes": [
+              "fp8e4b15"
+            ],
+            "enable_fp_fusion": true,
+            "enable_reflect_ftz": true,
+            "extern_libs": [
+              [
+                "libdevice",
+                "/home/qcjz/miniconda3/envs/sglang-vllm-m120/lib/python3.12/site-packages/triton/backends/nvidia/lib/libdevice.10.bc"
+              ]
+            ],
+            "global_scratch_align": 1,
+            "global_scratch_size": 0,
+            "hash": "de8bf89136d479bfa23a865a92deac188c81f4da6134ac15a86eb98e4d156fdb",
+            "instrumentation_mode": "",
+            "ir_override": null,
+            "launch_cooperative_grid": false,
+            "launch_pdl": false,
+            "max_num_imprecise_acc_default": 0,
+            "maxnreg": null,
+            "name": "producer",
+            "num_ctas": 1,
+            "num_stages": 1,
+            "num_warps": 4,
+            "profile_scratch_align": 1,
+            "profile_scratch_size": 0,
+            "ptx_options": null,
+            "ptx_version": null,
+            "sanitize_overflow": true,
+            "shared": 28672,
+            "supported_fp8_dtypes": [
+              "fp8e4b15",
+              "fp8e4nv",
+              "fp8e5"
+            ],
+            "target": "GPUTarget(backend='cuda', arch=120, warp_size=32)",
+            "tensordesc_meta": [],
+            "tmem_size": 0,
+            "triton_version": "3.6.0",
+            "warp_size": 32
+          },
+          "cubin_resources": {
+            "reg": 128,
+            "stack": 0,
+            "shared": 1024,
+            "local": 0
+          },
+          "SASS_LDL_count": 0,
+          "SASS_STL_count": 0,
+          "explicit_local_traffic_absent": true,
+          "artifacts": {
+            "ptx": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/all_masks_rebuilt_producer.ptx",
+              "sha256": "7a853a7b7c4ab8f50eb16cd32ae4c8b29214f88bef3255daf246eec88b7f8556"
+            },
+            "cubin": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/all_masks_rebuilt_producer.cubin",
+              "sha256": "66f463988e9c5a19c87abb8ad87721e47b7cb7d399d500ade047f1550f5f01ba"
+            },
+            "resources": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/all_masks_rebuilt_producer.resources.txt",
+              "sha256": "db50891d3e3fbaf80cef6cef769e4d320a1e323af8cb39033f0a2b6a88740cf6"
+            },
+            "sass": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/all_masks_rebuilt_producer.sass",
+              "sha256": "8ed418153d3b24f74b545ce833762247a8e50c4e11997889ddd7a86b6d6ad2de"
+            }
+          }
+        },
+        "merge": {
+          "status": "saved_for_independent_resource_review",
+          "name": "merge",
+          "n_regs": 42,
+          "n_spills": 0,
+          "Triton_metadata": {
+            "allowed_dot_input_precisions": [
+              "tf32",
+              "tf32x3",
+              "ieee",
+              "bf16x3",
+              "bf16x6"
+            ],
+            "arch": "sm120",
+            "backend_name": "cuda",
+            "debug": false,
+            "default_dot_input_precision": "tf32",
+            "deprecated_fp8_dot_operand_dtypes": [
+              "fp8e4b15"
+            ],
+            "enable_fp_fusion": true,
+            "enable_reflect_ftz": true,
+            "extern_libs": [
+              [
+                "libdevice",
+                "/home/qcjz/miniconda3/envs/sglang-vllm-m120/lib/python3.12/site-packages/triton/backends/nvidia/lib/libdevice.10.bc"
+              ]
+            ],
+            "global_scratch_align": 1,
+            "global_scratch_size": 0,
+            "hash": "ca4e7b5a39101510bf8edd3ec7fdca3a1a2235858afd755a1fb440bfd680bdcf",
+            "instrumentation_mode": "",
+            "ir_override": null,
+            "launch_cooperative_grid": false,
+            "launch_pdl": false,
+            "max_num_imprecise_acc_default": 0,
+            "maxnreg": null,
+            "name": "merge",
+            "num_ctas": 1,
+            "num_stages": 3,
+            "num_warps": 4,
+            "profile_scratch_align": 1,
+            "profile_scratch_size": 0,
+            "ptx_options": null,
+            "ptx_version": null,
+            "sanitize_overflow": true,
+            "shared": 2048,
+            "supported_fp8_dtypes": [
+              "fp8e4b15",
+              "fp8e4nv",
+              "fp8e5"
+            ],
+            "target": "GPUTarget(backend='cuda', arch=120, warp_size=32)",
+            "tensordesc_meta": [],
+            "tmem_size": 0,
+            "triton_version": "3.6.0",
+            "warp_size": 32
+          },
+          "cubin_resources": {
+            "reg": 42,
+            "stack": 0,
+            "shared": 1024,
+            "local": 0
+          },
+          "SASS_LDL_count": 0,
+          "SASS_STL_count": 0,
+          "explicit_local_traffic_absent": true,
+          "artifacts": {
+            "ptx": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/all_masks_rebuilt_merge.ptx",
+              "sha256": "d735d80182d65f1b0265523ab8878ab583ea21b6adad19dc33d0cb90fadff796"
+            },
+            "cubin": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/all_masks_rebuilt_merge.cubin",
+              "sha256": "49e0c598caa314d3d5f2232dfc92f12986a480ee706915f6d4793da1c934f165"
+            },
+            "resources": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/all_masks_rebuilt_merge.resources.txt",
+              "sha256": "84fab37ac9ef3468413685227f84a81a61df7ad85f61b42c0e51650df6cab85e"
+            },
+            "sass": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/all_masks_rebuilt_merge.sass",
+              "sha256": "4bfa5b232f4fa5bddbb864b4d5d58a337e5ea4ffb7ecb0b3e80a47af043168b5"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "unequal",
+      "status": "passed_numerical_fixed_topology_graph_and_rebuilt_graph",
+      "batch": 4,
+      "q_shape": [
+        2,
+        32,
+        128
+      ],
+      "k_shape": [
+        2,
+        8197,
+        128
+      ],
+      "provenance": {
+        "kind": "synthetic",
+        "seed": 20261016
+      },
+      "checks": [
+        {
+          "phase": "eager",
+          "status": "passed",
+          "O_max_abs_fp64": 0.0055746901222866185,
+          "O_relative_l2_fp64": 0.0017938566913443445,
+          "LSE_max_abs_fp64_finite_rows": 7.407315365526301e-07,
+          "empty_rows": 0,
+          "O_sha256": "249d1a26f80e870cae4d9f36dc24852c62dd41194f239125334413139c044ea5",
+          "Q_sha256": "7441309c49ed155fe47c096fcec29cedf6539469dd95f19f26016f17496c689d",
+          "K_sha256": "7c3577e95464bf19f7f6ecfb570867b77fd41d27b3a5a3410798a60be7a9b016",
+          "V_sha256": "286b2ab44689bd6edf11bbb1b84f9ab75e55f014a4c508c9583ff2a18d5156e9",
+          "owner_sha256": "df9a46ad1749ff2c087b8cf397d8e9450e64a603807ce1d1c180a3feaca45535"
+        },
+        {
+          "phase": "graph_baseline",
+          "status": "passed",
+          "O_max_abs_fp64": 0.0055746901222866185,
+          "O_relative_l2_fp64": 0.0017938566913443445,
+          "LSE_max_abs_fp64_finite_rows": 7.407315365526301e-07,
+          "empty_rows": 0,
+          "O_sha256": "249d1a26f80e870cae4d9f36dc24852c62dd41194f239125334413139c044ea5",
+          "Q_sha256": "7441309c49ed155fe47c096fcec29cedf6539469dd95f19f26016f17496c689d",
+          "K_sha256": "7c3577e95464bf19f7f6ecfb570867b77fd41d27b3a5a3410798a60be7a9b016",
+          "V_sha256": "286b2ab44689bd6edf11bbb1b84f9ab75e55f014a4c508c9583ff2a18d5156e9",
+          "owner_sha256": "df9a46ad1749ff2c087b8cf397d8e9450e64a603807ce1d1c180a3feaca45535"
+        },
+        {
+          "phase": "graph_changed_Q",
+          "status": "passed",
+          "O_max_abs_fp64": 0.007329508470370172,
+          "O_relative_l2_fp64": 0.0017771788147479132,
+          "LSE_max_abs_fp64_finite_rows": 7.227787328645263e-07,
+          "empty_rows": 0,
+          "O_sha256": "1063d8cb65970a1ea320be339a730e97ef2591134ecbc265270b3f6b4759ba17",
+          "Q_sha256": "019b25f182fcab8954043f75f7f48fd4fde5d81fe772f9f85dabe14293ef5677",
+          "K_sha256": "7c3577e95464bf19f7f6ecfb570867b77fd41d27b3a5a3410798a60be7a9b016",
+          "V_sha256": "286b2ab44689bd6edf11bbb1b84f9ab75e55f014a4c508c9583ff2a18d5156e9",
+          "owner_sha256": "df9a46ad1749ff2c087b8cf397d8e9450e64a603807ce1d1c180a3feaca45535"
+        },
+        {
+          "phase": "graph_changed_KV",
+          "status": "passed",
+          "O_max_abs_fp64": 0.004616914119041304,
+          "O_relative_l2_fp64": 0.0018856272646336795,
+          "LSE_max_abs_fp64_finite_rows": 4.440475649403197e-07,
+          "empty_rows": 0,
+          "O_sha256": "2064443ad541b87af64219b78092ce617d5b6a331eb3ee7806415e33922069db",
+          "Q_sha256": "019b25f182fcab8954043f75f7f48fd4fde5d81fe772f9f85dabe14293ef5677",
+          "K_sha256": "eccf73c3f6d06108c0d4e1e9d50db6b1eb4c33f5436732872bc31cbd8d95786c",
+          "V_sha256": "a69bc9fa61be4a474d4ac3437785489d46494f9e1e2cab9ae6cd6b14b96aa07c",
+          "owner_sha256": "df9a46ad1749ff2c087b8cf397d8e9450e64a603807ce1d1c180a3feaca45535"
+        },
+        {
+          "phase": "graph_changed_indices",
+          "status": "passed",
+          "O_max_abs_fp64": 0.004751069852868772,
+          "O_relative_l2_fp64": 0.0018315777208080435,
+          "LSE_max_abs_fp64_finite_rows": 3.9485103187075765e-07,
+          "empty_rows": 0,
+          "O_sha256": "40039ee29e3e27c5d9968a5a8857461451ba829304d581733006b0dd404c242b",
+          "Q_sha256": "019b25f182fcab8954043f75f7f48fd4fde5d81fe772f9f85dabe14293ef5677",
+          "K_sha256": "eccf73c3f6d06108c0d4e1e9d50db6b1eb4c33f5436732872bc31cbd8d95786c",
+          "V_sha256": "a69bc9fa61be4a474d4ac3437785489d46494f9e1e2cab9ae6cd6b14b96aa07c",
+          "owner_sha256": "6a8f73526c9d9f711da54a2c99b171f50fce245f81f05c3bf4760dd23dff9ccf"
+        },
+        {
+          "phase": "rebuild_and_new_graph_changed_owners",
+          "status": "passed",
+          "O_max_abs_fp64": 0.004085540011460553,
+          "O_relative_l2_fp64": 0.0017879658105769277,
+          "LSE_max_abs_fp64_finite_rows": 7.586045995822133e-07,
+          "empty_rows": 16,
+          "O_sha256": "0e3b44b9ce24b6c59d356f94002783a2b86ddf0d5d327a554b4517bd7adcf000",
+          "Q_sha256": "019b25f182fcab8954043f75f7f48fd4fde5d81fe772f9f85dabe14293ef5677",
+          "K_sha256": "eccf73c3f6d06108c0d4e1e9d50db6b1eb4c33f5436732872bc31cbd8d95786c",
+          "V_sha256": "a69bc9fa61be4a474d4ac3437785489d46494f9e1e2cab9ae6cd6b14b96aa07c",
+          "owner_sha256": "f3847a04f15bc9dc9b2b474c790788b82ec8077eec6b0f7bbcb816f6b8fa1e0e"
+        }
+      ],
+      "initial_plan_prepare_ms": 3.047865815460682,
+      "initial_metadata": {
+        "mechanism": "spatial_owner_tasks_packed_reduction_control",
+        "chunk_tokens": 64,
+        "task_count": 144,
+        "packed_partial_rows": 1312,
+        "requested_splits_compatibility_parameter": 64,
+        "splits_semantics": "Not used for partitioning; fixed chunk_tokens defines tasks. This is not the original equal-split scheme.",
+        "prepare_scope": "CPU metadata D2H, validation, task/table construction, H2D and owned-buffer allocation; first kernel JIT excluded.",
+        "workspace_bytes_by_buffer": {
+          "packed_U": 671744,
+          "packed_M": 5248,
+          "packed_L": 5248,
+          "task_descriptors": 3456,
+          "merge_indices": 4320,
+          "contribution_counts": 32,
+          "output": 16384,
+          "LSE": 256
+        },
+        "workspace_bytes": 706688,
+        "max_contributions": 135,
+        "merge_streaming_group": 16,
+        "structure_sha256": "ca48854d38b04b3697a33fee9ec1f58b8e703295ce45042c1ac996c030b4b926",
+        "payload_aliases_source": true,
+        "graph_topology_contract": "Q/K/V and original Indices values may change in place. Replacing the plan or any plan tensor, changing tensor storage/layout, or changing offsets/labels/counts/row_map requires rebuild and graph recapture. graph.replay bypasses host identity/version checks; callers must enforce this contract."
+      },
+      "initial_prepare_ms": 0.5339151248335838,
+      "initial_task_count": 144,
+      "topology_change": {
+        "old_graph_replayed_after_topology_mutation": false,
+        "old_op_validate_plan_rejected": true,
+        "rejection": "Owner-task topology metadata changed: rebuild Attention outside replay and recapture the graph",
+        "graph_replay_bypasses_host_check": true,
+        "offset_values_changed": true,
+        "offset_version_changed_even_if_values_equal": true,
+        "updated_plan_build_wall_seconds": 0.002937748096883297,
+        "old_plan_mutation_and_rejection_wall_seconds": 4.6055763959884644e-05,
+        "Attention_rebuild_wall_seconds": 0.0005351919680833817,
+        "warmup_JIT_recapture_first_replay_wall_seconds": 0.0010398626327514648,
+        "total_rebuild_sequence_wall_seconds": 0.004558858461678028,
+        "updated_plan_prepare_ms": 2.922344021499157,
+        "Attention_prepare_ms": 0.5249567329883575,
+        "cost_scope": "Diagnostic host wall includes plan construction/D2H/H2D/allocations, old-plan rejection, Attention rebuild, JIT warmup, new graph capture and first replay; excludes artifact export and FP64/hash audits."
+      },
+      "rebuilt_metadata": {
+        "mechanism": "spatial_owner_tasks_packed_reduction_control",
+        "chunk_tokens": 64,
+        "task_count": 144,
+        "packed_partial_rows": 1288,
+        "requested_splits_compatibility_parameter": 64,
+        "splits_semantics": "Not used for partitioning; fixed chunk_tokens defines tasks. This is not the original equal-split scheme.",
+        "prepare_scope": "CPU metadata D2H, validation, task/table construction, H2D and owned-buffer allocation; first kernel JIT excluded.",
+        "workspace_bytes_by_buffer": {
+          "packed_U": 659456,
+          "packed_M": 5152,
+          "packed_L": 5152,
+          "task_descriptors": 3456,
+          "merge_indices": 4320,
+          "contribution_counts": 32,
+          "output": 16384,
+          "LSE": 256
+        },
+        "workspace_bytes": 694208,
+        "max_contributions": 135,
+        "merge_streaming_group": 16,
+        "structure_sha256": "f1aab184bd18c068fa939c361161afa90ca7091e975c5e8bc076d214f05297eb",
+        "payload_aliases_source": true,
+        "graph_topology_contract": "Q/K/V and original Indices values may change in place. Replacing the plan or any plan tensor, changing tensor storage/layout, or changing offsets/labels/counts/row_map requires rebuild and graph recapture. graph.replay bypasses host identity/version checks; callers must enforce this contract."
+      },
+      "rebuilt_task_count": 144,
+      "resource_review_status": "exported_independent_review_pending",
+      "initial_resources": {
+        "producer": {
+          "status": "saved_for_independent_resource_review",
+          "name": "producer",
+          "n_regs": 128,
+          "n_spills": 0,
+          "Triton_metadata": {
+            "allowed_dot_input_precisions": [
+              "tf32",
+              "tf32x3",
+              "ieee",
+              "bf16x3",
+              "bf16x6"
+            ],
+            "arch": "sm120",
+            "backend_name": "cuda",
+            "debug": false,
+            "default_dot_input_precision": "tf32",
+            "deprecated_fp8_dot_operand_dtypes": [
+              "fp8e4b15"
+            ],
+            "enable_fp_fusion": true,
+            "enable_reflect_ftz": true,
+            "extern_libs": [
+              [
+                "libdevice",
+                "/home/qcjz/miniconda3/envs/sglang-vllm-m120/lib/python3.12/site-packages/triton/backends/nvidia/lib/libdevice.10.bc"
+              ]
+            ],
+            "global_scratch_align": 1,
+            "global_scratch_size": 0,
+            "hash": "de8bf89136d479bfa23a865a92deac188c81f4da6134ac15a86eb98e4d156fdb",
+            "instrumentation_mode": "",
+            "ir_override": null,
+            "launch_cooperative_grid": false,
+            "launch_pdl": false,
+            "max_num_imprecise_acc_default": 0,
+            "maxnreg": null,
+            "name": "producer",
+            "num_ctas": 1,
+            "num_stages": 1,
+            "num_warps": 4,
+            "profile_scratch_align": 1,
+            "profile_scratch_size": 0,
+            "ptx_options": null,
+            "ptx_version": null,
+            "sanitize_overflow": true,
+            "shared": 28672,
+            "supported_fp8_dtypes": [
+              "fp8e4b15",
+              "fp8e4nv",
+              "fp8e5"
+            ],
+            "target": "GPUTarget(backend='cuda', arch=120, warp_size=32)",
+            "tensordesc_meta": [],
+            "tmem_size": 0,
+            "triton_version": "3.6.0",
+            "warp_size": 32
+          },
+          "cubin_resources": {
+            "reg": 128,
+            "stack": 0,
+            "shared": 1024,
+            "local": 0
+          },
+          "SASS_LDL_count": 0,
+          "SASS_STL_count": 0,
+          "explicit_local_traffic_absent": true,
+          "artifacts": {
+            "ptx": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/unequal_initial_producer.ptx",
+              "sha256": "7a853a7b7c4ab8f50eb16cd32ae4c8b29214f88bef3255daf246eec88b7f8556"
+            },
+            "cubin": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/unequal_initial_producer.cubin",
+              "sha256": "66f463988e9c5a19c87abb8ad87721e47b7cb7d399d500ade047f1550f5f01ba"
+            },
+            "resources": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/unequal_initial_producer.resources.txt",
+              "sha256": "db50891d3e3fbaf80cef6cef769e4d320a1e323af8cb39033f0a2b6a88740cf6"
+            },
+            "sass": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/unequal_initial_producer.sass",
+              "sha256": "8ed418153d3b24f74b545ce833762247a8e50c4e11997889ddd7a86b6d6ad2de"
+            }
+          }
+        },
+        "merge": {
+          "status": "saved_for_independent_resource_review",
+          "name": "merge",
+          "n_regs": 42,
+          "n_spills": 0,
+          "Triton_metadata": {
+            "allowed_dot_input_precisions": [
+              "tf32",
+              "tf32x3",
+              "ieee",
+              "bf16x3",
+              "bf16x6"
+            ],
+            "arch": "sm120",
+            "backend_name": "cuda",
+            "debug": false,
+            "default_dot_input_precision": "tf32",
+            "deprecated_fp8_dot_operand_dtypes": [
+              "fp8e4b15"
+            ],
+            "enable_fp_fusion": true,
+            "enable_reflect_ftz": true,
+            "extern_libs": [
+              [
+                "libdevice",
+                "/home/qcjz/miniconda3/envs/sglang-vllm-m120/lib/python3.12/site-packages/triton/backends/nvidia/lib/libdevice.10.bc"
+              ]
+            ],
+            "global_scratch_align": 1,
+            "global_scratch_size": 0,
+            "hash": "69ef4329d23a279b2adb8242d08f4c64d27220c2f90d034ea52dbe235d9ac008",
+            "instrumentation_mode": "",
+            "ir_override": null,
+            "launch_cooperative_grid": false,
+            "launch_pdl": false,
+            "max_num_imprecise_acc_default": 0,
+            "maxnreg": null,
+            "name": "merge",
+            "num_ctas": 1,
+            "num_stages": 3,
+            "num_warps": 4,
+            "profile_scratch_align": 1,
+            "profile_scratch_size": 0,
+            "ptx_options": null,
+            "ptx_version": null,
+            "sanitize_overflow": true,
+            "shared": 2048,
+            "supported_fp8_dtypes": [
+              "fp8e4b15",
+              "fp8e4nv",
+              "fp8e5"
+            ],
+            "target": "GPUTarget(backend='cuda', arch=120, warp_size=32)",
+            "tensordesc_meta": [],
+            "tmem_size": 0,
+            "triton_version": "3.6.0",
+            "warp_size": 32
+          },
+          "cubin_resources": {
+            "reg": 42,
+            "stack": 0,
+            "shared": 1024,
+            "local": 0
+          },
+          "SASS_LDL_count": 0,
+          "SASS_STL_count": 0,
+          "explicit_local_traffic_absent": true,
+          "artifacts": {
+            "ptx": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/unequal_initial_merge.ptx",
+              "sha256": "a826d4b88948a309e24c0187bf3c6621745155c7999912f03d78395628513b35"
+            },
+            "cubin": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/unequal_initial_merge.cubin",
+              "sha256": "d549954b832aa0d838845357fcf30cd3f224e2116cbaface9717366b143ffc33"
+            },
+            "resources": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/unequal_initial_merge.resources.txt",
+              "sha256": "84fab37ac9ef3468413685227f84a81a61df7ad85f61b42c0e51650df6cab85e"
+            },
+            "sass": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/unequal_initial_merge.sass",
+              "sha256": "654a0a4706b8e96cf29ebb00aae94db8ff6daeeaf1d87777abd76577bc1353e1"
+            }
+          }
+        }
+      },
+      "rebuilt_resources": {
+        "producer": {
+          "status": "saved_for_independent_resource_review",
+          "name": "producer",
+          "n_regs": 128,
+          "n_spills": 0,
+          "Triton_metadata": {
+            "allowed_dot_input_precisions": [
+              "tf32",
+              "tf32x3",
+              "ieee",
+              "bf16x3",
+              "bf16x6"
+            ],
+            "arch": "sm120",
+            "backend_name": "cuda",
+            "debug": false,
+            "default_dot_input_precision": "tf32",
+            "deprecated_fp8_dot_operand_dtypes": [
+              "fp8e4b15"
+            ],
+            "enable_fp_fusion": true,
+            "enable_reflect_ftz": true,
+            "extern_libs": [
+              [
+                "libdevice",
+                "/home/qcjz/miniconda3/envs/sglang-vllm-m120/lib/python3.12/site-packages/triton/backends/nvidia/lib/libdevice.10.bc"
+              ]
+            ],
+            "global_scratch_align": 1,
+            "global_scratch_size": 0,
+            "hash": "de8bf89136d479bfa23a865a92deac188c81f4da6134ac15a86eb98e4d156fdb",
+            "instrumentation_mode": "",
+            "ir_override": null,
+            "launch_cooperative_grid": false,
+            "launch_pdl": false,
+            "max_num_imprecise_acc_default": 0,
+            "maxnreg": null,
+            "name": "producer",
+            "num_ctas": 1,
+            "num_stages": 1,
+            "num_warps": 4,
+            "profile_scratch_align": 1,
+            "profile_scratch_size": 0,
+            "ptx_options": null,
+            "ptx_version": null,
+            "sanitize_overflow": true,
+            "shared": 28672,
+            "supported_fp8_dtypes": [
+              "fp8e4b15",
+              "fp8e4nv",
+              "fp8e5"
+            ],
+            "target": "GPUTarget(backend='cuda', arch=120, warp_size=32)",
+            "tensordesc_meta": [],
+            "tmem_size": 0,
+            "triton_version": "3.6.0",
+            "warp_size": 32
+          },
+          "cubin_resources": {
+            "reg": 128,
+            "stack": 0,
+            "shared": 1024,
+            "local": 0
+          },
+          "SASS_LDL_count": 0,
+          "SASS_STL_count": 0,
+          "explicit_local_traffic_absent": true,
+          "artifacts": {
+            "ptx": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/unequal_rebuilt_producer.ptx",
+              "sha256": "7a853a7b7c4ab8f50eb16cd32ae4c8b29214f88bef3255daf246eec88b7f8556"
+            },
+            "cubin": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/unequal_rebuilt_producer.cubin",
+              "sha256": "66f463988e9c5a19c87abb8ad87721e47b7cb7d399d500ade047f1550f5f01ba"
+            },
+            "resources": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/unequal_rebuilt_producer.resources.txt",
+              "sha256": "db50891d3e3fbaf80cef6cef769e4d320a1e323af8cb39033f0a2b6a88740cf6"
+            },
+            "sass": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/unequal_rebuilt_producer.sass",
+              "sha256": "8ed418153d3b24f74b545ce833762247a8e50c4e11997889ddd7a86b6d6ad2de"
+            }
+          }
+        },
+        "merge": {
+          "status": "saved_for_independent_resource_review",
+          "name": "merge",
+          "n_regs": 42,
+          "n_spills": 0,
+          "Triton_metadata": {
+            "allowed_dot_input_precisions": [
+              "tf32",
+              "tf32x3",
+              "ieee",
+              "bf16x3",
+              "bf16x6"
+            ],
+            "arch": "sm120",
+            "backend_name": "cuda",
+            "debug": false,
+            "default_dot_input_precision": "tf32",
+            "deprecated_fp8_dot_operand_dtypes": [
+              "fp8e4b15"
+            ],
+            "enable_fp_fusion": true,
+            "enable_reflect_ftz": true,
+            "extern_libs": [
+              [
+                "libdevice",
+                "/home/qcjz/miniconda3/envs/sglang-vllm-m120/lib/python3.12/site-packages/triton/backends/nvidia/lib/libdevice.10.bc"
+              ]
+            ],
+            "global_scratch_align": 1,
+            "global_scratch_size": 0,
+            "hash": "69ef4329d23a279b2adb8242d08f4c64d27220c2f90d034ea52dbe235d9ac008",
+            "instrumentation_mode": "",
+            "ir_override": null,
+            "launch_cooperative_grid": false,
+            "launch_pdl": false,
+            "max_num_imprecise_acc_default": 0,
+            "maxnreg": null,
+            "name": "merge",
+            "num_ctas": 1,
+            "num_stages": 3,
+            "num_warps": 4,
+            "profile_scratch_align": 1,
+            "profile_scratch_size": 0,
+            "ptx_options": null,
+            "ptx_version": null,
+            "sanitize_overflow": true,
+            "shared": 2048,
+            "supported_fp8_dtypes": [
+              "fp8e4b15",
+              "fp8e4nv",
+              "fp8e5"
+            ],
+            "target": "GPUTarget(backend='cuda', arch=120, warp_size=32)",
+            "tensordesc_meta": [],
+            "tmem_size": 0,
+            "triton_version": "3.6.0",
+            "warp_size": 32
+          },
+          "cubin_resources": {
+            "reg": 42,
+            "stack": 0,
+            "shared": 1024,
+            "local": 0
+          },
+          "SASS_LDL_count": 0,
+          "SASS_STL_count": 0,
+          "explicit_local_traffic_absent": true,
+          "artifacts": {
+            "ptx": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/unequal_rebuilt_merge.ptx",
+              "sha256": "a826d4b88948a309e24c0187bf3c6621745155c7999912f03d78395628513b35"
+            },
+            "cubin": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/unequal_rebuilt_merge.cubin",
+              "sha256": "d549954b832aa0d838845357fcf30cd3f224e2116cbaface9717366b143ffc33"
+            },
+            "resources": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/unequal_rebuilt_merge.resources.txt",
+              "sha256": "84fab37ac9ef3468413685227f84a81a61df7ad85f61b42c0e51650df6cab85e"
+            },
+            "sass": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/unequal_rebuilt_merge.sass",
+              "sha256": "654a0a4706b8e96cf29ebb00aae94db8ff6daeeaf1d87777abd76577bc1353e1"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "empty",
+      "status": "passed_numerical_fixed_topology_graph_and_rebuilt_graph",
+      "batch": 4,
+      "q_shape": [
+        2,
+        32,
+        128
+      ],
+      "k_shape": [
+        2,
+        8197,
+        128
+      ],
+      "provenance": {
+        "kind": "synthetic",
+        "seed": 20261016
+      },
+      "checks": [
+        {
+          "phase": "eager",
+          "status": "passed",
+          "O_max_abs_fp64": 0.0,
+          "O_relative_l2_fp64": 0.0,
+          "LSE_max_abs_fp64_finite_rows": 0.0,
+          "empty_rows": 64,
+          "O_sha256": "4fe7b59af6de3b665b67788cc2f99892ab827efae3a467342b3bb4e3bc8e5bfe",
+          "Q_sha256": "051d3827a5acfd0bdfbe2ac69e15ad8748c22169ac4f8b5830e4f32f7691f44f",
+          "K_sha256": "b9da280b9c872a2a3b33e6b2b864510100c926f6874077392b312b8c38748682",
+          "V_sha256": "d694445a298ee2bc1f11921beeb8dafa5b6f7cffe77897bf8c57d6e5e4f94234",
+          "owner_sha256": "c23b213d50599e99811cbbd01047178cb62438dee2161a37375243411a351173"
+        },
+        {
+          "phase": "graph_baseline",
+          "status": "passed",
+          "O_max_abs_fp64": 0.0,
+          "O_relative_l2_fp64": 0.0,
+          "LSE_max_abs_fp64_finite_rows": 0.0,
+          "empty_rows": 64,
+          "O_sha256": "4fe7b59af6de3b665b67788cc2f99892ab827efae3a467342b3bb4e3bc8e5bfe",
+          "Q_sha256": "051d3827a5acfd0bdfbe2ac69e15ad8748c22169ac4f8b5830e4f32f7691f44f",
+          "K_sha256": "b9da280b9c872a2a3b33e6b2b864510100c926f6874077392b312b8c38748682",
+          "V_sha256": "d694445a298ee2bc1f11921beeb8dafa5b6f7cffe77897bf8c57d6e5e4f94234",
+          "owner_sha256": "c23b213d50599e99811cbbd01047178cb62438dee2161a37375243411a351173"
+        },
+        {
+          "phase": "graph_changed_Q",
+          "status": "passed",
+          "O_max_abs_fp64": 0.0,
+          "O_relative_l2_fp64": 0.0,
+          "LSE_max_abs_fp64_finite_rows": 0.0,
+          "empty_rows": 64,
+          "O_sha256": "4fe7b59af6de3b665b67788cc2f99892ab827efae3a467342b3bb4e3bc8e5bfe",
+          "Q_sha256": "932b8bc920ad22af51b28622adf4589d185960b3775289512c2ad2889cf1dc6d",
+          "K_sha256": "b9da280b9c872a2a3b33e6b2b864510100c926f6874077392b312b8c38748682",
+          "V_sha256": "d694445a298ee2bc1f11921beeb8dafa5b6f7cffe77897bf8c57d6e5e4f94234",
+          "owner_sha256": "c23b213d50599e99811cbbd01047178cb62438dee2161a37375243411a351173"
+        },
+        {
+          "phase": "graph_changed_KV",
+          "status": "passed",
+          "O_max_abs_fp64": 0.0,
+          "O_relative_l2_fp64": 0.0,
+          "LSE_max_abs_fp64_finite_rows": 0.0,
+          "empty_rows": 64,
+          "O_sha256": "4fe7b59af6de3b665b67788cc2f99892ab827efae3a467342b3bb4e3bc8e5bfe",
+          "Q_sha256": "932b8bc920ad22af51b28622adf4589d185960b3775289512c2ad2889cf1dc6d",
+          "K_sha256": "14dfe8009fbc21ee9b1ff2e7b1ef36c5fd502239a32360db161814f358f99ec8",
+          "V_sha256": "228e70539e85d1035e44415f9bb3ad012b1e8313aff2774b43491eadcc2e7cf4",
+          "owner_sha256": "c23b213d50599e99811cbbd01047178cb62438dee2161a37375243411a351173"
+        },
+        {
+          "phase": "graph_changed_indices",
+          "status": "passed",
+          "O_max_abs_fp64": 0.0,
+          "O_relative_l2_fp64": 0.0,
+          "LSE_max_abs_fp64_finite_rows": 0.0,
+          "empty_rows": 64,
+          "O_sha256": "4fe7b59af6de3b665b67788cc2f99892ab827efae3a467342b3bb4e3bc8e5bfe",
+          "Q_sha256": "932b8bc920ad22af51b28622adf4589d185960b3775289512c2ad2889cf1dc6d",
+          "K_sha256": "14dfe8009fbc21ee9b1ff2e7b1ef36c5fd502239a32360db161814f358f99ec8",
+          "V_sha256": "228e70539e85d1035e44415f9bb3ad012b1e8313aff2774b43491eadcc2e7cf4",
+          "owner_sha256": "c23b213d50599e99811cbbd01047178cb62438dee2161a37375243411a351173"
+        },
+        {
+          "phase": "rebuild_and_new_graph_changed_owners",
+          "status": "passed",
+          "O_max_abs_fp64": 0.0,
+          "O_relative_l2_fp64": 0.0,
+          "LSE_max_abs_fp64_finite_rows": 0.0,
+          "empty_rows": 64,
+          "O_sha256": "4fe7b59af6de3b665b67788cc2f99892ab827efae3a467342b3bb4e3bc8e5bfe",
+          "Q_sha256": "932b8bc920ad22af51b28622adf4589d185960b3775289512c2ad2889cf1dc6d",
+          "K_sha256": "14dfe8009fbc21ee9b1ff2e7b1ef36c5fd502239a32360db161814f358f99ec8",
+          "V_sha256": "228e70539e85d1035e44415f9bb3ad012b1e8313aff2774b43491eadcc2e7cf4",
+          "owner_sha256": "c23b213d50599e99811cbbd01047178cb62438dee2161a37375243411a351173"
+        }
+      ],
+      "initial_plan_prepare_ms": 0.9700553491711617,
+      "initial_metadata": {
+        "mechanism": "spatial_owner_tasks_packed_reduction_control",
+        "chunk_tokens": 64,
+        "task_count": 0,
+        "packed_partial_rows": 0,
+        "requested_splits_compatibility_parameter": 64,
+        "splits_semantics": "Not used for partitioning; fixed chunk_tokens defines tasks. This is not the original equal-split scheme.",
+        "prepare_scope": "CPU metadata D2H, validation, task/table construction, H2D and owned-buffer allocation; first kernel JIT excluded.",
+        "workspace_bytes_by_buffer": {
+          "packed_U": 0,
+          "packed_M": 0,
+          "packed_L": 0,
+          "task_descriptors": 0,
+          "merge_indices": 0,
+          "contribution_counts": 32,
+          "output": 16384,
+          "LSE": 256
+        },
+        "workspace_bytes": 16672,
+        "max_contributions": 0,
+        "merge_streaming_group": 16,
+        "structure_sha256": "605d00250eae7bfaae855f964296408bd838f7b1ffd6bc030a1e2ea2810cf7da",
+        "payload_aliases_source": true,
+        "graph_topology_contract": "Q/K/V and original Indices values may change in place. Replacing the plan or any plan tensor, changing tensor storage/layout, or changing offsets/labels/counts/row_map requires rebuild and graph recapture. graph.replay bypasses host identity/version checks; callers must enforce this contract."
+      },
+      "initial_prepare_ms": 0.27026236057281494,
+      "initial_task_count": 0,
+      "topology_change": {
+        "old_graph_replayed_after_topology_mutation": false,
+        "old_op_validate_plan_rejected": true,
+        "rejection": "Owner-task topology metadata changed: rebuild Attention outside replay and recapture the graph",
+        "graph_replay_bypasses_host_check": true,
+        "offset_values_changed": false,
+        "offset_version_changed_even_if_values_equal": true,
+        "updated_plan_build_wall_seconds": 0.0006577838212251663,
+        "old_plan_mutation_and_rejection_wall_seconds": 4.364829510450363e-05,
+        "Attention_rebuild_wall_seconds": 0.0002148207277059555,
+        "warmup_JIT_recapture_first_replay_wall_seconds": 0.0009903963655233383,
+        "total_rebuild_sequence_wall_seconds": 0.0019066492095589638,
+        "updated_plan_prepare_ms": 0.6505167111754417,
+        "Attention_prepare_ms": 0.20051095634698868,
+        "cost_scope": "Diagnostic host wall includes plan construction/D2H/H2D/allocations, old-plan rejection, Attention rebuild, JIT warmup, new graph capture and first replay; excludes artifact export and FP64/hash audits."
+      },
+      "rebuilt_metadata": {
+        "mechanism": "spatial_owner_tasks_packed_reduction_control",
+        "chunk_tokens": 64,
+        "task_count": 0,
+        "packed_partial_rows": 0,
+        "requested_splits_compatibility_parameter": 64,
+        "splits_semantics": "Not used for partitioning; fixed chunk_tokens defines tasks. This is not the original equal-split scheme.",
+        "prepare_scope": "CPU metadata D2H, validation, task/table construction, H2D and owned-buffer allocation; first kernel JIT excluded.",
+        "workspace_bytes_by_buffer": {
+          "packed_U": 0,
+          "packed_M": 0,
+          "packed_L": 0,
+          "task_descriptors": 0,
+          "merge_indices": 0,
+          "contribution_counts": 32,
+          "output": 16384,
+          "LSE": 256
+        },
+        "workspace_bytes": 16672,
+        "max_contributions": 0,
+        "merge_streaming_group": 16,
+        "structure_sha256": "605d00250eae7bfaae855f964296408bd838f7b1ffd6bc030a1e2ea2810cf7da",
+        "payload_aliases_source": true,
+        "graph_topology_contract": "Q/K/V and original Indices values may change in place. Replacing the plan or any plan tensor, changing tensor storage/layout, or changing offsets/labels/counts/row_map requires rebuild and graph recapture. graph.replay bypasses host identity/version checks; callers must enforce this contract."
+      },
+      "rebuilt_task_count": 0,
+      "resource_review_status": "exported_independent_review_pending",
+      "initial_resources": {
+        "producer": {
+          "status": "not_launched",
+          "reason": "Zero owner tasks; no producer launch or fabricated artifact."
+        },
+        "merge": {
+          "status": "saved_for_independent_resource_review",
+          "name": "merge",
+          "n_regs": 40,
+          "n_spills": 0,
+          "Triton_metadata": {
+            "allowed_dot_input_precisions": [
+              "tf32",
+              "tf32x3",
+              "ieee",
+              "bf16x3",
+              "bf16x6"
+            ],
+            "arch": "sm120",
+            "backend_name": "cuda",
+            "debug": false,
+            "default_dot_input_precision": "tf32",
+            "deprecated_fp8_dot_operand_dtypes": [
+              "fp8e4b15"
+            ],
+            "enable_fp_fusion": true,
+            "enable_reflect_ftz": true,
+            "extern_libs": [
+              [
+                "libdevice",
+                "/home/qcjz/miniconda3/envs/sglang-vllm-m120/lib/python3.12/site-packages/triton/backends/nvidia/lib/libdevice.10.bc"
+              ]
+            ],
+            "global_scratch_align": 1,
+            "global_scratch_size": 0,
+            "hash": "d6d182e9823b6a2d61873094dc4ead6231a7a8900841de2086b19adf1a2ee8d5",
+            "instrumentation_mode": "",
+            "ir_override": null,
+            "launch_cooperative_grid": false,
+            "launch_pdl": false,
+            "max_num_imprecise_acc_default": 0,
+            "maxnreg": null,
+            "name": "merge",
+            "num_ctas": 1,
+            "num_stages": 3,
+            "num_warps": 4,
+            "profile_scratch_align": 1,
+            "profile_scratch_size": 0,
+            "ptx_options": null,
+            "ptx_version": null,
+            "sanitize_overflow": true,
+            "shared": 2048,
+            "supported_fp8_dtypes": [
+              "fp8e4b15",
+              "fp8e4nv",
+              "fp8e5"
+            ],
+            "target": "GPUTarget(backend='cuda', arch=120, warp_size=32)",
+            "tensordesc_meta": [],
+            "tmem_size": 0,
+            "triton_version": "3.6.0",
+            "warp_size": 32
+          },
+          "cubin_resources": {
+            "reg": 40,
+            "stack": 0,
+            "shared": 1024,
+            "local": 0
+          },
+          "SASS_LDL_count": 0,
+          "SASS_STL_count": 0,
+          "explicit_local_traffic_absent": true,
+          "artifacts": {
+            "ptx": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/empty_initial_merge.ptx",
+              "sha256": "28dbe10f565a5e63ef38e6f37e6b76f56a70e18d0d5857af411b1cfd788df7d5"
+            },
+            "cubin": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/empty_initial_merge.cubin",
+              "sha256": "28f8a494d9654f9596410e02a6ff816a9395240b6e611077869cbc9b710d8937"
+            },
+            "resources": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/empty_initial_merge.resources.txt",
+              "sha256": "94530e826c52135f3c487087050117f491ecd075d8e93a2dccd52e890f9c11b4"
+            },
+            "sass": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/empty_initial_merge.sass",
+              "sha256": "6237b50665551c04c8cea94bf08a227426902833954ddb595a3feadfcecd5a9a"
+            }
+          }
+        }
+      },
+      "rebuilt_resources": {
+        "producer": {
+          "status": "not_launched",
+          "reason": "Zero owner tasks; no producer launch or fabricated artifact."
+        },
+        "merge": {
+          "status": "saved_for_independent_resource_review",
+          "name": "merge",
+          "n_regs": 40,
+          "n_spills": 0,
+          "Triton_metadata": {
+            "allowed_dot_input_precisions": [
+              "tf32",
+              "tf32x3",
+              "ieee",
+              "bf16x3",
+              "bf16x6"
+            ],
+            "arch": "sm120",
+            "backend_name": "cuda",
+            "debug": false,
+            "default_dot_input_precision": "tf32",
+            "deprecated_fp8_dot_operand_dtypes": [
+              "fp8e4b15"
+            ],
+            "enable_fp_fusion": true,
+            "enable_reflect_ftz": true,
+            "extern_libs": [
+              [
+                "libdevice",
+                "/home/qcjz/miniconda3/envs/sglang-vllm-m120/lib/python3.12/site-packages/triton/backends/nvidia/lib/libdevice.10.bc"
+              ]
+            ],
+            "global_scratch_align": 1,
+            "global_scratch_size": 0,
+            "hash": "d6d182e9823b6a2d61873094dc4ead6231a7a8900841de2086b19adf1a2ee8d5",
+            "instrumentation_mode": "",
+            "ir_override": null,
+            "launch_cooperative_grid": false,
+            "launch_pdl": false,
+            "max_num_imprecise_acc_default": 0,
+            "maxnreg": null,
+            "name": "merge",
+            "num_ctas": 1,
+            "num_stages": 3,
+            "num_warps": 4,
+            "profile_scratch_align": 1,
+            "profile_scratch_size": 0,
+            "ptx_options": null,
+            "ptx_version": null,
+            "sanitize_overflow": true,
+            "shared": 2048,
+            "supported_fp8_dtypes": [
+              "fp8e4b15",
+              "fp8e4nv",
+              "fp8e5"
+            ],
+            "target": "GPUTarget(backend='cuda', arch=120, warp_size=32)",
+            "tensordesc_meta": [],
+            "tmem_size": 0,
+            "triton_version": "3.6.0",
+            "warp_size": 32
+          },
+          "cubin_resources": {
+            "reg": 40,
+            "stack": 0,
+            "shared": 1024,
+            "local": 0
+          },
+          "SASS_LDL_count": 0,
+          "SASS_STL_count": 0,
+          "explicit_local_traffic_absent": true,
+          "artifacts": {
+            "ptx": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/empty_rebuilt_merge.ptx",
+              "sha256": "28dbe10f565a5e63ef38e6f37e6b76f56a70e18d0d5857af411b1cfd788df7d5"
+            },
+            "cubin": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/empty_rebuilt_merge.cubin",
+              "sha256": "28f8a494d9654f9596410e02a6ff816a9395240b6e611077869cbc9b710d8937"
+            },
+            "resources": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/empty_rebuilt_merge.resources.txt",
+              "sha256": "94530e826c52135f3c487087050117f491ecd075d8e93a2dccd52e890f9c11b4"
+            },
+            "sass": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/empty_rebuilt_merge.sass",
+              "sha256": "6237b50665551c04c8cea94bf08a227426902833954ddb595a3feadfcecd5a9a"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "one_token",
+      "status": "passed_numerical_fixed_topology_graph_and_rebuilt_graph",
+      "batch": 4,
+      "q_shape": [
+        2,
+        32,
+        128
+      ],
+      "k_shape": [
+        2,
+        8197,
+        128
+      ],
+      "provenance": {
+        "kind": "synthetic",
+        "seed": 20261016
+      },
+      "checks": [
+        {
+          "phase": "eager",
+          "status": "passed",
+          "O_max_abs_fp64": 0.0,
+          "O_relative_l2_fp64": 0.0,
+          "LSE_max_abs_fp64_finite_rows": 2.404802801336814e-07,
+          "empty_rows": 48,
+          "O_sha256": "4382a80f9793c9ccfabecf0a77ea2d5aaf8d59ad8ff8c149937e7a3a971975e6",
+          "Q_sha256": "13fdf84620613963a6ef9445c482d2bda04278f9bc79c9912030342b95aa88e7",
+          "K_sha256": "9c5023225d9756438da9279cf08509df9ac87d32ef6600993fcd1cda99556e37",
+          "V_sha256": "807437a038093761bf1e2b25e5059d0289bc8197ecf20b87632702c584f6262b",
+          "owner_sha256": "73ecc72119e13f0e35b4a32ac7d540ae27a3744613df27872a28f1b0935ac511"
+        },
+        {
+          "phase": "graph_baseline",
+          "status": "passed",
+          "O_max_abs_fp64": 0.0,
+          "O_relative_l2_fp64": 0.0,
+          "LSE_max_abs_fp64_finite_rows": 2.404802801336814e-07,
+          "empty_rows": 48,
+          "O_sha256": "4382a80f9793c9ccfabecf0a77ea2d5aaf8d59ad8ff8c149937e7a3a971975e6",
+          "Q_sha256": "13fdf84620613963a6ef9445c482d2bda04278f9bc79c9912030342b95aa88e7",
+          "K_sha256": "9c5023225d9756438da9279cf08509df9ac87d32ef6600993fcd1cda99556e37",
+          "V_sha256": "807437a038093761bf1e2b25e5059d0289bc8197ecf20b87632702c584f6262b",
+          "owner_sha256": "73ecc72119e13f0e35b4a32ac7d540ae27a3744613df27872a28f1b0935ac511"
+        },
+        {
+          "phase": "graph_changed_Q",
+          "status": "passed",
+          "O_max_abs_fp64": 0.0,
+          "O_relative_l2_fp64": 0.0,
+          "LSE_max_abs_fp64_finite_rows": 3.2494926416326564e-07,
+          "empty_rows": 48,
+          "O_sha256": "4382a80f9793c9ccfabecf0a77ea2d5aaf8d59ad8ff8c149937e7a3a971975e6",
+          "Q_sha256": "c91e8d408a716216eadfd39dcfdcded9c5dcd006c389372e589c9aa62530196e",
+          "K_sha256": "9c5023225d9756438da9279cf08509df9ac87d32ef6600993fcd1cda99556e37",
+          "V_sha256": "807437a038093761bf1e2b25e5059d0289bc8197ecf20b87632702c584f6262b",
+          "owner_sha256": "73ecc72119e13f0e35b4a32ac7d540ae27a3744613df27872a28f1b0935ac511"
+        },
+        {
+          "phase": "graph_changed_KV",
+          "status": "passed",
+          "O_max_abs_fp64": 0.0,
+          "O_relative_l2_fp64": 0.0,
+          "LSE_max_abs_fp64_finite_rows": 2.3818567318478756e-07,
+          "empty_rows": 48,
+          "O_sha256": "685ff862431f6b171d52008114425ff34c398ff93f946c6909724386301aa2a7",
+          "Q_sha256": "c91e8d408a716216eadfd39dcfdcded9c5dcd006c389372e589c9aa62530196e",
+          "K_sha256": "4ef642b8cf826eee139f6f80d3abe33c8566a534d3a841422568161bcab4bf66",
+          "V_sha256": "c88eb832876eac5eac4184fcc9378f6c955928af84e904858b5895cf8865aed3",
+          "owner_sha256": "73ecc72119e13f0e35b4a32ac7d540ae27a3744613df27872a28f1b0935ac511"
+        },
+        {
+          "phase": "graph_changed_indices",
+          "status": "passed",
+          "O_max_abs_fp64": 0.0,
+          "O_relative_l2_fp64": 0.0,
+          "LSE_max_abs_fp64_finite_rows": 1.3357361461352468e-07,
+          "empty_rows": 48,
+          "O_sha256": "832701b1c3b91e15c9e17abd165588a116e2cd404fb72727851d1a71e1e13106",
+          "Q_sha256": "c91e8d408a716216eadfd39dcfdcded9c5dcd006c389372e589c9aa62530196e",
+          "K_sha256": "4ef642b8cf826eee139f6f80d3abe33c8566a534d3a841422568161bcab4bf66",
+          "V_sha256": "c88eb832876eac5eac4184fcc9378f6c955928af84e904858b5895cf8865aed3",
+          "owner_sha256": "43dba8652f1810d330756c5464345e1cdb7ffea0a020879be049417eac3bd8bf"
+        },
+        {
+          "phase": "rebuild_and_new_graph_changed_owners",
+          "status": "passed",
+          "O_max_abs_fp64": 0.0,
+          "O_relative_l2_fp64": 0.0,
+          "LSE_max_abs_fp64_finite_rows": 2.2950701583646094e-07,
+          "empty_rows": 48,
+          "O_sha256": "e14ed43d0a42c47e45d4f73e574ad1ca3435748a573d9dbe76f9ade7dbcde5dd",
+          "Q_sha256": "c91e8d408a716216eadfd39dcfdcded9c5dcd006c389372e589c9aa62530196e",
+          "K_sha256": "4ef642b8cf826eee139f6f80d3abe33c8566a534d3a841422568161bcab4bf66",
+          "V_sha256": "c88eb832876eac5eac4184fcc9378f6c955928af84e904858b5895cf8865aed3",
+          "owner_sha256": "33fe46ecdb81c170b8c58ed60236b140a2faf2ec49c924086564b577ba25e218"
+        }
+      ],
+      "initial_plan_prepare_ms": 1.0376609861850739,
+      "initial_metadata": {
+        "mechanism": "spatial_owner_tasks_packed_reduction_control",
+        "chunk_tokens": 64,
+        "task_count": 2,
+        "packed_partial_rows": 16,
+        "requested_splits_compatibility_parameter": 64,
+        "splits_semantics": "Not used for partitioning; fixed chunk_tokens defines tasks. This is not the original equal-split scheme.",
+        "prepare_scope": "CPU metadata D2H, validation, task/table construction, H2D and owned-buffer allocation; first kernel JIT excluded.",
+        "workspace_bytes_by_buffer": {
+          "packed_U": 8192,
+          "packed_M": 64,
+          "packed_L": 64,
+          "task_descriptors": 48,
+          "merge_indices": 32,
+          "contribution_counts": 32,
+          "output": 16384,
+          "LSE": 256
+        },
+        "workspace_bytes": 25072,
+        "max_contributions": 1,
+        "merge_streaming_group": 16,
+        "structure_sha256": "70868d1306309c1aa439e20aa97796601b46c7d84e124985f7abab3f7fb064f1",
+        "payload_aliases_source": true,
+        "graph_topology_contract": "Q/K/V and original Indices values may change in place. Replacing the plan or any plan tensor, changing tensor storage/layout, or changing offsets/labels/counts/row_map requires rebuild and graph recapture. graph.replay bypasses host identity/version checks; callers must enforce this contract."
+      },
+      "initial_prepare_ms": 0.2833893522620201,
+      "initial_task_count": 2,
+      "topology_change": {
+        "old_graph_replayed_after_topology_mutation": false,
+        "old_op_validate_plan_rejected": true,
+        "rejection": "Owner-task topology metadata changed: rebuild Attention outside replay and recapture the graph",
+        "graph_replay_bypasses_host_check": true,
+        "offset_values_changed": true,
+        "offset_version_changed_even_if_values_equal": true,
+        "updated_plan_build_wall_seconds": 0.0008342349901795387,
+        "old_plan_mutation_and_rejection_wall_seconds": 4.3987296521663666e-05,
+        "Attention_rebuild_wall_seconds": 0.0003355676308274269,
+        "warmup_JIT_recapture_first_replay_wall_seconds": 0.00104447640478611,
+        "total_rebuild_sequence_wall_seconds": 0.0022582663223147392,
+        "updated_plan_prepare_ms": 0.8102953433990479,
+        "Attention_prepare_ms": 0.30981097370386124,
+        "cost_scope": "Diagnostic host wall includes plan construction/D2H/H2D/allocations, old-plan rejection, Attention rebuild, JIT warmup, new graph capture and first replay; excludes artifact export and FP64/hash audits."
+      },
+      "rebuilt_metadata": {
+        "mechanism": "spatial_owner_tasks_packed_reduction_control",
+        "chunk_tokens": 64,
+        "task_count": 2,
+        "packed_partial_rows": 16,
+        "requested_splits_compatibility_parameter": 64,
+        "splits_semantics": "Not used for partitioning; fixed chunk_tokens defines tasks. This is not the original equal-split scheme.",
+        "prepare_scope": "CPU metadata D2H, validation, task/table construction, H2D and owned-buffer allocation; first kernel JIT excluded.",
+        "workspace_bytes_by_buffer": {
+          "packed_U": 8192,
+          "packed_M": 64,
+          "packed_L": 64,
+          "task_descriptors": 48,
+          "merge_indices": 32,
+          "contribution_counts": 32,
+          "output": 16384,
+          "LSE": 256
+        },
+        "workspace_bytes": 25072,
+        "max_contributions": 1,
+        "merge_streaming_group": 16,
+        "structure_sha256": "13f213ed6d52352bcf57929a9474549f51e59f7e23261d00c4b10dc74d21a122",
+        "payload_aliases_source": true,
+        "graph_topology_contract": "Q/K/V and original Indices values may change in place. Replacing the plan or any plan tensor, changing tensor storage/layout, or changing offsets/labels/counts/row_map requires rebuild and graph recapture. graph.replay bypasses host identity/version checks; callers must enforce this contract."
+      },
+      "rebuilt_task_count": 2,
+      "resource_review_status": "exported_independent_review_pending",
+      "initial_resources": {
+        "producer": {
+          "status": "saved_for_independent_resource_review",
+          "name": "producer",
+          "n_regs": 128,
+          "n_spills": 0,
+          "Triton_metadata": {
+            "allowed_dot_input_precisions": [
+              "tf32",
+              "tf32x3",
+              "ieee",
+              "bf16x3",
+              "bf16x6"
+            ],
+            "arch": "sm120",
+            "backend_name": "cuda",
+            "debug": false,
+            "default_dot_input_precision": "tf32",
+            "deprecated_fp8_dot_operand_dtypes": [
+              "fp8e4b15"
+            ],
+            "enable_fp_fusion": true,
+            "enable_reflect_ftz": true,
+            "extern_libs": [
+              [
+                "libdevice",
+                "/home/qcjz/miniconda3/envs/sglang-vllm-m120/lib/python3.12/site-packages/triton/backends/nvidia/lib/libdevice.10.bc"
+              ]
+            ],
+            "global_scratch_align": 1,
+            "global_scratch_size": 0,
+            "hash": "06499de6086e4c651302c30c0b7d1ee4c88dbb993de42d4c3e484406a967cbfc",
+            "instrumentation_mode": "",
+            "ir_override": null,
+            "launch_cooperative_grid": false,
+            "launch_pdl": false,
+            "max_num_imprecise_acc_default": 0,
+            "maxnreg": null,
+            "name": "producer",
+            "num_ctas": 1,
+            "num_stages": 1,
+            "num_warps": 4,
+            "profile_scratch_align": 1,
+            "profile_scratch_size": 0,
+            "ptx_options": null,
+            "ptx_version": null,
+            "sanitize_overflow": true,
+            "shared": 28672,
+            "supported_fp8_dtypes": [
+              "fp8e4b15",
+              "fp8e4nv",
+              "fp8e5"
+            ],
+            "target": "GPUTarget(backend='cuda', arch=120, warp_size=32)",
+            "tensordesc_meta": [],
+            "tmem_size": 0,
+            "triton_version": "3.6.0",
+            "warp_size": 32
+          },
+          "cubin_resources": {
+            "reg": 128,
+            "stack": 0,
+            "shared": 1024,
+            "local": 0
+          },
+          "SASS_LDL_count": 0,
+          "SASS_STL_count": 0,
+          "explicit_local_traffic_absent": true,
+          "artifacts": {
+            "ptx": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/one_token_initial_producer.ptx",
+              "sha256": "958d2669700320f8eebffbb6114557789bedb74f42e22f2f39302bac3e5d5546"
+            },
+            "cubin": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/one_token_initial_producer.cubin",
+              "sha256": "17679d6b469b5655885e350333e890ede771fad48d63a976316c99594bba1bd6"
+            },
+            "resources": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/one_token_initial_producer.resources.txt",
+              "sha256": "db50891d3e3fbaf80cef6cef769e4d320a1e323af8cb39033f0a2b6a88740cf6"
+            },
+            "sass": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/one_token_initial_producer.sass",
+              "sha256": "1299f4444c3389c050445d72c89f814e956d5ca469b6a4ab14309d662c8d3405"
+            }
+          }
+        },
+        "merge": {
+          "status": "saved_for_independent_resource_review",
+          "name": "merge",
+          "n_regs": 42,
+          "n_spills": 0,
+          "Triton_metadata": {
+            "allowed_dot_input_precisions": [
+              "tf32",
+              "tf32x3",
+              "ieee",
+              "bf16x3",
+              "bf16x6"
+            ],
+            "arch": "sm120",
+            "backend_name": "cuda",
+            "debug": false,
+            "default_dot_input_precision": "tf32",
+            "deprecated_fp8_dot_operand_dtypes": [
+              "fp8e4b15"
+            ],
+            "enable_fp_fusion": true,
+            "enable_reflect_ftz": true,
+            "extern_libs": [
+              [
+                "libdevice",
+                "/home/qcjz/miniconda3/envs/sglang-vllm-m120/lib/python3.12/site-packages/triton/backends/nvidia/lib/libdevice.10.bc"
+              ]
+            ],
+            "global_scratch_align": 1,
+            "global_scratch_size": 0,
+            "hash": "3d557e54ba6f457c957a6410da3df64c0095638145e658a1aa5ba0e42c31a6ec",
+            "instrumentation_mode": "",
+            "ir_override": null,
+            "launch_cooperative_grid": false,
+            "launch_pdl": false,
+            "max_num_imprecise_acc_default": 0,
+            "maxnreg": null,
+            "name": "merge",
+            "num_ctas": 1,
+            "num_stages": 3,
+            "num_warps": 4,
+            "profile_scratch_align": 1,
+            "profile_scratch_size": 0,
+            "ptx_options": null,
+            "ptx_version": null,
+            "sanitize_overflow": true,
+            "shared": 2048,
+            "supported_fp8_dtypes": [
+              "fp8e4b15",
+              "fp8e4nv",
+              "fp8e5"
+            ],
+            "target": "GPUTarget(backend='cuda', arch=120, warp_size=32)",
+            "tensordesc_meta": [],
+            "tmem_size": 0,
+            "triton_version": "3.6.0",
+            "warp_size": 32
+          },
+          "cubin_resources": {
+            "reg": 42,
+            "stack": 0,
+            "shared": 1024,
+            "local": 0
+          },
+          "SASS_LDL_count": 0,
+          "SASS_STL_count": 0,
+          "explicit_local_traffic_absent": true,
+          "artifacts": {
+            "ptx": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/one_token_initial_merge.ptx",
+              "sha256": "9b24afdaf789741d28ced9a39a8ce4f77405f86ea10e7513ecf7860e892f7e7d"
+            },
+            "cubin": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/one_token_initial_merge.cubin",
+              "sha256": "3ca2b4f24350516d8ebe1e957cc02092f54a60064417e0064c51e8f39621c56f"
+            },
+            "resources": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/one_token_initial_merge.resources.txt",
+              "sha256": "84fab37ac9ef3468413685227f84a81a61df7ad85f61b42c0e51650df6cab85e"
+            },
+            "sass": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/one_token_initial_merge.sass",
+              "sha256": "bed43bda575e1d3168890181c5dddbfc2070f5fbc45ee0a20bbe22007bedaa17"
+            }
+          }
+        }
+      },
+      "rebuilt_resources": {
+        "producer": {
+          "status": "saved_for_independent_resource_review",
+          "name": "producer",
+          "n_regs": 128,
+          "n_spills": 0,
+          "Triton_metadata": {
+            "allowed_dot_input_precisions": [
+              "tf32",
+              "tf32x3",
+              "ieee",
+              "bf16x3",
+              "bf16x6"
+            ],
+            "arch": "sm120",
+            "backend_name": "cuda",
+            "debug": false,
+            "default_dot_input_precision": "tf32",
+            "deprecated_fp8_dot_operand_dtypes": [
+              "fp8e4b15"
+            ],
+            "enable_fp_fusion": true,
+            "enable_reflect_ftz": true,
+            "extern_libs": [
+              [
+                "libdevice",
+                "/home/qcjz/miniconda3/envs/sglang-vllm-m120/lib/python3.12/site-packages/triton/backends/nvidia/lib/libdevice.10.bc"
+              ]
+            ],
+            "global_scratch_align": 1,
+            "global_scratch_size": 0,
+            "hash": "06499de6086e4c651302c30c0b7d1ee4c88dbb993de42d4c3e484406a967cbfc",
+            "instrumentation_mode": "",
+            "ir_override": null,
+            "launch_cooperative_grid": false,
+            "launch_pdl": false,
+            "max_num_imprecise_acc_default": 0,
+            "maxnreg": null,
+            "name": "producer",
+            "num_ctas": 1,
+            "num_stages": 1,
+            "num_warps": 4,
+            "profile_scratch_align": 1,
+            "profile_scratch_size": 0,
+            "ptx_options": null,
+            "ptx_version": null,
+            "sanitize_overflow": true,
+            "shared": 28672,
+            "supported_fp8_dtypes": [
+              "fp8e4b15",
+              "fp8e4nv",
+              "fp8e5"
+            ],
+            "target": "GPUTarget(backend='cuda', arch=120, warp_size=32)",
+            "tensordesc_meta": [],
+            "tmem_size": 0,
+            "triton_version": "3.6.0",
+            "warp_size": 32
+          },
+          "cubin_resources": {
+            "reg": 128,
+            "stack": 0,
+            "shared": 1024,
+            "local": 0
+          },
+          "SASS_LDL_count": 0,
+          "SASS_STL_count": 0,
+          "explicit_local_traffic_absent": true,
+          "artifacts": {
+            "ptx": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/one_token_rebuilt_producer.ptx",
+              "sha256": "958d2669700320f8eebffbb6114557789bedb74f42e22f2f39302bac3e5d5546"
+            },
+            "cubin": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/one_token_rebuilt_producer.cubin",
+              "sha256": "17679d6b469b5655885e350333e890ede771fad48d63a976316c99594bba1bd6"
+            },
+            "resources": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/one_token_rebuilt_producer.resources.txt",
+              "sha256": "db50891d3e3fbaf80cef6cef769e4d320a1e323af8cb39033f0a2b6a88740cf6"
+            },
+            "sass": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/one_token_rebuilt_producer.sass",
+              "sha256": "1299f4444c3389c050445d72c89f814e956d5ca469b6a4ab14309d662c8d3405"
+            }
+          }
+        },
+        "merge": {
+          "status": "saved_for_independent_resource_review",
+          "name": "merge",
+          "n_regs": 42,
+          "n_spills": 0,
+          "Triton_metadata": {
+            "allowed_dot_input_precisions": [
+              "tf32",
+              "tf32x3",
+              "ieee",
+              "bf16x3",
+              "bf16x6"
+            ],
+            "arch": "sm120",
+            "backend_name": "cuda",
+            "debug": false,
+            "default_dot_input_precision": "tf32",
+            "deprecated_fp8_dot_operand_dtypes": [
+              "fp8e4b15"
+            ],
+            "enable_fp_fusion": true,
+            "enable_reflect_ftz": true,
+            "extern_libs": [
+              [
+                "libdevice",
+                "/home/qcjz/miniconda3/envs/sglang-vllm-m120/lib/python3.12/site-packages/triton/backends/nvidia/lib/libdevice.10.bc"
+              ]
+            ],
+            "global_scratch_align": 1,
+            "global_scratch_size": 0,
+            "hash": "3d557e54ba6f457c957a6410da3df64c0095638145e658a1aa5ba0e42c31a6ec",
+            "instrumentation_mode": "",
+            "ir_override": null,
+            "launch_cooperative_grid": false,
+            "launch_pdl": false,
+            "max_num_imprecise_acc_default": 0,
+            "maxnreg": null,
+            "name": "merge",
+            "num_ctas": 1,
+            "num_stages": 3,
+            "num_warps": 4,
+            "profile_scratch_align": 1,
+            "profile_scratch_size": 0,
+            "ptx_options": null,
+            "ptx_version": null,
+            "sanitize_overflow": true,
+            "shared": 2048,
+            "supported_fp8_dtypes": [
+              "fp8e4b15",
+              "fp8e4nv",
+              "fp8e5"
+            ],
+            "target": "GPUTarget(backend='cuda', arch=120, warp_size=32)",
+            "tensordesc_meta": [],
+            "tmem_size": 0,
+            "triton_version": "3.6.0",
+            "warp_size": 32
+          },
+          "cubin_resources": {
+            "reg": 42,
+            "stack": 0,
+            "shared": 1024,
+            "local": 0
+          },
+          "SASS_LDL_count": 0,
+          "SASS_STL_count": 0,
+          "explicit_local_traffic_absent": true,
+          "artifacts": {
+            "ptx": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/one_token_rebuilt_merge.ptx",
+              "sha256": "9b24afdaf789741d28ced9a39a8ce4f77405f86ea10e7513ecf7860e892f7e7d"
+            },
+            "cubin": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/one_token_rebuilt_merge.cubin",
+              "sha256": "3ca2b4f24350516d8ebe1e957cc02092f54a60064417e0064c51e8f39621c56f"
+            },
+            "resources": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/one_token_rebuilt_merge.resources.txt",
+              "sha256": "84fab37ac9ef3468413685227f84a81a61df7ad85f61b42c0e51650df6cab85e"
+            },
+            "sass": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/one_token_rebuilt_merge.sass",
+              "sha256": "bed43bda575e1d3168890181c5dddbfc2070f5fbc45ee0a20bbe22007bedaa17"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "real_capture",
+      "status": "passed_numerical_fixed_topology_graph_and_rebuilt_graph",
+      "batch": 4,
+      "q_shape": [
+        2,
+        32,
+        128
+      ],
+      "k_shape": [
+        2,
+        173666,
+        128
+      ],
+      "provenance": {
+        "capture": "/home/qcjz/iscas/results/captures/main30b_tp2_publicdev6_256_suffix_v2/rank0",
+        "layer": 15,
+        "budget": 32768,
+        "step": 64,
+        "original_active_requests": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "selected_kv_heads": [
+          0,
+          1
+        ],
+        "model": "data/models/Qwen3-30B-A3B-Thinking-2507-FP8",
+        "model_revision": "60d80c83c53c3b611c642dbb8c942b3f90c5948a",
+        "document_sha256": "1de35dc1f087296d3992a6fb656ffec31579737352a3f71b11eb55d35863fdb6",
+        "includes_system_prefix_and_complete_private_suffix": true,
+        "ready_lifetime_measured": true,
+        "files_sha256": {
+          "results/captures/main30b_tp2_publicdev6_256_suffix_v2/rank0/metadata.json": "b02af458bfb492deb1fac3b956131c45c29ce0cd55845175d544c160db838740",
+          "results/captures/main30b_tp2_publicdev6_256_suffix_v2/rank0/source_l15.pt": "2b6f6ec10342614c139c27af2760ed1015703579023471d12028b0a1713da46b",
+          "results/captures/main30b_tp2_publicdev6_256_suffix_v2/rank0/masks_l15_b32768.pt": "9bceb81918a44820701db461873f6723fb576361d69e930cf6f6d9fc487882ec",
+          "results/captures/main30b_tp2_publicdev6_256_suffix_v2/rank0/decode_q0_l15_s64.pt": "511c71958a60613429a3eeae4ec77199e2ebe4535583a6c784340dba31b4a93f",
+          "results/captures/main30b_tp2_publicdev6_256_suffix_v2/rank0/decode_q1_l15_s64.pt": "21211f76b7a9047edb209f33df2059ba1846ab1c331d068e2585eb9c3afbd39b",
+          "results/captures/main30b_tp2_publicdev6_256_suffix_v2/rank0/decode_q2_l15_s64.pt": "947aa56970192abdb162b2fbdf2424147d0947cc5981ed0dc9ae447665047ebf",
+          "results/captures/main30b_tp2_publicdev6_256_suffix_v2/rank0/decode_q3_l15_s64.pt": "4897aba4fe5d1bac14e116881ef44412254d36346614ed47d5850a38a59d5dfd"
+        }
+      },
+      "checks": [
+        {
+          "phase": "eager",
+          "status": "passed",
+          "O_max_abs_fp64": 0.00043057870762558403,
+          "O_relative_l2_fp64": 0.0016815914181566194,
+          "LSE_max_abs_fp64_finite_rows": 3.115403739428757e-06,
+          "empty_rows": 0,
+          "O_sha256": "db99268ddee5ea80d0281663cdfc354e4f534b5efd6d79b306082bf79de00384",
+          "Q_sha256": "190af91a199b88c79689fd58d81e6afcb974a652e910f193a68120b8b494b352",
+          "K_sha256": "623debebc728473cfe071f5db5e7c6d56f726615e3d04fa16f4ea20ea706ba66",
+          "V_sha256": "61cd073d00930df01a3f92da05fe63c06f8d699e76ed855a2c4061c8552ec0ad",
+          "owner_sha256": "81c9db9c910c0f50a0666e9472bc880f9d45c238f79cd7c6ae32ff4b64b6d6c4"
+        },
+        {
+          "phase": "graph_baseline",
+          "status": "passed",
+          "O_max_abs_fp64": 0.00043057870762558403,
+          "O_relative_l2_fp64": 0.0016815914181566194,
+          "LSE_max_abs_fp64_finite_rows": 3.115403739428757e-06,
+          "empty_rows": 0,
+          "O_sha256": "db99268ddee5ea80d0281663cdfc354e4f534b5efd6d79b306082bf79de00384",
+          "Q_sha256": "190af91a199b88c79689fd58d81e6afcb974a652e910f193a68120b8b494b352",
+          "K_sha256": "623debebc728473cfe071f5db5e7c6d56f726615e3d04fa16f4ea20ea706ba66",
+          "V_sha256": "61cd073d00930df01a3f92da05fe63c06f8d699e76ed855a2c4061c8552ec0ad",
+          "owner_sha256": "81c9db9c910c0f50a0666e9472bc880f9d45c238f79cd7c6ae32ff4b64b6d6c4"
+        },
+        {
+          "phase": "graph_changed_Q",
+          "status": "passed",
+          "O_max_abs_fp64": 0.0004675630934726227,
+          "O_relative_l2_fp64": 0.0017055885604523166,
+          "LSE_max_abs_fp64_finite_rows": 3.917031765610091e-06,
+          "empty_rows": 0,
+          "O_sha256": "72be1eb99cb032f80f3e41d82b846365ac5e67e425208690b418befd38622b38",
+          "Q_sha256": "657e8f1d703a35d7d719d0f2480dd3d2128fb292dd8344da0f08360dd45c745e",
+          "K_sha256": "623debebc728473cfe071f5db5e7c6d56f726615e3d04fa16f4ea20ea706ba66",
+          "V_sha256": "61cd073d00930df01a3f92da05fe63c06f8d699e76ed855a2c4061c8552ec0ad",
+          "owner_sha256": "81c9db9c910c0f50a0666e9472bc880f9d45c238f79cd7c6ae32ff4b64b6d6c4"
+        },
+        {
+          "phase": "graph_changed_KV",
+          "status": "passed",
+          "O_max_abs_fp64": 0.000807263986767226,
+          "O_relative_l2_fp64": 0.0017605427085457793,
+          "LSE_max_abs_fp64_finite_rows": 2.1923669741852336e-06,
+          "empty_rows": 0,
+          "O_sha256": "d1abd38fd0b2859de7849b4bc7d4e12e55ab6bc414ef4b3b9e65ab0b9de613b6",
+          "Q_sha256": "657e8f1d703a35d7d719d0f2480dd3d2128fb292dd8344da0f08360dd45c745e",
+          "K_sha256": "3aafd1d746f86fad062b80d385ed548d9566231f40980ffa957c3383984f94bf",
+          "V_sha256": "efb88c58264720ffc8809e01ea9ccd10a84d5a7bdfee977a8109f14982175f13",
+          "owner_sha256": "81c9db9c910c0f50a0666e9472bc880f9d45c238f79cd7c6ae32ff4b64b6d6c4"
+        },
+        {
+          "phase": "graph_changed_indices",
+          "status": "passed",
+          "O_max_abs_fp64": 0.0008476277571899948,
+          "O_relative_l2_fp64": 0.0017477333768409046,
+          "LSE_max_abs_fp64_finite_rows": 2.300734120552761e-06,
+          "empty_rows": 0,
+          "O_sha256": "64c740f564a1ce3bd5bd9d85f6e03ba3290d41217796cdf977145cb3a3236a6d",
+          "Q_sha256": "657e8f1d703a35d7d719d0f2480dd3d2128fb292dd8344da0f08360dd45c745e",
+          "K_sha256": "3aafd1d746f86fad062b80d385ed548d9566231f40980ffa957c3383984f94bf",
+          "V_sha256": "efb88c58264720ffc8809e01ea9ccd10a84d5a7bdfee977a8109f14982175f13",
+          "owner_sha256": "dd7ed3f5d32a72333eac74b156cf60a119c99ebefe4a5d151ecd8252bb487af6"
+        },
+        {
+          "phase": "rebuild_and_new_graph_changed_owners",
+          "status": "passed",
+          "O_max_abs_fp64": 0.000572018801400509,
+          "O_relative_l2_fp64": 0.0017633162459500544,
+          "LSE_max_abs_fp64_finite_rows": 2.348321014977728e-06,
+          "empty_rows": 0,
+          "O_sha256": "8a9341371abc217a122a011370631b4b3307287b20649881d8896c55e23c8226",
+          "Q_sha256": "657e8f1d703a35d7d719d0f2480dd3d2128fb292dd8344da0f08360dd45c745e",
+          "K_sha256": "3aafd1d746f86fad062b80d385ed548d9566231f40980ffa957c3383984f94bf",
+          "V_sha256": "efb88c58264720ffc8809e01ea9ccd10a84d5a7bdfee977a8109f14982175f13",
+          "owner_sha256": "c123e8e44d36307989a9ee0f731ec429ec232cce8c7ba59431d2dea85e28e96b"
+        }
+      ],
+      "initial_plan_prepare_ms": 33.20751618593931,
+      "initial_metadata": {
+        "mechanism": "spatial_owner_tasks_packed_reduction_control",
+        "chunk_tokens": 64,
+        "task_count": 1904,
+        "packed_partial_rows": 33104,
+        "requested_splits_compatibility_parameter": 64,
+        "splits_semantics": "Not used for partitioning; fixed chunk_tokens defines tasks. This is not the original equal-split scheme.",
+        "prepare_scope": "CPU metadata D2H, validation, task/table construction, H2D and owned-buffer allocation; first kernel JIT excluded.",
+        "workspace_bytes_by_buffer": {
+          "packed_U": 16949248,
+          "packed_M": 132416,
+          "packed_L": 132416,
+          "task_descriptors": 45696,
+          "merge_indices": 16576,
+          "contribution_counts": 32,
+          "output": 16384,
+          "LSE": 256
+        },
+        "workspace_bytes": 17293024,
+        "max_contributions": 518,
+        "merge_streaming_group": 16,
+        "structure_sha256": "a20f7528701618ba4eff9dd0a4f844be6539fd95f281eaf951b42b7fea98705e",
+        "payload_aliases_source": true,
+        "graph_topology_contract": "Q/K/V and original Indices values may change in place. Replacing the plan or any plan tensor, changing tensor storage/layout, or changing offsets/labels/counts/row_map requires rebuild and graph recapture. graph.replay bypasses host identity/version checks; callers must enforce this contract."
+      },
+      "initial_prepare_ms": 3.0801361426711082,
+      "initial_task_count": 1904,
+      "topology_change": {
+        "old_graph_replayed_after_topology_mutation": false,
+        "old_op_validate_plan_rejected": true,
+        "rejection": "Owner-task topology metadata changed: rebuild Attention outside replay and recapture the graph",
+        "graph_replay_bypasses_host_check": true,
+        "offset_values_changed": true,
+        "offset_version_changed_even_if_values_equal": true,
+        "updated_plan_build_wall_seconds": 0.03357180766761303,
+        "old_plan_mutation_and_rejection_wall_seconds": 9.529665112495422e-05,
+        "Attention_rebuild_wall_seconds": 0.002926819957792759,
+        "warmup_JIT_recapture_first_replay_wall_seconds": 0.21001359820365906,
+        "total_rebuild_sequence_wall_seconds": 0.2466075224801898,
+        "updated_plan_prepare_ms": 33.274426124989986,
+        "Attention_prepare_ms": 2.9038814827799797,
+        "cost_scope": "Diagnostic host wall includes plan construction/D2H/H2D/allocations, old-plan rejection, Attention rebuild, JIT warmup, new graph capture and first replay; excludes artifact export and FP64/hash audits."
+      },
+      "rebuilt_metadata": {
+        "mechanism": "spatial_owner_tasks_packed_reduction_control",
+        "chunk_tokens": 64,
+        "task_count": 1904,
+        "packed_partial_rows": 26656,
+        "requested_splits_compatibility_parameter": 64,
+        "splits_semantics": "Not used for partitioning; fixed chunk_tokens defines tasks. This is not the original equal-split scheme.",
+        "prepare_scope": "CPU metadata D2H, validation, task/table construction, H2D and owned-buffer allocation; first kernel JIT excluded.",
+        "workspace_bytes_by_buffer": {
+          "packed_U": 13647872,
+          "packed_M": 106624,
+          "packed_L": 106624,
+          "task_descriptors": 45696,
+          "merge_indices": 21696,
+          "contribution_counts": 32,
+          "output": 16384,
+          "LSE": 256
+        },
+        "workspace_bytes": 13945184,
+        "max_contributions": 678,
+        "merge_streaming_group": 16,
+        "structure_sha256": "7a4a2eefcdb5778da8492b195717fdf720fb0533acf2bdb8c3fca74b4ace9d81",
+        "payload_aliases_source": true,
+        "graph_topology_contract": "Q/K/V and original Indices values may change in place. Replacing the plan or any plan tensor, changing tensor storage/layout, or changing offsets/labels/counts/row_map requires rebuild and graph recapture. graph.replay bypasses host identity/version checks; callers must enforce this contract."
+      },
+      "rebuilt_task_count": 1904,
+      "resource_review_status": "exported_independent_review_pending",
+      "initial_resources": {
+        "producer": {
+          "status": "saved_for_independent_resource_review",
+          "name": "producer",
+          "n_regs": 128,
+          "n_spills": 0,
+          "Triton_metadata": {
+            "allowed_dot_input_precisions": [
+              "tf32",
+              "tf32x3",
+              "ieee",
+              "bf16x3",
+              "bf16x6"
+            ],
+            "arch": "sm120",
+            "backend_name": "cuda",
+            "debug": false,
+            "default_dot_input_precision": "tf32",
+            "deprecated_fp8_dot_operand_dtypes": [
+              "fp8e4b15"
+            ],
+            "enable_fp_fusion": true,
+            "enable_reflect_ftz": true,
+            "extern_libs": [
+              [
+                "libdevice",
+                "/home/qcjz/miniconda3/envs/sglang-vllm-m120/lib/python3.12/site-packages/triton/backends/nvidia/lib/libdevice.10.bc"
+              ]
+            ],
+            "global_scratch_align": 1,
+            "global_scratch_size": 0,
+            "hash": "f764d04fcd46e25e7ed2de2a56dd03c6e99325df356dc7e71fb1a46a7e3df35a",
+            "instrumentation_mode": "",
+            "ir_override": null,
+            "launch_cooperative_grid": false,
+            "launch_pdl": false,
+            "max_num_imprecise_acc_default": 0,
+            "maxnreg": null,
+            "name": "producer",
+            "num_ctas": 1,
+            "num_stages": 1,
+            "num_warps": 4,
+            "profile_scratch_align": 1,
+            "profile_scratch_size": 0,
+            "ptx_options": null,
+            "ptx_version": null,
+            "sanitize_overflow": true,
+            "shared": 28672,
+            "supported_fp8_dtypes": [
+              "fp8e4b15",
+              "fp8e4nv",
+              "fp8e5"
+            ],
+            "target": "GPUTarget(backend='cuda', arch=120, warp_size=32)",
+            "tensordesc_meta": [],
+            "tmem_size": 0,
+            "triton_version": "3.6.0",
+            "warp_size": 32
+          },
+          "cubin_resources": {
+            "reg": 128,
+            "stack": 0,
+            "shared": 1024,
+            "local": 0
+          },
+          "SASS_LDL_count": 0,
+          "SASS_STL_count": 0,
+          "explicit_local_traffic_absent": true,
+          "artifacts": {
+            "ptx": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/real_capture_initial_producer.ptx",
+              "sha256": "8e42cf992798ec90516afce634a34475c9fef2ade0792cbefbc63f3cb84f858d"
+            },
+            "cubin": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/real_capture_initial_producer.cubin",
+              "sha256": "973e1c9dbf608269f8f12d6e7a2704a9a050b7c494bcb01f48ff60dddebc517d"
+            },
+            "resources": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/real_capture_initial_producer.resources.txt",
+              "sha256": "db50891d3e3fbaf80cef6cef769e4d320a1e323af8cb39033f0a2b6a88740cf6"
+            },
+            "sass": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/real_capture_initial_producer.sass",
+              "sha256": "944978322f445fa036d7a2f4f152001e59cdcc06c718aa05c23329bfc2715c6a"
+            }
+          }
+        },
+        "merge": {
+          "status": "saved_for_independent_resource_review",
+          "name": "merge",
+          "n_regs": 42,
+          "n_spills": 0,
+          "Triton_metadata": {
+            "allowed_dot_input_precisions": [
+              "tf32",
+              "tf32x3",
+              "ieee",
+              "bf16x3",
+              "bf16x6"
+            ],
+            "arch": "sm120",
+            "backend_name": "cuda",
+            "debug": false,
+            "default_dot_input_precision": "tf32",
+            "deprecated_fp8_dot_operand_dtypes": [
+              "fp8e4b15"
+            ],
+            "enable_fp_fusion": true,
+            "enable_reflect_ftz": true,
+            "extern_libs": [
+              [
+                "libdevice",
+                "/home/qcjz/miniconda3/envs/sglang-vllm-m120/lib/python3.12/site-packages/triton/backends/nvidia/lib/libdevice.10.bc"
+              ]
+            ],
+            "global_scratch_align": 1,
+            "global_scratch_size": 0,
+            "hash": "8f6122c2ec90d9d5328eeb4f562f88d7871259fa3cc1d6f8409f78dd7a6dd7ce",
+            "instrumentation_mode": "",
+            "ir_override": null,
+            "launch_cooperative_grid": false,
+            "launch_pdl": false,
+            "max_num_imprecise_acc_default": 0,
+            "maxnreg": null,
+            "name": "merge",
+            "num_ctas": 1,
+            "num_stages": 3,
+            "num_warps": 4,
+            "profile_scratch_align": 1,
+            "profile_scratch_size": 0,
+            "ptx_options": null,
+            "ptx_version": null,
+            "sanitize_overflow": true,
+            "shared": 2048,
+            "supported_fp8_dtypes": [
+              "fp8e4b15",
+              "fp8e4nv",
+              "fp8e5"
+            ],
+            "target": "GPUTarget(backend='cuda', arch=120, warp_size=32)",
+            "tensordesc_meta": [],
+            "tmem_size": 0,
+            "triton_version": "3.6.0",
+            "warp_size": 32
+          },
+          "cubin_resources": {
+            "reg": 42,
+            "stack": 0,
+            "shared": 1024,
+            "local": 0
+          },
+          "SASS_LDL_count": 0,
+          "SASS_STL_count": 0,
+          "explicit_local_traffic_absent": true,
+          "artifacts": {
+            "ptx": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/real_capture_initial_merge.ptx",
+              "sha256": "5752b3de606912caa2324b992f987791512b7ddf48da335c7b525421a795741f"
+            },
+            "cubin": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/real_capture_initial_merge.cubin",
+              "sha256": "4b61147c558050636fa9f5ef47629457a3b5d0597cb3025968a8e34bbbc7b159"
+            },
+            "resources": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/real_capture_initial_merge.resources.txt",
+              "sha256": "84fab37ac9ef3468413685227f84a81a61df7ad85f61b42c0e51650df6cab85e"
+            },
+            "sass": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/real_capture_initial_merge.sass",
+              "sha256": "b56251efabf404e7a6c5baa9cd918ed0c1a9a91ac4e3156100597e668cb8a930"
+            }
+          }
+        }
+      },
+      "rebuilt_resources": {
+        "producer": {
+          "status": "saved_for_independent_resource_review",
+          "name": "producer",
+          "n_regs": 128,
+          "n_spills": 0,
+          "Triton_metadata": {
+            "allowed_dot_input_precisions": [
+              "tf32",
+              "tf32x3",
+              "ieee",
+              "bf16x3",
+              "bf16x6"
+            ],
+            "arch": "sm120",
+            "backend_name": "cuda",
+            "debug": false,
+            "default_dot_input_precision": "tf32",
+            "deprecated_fp8_dot_operand_dtypes": [
+              "fp8e4b15"
+            ],
+            "enable_fp_fusion": true,
+            "enable_reflect_ftz": true,
+            "extern_libs": [
+              [
+                "libdevice",
+                "/home/qcjz/miniconda3/envs/sglang-vllm-m120/lib/python3.12/site-packages/triton/backends/nvidia/lib/libdevice.10.bc"
+              ]
+            ],
+            "global_scratch_align": 1,
+            "global_scratch_size": 0,
+            "hash": "f764d04fcd46e25e7ed2de2a56dd03c6e99325df356dc7e71fb1a46a7e3df35a",
+            "instrumentation_mode": "",
+            "ir_override": null,
+            "launch_cooperative_grid": false,
+            "launch_pdl": false,
+            "max_num_imprecise_acc_default": 0,
+            "maxnreg": null,
+            "name": "producer",
+            "num_ctas": 1,
+            "num_stages": 1,
+            "num_warps": 4,
+            "profile_scratch_align": 1,
+            "profile_scratch_size": 0,
+            "ptx_options": null,
+            "ptx_version": null,
+            "sanitize_overflow": true,
+            "shared": 28672,
+            "supported_fp8_dtypes": [
+              "fp8e4b15",
+              "fp8e4nv",
+              "fp8e5"
+            ],
+            "target": "GPUTarget(backend='cuda', arch=120, warp_size=32)",
+            "tensordesc_meta": [],
+            "tmem_size": 0,
+            "triton_version": "3.6.0",
+            "warp_size": 32
+          },
+          "cubin_resources": {
+            "reg": 128,
+            "stack": 0,
+            "shared": 1024,
+            "local": 0
+          },
+          "SASS_LDL_count": 0,
+          "SASS_STL_count": 0,
+          "explicit_local_traffic_absent": true,
+          "artifacts": {
+            "ptx": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/real_capture_rebuilt_producer.ptx",
+              "sha256": "8e42cf992798ec90516afce634a34475c9fef2ade0792cbefbc63f3cb84f858d"
+            },
+            "cubin": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/real_capture_rebuilt_producer.cubin",
+              "sha256": "973e1c9dbf608269f8f12d6e7a2704a9a050b7c494bcb01f48ff60dddebc517d"
+            },
+            "resources": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/real_capture_rebuilt_producer.resources.txt",
+              "sha256": "db50891d3e3fbaf80cef6cef769e4d320a1e323af8cb39033f0a2b6a88740cf6"
+            },
+            "sass": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/real_capture_rebuilt_producer.sass",
+              "sha256": "944978322f445fa036d7a2f4f152001e59cdcc06c718aa05c23329bfc2715c6a"
+            }
+          }
+        },
+        "merge": {
+          "status": "saved_for_independent_resource_review",
+          "name": "merge",
+          "n_regs": 42,
+          "n_spills": 0,
+          "Triton_metadata": {
+            "allowed_dot_input_precisions": [
+              "tf32",
+              "tf32x3",
+              "ieee",
+              "bf16x3",
+              "bf16x6"
+            ],
+            "arch": "sm120",
+            "backend_name": "cuda",
+            "debug": false,
+            "default_dot_input_precision": "tf32",
+            "deprecated_fp8_dot_operand_dtypes": [
+              "fp8e4b15"
+            ],
+            "enable_fp_fusion": true,
+            "enable_reflect_ftz": true,
+            "extern_libs": [
+              [
+                "libdevice",
+                "/home/qcjz/miniconda3/envs/sglang-vllm-m120/lib/python3.12/site-packages/triton/backends/nvidia/lib/libdevice.10.bc"
+              ]
+            ],
+            "global_scratch_align": 1,
+            "global_scratch_size": 0,
+            "hash": "5a892f75e5f280934ccb1d512944580602a2941c852724b88216b166a909302d",
+            "instrumentation_mode": "",
+            "ir_override": null,
+            "launch_cooperative_grid": false,
+            "launch_pdl": false,
+            "max_num_imprecise_acc_default": 0,
+            "maxnreg": null,
+            "name": "merge",
+            "num_ctas": 1,
+            "num_stages": 3,
+            "num_warps": 4,
+            "profile_scratch_align": 1,
+            "profile_scratch_size": 0,
+            "ptx_options": null,
+            "ptx_version": null,
+            "sanitize_overflow": true,
+            "shared": 2048,
+            "supported_fp8_dtypes": [
+              "fp8e4b15",
+              "fp8e4nv",
+              "fp8e5"
+            ],
+            "target": "GPUTarget(backend='cuda', arch=120, warp_size=32)",
+            "tensordesc_meta": [],
+            "tmem_size": 0,
+            "triton_version": "3.6.0",
+            "warp_size": 32
+          },
+          "cubin_resources": {
+            "reg": 42,
+            "stack": 0,
+            "shared": 1024,
+            "local": 0
+          },
+          "SASS_LDL_count": 0,
+          "SASS_STL_count": 0,
+          "explicit_local_traffic_absent": true,
+          "artifacts": {
+            "ptx": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/real_capture_rebuilt_merge.ptx",
+              "sha256": "a2cf5d0d5a4f71fe22067d70155a643b985891bf4f5fca2958d6f339197f9805"
+            },
+            "cubin": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/real_capture_rebuilt_merge.cubin",
+              "sha256": "3665a208e77b5390dd8437f445841efc688638ddcc16100bd32f66e6e41b8911"
+            },
+            "resources": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/real_capture_rebuilt_merge.resources.txt",
+              "sha256": "84fab37ac9ef3468413685227f84a81a61df7ad85f61b42c0e51650df6cab85e"
+            },
+            "sass": {
+              "path": "results/operator_owner_tasks_qualification/wave19/ownertasks_w19_b4_c64_n64_compiler/real_capture_rebuilt_merge.sass",
+              "sha256": "a87e2b0a4968270eaed78b38323a2658e8958c10741e1d17e68cc6bfbcf5f560"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "gpu_uuid": "fc0bce58-ff6b-67f4-fbb7-1a3e8795be34",
+  "gpu_name": "NVIDIA GeForce RTX 5090",
+  "packages": {
+    "torch": "2.11.0",
+    "triton": "3.6.0"
+  },
+  "wall_seconds": 20.640310774557292,
+  "finished_utc": "2026-10-16T14:18:28.068278+00:00"
+}
