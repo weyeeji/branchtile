@@ -14,6 +14,11 @@ paper contribution. The original dynamic-row stop decision remains in force.
 
 Recent evidence:
 
+- [Physical KV alias control](results/native_physical_alias_v1/README.md):
+  eight paired cells, 48 bitwise numerical checks and 384 address-sensitive
+  checks pass. Existing sparse E0 benefits from shared addresses by 1.22–1.77×
+  in cold calls; this is a baseline property, not a new executor gain. Hardware
+  traffic and full-model speed are not inferred from these operator timings.
 - [Corrected suffix-only replay](results/suffix_v2_replay/): 1,156 qualified
   configurations; dynamic execution loses at all 24 tested hot/cold points.
 - [Native-FI natural development matrix](results/main30b_sparse/fi_natural_expansion_summary.json):
@@ -44,6 +49,11 @@ The [input-capacity audit](docs/native_context_capacity_review_20261016.md),
 and [register-bank residual review](docs/register_bank_residual_review_20261016.md)
 record remaining boundaries without launching another GPU sweep or claiming a
 qualified replacement idea.
+The [query-residual certificate review](docs/query_residual_certificate_review_20261016.md)
+and [shared-prefill review](docs/shared_prefill_application_gap_audit_20261016.md)
+also close ordinary Taylor/fallback and leader/follower proposals using current
+primary literature and reproducible CPU checks. A mature TinyGEMM router control
+is being prepared; it is not a new contribution.
 
 ## Environment
 

@@ -619,3 +619,34 @@ are retained. Natural allocation is0.335059 P1 GPUh; cumulative ledger P1/P2 is
 10.998694/4.506292, all jobs terminal with no anomaly. Remaining CPU work audits
 calibrated-loader feasibility and input-only capacity limits. No new candidate,
 long-context GPU job, calibrated-quality result or formal evaluation is claimed.
+
+## 2026-10-16 19:15 — physical-address sharing is already a native baseline benefit
+
+Pre-execution freeze `6c9c7da` launches two real suffix-only B3 captures at four
+budgets on eight GPUs. All eight jobs finish cleanly in 7.9–9.0 seconds,
+costing 0.0186196 P1 GPUh. The single FlashInfer 0.7.2 page1 sparse E0 wrapper,
+plan, scratch, query, indices buffer and output addresses are shared by all arms;
+only index values select one common or three private bitwise-equal KV replicas.
+All replicas remain allocated in both treatments. Index installation is outside
+timing; the output copy is included. This is not native dense page16 XQA.
+
+48 O/raw-LSE bitwise checks and 384 per-graph/per-replica V-mutation checks pass.
+Each cell has 30 random/reverse paired blocks, three copy rotations and shared
+and private A/A. Hot is a self-warmed 32-call chain; cold is one call after a
+greater-than-two-L2 flush, preserving the event's prominent 2.048us granularity.
+All 24 cold rotation comparisons clear the frozen resolution/A/A gate, with
+private/shared ratios 1.22–1.77. At 32K, hot ratios are 1.717–1.803; smaller hot
+budgets show small address-dependent sign changes. Eight different cells run on
+eight GPUs, so this does not isolate a cross-budget device-independent threshold.
+
+The existing physical sharing already has measurable native benefits; logical
+deduplication is not wholly incremental opportunity for BranchTile. This does
+not measure DRAM bytes, L2 hit rate, energy or application gains. A source-level
+and independent 1470-check audit is stored alongside all raw results and logs.
+
+CPU-only research also identifies formula-level MuSe prior for query-local
+Jacobian/covariance residuals and prior shared-prefill admission mechanisms.
+KV²/EchoPress reduce compression preparation, not the necessary first dense
+prefill. No renamed combination is promoted to a new paper contribution.
+TinyGEMM router qualification is being prepared as a mature strong control;
+original dynamic and joint-E0 stops remain. Paper requirements remain unmet.
