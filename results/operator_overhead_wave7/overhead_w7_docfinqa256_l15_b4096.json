@@ -1,0 +1,6040 @@
+{
+  "scope": "Broad overhead screen: all fixed partitions/trees with a bounded split grid, not fully tuned strongest methods or an application claim",
+  "protocol_version": 3,
+  "candidate_set": "persistent",
+  "code_sha256": {
+    "scripts/bench_operator_overhead_v3.py": "f46d8a163334f02c1be254720e23f11ae517dc45babc0202f7059115f8e83783",
+    "scripts/compare_attention.py": "a23b40b1139e93fbb2bd7f5e8794b1885e4df8778bc83114e845829fb1a7e2e2",
+    "src/branchtile/attention.py": "2878475c1273f527f95f629090e275c5a99f9dbad6c67646c40657692c20673d",
+    "src/branchtile/attention_emptyguard.py": "a4eb400c270750522ab7ebee891d96df4076fd3cf7e28f47af12193068f2749c",
+    "src/branchtile/attention_fullcol_guard.py": "fa990cd439eeee4a27624b0c678b159c2f4759de6075f782fd347636895c07ff",
+    "src/branchtile/attention_persistent_fixed.py": "87ce11da7cd8339c589536ea9627db35c6b155ac23c9e7f3e6a546581b4c4d0c",
+    "src/branchtile/attention_v2.py": "f6a3ef3519ed96a5405afe92dfdadf064575d027aa05502fb9304e37abeed916",
+    "src/branchtile/attention_v3.py": "d2a11acd8ef0ece0b202e28fd9897ce501a312de2f0f857a09266a869ffddd0a",
+    "src/branchtile/tilelang_kernel.py": "8f1c5c73e6767c6231e13dfeca1ced455b0236b238ec100916fb67d74db5e6a0",
+    "src/branchtile/tilelang_kernel_emptyguard.py": "80b91f0812a0ddec97c047facb4023d0929af1f9ca24e1ce562f0fc8655562ad",
+    "src/branchtile/tilelang_kernel_fullcol_guard.py": "cc3f2ea59cf04515fac0e648afa0a65c2eee9e0ab1a4e51b7681c9be53a293ab",
+    "src/branchtile/tilelang_kernel_persistent_fixed.py": "4a4778d78fc7342829ce0d525872afb7795b137fa86b92928ad835e3e89d8873",
+    "src/branchtile/tilelang_kernel_v2.py": "7f36322f62d94d047788cce58cf6b4063e7e27b2cd6f96624f7e5f93c9f90525",
+    "src/branchtile/tilelang_kernel_v3.py": "d46f85e068fcbce98d509f5583de15ac6c6dae144d224ceb7f7c679bcddc55ea",
+    "src/branchtile/union.py": "5062b4729617252aa8fe17f7f80ee197b01efca497150b5ef3abc30afff4b55d",
+    "src/cascade_baseline.py": "245273b2a6915203cc2e0e77f82b31e7f7ef319d600c81c6c6124d47687898c7",
+    "src/dynamic_baseline.py": "d85f600a438953a3e508963a5269544c66c24c3470b3f40927d344704bd5a032",
+    "src/flashinfer_baseline.py": "942eb00c9442393871af9cdab140e83de00bb05c30d2c36fa04a1d0735bc50fa",
+    "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92"
+  },
+  "candidate_sources": {
+    "e0_native": [
+      "src/flashinfer_baseline.py"
+    ],
+    "e1_native": [
+      "src/partition_baseline.py"
+    ],
+    "e1_own": [
+      "src/partition_baseline.py",
+      "src/branchtile/union.py"
+    ],
+    "e4_native": [
+      "src/cascade_baseline.py",
+      "src/partition_baseline.py"
+    ],
+    "dynamic_v2": [
+      "src/dynamic_baseline.py",
+      "src/branchtile/attention_v2.py",
+      "src/branchtile/tilelang_kernel_v2.py"
+    ],
+    "dynamic_v3": [
+      "src/dynamic_baseline.py",
+      "src/branchtile/attention_v3.py",
+      "src/branchtile/tilelang_kernel_v3.py"
+    ],
+    "dynamic_emptyguard": [
+      "src/branchtile/attention_emptyguard.py",
+      "src/branchtile/tilelang_kernel_emptyguard.py"
+    ],
+    "dynamic_fullcol_guard": [
+      "src/branchtile/attention_fullcol_guard.py",
+      "src/branchtile/tilelang_kernel_fullcol_guard.py"
+    ],
+    "dynamic_persistent_fixed": [
+      "src/branchtile/attention_persistent_fixed.py",
+      "src/branchtile/tilelang_kernel_persistent_fixed.py"
+    ]
+  },
+  "persistent_fixed_ablation_definition": "Fixed M32 persistent rows retain extra masked MMA work versus compact dynamic rows; fullcol_guard/persistent is not a pure state-transport-only change.",
+  "best_layout_control_definition": null,
+  "uid": 1000,
+  "python": "/home/qcjz/iscas/.venv-latest/bin/python",
+  "gpu_uuid": "a968eb06-fbdc-36af-d507-50240e0e50a3",
+  "packages": {
+    "torch": "2.11.0",
+    "flashinfer-python": "0.7.2",
+    "tilelang": "0.1.9",
+    "triton": "3.6.0"
+  },
+  "q_shape": [
+    2,
+    24,
+    128
+  ],
+  "k_shape": [
+    2,
+    87083,
+    128
+  ],
+  "provenance": {
+    "capture": "results/captures/main30b_tp2_docfinqa256_suffix_v2/rank0",
+    "layer": 15,
+    "budget": 4096,
+    "step": 64,
+    "original_active_requests": [
+      0,
+      1,
+      2
+    ],
+    "selected_kv_heads": [
+      0,
+      1
+    ],
+    "model": "data/models/Qwen3-30B-A3B-Thinking-2507-FP8",
+    "model_revision": "60d80c83c53c3b611c642dbb8c942b3f90c5948a",
+    "document_sha256": "c0f11a67aae850fc423d60b5c3839769c083888b4d2e73c6d47b359547f44e46",
+    "includes_system_prefix_and_complete_private_suffix": true,
+    "ready_lifetime_measured": true,
+    "tensor_parallel_size": 2,
+    "actual_tp_rank": 0,
+    "document_token_range": [
+      34,
+      86818
+    ],
+    "actual_shared_document_token_range": [
+      34,
+      86816
+    ],
+    "private_protected_document_tail_tokens": 2,
+    "decode_step_definition": "s1 is each actual suffix-prefill query predicting first generated token (selector compatibility only); s16/s64/s256 are same-forward ready-group snapshots anchored on question0 prediction step, with each request's own actual position retained",
+    "mask_definition": "Budget applies to the full original document; protected partial-page document tail resides in private suffix and is omitted from common-source masks only. All original selected tokens remain in execution.",
+    "ready_group": {
+      "layer": 15,
+      "anchor": 64,
+      "B": 3,
+      "query_positions": [
+        [
+          86912
+        ],
+        [
+          86901
+        ],
+        [
+          86899
+        ]
+      ],
+      "actual_prediction_steps": [
+        64,
+        63,
+        62
+      ]
+    }
+  },
+  "numerical_contract": {
+    "output_atol": 0.006,
+    "output_rtol": 0.015,
+    "lse_atol": 0.0003,
+    "lse_rtol": 0.0001,
+    "lse_base": "natural",
+    "reference": "FP64"
+  },
+  "tuning_planned": 42,
+  "tuning_completed": 42,
+  "tuning_complete": true,
+  "batch": 3,
+  "gqa": 8,
+  "dynamic_included": true,
+  "partitions": [
+    [
+      [
+        0
+      ],
+      [
+        1
+      ],
+      [
+        2
+      ]
+    ],
+    [
+      [
+        0
+      ],
+      [
+        1,
+        2
+      ]
+    ],
+    [
+      [
+        0,
+        1
+      ],
+      [
+        2
+      ]
+    ],
+    [
+      [
+        0,
+        1,
+        2
+      ]
+    ],
+    [
+      [
+        0,
+        2
+      ],
+      [
+        1
+      ]
+    ]
+  ],
+  "hierarchies": [
+    [
+      0,
+      [
+        1,
+        2
+      ]
+    ],
+    [
+      [
+        0,
+        1
+      ],
+      2
+    ],
+    [
+      [
+        0,
+        2
+      ],
+      1
+    ]
+  ],
+  "search_seconds_including_jit_and_failures": 7.91849600058049,
+  "search_seconds_by_family": {
+    "e1_native": 0.49272396322339773,
+    "e1_own": 1.2134656244888902,
+    "dynamic_persistent_fixed": 0.9312957841902971,
+    "e4_native": 0.23018105514347553,
+    "dynamic_v2": 1.4479067493230104,
+    "dynamic_emptyguard": 1.371863062493503,
+    "dynamic_v3": 0.7092202147468925,
+    "dynamic_fullcol_guard": 1.3592235017567873,
+    "e0_native": 0.15722470730543137
+  },
+  "oracle_scope": "Per-capture hindsight latency oracle among the measured grid; not a deployed plan selector.",
+  "tuning": [
+    {
+      "method": "e1_native",
+      "partition": [
+        [
+          0
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "fixed_split_size": null,
+      "candidate_name": "e1_native__p-0-1_2__fixedsplit-None",
+      "source_paths": [
+        "src/partition_baseline.py"
+      ],
+      "source_sha256": {
+        "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92"
+      },
+      "initialization_ms_including_jit": 100.40251072496176,
+      "max_abs_error_fp64": 0.0010233702844582304,
+      "max_lse_error_fp64": 0.0007893166625265735,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 8.793599903583527,
+        "cold": 18.432000651955605
+      },
+      "prepare_ms": 56.13120645284653,
+      "metadata_ms": 1.32816843688488,
+      "logical_kv_token_visits": 18865,
+      "workspace_bytes": 536870912,
+      "configuration_wall_seconds": 0.1965617798268795
+    },
+    {
+      "method": "e1_own",
+      "partition": [
+        [
+          0
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "splits": 64,
+      "block_n": 64,
+      "candidate_name": "e1_own__p-0-1_2__splits-64__n-64",
+      "source_paths": [
+        "src/partition_baseline.py",
+        "src/branchtile/union.py"
+      ],
+      "source_sha256": {
+        "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92",
+        "src/branchtile/union.py": "5062b4729617252aa8fe17f7f80ee197b01efca497150b5ef3abc30afff4b55d"
+      },
+      "initialization_ms_including_jit": 629.5016510412097,
+      "max_abs_error_fp64": 0.00048345814252750974,
+      "max_lse_error_fp64": 3.8737793133236664e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 16.814400255680084,
+        "cold": 32.76799991726875
+      },
+      "prepare_ms": 184.07589104026556,
+      "metadata_ms": 13.56777735054493,
+      "logical_kv_token_visits": 18865,
+      "workspace_bytes": 1609920,
+      "configuration_wall_seconds": 0.6995294466614723
+    },
+    {
+      "method": "dynamic_persistent_fixed",
+      "version": "persistent_fixed",
+      "splits": 128,
+      "block_n": 64,
+      "candidate_name": "dynamic_persistent_fixed__splits-128__n-64",
+      "source_paths": [
+        "src/branchtile/attention_persistent_fixed.py",
+        "src/branchtile/tilelang_kernel_persistent_fixed.py"
+      ],
+      "source_sha256": {
+        "src/branchtile/attention_persistent_fixed.py": "87ce11da7cd8339c589536ea9627db35c6b155ac23c9e7f3e6a546581b4c4d0c",
+        "src/branchtile/tilelang_kernel_persistent_fixed.py": "4a4778d78fc7342829ce0d525872afb7795b137fa86b92928ad835e3e89d8873"
+      },
+      "initialization_ms_including_jit": 88.12600933015347,
+      "max_abs_error_fp64": 0.00048345814252750974,
+      "max_lse_error_fp64": 3.8737793133236664e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 20.124800503253937,
+        "cold": 28.672000393271446
+      },
+      "prepare_ms": 86.37579809874296,
+      "metadata_ms": 6.5392991527915,
+      "logical_kv_token_visits": 12818,
+      "workspace_bytes": 3194880,
+      "configuration_wall_seconds": 0.15759218856692314
+    },
+    {
+      "method": "e4_native",
+      "tree": [
+        [
+          0,
+          2
+        ],
+        1
+      ],
+      "fixed_split_size": null,
+      "candidate_name": "e4_native__tree-[[0,2],1]__fixedsplit-None",
+      "source_paths": [
+        "src/cascade_baseline.py",
+        "src/partition_baseline.py"
+      ],
+      "source_sha256": {
+        "src/cascade_baseline.py": "245273b2a6915203cc2e0e77f82b31e7f7ef319d600c81c6c6124d47687898c7",
+        "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92"
+      },
+      "initialization_ms_including_jit": 10.58986410498619,
+      "max_abs_error_fp64": 0.0010233702844582304,
+      "max_lse_error_fp64": 0.0007130227172140735,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 9.15519967675209,
+        "cold": 18.432000651955605
+      },
+      "prepare_ms": 7.427055388689041,
+      "metadata_ms": 3.0952291563153267,
+      "logical_kv_token_visits": 15043,
+      "workspace_bytes": 536870912,
+      "configuration_wall_seconds": 0.07874673046171665
+    },
+    {
+      "method": "dynamic_persistent_fixed",
+      "version": "persistent_fixed",
+      "splits": 32,
+      "block_n": 32,
+      "candidate_name": "dynamic_persistent_fixed__splits-32__n-32",
+      "source_paths": [
+        "src/branchtile/attention_persistent_fixed.py",
+        "src/branchtile/tilelang_kernel_persistent_fixed.py"
+      ],
+      "source_sha256": {
+        "src/branchtile/attention_persistent_fixed.py": "87ce11da7cd8339c589536ea9627db35c6b155ac23c9e7f3e6a546581b4c4d0c",
+        "src/branchtile/tilelang_kernel_persistent_fixed.py": "4a4778d78fc7342829ce0d525872afb7795b137fa86b92928ad835e3e89d8873"
+      },
+      "initialization_ms_including_jit": 86.95747051388025,
+      "max_abs_error_fp64": 0.00048345814252750974,
+      "max_lse_error_fp64": 3.8737793133236664e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 16.87999963760376,
+        "cold": 28.64000014960766
+      },
+      "prepare_ms": 85.24627052247524,
+      "metadata_ms": 6.475580856204033,
+      "logical_kv_token_visits": 12818,
+      "workspace_bytes": 798720,
+      "configuration_wall_seconds": 0.1541995918378234
+    },
+    {
+      "method": "dynamic_persistent_fixed",
+      "version": "persistent_fixed",
+      "splits": 64,
+      "block_n": 64,
+      "candidate_name": "dynamic_persistent_fixed__splits-64__n-64",
+      "source_paths": [
+        "src/branchtile/attention_persistent_fixed.py",
+        "src/branchtile/tilelang_kernel_persistent_fixed.py"
+      ],
+      "source_sha256": {
+        "src/branchtile/attention_persistent_fixed.py": "87ce11da7cd8339c589536ea9627db35c6b155ac23c9e7f3e6a546581b4c4d0c",
+        "src/branchtile/tilelang_kernel_persistent_fixed.py": "4a4778d78fc7342829ce0d525872afb7795b137fa86b92928ad835e3e89d8873"
+      },
+      "initialization_ms_including_jit": 87.4438975006342,
+      "max_abs_error_fp64": 0.00048345814252750974,
+      "max_lse_error_fp64": 3.8737793133236664e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 17.136000096797943,
+        "cold": 26.655999943614006
+      },
+      "prepare_ms": 85.31513158231974,
+      "metadata_ms": 6.627378053963184,
+      "logical_kv_token_visits": 12818,
+      "workspace_bytes": 1597440,
+      "configuration_wall_seconds": 0.15490117482841015
+    },
+    {
+      "method": "e1_native",
+      "partition": [
+        [
+          0,
+          1
+        ],
+        [
+          2
+        ]
+      ],
+      "fixed_split_size": null,
+      "candidate_name": "e1_native__p-0_1-2__fixedsplit-None",
+      "source_paths": [
+        "src/partition_baseline.py"
+      ],
+      "source_sha256": {
+        "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92"
+      },
+      "initialization_ms_including_jit": 6.976470351219177,
+      "max_abs_error_fp64": 0.0007650686942240192,
+      "max_lse_error_fp64": 0.0004154763304953235,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 8.823999762535095,
+        "cold": 18.432000651955605
+      },
+      "prepare_ms": 6.826491095125675,
+      "metadata_ms": 1.6043400391936302,
+      "logical_kv_token_visits": 19670,
+      "workspace_bytes": 536870912,
+      "configuration_wall_seconds": 0.07385554071515799
+    },
+    {
+      "method": "dynamic_v2",
+      "version": "v2",
+      "splits": 128,
+      "block_n": 32,
+      "candidate_name": "dynamic_v2__splits-128__n-32",
+      "source_paths": [
+        "src/dynamic_baseline.py",
+        "src/branchtile/attention_v2.py",
+        "src/branchtile/tilelang_kernel_v2.py"
+      ],
+      "source_sha256": {
+        "src/dynamic_baseline.py": "d85f600a438953a3e508963a5269544c66c24c3470b3f40927d344704bd5a032",
+        "src/branchtile/attention_v2.py": "f6a3ef3519ed96a5405afe92dfdadf064575d027aa05502fb9304e37abeed916",
+        "src/branchtile/tilelang_kernel_v2.py": "7f36322f62d94d047788cce58cf6b4063e7e27b2cd6f96624f7e5f93c9f90525"
+      },
+      "initialization_ms_including_jit": 155.99581506103277,
+      "max_abs_error_fp64": 0.00048345814252750974,
+      "max_lse_error_fp64": 3.8737793133236664e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 16.547200083732605,
+        "cold": 26.623999699950218
+      },
+      "prepare_ms": 154.96657695621252,
+      "metadata_ms": 9.478747844696045,
+      "logical_kv_token_visits": 12818,
+      "workspace_bytes": 3194880,
+      "configuration_wall_seconds": 0.22767888382077217
+    },
+    {
+      "method": "dynamic_emptyguard",
+      "version": "emptyguard",
+      "splits": 128,
+      "block_n": 64,
+      "candidate_name": "dynamic_emptyguard__splits-128__n-64",
+      "source_paths": [
+        "src/branchtile/attention_emptyguard.py",
+        "src/branchtile/tilelang_kernel_emptyguard.py"
+      ],
+      "source_sha256": {
+        "src/branchtile/attention_emptyguard.py": "a4eb400c270750522ab7ebee891d96df4076fd3cf7e28f47af12193068f2749c",
+        "src/branchtile/tilelang_kernel_emptyguard.py": "80b91f0812a0ddec97c047facb4023d0929af1f9ca24e1ce562f0fc8655562ad"
+      },
+      "initialization_ms_including_jit": 156.6189918667078,
+      "max_abs_error_fp64": 0.00048345814252750974,
+      "max_lse_error_fp64": 3.8737793133236664e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 31.407999992370605,
+        "cold": 42.97599941492081
+      },
+      "prepare_ms": 155.5558554828167,
+      "metadata_ms": 6.47528562694788,
+      "logical_kv_token_visits": 12818,
+      "workspace_bytes": 3194880,
+      "configuration_wall_seconds": 0.2263714298605919
+    },
+    {
+      "method": "e4_native",
+      "tree": [
+        0,
+        [
+          1,
+          2
+        ]
+      ],
+      "fixed_split_size": null,
+      "candidate_name": "e4_native__tree-[0,[1,2]]__fixedsplit-None",
+      "source_paths": [
+        "src/cascade_baseline.py",
+        "src/partition_baseline.py"
+      ],
+      "source_sha256": {
+        "src/cascade_baseline.py": "245273b2a6915203cc2e0e77f82b31e7f7ef319d600c81c6c6124d47687898c7",
+        "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92"
+      },
+      "initialization_ms_including_jit": 7.053731940686703,
+      "max_abs_error_fp64": 0.001055899406993216,
+      "max_lse_error_fp64": 0.000684412487721886,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 8.977600187063217,
+        "cold": 18.432000651955605
+      },
+      "prepare_ms": 6.8434979766607285,
+      "metadata_ms": 3.152059391140938,
+      "logical_kv_token_visits": 13943,
+      "workspace_bytes": 536870912,
+      "configuration_wall_seconds": 0.0743937473744154
+    },
+    {
+      "method": "dynamic_v2",
+      "version": "v2",
+      "splits": 32,
+      "block_n": 64,
+      "candidate_name": "dynamic_v2__splits-32__n-64",
+      "source_paths": [
+        "src/dynamic_baseline.py",
+        "src/branchtile/attention_v2.py",
+        "src/branchtile/tilelang_kernel_v2.py"
+      ],
+      "source_sha256": {
+        "src/dynamic_baseline.py": "d85f600a438953a3e508963a5269544c66c24c3470b3f40927d344704bd5a032",
+        "src/branchtile/attention_v2.py": "f6a3ef3519ed96a5405afe92dfdadf064575d027aa05502fb9304e37abeed916",
+        "src/branchtile/tilelang_kernel_v2.py": "7f36322f62d94d047788cce58cf6b4063e7e27b2cd6f96624f7e5f93c9f90525"
+      },
+      "initialization_ms_including_jit": 153.30956410616636,
+      "max_abs_error_fp64": 0.00048345814252750974,
+      "max_lse_error_fp64": 3.8737793133236664e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 19.467200338840485,
+        "cold": 30.688000842928886
+      },
+      "prepare_ms": 152.27339044213295,
+      "metadata_ms": 6.813999265432358,
+      "logical_kv_token_visits": 12818,
+      "workspace_bytes": 798720,
+      "configuration_wall_seconds": 0.2215642873197794
+    },
+    {
+      "method": "dynamic_v3",
+      "version": "v3",
+      "splits": 32,
+      "block_n": 64,
+      "candidate_name": "dynamic_v3__splits-32__n-64",
+      "source_paths": [
+        "src/dynamic_baseline.py",
+        "src/branchtile/attention_v3.py",
+        "src/branchtile/tilelang_kernel_v3.py"
+      ],
+      "source_sha256": {
+        "src/dynamic_baseline.py": "d85f600a438953a3e508963a5269544c66c24c3470b3f40927d344704bd5a032",
+        "src/branchtile/attention_v3.py": "d2a11acd8ef0ece0b202e28fd9897ce501a312de2f0f857a09266a869ffddd0a",
+        "src/branchtile/tilelang_kernel_v3.py": "d46f85e068fcbce98d509f5583de15ac6c6dae144d224ceb7f7c679bcddc55ea"
+      },
+      "initialization_ms_including_jit": 167.5471356138587,
+      "max_abs_error_fp64": 0.00048345814252750974,
+      "max_lse_error_fp64": 3.8737793133236664e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 22.168000042438507,
+        "cold": 34.81600061058998
+      },
+      "prepare_ms": 165.96769634634256,
+      "metadata_ms": 6.873641163110733,
+      "logical_kv_token_visits": 12818,
+      "workspace_bytes": 798720,
+      "configuration_wall_seconds": 0.23611518926918507
+    },
+    {
+      "method": "e1_own",
+      "partition": [
+        [
+          0,
+          1,
+          2
+        ]
+      ],
+      "splits": 64,
+      "block_n": 64,
+      "candidate_name": "e1_own__p-0_1_2__splits-64__n-64",
+      "source_paths": [
+        "src/partition_baseline.py",
+        "src/branchtile/union.py"
+      ],
+      "source_sha256": {
+        "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92",
+        "src/branchtile/union.py": "5062b4729617252aa8fe17f7f80ee197b01efca497150b5ef3abc30afff4b55d"
+      },
+      "initialization_ms_including_jit": 195.51354087889194,
+      "max_abs_error_fp64": 0.00048345814252750974,
+      "max_lse_error_fp64": 3.8737793133236664e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 8.43840017914772,
+        "cold": 18.400000408291817
+      },
+      "prepare_ms": 195.18077466636896,
+      "metadata_ms": 8.438440971076488,
+      "logical_kv_token_visits": 12818,
+      "workspace_bytes": 1609920,
+      "configuration_wall_seconds": 0.26305818278342485
+    },
+    {
+      "method": "dynamic_fullcol_guard",
+      "version": "fullcol_guard",
+      "splits": 64,
+      "block_n": 64,
+      "candidate_name": "dynamic_fullcol_guard__splits-64__n-64",
+      "source_paths": [
+        "src/branchtile/attention_fullcol_guard.py",
+        "src/branchtile/tilelang_kernel_fullcol_guard.py"
+      ],
+      "source_sha256": {
+        "src/branchtile/attention_fullcol_guard.py": "fa990cd439eeee4a27624b0c678b159c2f4759de6075f782fd347636895c07ff",
+        "src/branchtile/tilelang_kernel_fullcol_guard.py": "cc3f2ea59cf04515fac0e648afa0a65c2eee9e0ab1a4e51b7681c9be53a293ab"
+      },
+      "initialization_ms_including_jit": 156.1248479411006,
+      "max_abs_error_fp64": 0.00048345814252750974,
+      "max_lse_error_fp64": 3.8737793133236664e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 16.937600076198578,
+        "cold": 28.672000393271446
+      },
+      "prepare_ms": 155.48479836434126,
+      "metadata_ms": 6.075513549149036,
+      "logical_kv_token_visits": 12818,
+      "workspace_bytes": 1597440,
+      "configuration_wall_seconds": 0.22334286104887724
+    },
+    {
+      "method": "e1_own",
+      "partition": [
+        [
+          0,
+          2
+        ],
+        [
+          1
+        ]
+      ],
+      "splits": 64,
+      "block_n": 64,
+      "candidate_name": "e1_own__p-0_2-1__splits-64__n-64",
+      "source_paths": [
+        "src/partition_baseline.py",
+        "src/branchtile/union.py"
+      ],
+      "source_sha256": {
+        "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92",
+        "src/branchtile/union.py": "5062b4729617252aa8fe17f7f80ee197b01efca497150b5ef3abc30afff4b55d"
+      },
+      "initialization_ms_including_jit": 11.299410834908485,
+      "max_abs_error_fp64": 0.00048345814252750974,
+      "max_lse_error_fp64": 3.8737793133236664e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 17.771199345588684,
+        "cold": 32.76799991726875
+      },
+      "prepare_ms": 11.047068051993847,
+      "metadata_ms": 10.64012385904789,
+      "logical_kv_token_visits": 19965,
+      "workspace_bytes": 1609920,
+      "configuration_wall_seconds": 0.08212647307664156
+    },
+    {
+      "method": "dynamic_fullcol_guard",
+      "version": "fullcol_guard",
+      "splits": 32,
+      "block_n": 64,
+      "candidate_name": "dynamic_fullcol_guard__splits-32__n-64",
+      "source_paths": [
+        "src/branchtile/attention_fullcol_guard.py",
+        "src/branchtile/tilelang_kernel_fullcol_guard.py"
+      ],
+      "source_sha256": {
+        "src/branchtile/attention_fullcol_guard.py": "fa990cd439eeee4a27624b0c678b159c2f4759de6075f782fd347636895c07ff",
+        "src/branchtile/tilelang_kernel_fullcol_guard.py": "cc3f2ea59cf04515fac0e648afa0a65c2eee9e0ab1a4e51b7681c9be53a293ab"
+      },
+      "initialization_ms_including_jit": 156.5022999420762,
+      "max_abs_error_fp64": 0.00048345814252750974,
+      "max_lse_error_fp64": 3.8737793133236664e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 18.556800484657288,
+        "cold": 30.719999223947525
+      },
+      "prepare_ms": 155.84674291312695,
+      "metadata_ms": 6.714454852044582,
+      "logical_kv_token_visits": 12818,
+      "workspace_bytes": 798720,
+      "configuration_wall_seconds": 0.2268308326601982
+    },
+    {
+      "method": "e0_native",
+      "tensor_cores": false,
+      "fixed_split_size": null,
+      "candidate_name": "e0_native__fixedsplit-None__tc-0",
+      "source_paths": [
+        "src/flashinfer_baseline.py"
+      ],
+      "source_sha256": {
+        "src/flashinfer_baseline.py": "942eb00c9442393871af9cdab140e83de00bb05c30d2c36fa04a1d0735bc50fa"
+      },
+      "initialization_ms_including_jit": 17.94278807938099,
+      "max_abs_error_fp64": 0.0010233702844582304,
+      "max_lse_error_fp64": 1.9274279807746098e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 13.1632000207901,
+        "cold": 20.479999482631683
+      },
+      "prepare_ms": 17.73146167397499,
+      "metadata_ms": null,
+      "logical_kv_token_visits": null,
+      "workspace_bytes": 536870912,
+      "configuration_wall_seconds": 0.08634648565202951
+    },
+    {
+      "method": "dynamic_fullcol_guard",
+      "version": "fullcol_guard",
+      "splits": 128,
+      "block_n": 32,
+      "candidate_name": "dynamic_fullcol_guard__splits-128__n-32",
+      "source_paths": [
+        "src/branchtile/attention_fullcol_guard.py",
+        "src/branchtile/tilelang_kernel_fullcol_guard.py"
+      ],
+      "source_sha256": {
+        "src/branchtile/attention_fullcol_guard.py": "fa990cd439eeee4a27624b0c678b159c2f4759de6075f782fd347636895c07ff",
+        "src/branchtile/tilelang_kernel_fullcol_guard.py": "cc3f2ea59cf04515fac0e648afa0a65c2eee9e0ab1a4e51b7681c9be53a293ab"
+      },
+      "initialization_ms_including_jit": 156.23651817440987,
+      "max_abs_error_fp64": 0.00048345814252750974,
+      "max_lse_error_fp64": 3.8737793133236664e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 17.64799952507019,
+        "cold": 26.623999699950218
+      },
+      "prepare_ms": 155.4657844826579,
+      "metadata_ms": 6.590365432202816,
+      "logical_kv_token_visits": 12818,
+      "workspace_bytes": 3194880,
+      "configuration_wall_seconds": 0.22477115411311388
+    },
+    {
+      "method": "dynamic_v2",
+      "version": "v2",
+      "splits": 32,
+      "block_n": 32,
+      "candidate_name": "dynamic_v2__splits-32__n-32",
+      "source_paths": [
+        "src/dynamic_baseline.py",
+        "src/branchtile/attention_v2.py",
+        "src/branchtile/tilelang_kernel_v2.py"
+      ],
+      "source_sha256": {
+        "src/dynamic_baseline.py": "d85f600a438953a3e508963a5269544c66c24c3470b3f40927d344704bd5a032",
+        "src/branchtile/attention_v2.py": "f6a3ef3519ed96a5405afe92dfdadf064575d027aa05502fb9304e37abeed916",
+        "src/branchtile/tilelang_kernel_v2.py": "7f36322f62d94d047788cce58cf6b4063e7e27b2cd6f96624f7e5f93c9f90525"
+      },
+      "initialization_ms_including_jit": 151.35848056524992,
+      "max_abs_error_fp64": 0.00048345814252750974,
+      "max_lse_error_fp64": 3.8737793133236664e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 17.265599966049194,
+        "cold": 28.672000393271446
+      },
+      "prepare_ms": 150.37588868290186,
+      "metadata_ms": 6.25955406576395,
+      "logical_kv_token_visits": 12818,
+      "workspace_bytes": 798720,
+      "configuration_wall_seconds": 0.21930349990725517
+    },
+    {
+      "method": "e1_native",
+      "partition": [
+        [
+          0
+        ],
+        [
+          1
+        ],
+        [
+          2
+        ]
+      ],
+      "fixed_split_size": null,
+      "candidate_name": "e1_native__p-0-1-2__fixedsplit-None",
+      "source_paths": [
+        "src/partition_baseline.py"
+      ],
+      "source_sha256": {
+        "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92"
+      },
+      "initialization_ms_including_jit": 8.040226064622402,
+      "max_abs_error_fp64": 0.0010233702844582304,
+      "max_lse_error_fp64": 0.0004154763304953235,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 10.089600086212158,
+        "cold": 18.432000651955605
+      },
+      "prepare_ms": 7.846892811357975,
+      "metadata_ms": 2.481875941157341,
+      "logical_kv_token_visits": 25302,
+      "workspace_bytes": 536870912,
+      "configuration_wall_seconds": 0.07559913024306297
+    },
+    {
+      "method": "dynamic_fullcol_guard",
+      "version": "fullcol_guard",
+      "splits": 32,
+      "block_n": 32,
+      "candidate_name": "dynamic_fullcol_guard__splits-32__n-32",
+      "source_paths": [
+        "src/branchtile/attention_fullcol_guard.py",
+        "src/branchtile/tilelang_kernel_fullcol_guard.py"
+      ],
+      "source_sha256": {
+        "src/branchtile/attention_fullcol_guard.py": "fa990cd439eeee4a27624b0c678b159c2f4759de6075f782fd347636895c07ff",
+        "src/branchtile/tilelang_kernel_fullcol_guard.py": "cc3f2ea59cf04515fac0e648afa0a65c2eee9e0ab1a4e51b7681c9be53a293ab"
+      },
+      "initialization_ms_including_jit": 156.80554509162903,
+      "max_abs_error_fp64": 0.00048345814252750974,
+      "max_lse_error_fp64": 3.8737793133236664e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 18.887999653816223,
+        "cold": 30.688000842928886
+      },
+      "prepare_ms": 155.77225293964148,
+      "metadata_ms": 6.633060052990913,
+      "logical_kv_token_visits": 12818,
+      "workspace_bytes": 798720,
+      "configuration_wall_seconds": 0.22993164416402578
+    },
+    {
+      "method": "dynamic_v3",
+      "version": "v3",
+      "splits": 64,
+      "block_n": 64,
+      "candidate_name": "dynamic_v3__splits-64__n-64",
+      "source_paths": [
+        "src/dynamic_baseline.py",
+        "src/branchtile/attention_v3.py",
+        "src/branchtile/tilelang_kernel_v3.py"
+      ],
+      "source_sha256": {
+        "src/dynamic_baseline.py": "d85f600a438953a3e508963a5269544c66c24c3470b3f40927d344704bd5a032",
+        "src/branchtile/attention_v3.py": "d2a11acd8ef0ece0b202e28fd9897ce501a312de2f0f857a09266a869ffddd0a",
+        "src/branchtile/tilelang_kernel_v3.py": "d46f85e068fcbce98d509f5583de15ac6c6dae144d224ceb7f7c679bcddc55ea"
+      },
+      "initialization_ms_including_jit": 162.00780496001244,
+      "max_abs_error_fp64": 0.00048345814252750974,
+      "max_lse_error_fp64": 3.8737793133236664e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 20.80480009317398,
+        "cold": 32.76799991726875
+      },
+      "prepare_ms": 161.0096851363778,
+      "metadata_ms": 6.117203272879124,
+      "logical_kv_token_visits": 12818,
+      "workspace_bytes": 1597440,
+      "configuration_wall_seconds": 0.23244867660105228
+    },
+    {
+      "method": "dynamic_emptyguard",
+      "version": "emptyguard",
+      "splits": 64,
+      "block_n": 64,
+      "candidate_name": "dynamic_emptyguard__splits-64__n-64",
+      "source_paths": [
+        "src/branchtile/attention_emptyguard.py",
+        "src/branchtile/tilelang_kernel_emptyguard.py"
+      ],
+      "source_sha256": {
+        "src/branchtile/attention_emptyguard.py": "a4eb400c270750522ab7ebee891d96df4076fd3cf7e28f47af12193068f2749c",
+        "src/branchtile/tilelang_kernel_emptyguard.py": "80b91f0812a0ddec97c047facb4023d0929af1f9ca24e1ce562f0fc8655562ad"
+      },
+      "initialization_ms_including_jit": 157.32496418058872,
+      "max_abs_error_fp64": 0.00048345814252750974,
+      "max_lse_error_fp64": 3.8737793133236664e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 18.26239973306656,
+        "cold": 28.64000014960766
+      },
+      "prepare_ms": 156.33076429367065,
+      "metadata_ms": 6.964005529880524,
+      "logical_kv_token_visits": 12818,
+      "workspace_bytes": 1597440,
+      "configuration_wall_seconds": 0.22574084997177124
+    },
+    {
+      "method": "dynamic_persistent_fixed",
+      "version": "persistent_fixed",
+      "splits": 64,
+      "block_n": 32,
+      "candidate_name": "dynamic_persistent_fixed__splits-64__n-32",
+      "source_paths": [
+        "src/branchtile/attention_persistent_fixed.py",
+        "src/branchtile/tilelang_kernel_persistent_fixed.py"
+      ],
+      "source_sha256": {
+        "src/branchtile/attention_persistent_fixed.py": "87ce11da7cd8339c589536ea9627db35c6b155ac23c9e7f3e6a546581b4c4d0c",
+        "src/branchtile/tilelang_kernel_persistent_fixed.py": "4a4778d78fc7342829ce0d525872afb7795b137fa86b92928ad835e3e89d8873"
+      },
+      "initialization_ms_including_jit": 85.09477600455284,
+      "max_abs_error_fp64": 0.00048345814252750974,
+      "max_lse_error_fp64": 3.8737793133236664e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 14.759999513626099,
+        "cold": 24.54400062561035
+      },
+      "prepare_ms": 84.28958617150784,
+      "metadata_ms": 6.1267949640750885,
+      "logical_kv_token_visits": 12818,
+      "workspace_bytes": 1597440,
+      "configuration_wall_seconds": 0.1539429584518075
+    },
+    {
+      "method": "dynamic_persistent_fixed",
+      "version": "persistent_fixed",
+      "splits": 32,
+      "block_n": 64,
+      "candidate_name": "dynamic_persistent_fixed__splits-32__n-64",
+      "source_paths": [
+        "src/branchtile/attention_persistent_fixed.py",
+        "src/branchtile/tilelang_kernel_persistent_fixed.py"
+      ],
+      "source_sha256": {
+        "src/branchtile/attention_persistent_fixed.py": "87ce11da7cd8339c589536ea9627db35c6b155ac23c9e7f3e6a546581b4c4d0c",
+        "src/branchtile/tilelang_kernel_persistent_fixed.py": "4a4778d78fc7342829ce0d525872afb7795b137fa86b92928ad835e3e89d8873"
+      },
+      "initialization_ms_including_jit": 86.03077474981546,
+      "max_abs_error_fp64": 0.00048345814252750974,
+      "max_lse_error_fp64": 3.8737793133236664e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 18.86560022830963,
+        "cold": 28.672000393271446
+      },
+      "prepare_ms": 85.08547767996788,
+      "metadata_ms": 6.129874847829342,
+      "logical_kv_token_visits": 12818,
+      "workspace_bytes": 798720,
+      "configuration_wall_seconds": 0.15680967457592487
+    },
+    {
+      "method": "dynamic_v2",
+      "version": "v2",
+      "splits": 128,
+      "block_n": 64,
+      "candidate_name": "dynamic_v2__splits-128__n-64",
+      "source_paths": [
+        "src/dynamic_baseline.py",
+        "src/branchtile/attention_v2.py",
+        "src/branchtile/tilelang_kernel_v2.py"
+      ],
+      "source_sha256": {
+        "src/dynamic_baseline.py": "d85f600a438953a3e508963a5269544c66c24c3470b3f40927d344704bd5a032",
+        "src/branchtile/attention_v2.py": "f6a3ef3519ed96a5405afe92dfdadf064575d027aa05502fb9304e37abeed916",
+        "src/branchtile/tilelang_kernel_v2.py": "7f36322f62d94d047788cce58cf6b4063e7e27b2cd6f96624f7e5f93c9f90525"
+      },
+      "initialization_ms_including_jit": 163.9461936429143,
+      "max_abs_error_fp64": 0.00048345814252750974,
+      "max_lse_error_fp64": 3.8737793133236664e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 30.747199058532715,
+        "cold": 42.97599941492081
+      },
+      "prepare_ms": 162.80522476881742,
+      "metadata_ms": 6.750376895070076,
+      "logical_kv_token_visits": 12818,
+      "workspace_bytes": 3194880,
+      "configuration_wall_seconds": 0.23337435815483332
+    },
+    {
+      "method": "dynamic_emptyguard",
+      "version": "emptyguard",
+      "splits": 32,
+      "block_n": 64,
+      "candidate_name": "dynamic_emptyguard__splits-32__n-64",
+      "source_paths": [
+        "src/branchtile/attention_emptyguard.py",
+        "src/branchtile/tilelang_kernel_emptyguard.py"
+      ],
+      "source_sha256": {
+        "src/branchtile/attention_emptyguard.py": "a4eb400c270750522ab7ebee891d96df4076fd3cf7e28f47af12193068f2749c",
+        "src/branchtile/tilelang_kernel_emptyguard.py": "80b91f0812a0ddec97c047facb4023d0929af1f9ca24e1ce562f0fc8655562ad"
+      },
+      "initialization_ms_including_jit": 160.3052457794547,
+      "max_abs_error_fp64": 0.00048345814252750974,
+      "max_lse_error_fp64": 3.8737793133236664e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 19.787199795246124,
+        "cold": 32.76799991726875
+      },
+      "prepare_ms": 158.97230990231037,
+      "metadata_ms": 6.965694949030876,
+      "logical_kv_token_visits": 12818,
+      "workspace_bytes": 798720,
+      "configuration_wall_seconds": 0.2291547693312168
+    },
+    {
+      "method": "dynamic_emptyguard",
+      "version": "emptyguard",
+      "splits": 32,
+      "block_n": 32,
+      "candidate_name": "dynamic_emptyguard__splits-32__n-32",
+      "source_paths": [
+        "src/branchtile/attention_emptyguard.py",
+        "src/branchtile/tilelang_kernel_emptyguard.py"
+      ],
+      "source_sha256": {
+        "src/branchtile/attention_emptyguard.py": "a4eb400c270750522ab7ebee891d96df4076fd3cf7e28f47af12193068f2749c",
+        "src/branchtile/tilelang_kernel_emptyguard.py": "80b91f0812a0ddec97c047facb4023d0929af1f9ca24e1ce562f0fc8655562ad"
+      },
+      "initialization_ms_including_jit": 157.007597386837,
+      "max_abs_error_fp64": 0.00048345814252750974,
+      "max_lse_error_fp64": 3.8737793133236664e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 18.515199422836304,
+        "cold": 30.719999223947525
+      },
+      "prepare_ms": 155.9736393392086,
+      "metadata_ms": 6.7253028973937035,
+      "logical_kv_token_visits": 12818,
+      "workspace_bytes": 798720,
+      "configuration_wall_seconds": 0.22718426026403904
+    },
+    {
+      "method": "dynamic_v3",
+      "version": "v3",
+      "splits": 128,
+      "block_n": 64,
+      "candidate_name": "dynamic_v3__splits-128__n-64",
+      "source_paths": [
+        "src/dynamic_baseline.py",
+        "src/branchtile/attention_v3.py",
+        "src/branchtile/tilelang_kernel_v3.py"
+      ],
+      "source_sha256": {
+        "src/dynamic_baseline.py": "d85f600a438953a3e508963a5269544c66c24c3470b3f40927d344704bd5a032",
+        "src/branchtile/attention_v3.py": "d2a11acd8ef0ece0b202e28fd9897ce501a312de2f0f857a09266a869ffddd0a",
+        "src/branchtile/tilelang_kernel_v3.py": "d46f85e068fcbce98d509f5583de15ac6c6dae144d224ceb7f7c679bcddc55ea"
+      },
+      "initialization_ms_including_jit": 169.00955978780985,
+      "max_abs_error_fp64": 0.00048345814252750974,
+      "max_lse_error_fp64": 3.8737793133236664e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 24.39199984073639,
+        "cold": 32.735999673604965
+      },
+      "prepare_ms": 167.94783249497414,
+      "metadata_ms": 6.248253397643566,
+      "logical_kv_token_visits": 12818,
+      "workspace_bytes": 3194880,
+      "configuration_wall_seconds": 0.2406563488766551
+    },
+    {
+      "method": "e1_own",
+      "partition": [
+        [
+          0,
+          1
+        ],
+        [
+          2
+        ]
+      ],
+      "splits": 64,
+      "block_n": 64,
+      "candidate_name": "e1_own__p-0_1-2__splits-64__n-64",
+      "source_paths": [
+        "src/partition_baseline.py",
+        "src/branchtile/union.py"
+      ],
+      "source_sha256": {
+        "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92",
+        "src/branchtile/union.py": "5062b4729617252aa8fe17f7f80ee197b01efca497150b5ef3abc30afff4b55d"
+      },
+      "initialization_ms_including_jit": 11.831924319267273,
+      "max_abs_error_fp64": 0.00048345814252750974,
+      "max_lse_error_fp64": 3.8737793133236664e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 17.771199345588684,
+        "cold": 30.719999223947525
+      },
+      "prepare_ms": 11.560739949345589,
+      "metadata_ms": 11.00576389580965,
+      "logical_kv_token_visits": 19670,
+      "workspace_bytes": 1609920,
+      "configuration_wall_seconds": 0.08264461532235146
+    },
+    {
+      "method": "e1_own",
+      "partition": [
+        [
+          0
+        ],
+        [
+          1
+        ],
+        [
+          2
+        ]
+      ],
+      "splits": 64,
+      "block_n": 64,
+      "candidate_name": "e1_own__p-0-1-2__splits-64__n-64",
+      "source_paths": [
+        "src/partition_baseline.py",
+        "src/branchtile/union.py"
+      ],
+      "source_sha256": {
+        "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92",
+        "src/branchtile/union.py": "5062b4729617252aa8fe17f7f80ee197b01efca497150b5ef3abc30afff4b55d"
+      },
+      "initialization_ms_including_jit": 13.816209509968758,
+      "max_abs_error_fp64": 0.00048345814252750974,
+      "max_lse_error_fp64": 3.8737793133236664e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 25.87679922580719,
+        "cold": 43.007999658584595
+      },
+      "prepare_ms": 13.495069928467274,
+      "metadata_ms": 12.919288128614426,
+      "logical_kv_token_visits": 25302,
+      "workspace_bytes": 1609920,
+      "configuration_wall_seconds": 0.08610690664499998
+    },
+    {
+      "method": "dynamic_v2",
+      "version": "v2",
+      "splits": 64,
+      "block_n": 32,
+      "candidate_name": "dynamic_v2__splits-64__n-32",
+      "source_paths": [
+        "src/dynamic_baseline.py",
+        "src/branchtile/attention_v2.py",
+        "src/branchtile/tilelang_kernel_v2.py"
+      ],
+      "source_sha256": {
+        "src/dynamic_baseline.py": "d85f600a438953a3e508963a5269544c66c24c3470b3f40927d344704bd5a032",
+        "src/branchtile/attention_v2.py": "f6a3ef3519ed96a5405afe92dfdadf064575d027aa05502fb9304e37abeed916",
+        "src/branchtile/tilelang_kernel_v2.py": "7f36322f62d94d047788cce58cf6b4063e7e27b2cd6f96624f7e5f93c9f90525"
+      },
+      "initialization_ms_including_jit": 152.69986912608147,
+      "max_abs_error_fp64": 0.00048345814252750974,
+      "max_lse_error_fp64": 3.8737793133236664e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 15.60640037059784,
+        "cold": 26.59199945628643
+      },
+      "prepare_ms": 152.0432038232684,
+      "metadata_ms": 6.797772832214832,
+      "logical_kv_token_visits": 12818,
+      "workspace_bytes": 1597440,
+      "configuration_wall_seconds": 0.22068449016660452
+    },
+    {
+      "method": "e0_native",
+      "tensor_cores": true,
+      "fixed_split_size": null,
+      "candidate_name": "e0_native__fixedsplit-None__tc-1",
+      "source_paths": [
+        "src/flashinfer_baseline.py"
+      ],
+      "source_sha256": {
+        "src/flashinfer_baseline.py": "942eb00c9442393871af9cdab140e83de00bb05c30d2c36fa04a1d0735bc50fa"
+      },
+      "initialization_ms_including_jit": 4.277615807950497,
+      "max_abs_error_fp64": 0.0010233702844582304,
+      "max_lse_error_fp64": 0.0004154763304953235,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 9.561599791049957,
+        "cold": 18.432000651955605
+      },
+      "prepare_ms": 4.121823236346245,
+      "metadata_ms": null,
+      "logical_kv_token_visits": null,
+      "workspace_bytes": 536870912,
+      "configuration_wall_seconds": 0.07087822165340185
+    },
+    {
+      "method": "e1_native",
+      "partition": [
+        [
+          0,
+          1,
+          2
+        ]
+      ],
+      "fixed_split_size": null,
+      "candidate_name": "e1_native__p-0_1_2__fixedsplit-None",
+      "source_paths": [
+        "src/partition_baseline.py"
+      ],
+      "source_sha256": {
+        "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92"
+      },
+      "initialization_ms_including_jit": 3.828619606792927,
+      "max_abs_error_fp64": 0.0007115140720907742,
+      "max_lse_error_fp64": 0.0009380898558859485,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 11.369600147008896,
+        "cold": 20.479999482631683
+      },
+      "prepare_ms": 3.6426521837711334,
+      "metadata_ms": 1.234062947332859,
+      "logical_kv_token_visits": 12818,
+      "workspace_bytes": 536870912,
+      "configuration_wall_seconds": 0.07099477667361498
+    },
+    {
+      "method": "e4_native",
+      "tree": [
+        [
+          0,
+          1
+        ],
+        2
+      ],
+      "fixed_split_size": null,
+      "candidate_name": "e4_native__tree-[[0,1],2]__fixedsplit-None",
+      "source_paths": [
+        "src/cascade_baseline.py",
+        "src/partition_baseline.py"
+      ],
+      "source_sha256": {
+        "src/cascade_baseline.py": "245273b2a6915203cc2e0e77f82b31e7f7ef319d600c81c6c6124d47687898c7",
+        "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92"
+      },
+      "initialization_ms_including_jit": 7.072929292917252,
+      "max_abs_error_fp64": 0.0010233702844582304,
+      "max_lse_error_fp64": 0.0009495339476828235,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 9.177599847316742,
+        "cold": 18.432000651955605
+      },
+      "prepare_ms": 6.83498103171587,
+      "metadata_ms": 2.947370521724224,
+      "logical_kv_token_visits": 14748,
+      "workspace_bytes": 536870912,
+      "configuration_wall_seconds": 0.07704057730734348
+    },
+    {
+      "method": "dynamic_emptyguard",
+      "version": "emptyguard",
+      "splits": 128,
+      "block_n": 32,
+      "candidate_name": "dynamic_emptyguard__splits-128__n-32",
+      "source_paths": [
+        "src/branchtile/attention_emptyguard.py",
+        "src/branchtile/tilelang_kernel_emptyguard.py"
+      ],
+      "source_sha256": {
+        "src/branchtile/attention_emptyguard.py": "a4eb400c270750522ab7ebee891d96df4076fd3cf7e28f47af12193068f2749c",
+        "src/branchtile/tilelang_kernel_emptyguard.py": "80b91f0812a0ddec97c047facb4023d0929af1f9ca24e1ce562f0fc8655562ad"
+      },
+      "initialization_ms_including_jit": 156.56524430960417,
+      "max_abs_error_fp64": 0.00048345814252750974,
+      "max_lse_error_fp64": 3.8737793133236664e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 17.54080057144165,
+        "cold": 26.59199945628643
+      },
+      "prepare_ms": 155.71066550910473,
+      "metadata_ms": 5.799278616905212,
+      "logical_kv_token_visits": 12818,
+      "workspace_bytes": 3194880,
+      "configuration_wall_seconds": 0.2360832178965211
+    },
+    {
+      "method": "dynamic_v2",
+      "version": "v2",
+      "splits": 64,
+      "block_n": 64,
+      "candidate_name": "dynamic_v2__splits-64__n-64",
+      "source_paths": [
+        "src/dynamic_baseline.py",
+        "src/branchtile/attention_v2.py",
+        "src/branchtile/tilelang_kernel_v2.py"
+      ],
+      "source_sha256": {
+        "src/dynamic_baseline.py": "d85f600a438953a3e508963a5269544c66c24c3470b3f40927d344704bd5a032",
+        "src/branchtile/attention_v2.py": "f6a3ef3519ed96a5405afe92dfdadf064575d027aa05502fb9304e37abeed916",
+        "src/branchtile/tilelang_kernel_v2.py": "7f36322f62d94d047788cce58cf6b4063e7e27b2cd6f96624f7e5f93c9f90525"
+      },
+      "initialization_ms_including_jit": 255.35765290260315,
+      "max_abs_error_fp64": 0.00048345814252750974,
+      "max_lse_error_fp64": 3.8737793133236664e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 17.7264004945755,
+        "cold": 28.672000393271446
+      },
+      "prepare_ms": 254.19484451413155,
+      "metadata_ms": 6.998279131948948,
+      "logical_kv_token_visits": 12818,
+      "workspace_bytes": 1597440,
+      "configuration_wall_seconds": 0.32530122995376587
+    },
+    {
+      "method": "dynamic_persistent_fixed",
+      "version": "persistent_fixed",
+      "splits": 128,
+      "block_n": 32,
+      "candidate_name": "dynamic_persistent_fixed__splits-128__n-32",
+      "source_paths": [
+        "src/branchtile/attention_persistent_fixed.py",
+        "src/branchtile/tilelang_kernel_persistent_fixed.py"
+      ],
+      "source_sha256": {
+        "src/branchtile/attention_persistent_fixed.py": "87ce11da7cd8339c589536ea9627db35c6b155ac23c9e7f3e6a546581b4c4d0c",
+        "src/branchtile/tilelang_kernel_persistent_fixed.py": "4a4778d78fc7342829ce0d525872afb7795b137fa86b92928ad835e3e89d8873"
+      },
+      "initialization_ms_including_jit": 86.53831016272306,
+      "max_abs_error_fp64": 0.00048345814252750974,
+      "max_lse_error_fp64": 3.8737793133236664e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 15.422399342060089,
+        "cold": 24.57600086927414
+      },
+      "prepare_ms": 85.80031711608171,
+      "metadata_ms": 6.779308430850506,
+      "logical_kv_token_visits": 12818,
+      "workspace_bytes": 3194880,
+      "configuration_wall_seconds": 0.15385019592940807
+    },
+    {
+      "method": "dynamic_emptyguard",
+      "version": "emptyguard",
+      "splits": 64,
+      "block_n": 32,
+      "candidate_name": "dynamic_emptyguard__splits-64__n-32",
+      "source_paths": [
+        "src/branchtile/attention_emptyguard.py",
+        "src/branchtile/tilelang_kernel_emptyguard.py"
+      ],
+      "source_sha256": {
+        "src/branchtile/attention_emptyguard.py": "a4eb400c270750522ab7ebee891d96df4076fd3cf7e28f47af12193068f2749c",
+        "src/branchtile/tilelang_kernel_emptyguard.py": "80b91f0812a0ddec97c047facb4023d0929af1f9ca24e1ce562f0fc8655562ad"
+      },
+      "initialization_ms_including_jit": 157.18716196715832,
+      "max_abs_error_fp64": 0.00048345814252750974,
+      "max_lse_error_fp64": 3.8737793133236664e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 16.631999611854553,
+        "cold": 26.623999699950218
+      },
+      "prepare_ms": 156.13618586212397,
+      "metadata_ms": 6.082567386329174,
+      "logical_kv_token_visits": 12818,
+      "workspace_bytes": 1597440,
+      "configuration_wall_seconds": 0.22732853516936302
+    },
+    {
+      "method": "dynamic_fullcol_guard",
+      "version": "fullcol_guard",
+      "splits": 64,
+      "block_n": 32,
+      "candidate_name": "dynamic_fullcol_guard__splits-64__n-32",
+      "source_paths": [
+        "src/branchtile/attention_fullcol_guard.py",
+        "src/branchtile/tilelang_kernel_fullcol_guard.py"
+      ],
+      "source_sha256": {
+        "src/branchtile/attention_fullcol_guard.py": "fa990cd439eeee4a27624b0c678b159c2f4759de6075f782fd347636895c07ff",
+        "src/branchtile/tilelang_kernel_fullcol_guard.py": "cc3f2ea59cf04515fac0e648afa0a65c2eee9e0ab1a4e51b7681c9be53a293ab"
+      },
+      "initialization_ms_including_jit": 156.94553311914206,
+      "max_abs_error_fp64": 0.00048345814252750974,
+      "max_lse_error_fp64": 3.8737793133236664e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 16.945600509643555,
+        "cold": 28.672000393271446
+      },
+      "prepare_ms": 155.93113470822573,
+      "metadata_ms": 6.374666467308998,
+      "logical_kv_token_visits": 12818,
+      "workspace_bytes": 1597440,
+      "configuration_wall_seconds": 0.22418698761612177
+    },
+    {
+      "method": "dynamic_fullcol_guard",
+      "version": "fullcol_guard",
+      "splits": 128,
+      "block_n": 64,
+      "candidate_name": "dynamic_fullcol_guard__splits-128__n-64",
+      "source_paths": [
+        "src/branchtile/attention_fullcol_guard.py",
+        "src/branchtile/tilelang_kernel_fullcol_guard.py"
+      ],
+      "source_sha256": {
+        "src/branchtile/attention_fullcol_guard.py": "fa990cd439eeee4a27624b0c678b159c2f4759de6075f782fd347636895c07ff",
+        "src/branchtile/tilelang_kernel_fullcol_guard.py": "cc3f2ea59cf04515fac0e648afa0a65c2eee9e0ab1a4e51b7681c9be53a293ab"
+      },
+      "initialization_ms_including_jit": 157.17773512005806,
+      "max_abs_error_fp64": 0.00048345814252750974,
+      "max_lse_error_fp64": 3.8737793133236664e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 28.945600986480713,
+        "cold": 40.991999208927155
+      },
+      "prepare_ms": 156.08693659305573,
+      "metadata_ms": 6.304443813860416,
+      "logical_kv_token_visits": 12818,
+      "workspace_bytes": 3194880,
+      "configuration_wall_seconds": 0.23016002215445042
+    },
+    {
+      "method": "e1_native",
+      "partition": [
+        [
+          0,
+          2
+        ],
+        [
+          1
+        ]
+      ],
+      "fixed_split_size": null,
+      "candidate_name": "e1_native__p-0_2-1__fixedsplit-None",
+      "source_paths": [
+        "src/partition_baseline.py"
+      ],
+      "source_sha256": {
+        "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92"
+      },
+      "initialization_ms_including_jit": 8.337425999343395,
+      "max_abs_error_fp64": 0.0010233702844582304,
+      "max_lse_error_fp64": 0.000714930065846886,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 9.775999933481216,
+        "cold": 20.479999482631683
+      },
+      "prepare_ms": 6.856311112642288,
+      "metadata_ms": 1.853160560131073,
+      "logical_kv_token_visits": 19965,
+      "workspace_bytes": 536870912,
+      "configuration_wall_seconds": 0.07571273576468229
+    }
+  ],
+  "missing_qualified_methods": {
+    "hot": [],
+    "cold": []
+  },
+  "selected": {
+    "hot": {
+      "e1_native": {
+        "config": {
+          "method": "e1_native",
+          "partition": [
+            [
+              0
+            ],
+            [
+              1,
+              2
+            ]
+          ],
+          "fixed_split_size": null
+        },
+        "record": {
+          "method": "e1_native",
+          "partition": [
+            [
+              0
+            ],
+            [
+              1,
+              2
+            ]
+          ],
+          "fixed_split_size": null,
+          "candidate_name": "e1_native__p-0-1_2__fixedsplit-None",
+          "source_paths": [
+            "src/partition_baseline.py"
+          ],
+          "source_sha256": {
+            "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92"
+          },
+          "initialization_ms_including_jit": 100.40251072496176,
+          "max_abs_error_fp64": 0.0010233702844582304,
+          "max_lse_error_fp64": 0.0007893166625265735,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 8.793599903583527,
+            "cold": 18.432000651955605
+          },
+          "prepare_ms": 56.13120645284653,
+          "metadata_ms": 1.32816843688488,
+          "logical_kv_token_visits": 18865,
+          "workspace_bytes": 536870912
+        }
+      },
+      "e1_own": {
+        "config": {
+          "method": "e1_own",
+          "partition": [
+            [
+              0,
+              1,
+              2
+            ]
+          ],
+          "splits": 64,
+          "block_n": 64
+        },
+        "record": {
+          "method": "e1_own",
+          "partition": [
+            [
+              0,
+              1,
+              2
+            ]
+          ],
+          "splits": 64,
+          "block_n": 64,
+          "candidate_name": "e1_own__p-0_1_2__splits-64__n-64",
+          "source_paths": [
+            "src/partition_baseline.py",
+            "src/branchtile/union.py"
+          ],
+          "source_sha256": {
+            "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92",
+            "src/branchtile/union.py": "5062b4729617252aa8fe17f7f80ee197b01efca497150b5ef3abc30afff4b55d"
+          },
+          "initialization_ms_including_jit": 195.51354087889194,
+          "max_abs_error_fp64": 0.00048345814252750974,
+          "max_lse_error_fp64": 3.8737793133236664e-06,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 8.43840017914772,
+            "cold": 18.400000408291817
+          },
+          "prepare_ms": 195.18077466636896,
+          "metadata_ms": 8.438440971076488,
+          "logical_kv_token_visits": 12818,
+          "workspace_bytes": 1609920
+        }
+      },
+      "dynamic_persistent_fixed": {
+        "config": {
+          "method": "dynamic_persistent_fixed",
+          "version": "persistent_fixed",
+          "splits": 64,
+          "block_n": 32
+        },
+        "record": {
+          "method": "dynamic_persistent_fixed",
+          "version": "persistent_fixed",
+          "splits": 64,
+          "block_n": 32,
+          "candidate_name": "dynamic_persistent_fixed__splits-64__n-32",
+          "source_paths": [
+            "src/branchtile/attention_persistent_fixed.py",
+            "src/branchtile/tilelang_kernel_persistent_fixed.py"
+          ],
+          "source_sha256": {
+            "src/branchtile/attention_persistent_fixed.py": "87ce11da7cd8339c589536ea9627db35c6b155ac23c9e7f3e6a546581b4c4d0c",
+            "src/branchtile/tilelang_kernel_persistent_fixed.py": "4a4778d78fc7342829ce0d525872afb7795b137fa86b92928ad835e3e89d8873"
+          },
+          "initialization_ms_including_jit": 85.09477600455284,
+          "max_abs_error_fp64": 0.00048345814252750974,
+          "max_lse_error_fp64": 3.8737793133236664e-06,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 14.759999513626099,
+            "cold": 24.54400062561035
+          },
+          "prepare_ms": 84.28958617150784,
+          "metadata_ms": 6.1267949640750885,
+          "logical_kv_token_visits": 12818,
+          "workspace_bytes": 1597440
+        }
+      },
+      "e4_native": {
+        "config": {
+          "method": "e4_native",
+          "tree": [
+            0,
+            [
+              1,
+              2
+            ]
+          ],
+          "fixed_split_size": null
+        },
+        "record": {
+          "method": "e4_native",
+          "tree": [
+            0,
+            [
+              1,
+              2
+            ]
+          ],
+          "fixed_split_size": null,
+          "candidate_name": "e4_native__tree-[0,[1,2]]__fixedsplit-None",
+          "source_paths": [
+            "src/cascade_baseline.py",
+            "src/partition_baseline.py"
+          ],
+          "source_sha256": {
+            "src/cascade_baseline.py": "245273b2a6915203cc2e0e77f82b31e7f7ef319d600c81c6c6124d47687898c7",
+            "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92"
+          },
+          "initialization_ms_including_jit": 7.053731940686703,
+          "max_abs_error_fp64": 0.001055899406993216,
+          "max_lse_error_fp64": 0.000684412487721886,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 8.977600187063217,
+            "cold": 18.432000651955605
+          },
+          "prepare_ms": 6.8434979766607285,
+          "metadata_ms": 3.152059391140938,
+          "logical_kv_token_visits": 13943,
+          "workspace_bytes": 536870912
+        }
+      },
+      "dynamic_v2": {
+        "config": {
+          "method": "dynamic_v2",
+          "version": "v2",
+          "splits": 64,
+          "block_n": 32
+        },
+        "record": {
+          "method": "dynamic_v2",
+          "version": "v2",
+          "splits": 64,
+          "block_n": 32,
+          "candidate_name": "dynamic_v2__splits-64__n-32",
+          "source_paths": [
+            "src/dynamic_baseline.py",
+            "src/branchtile/attention_v2.py",
+            "src/branchtile/tilelang_kernel_v2.py"
+          ],
+          "source_sha256": {
+            "src/dynamic_baseline.py": "d85f600a438953a3e508963a5269544c66c24c3470b3f40927d344704bd5a032",
+            "src/branchtile/attention_v2.py": "f6a3ef3519ed96a5405afe92dfdadf064575d027aa05502fb9304e37abeed916",
+            "src/branchtile/tilelang_kernel_v2.py": "7f36322f62d94d047788cce58cf6b4063e7e27b2cd6f96624f7e5f93c9f90525"
+          },
+          "initialization_ms_including_jit": 152.69986912608147,
+          "max_abs_error_fp64": 0.00048345814252750974,
+          "max_lse_error_fp64": 3.8737793133236664e-06,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 15.60640037059784,
+            "cold": 26.59199945628643
+          },
+          "prepare_ms": 152.0432038232684,
+          "metadata_ms": 6.797772832214832,
+          "logical_kv_token_visits": 12818,
+          "workspace_bytes": 1597440
+        }
+      },
+      "dynamic_emptyguard": {
+        "config": {
+          "method": "dynamic_emptyguard",
+          "version": "emptyguard",
+          "splits": 64,
+          "block_n": 32
+        },
+        "record": {
+          "method": "dynamic_emptyguard",
+          "version": "emptyguard",
+          "splits": 64,
+          "block_n": 32,
+          "candidate_name": "dynamic_emptyguard__splits-64__n-32",
+          "source_paths": [
+            "src/branchtile/attention_emptyguard.py",
+            "src/branchtile/tilelang_kernel_emptyguard.py"
+          ],
+          "source_sha256": {
+            "src/branchtile/attention_emptyguard.py": "a4eb400c270750522ab7ebee891d96df4076fd3cf7e28f47af12193068f2749c",
+            "src/branchtile/tilelang_kernel_emptyguard.py": "80b91f0812a0ddec97c047facb4023d0929af1f9ca24e1ce562f0fc8655562ad"
+          },
+          "initialization_ms_including_jit": 157.18716196715832,
+          "max_abs_error_fp64": 0.00048345814252750974,
+          "max_lse_error_fp64": 3.8737793133236664e-06,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 16.631999611854553,
+            "cold": 26.623999699950218
+          },
+          "prepare_ms": 156.13618586212397,
+          "metadata_ms": 6.082567386329174,
+          "logical_kv_token_visits": 12818,
+          "workspace_bytes": 1597440
+        }
+      },
+      "dynamic_v3": {
+        "config": {
+          "method": "dynamic_v3",
+          "version": "v3",
+          "splits": 64,
+          "block_n": 64
+        },
+        "record": {
+          "method": "dynamic_v3",
+          "version": "v3",
+          "splits": 64,
+          "block_n": 64,
+          "candidate_name": "dynamic_v3__splits-64__n-64",
+          "source_paths": [
+            "src/dynamic_baseline.py",
+            "src/branchtile/attention_v3.py",
+            "src/branchtile/tilelang_kernel_v3.py"
+          ],
+          "source_sha256": {
+            "src/dynamic_baseline.py": "d85f600a438953a3e508963a5269544c66c24c3470b3f40927d344704bd5a032",
+            "src/branchtile/attention_v3.py": "d2a11acd8ef0ece0b202e28fd9897ce501a312de2f0f857a09266a869ffddd0a",
+            "src/branchtile/tilelang_kernel_v3.py": "d46f85e068fcbce98d509f5583de15ac6c6dae144d224ceb7f7c679bcddc55ea"
+          },
+          "initialization_ms_including_jit": 162.00780496001244,
+          "max_abs_error_fp64": 0.00048345814252750974,
+          "max_lse_error_fp64": 3.8737793133236664e-06,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 20.80480009317398,
+            "cold": 32.76799991726875
+          },
+          "prepare_ms": 161.0096851363778,
+          "metadata_ms": 6.117203272879124,
+          "logical_kv_token_visits": 12818,
+          "workspace_bytes": 1597440
+        }
+      },
+      "full_union": {
+        "config": {
+          "method": "e1_own",
+          "partition": [
+            [
+              0,
+              1,
+              2
+            ]
+          ],
+          "splits": 64,
+          "block_n": 64
+        },
+        "record": {
+          "method": "e1_own",
+          "partition": [
+            [
+              0,
+              1,
+              2
+            ]
+          ],
+          "splits": 64,
+          "block_n": 64,
+          "candidate_name": "e1_own__p-0_1_2__splits-64__n-64",
+          "source_paths": [
+            "src/partition_baseline.py",
+            "src/branchtile/union.py"
+          ],
+          "source_sha256": {
+            "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92",
+            "src/branchtile/union.py": "5062b4729617252aa8fe17f7f80ee197b01efca497150b5ef3abc30afff4b55d"
+          },
+          "initialization_ms_including_jit": 195.51354087889194,
+          "max_abs_error_fp64": 0.00048345814252750974,
+          "max_lse_error_fp64": 3.8737793133236664e-06,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 8.43840017914772,
+            "cold": 18.400000408291817
+          },
+          "prepare_ms": 195.18077466636896,
+          "metadata_ms": 8.438440971076488,
+          "logical_kv_token_visits": 12818,
+          "workspace_bytes": 1609920
+        }
+      },
+      "dynamic_fullcol_guard": {
+        "config": {
+          "method": "dynamic_fullcol_guard",
+          "version": "fullcol_guard",
+          "splits": 64,
+          "block_n": 64
+        },
+        "record": {
+          "method": "dynamic_fullcol_guard",
+          "version": "fullcol_guard",
+          "splits": 64,
+          "block_n": 64,
+          "candidate_name": "dynamic_fullcol_guard__splits-64__n-64",
+          "source_paths": [
+            "src/branchtile/attention_fullcol_guard.py",
+            "src/branchtile/tilelang_kernel_fullcol_guard.py"
+          ],
+          "source_sha256": {
+            "src/branchtile/attention_fullcol_guard.py": "fa990cd439eeee4a27624b0c678b159c2f4759de6075f782fd347636895c07ff",
+            "src/branchtile/tilelang_kernel_fullcol_guard.py": "cc3f2ea59cf04515fac0e648afa0a65c2eee9e0ab1a4e51b7681c9be53a293ab"
+          },
+          "initialization_ms_including_jit": 156.1248479411006,
+          "max_abs_error_fp64": 0.00048345814252750974,
+          "max_lse_error_fp64": 3.8737793133236664e-06,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 16.937600076198578,
+            "cold": 28.672000393271446
+          },
+          "prepare_ms": 155.48479836434126,
+          "metadata_ms": 6.075513549149036,
+          "logical_kv_token_visits": 12818,
+          "workspace_bytes": 1597440
+        }
+      },
+      "e0_native": {
+        "config": {
+          "method": "e0_native",
+          "tensor_cores": true,
+          "fixed_split_size": null
+        },
+        "record": {
+          "method": "e0_native",
+          "tensor_cores": true,
+          "fixed_split_size": null,
+          "candidate_name": "e0_native__fixedsplit-None__tc-1",
+          "source_paths": [
+            "src/flashinfer_baseline.py"
+          ],
+          "source_sha256": {
+            "src/flashinfer_baseline.py": "942eb00c9442393871af9cdab140e83de00bb05c30d2c36fa04a1d0735bc50fa"
+          },
+          "initialization_ms_including_jit": 4.277615807950497,
+          "max_abs_error_fp64": 0.0010233702844582304,
+          "max_lse_error_fp64": 0.0004154763304953235,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 9.561599791049957,
+            "cold": 18.432000651955605
+          },
+          "prepare_ms": 4.121823236346245,
+          "metadata_ms": null,
+          "logical_kv_token_visits": null,
+          "workspace_bytes": 536870912
+        }
+      },
+      "best_e1": {
+        "config": {
+          "method": "e1_own",
+          "partition": [
+            [
+              0,
+              1,
+              2
+            ]
+          ],
+          "splits": 64,
+          "block_n": 64
+        },
+        "record": {
+          "method": "e1_own",
+          "partition": [
+            [
+              0,
+              1,
+              2
+            ]
+          ],
+          "splits": 64,
+          "block_n": 64,
+          "candidate_name": "e1_own__p-0_1_2__splits-64__n-64",
+          "source_paths": [
+            "src/partition_baseline.py",
+            "src/branchtile/union.py"
+          ],
+          "source_sha256": {
+            "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92",
+            "src/branchtile/union.py": "5062b4729617252aa8fe17f7f80ee197b01efca497150b5ef3abc30afff4b55d"
+          },
+          "initialization_ms_including_jit": 195.51354087889194,
+          "max_abs_error_fp64": 0.00048345814252750974,
+          "max_lse_error_fp64": 3.8737793133236664e-06,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 8.43840017914772,
+            "cold": 18.400000408291817
+          },
+          "prepare_ms": 195.18077466636896,
+          "metadata_ms": 8.438440971076488,
+          "logical_kv_token_visits": 12818,
+          "workspace_bytes": 1609920
+        }
+      },
+      "best_dynamic": {
+        "config": {
+          "method": "dynamic_persistent_fixed",
+          "version": "persistent_fixed",
+          "splits": 64,
+          "block_n": 32
+        },
+        "record": {
+          "method": "dynamic_persistent_fixed",
+          "version": "persistent_fixed",
+          "splits": 64,
+          "block_n": 32,
+          "candidate_name": "dynamic_persistent_fixed__splits-64__n-32",
+          "source_paths": [
+            "src/branchtile/attention_persistent_fixed.py",
+            "src/branchtile/tilelang_kernel_persistent_fixed.py"
+          ],
+          "source_sha256": {
+            "src/branchtile/attention_persistent_fixed.py": "87ce11da7cd8339c589536ea9627db35c6b155ac23c9e7f3e6a546581b4c4d0c",
+            "src/branchtile/tilelang_kernel_persistent_fixed.py": "4a4778d78fc7342829ce0d525872afb7795b137fa86b92928ad835e3e89d8873"
+          },
+          "initialization_ms_including_jit": 85.09477600455284,
+          "max_abs_error_fp64": 0.00048345814252750974,
+          "max_lse_error_fp64": 3.8737793133236664e-06,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 14.759999513626099,
+            "cold": 24.54400062561035
+          },
+          "prepare_ms": 84.28958617150784,
+          "metadata_ms": 6.1267949640750885,
+          "logical_kv_token_visits": 12818,
+          "workspace_bytes": 1597440
+        }
+      },
+      "best_control": {
+        "config": {
+          "method": "e1_own",
+          "partition": [
+            [
+              0,
+              1,
+              2
+            ]
+          ],
+          "splits": 64,
+          "block_n": 64
+        },
+        "record": {
+          "method": "e1_own",
+          "partition": [
+            [
+              0,
+              1,
+              2
+            ]
+          ],
+          "splits": 64,
+          "block_n": 64,
+          "candidate_name": "e1_own__p-0_1_2__splits-64__n-64",
+          "source_paths": [
+            "src/partition_baseline.py",
+            "src/branchtile/union.py"
+          ],
+          "source_sha256": {
+            "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92",
+            "src/branchtile/union.py": "5062b4729617252aa8fe17f7f80ee197b01efca497150b5ef3abc30afff4b55d"
+          },
+          "initialization_ms_including_jit": 195.51354087889194,
+          "max_abs_error_fp64": 0.00048345814252750974,
+          "max_lse_error_fp64": 3.8737793133236664e-06,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 8.43840017914772,
+            "cold": 18.400000408291817
+          },
+          "prepare_ms": 195.18077466636896,
+          "metadata_ms": 8.438440971076488,
+          "logical_kv_token_visits": 12818,
+          "workspace_bytes": 1609920
+        }
+      }
+    },
+    "cold": {
+      "e1_native": {
+        "config": {
+          "method": "e1_native",
+          "partition": [
+            [
+              0
+            ],
+            [
+              1,
+              2
+            ]
+          ],
+          "fixed_split_size": null
+        },
+        "record": {
+          "method": "e1_native",
+          "partition": [
+            [
+              0
+            ],
+            [
+              1,
+              2
+            ]
+          ],
+          "fixed_split_size": null,
+          "candidate_name": "e1_native__p-0-1_2__fixedsplit-None",
+          "source_paths": [
+            "src/partition_baseline.py"
+          ],
+          "source_sha256": {
+            "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92"
+          },
+          "initialization_ms_including_jit": 100.40251072496176,
+          "max_abs_error_fp64": 0.0010233702844582304,
+          "max_lse_error_fp64": 0.0007893166625265735,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 8.793599903583527,
+            "cold": 18.432000651955605
+          },
+          "prepare_ms": 56.13120645284653,
+          "metadata_ms": 1.32816843688488,
+          "logical_kv_token_visits": 18865,
+          "workspace_bytes": 536870912
+        }
+      },
+      "e1_own": {
+        "config": {
+          "method": "e1_own",
+          "partition": [
+            [
+              0,
+              1,
+              2
+            ]
+          ],
+          "splits": 64,
+          "block_n": 64
+        },
+        "record": {
+          "method": "e1_own",
+          "partition": [
+            [
+              0,
+              1,
+              2
+            ]
+          ],
+          "splits": 64,
+          "block_n": 64,
+          "candidate_name": "e1_own__p-0_1_2__splits-64__n-64",
+          "source_paths": [
+            "src/partition_baseline.py",
+            "src/branchtile/union.py"
+          ],
+          "source_sha256": {
+            "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92",
+            "src/branchtile/union.py": "5062b4729617252aa8fe17f7f80ee197b01efca497150b5ef3abc30afff4b55d"
+          },
+          "initialization_ms_including_jit": 195.51354087889194,
+          "max_abs_error_fp64": 0.00048345814252750974,
+          "max_lse_error_fp64": 3.8737793133236664e-06,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 8.43840017914772,
+            "cold": 18.400000408291817
+          },
+          "prepare_ms": 195.18077466636896,
+          "metadata_ms": 8.438440971076488,
+          "logical_kv_token_visits": 12818,
+          "workspace_bytes": 1609920
+        }
+      },
+      "dynamic_persistent_fixed": {
+        "config": {
+          "method": "dynamic_persistent_fixed",
+          "version": "persistent_fixed",
+          "splits": 64,
+          "block_n": 32
+        },
+        "record": {
+          "method": "dynamic_persistent_fixed",
+          "version": "persistent_fixed",
+          "splits": 64,
+          "block_n": 32,
+          "candidate_name": "dynamic_persistent_fixed__splits-64__n-32",
+          "source_paths": [
+            "src/branchtile/attention_persistent_fixed.py",
+            "src/branchtile/tilelang_kernel_persistent_fixed.py"
+          ],
+          "source_sha256": {
+            "src/branchtile/attention_persistent_fixed.py": "87ce11da7cd8339c589536ea9627db35c6b155ac23c9e7f3e6a546581b4c4d0c",
+            "src/branchtile/tilelang_kernel_persistent_fixed.py": "4a4778d78fc7342829ce0d525872afb7795b137fa86b92928ad835e3e89d8873"
+          },
+          "initialization_ms_including_jit": 85.09477600455284,
+          "max_abs_error_fp64": 0.00048345814252750974,
+          "max_lse_error_fp64": 3.8737793133236664e-06,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 14.759999513626099,
+            "cold": 24.54400062561035
+          },
+          "prepare_ms": 84.28958617150784,
+          "metadata_ms": 6.1267949640750885,
+          "logical_kv_token_visits": 12818,
+          "workspace_bytes": 1597440
+        }
+      },
+      "e4_native": {
+        "config": {
+          "method": "e4_native",
+          "tree": [
+            [
+              0,
+              2
+            ],
+            1
+          ],
+          "fixed_split_size": null
+        },
+        "record": {
+          "method": "e4_native",
+          "tree": [
+            [
+              0,
+              2
+            ],
+            1
+          ],
+          "fixed_split_size": null,
+          "candidate_name": "e4_native__tree-[[0,2],1]__fixedsplit-None",
+          "source_paths": [
+            "src/cascade_baseline.py",
+            "src/partition_baseline.py"
+          ],
+          "source_sha256": {
+            "src/cascade_baseline.py": "245273b2a6915203cc2e0e77f82b31e7f7ef319d600c81c6c6124d47687898c7",
+            "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92"
+          },
+          "initialization_ms_including_jit": 10.58986410498619,
+          "max_abs_error_fp64": 0.0010233702844582304,
+          "max_lse_error_fp64": 0.0007130227172140735,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 9.15519967675209,
+            "cold": 18.432000651955605
+          },
+          "prepare_ms": 7.427055388689041,
+          "metadata_ms": 3.0952291563153267,
+          "logical_kv_token_visits": 15043,
+          "workspace_bytes": 536870912
+        }
+      },
+      "dynamic_v2": {
+        "config": {
+          "method": "dynamic_v2",
+          "version": "v2",
+          "splits": 64,
+          "block_n": 32
+        },
+        "record": {
+          "method": "dynamic_v2",
+          "version": "v2",
+          "splits": 64,
+          "block_n": 32,
+          "candidate_name": "dynamic_v2__splits-64__n-32",
+          "source_paths": [
+            "src/dynamic_baseline.py",
+            "src/branchtile/attention_v2.py",
+            "src/branchtile/tilelang_kernel_v2.py"
+          ],
+          "source_sha256": {
+            "src/dynamic_baseline.py": "d85f600a438953a3e508963a5269544c66c24c3470b3f40927d344704bd5a032",
+            "src/branchtile/attention_v2.py": "f6a3ef3519ed96a5405afe92dfdadf064575d027aa05502fb9304e37abeed916",
+            "src/branchtile/tilelang_kernel_v2.py": "7f36322f62d94d047788cce58cf6b4063e7e27b2cd6f96624f7e5f93c9f90525"
+          },
+          "initialization_ms_including_jit": 152.69986912608147,
+          "max_abs_error_fp64": 0.00048345814252750974,
+          "max_lse_error_fp64": 3.8737793133236664e-06,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 15.60640037059784,
+            "cold": 26.59199945628643
+          },
+          "prepare_ms": 152.0432038232684,
+          "metadata_ms": 6.797772832214832,
+          "logical_kv_token_visits": 12818,
+          "workspace_bytes": 1597440
+        }
+      },
+      "dynamic_emptyguard": {
+        "config": {
+          "method": "dynamic_emptyguard",
+          "version": "emptyguard",
+          "splits": 128,
+          "block_n": 32
+        },
+        "record": {
+          "method": "dynamic_emptyguard",
+          "version": "emptyguard",
+          "splits": 128,
+          "block_n": 32,
+          "candidate_name": "dynamic_emptyguard__splits-128__n-32",
+          "source_paths": [
+            "src/branchtile/attention_emptyguard.py",
+            "src/branchtile/tilelang_kernel_emptyguard.py"
+          ],
+          "source_sha256": {
+            "src/branchtile/attention_emptyguard.py": "a4eb400c270750522ab7ebee891d96df4076fd3cf7e28f47af12193068f2749c",
+            "src/branchtile/tilelang_kernel_emptyguard.py": "80b91f0812a0ddec97c047facb4023d0929af1f9ca24e1ce562f0fc8655562ad"
+          },
+          "initialization_ms_including_jit": 156.56524430960417,
+          "max_abs_error_fp64": 0.00048345814252750974,
+          "max_lse_error_fp64": 3.8737793133236664e-06,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 17.54080057144165,
+            "cold": 26.59199945628643
+          },
+          "prepare_ms": 155.71066550910473,
+          "metadata_ms": 5.799278616905212,
+          "logical_kv_token_visits": 12818,
+          "workspace_bytes": 3194880
+        }
+      },
+      "dynamic_v3": {
+        "config": {
+          "method": "dynamic_v3",
+          "version": "v3",
+          "splits": 128,
+          "block_n": 64
+        },
+        "record": {
+          "method": "dynamic_v3",
+          "version": "v3",
+          "splits": 128,
+          "block_n": 64,
+          "candidate_name": "dynamic_v3__splits-128__n-64",
+          "source_paths": [
+            "src/dynamic_baseline.py",
+            "src/branchtile/attention_v3.py",
+            "src/branchtile/tilelang_kernel_v3.py"
+          ],
+          "source_sha256": {
+            "src/dynamic_baseline.py": "d85f600a438953a3e508963a5269544c66c24c3470b3f40927d344704bd5a032",
+            "src/branchtile/attention_v3.py": "d2a11acd8ef0ece0b202e28fd9897ce501a312de2f0f857a09266a869ffddd0a",
+            "src/branchtile/tilelang_kernel_v3.py": "d46f85e068fcbce98d509f5583de15ac6c6dae144d224ceb7f7c679bcddc55ea"
+          },
+          "initialization_ms_including_jit": 169.00955978780985,
+          "max_abs_error_fp64": 0.00048345814252750974,
+          "max_lse_error_fp64": 3.8737793133236664e-06,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 24.39199984073639,
+            "cold": 32.735999673604965
+          },
+          "prepare_ms": 167.94783249497414,
+          "metadata_ms": 6.248253397643566,
+          "logical_kv_token_visits": 12818,
+          "workspace_bytes": 3194880
+        }
+      },
+      "full_union": {
+        "config": {
+          "method": "e1_own",
+          "partition": [
+            [
+              0,
+              1,
+              2
+            ]
+          ],
+          "splits": 64,
+          "block_n": 64
+        },
+        "record": {
+          "method": "e1_own",
+          "partition": [
+            [
+              0,
+              1,
+              2
+            ]
+          ],
+          "splits": 64,
+          "block_n": 64,
+          "candidate_name": "e1_own__p-0_1_2__splits-64__n-64",
+          "source_paths": [
+            "src/partition_baseline.py",
+            "src/branchtile/union.py"
+          ],
+          "source_sha256": {
+            "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92",
+            "src/branchtile/union.py": "5062b4729617252aa8fe17f7f80ee197b01efca497150b5ef3abc30afff4b55d"
+          },
+          "initialization_ms_including_jit": 195.51354087889194,
+          "max_abs_error_fp64": 0.00048345814252750974,
+          "max_lse_error_fp64": 3.8737793133236664e-06,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 8.43840017914772,
+            "cold": 18.400000408291817
+          },
+          "prepare_ms": 195.18077466636896,
+          "metadata_ms": 8.438440971076488,
+          "logical_kv_token_visits": 12818,
+          "workspace_bytes": 1609920
+        }
+      },
+      "dynamic_fullcol_guard": {
+        "config": {
+          "method": "dynamic_fullcol_guard",
+          "version": "fullcol_guard",
+          "splits": 128,
+          "block_n": 32
+        },
+        "record": {
+          "method": "dynamic_fullcol_guard",
+          "version": "fullcol_guard",
+          "splits": 128,
+          "block_n": 32,
+          "candidate_name": "dynamic_fullcol_guard__splits-128__n-32",
+          "source_paths": [
+            "src/branchtile/attention_fullcol_guard.py",
+            "src/branchtile/tilelang_kernel_fullcol_guard.py"
+          ],
+          "source_sha256": {
+            "src/branchtile/attention_fullcol_guard.py": "fa990cd439eeee4a27624b0c678b159c2f4759de6075f782fd347636895c07ff",
+            "src/branchtile/tilelang_kernel_fullcol_guard.py": "cc3f2ea59cf04515fac0e648afa0a65c2eee9e0ab1a4e51b7681c9be53a293ab"
+          },
+          "initialization_ms_including_jit": 156.23651817440987,
+          "max_abs_error_fp64": 0.00048345814252750974,
+          "max_lse_error_fp64": 3.8737793133236664e-06,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 17.64799952507019,
+            "cold": 26.623999699950218
+          },
+          "prepare_ms": 155.4657844826579,
+          "metadata_ms": 6.590365432202816,
+          "logical_kv_token_visits": 12818,
+          "workspace_bytes": 3194880
+        }
+      },
+      "e0_native": {
+        "config": {
+          "method": "e0_native",
+          "tensor_cores": true,
+          "fixed_split_size": null
+        },
+        "record": {
+          "method": "e0_native",
+          "tensor_cores": true,
+          "fixed_split_size": null,
+          "candidate_name": "e0_native__fixedsplit-None__tc-1",
+          "source_paths": [
+            "src/flashinfer_baseline.py"
+          ],
+          "source_sha256": {
+            "src/flashinfer_baseline.py": "942eb00c9442393871af9cdab140e83de00bb05c30d2c36fa04a1d0735bc50fa"
+          },
+          "initialization_ms_including_jit": 4.277615807950497,
+          "max_abs_error_fp64": 0.0010233702844582304,
+          "max_lse_error_fp64": 0.0004154763304953235,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 9.561599791049957,
+            "cold": 18.432000651955605
+          },
+          "prepare_ms": 4.121823236346245,
+          "metadata_ms": null,
+          "logical_kv_token_visits": null,
+          "workspace_bytes": 536870912
+        }
+      },
+      "best_e1": {
+        "config": {
+          "method": "e1_own",
+          "partition": [
+            [
+              0,
+              1,
+              2
+            ]
+          ],
+          "splits": 64,
+          "block_n": 64
+        },
+        "record": {
+          "method": "e1_own",
+          "partition": [
+            [
+              0,
+              1,
+              2
+            ]
+          ],
+          "splits": 64,
+          "block_n": 64,
+          "candidate_name": "e1_own__p-0_1_2__splits-64__n-64",
+          "source_paths": [
+            "src/partition_baseline.py",
+            "src/branchtile/union.py"
+          ],
+          "source_sha256": {
+            "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92",
+            "src/branchtile/union.py": "5062b4729617252aa8fe17f7f80ee197b01efca497150b5ef3abc30afff4b55d"
+          },
+          "initialization_ms_including_jit": 195.51354087889194,
+          "max_abs_error_fp64": 0.00048345814252750974,
+          "max_lse_error_fp64": 3.8737793133236664e-06,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 8.43840017914772,
+            "cold": 18.400000408291817
+          },
+          "prepare_ms": 195.18077466636896,
+          "metadata_ms": 8.438440971076488,
+          "logical_kv_token_visits": 12818,
+          "workspace_bytes": 1609920
+        }
+      },
+      "best_dynamic": {
+        "config": {
+          "method": "dynamic_persistent_fixed",
+          "version": "persistent_fixed",
+          "splits": 64,
+          "block_n": 32
+        },
+        "record": {
+          "method": "dynamic_persistent_fixed",
+          "version": "persistent_fixed",
+          "splits": 64,
+          "block_n": 32,
+          "candidate_name": "dynamic_persistent_fixed__splits-64__n-32",
+          "source_paths": [
+            "src/branchtile/attention_persistent_fixed.py",
+            "src/branchtile/tilelang_kernel_persistent_fixed.py"
+          ],
+          "source_sha256": {
+            "src/branchtile/attention_persistent_fixed.py": "87ce11da7cd8339c589536ea9627db35c6b155ac23c9e7f3e6a546581b4c4d0c",
+            "src/branchtile/tilelang_kernel_persistent_fixed.py": "4a4778d78fc7342829ce0d525872afb7795b137fa86b92928ad835e3e89d8873"
+          },
+          "initialization_ms_including_jit": 85.09477600455284,
+          "max_abs_error_fp64": 0.00048345814252750974,
+          "max_lse_error_fp64": 3.8737793133236664e-06,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 14.759999513626099,
+            "cold": 24.54400062561035
+          },
+          "prepare_ms": 84.28958617150784,
+          "metadata_ms": 6.1267949640750885,
+          "logical_kv_token_visits": 12818,
+          "workspace_bytes": 1597440
+        }
+      },
+      "best_control": {
+        "config": {
+          "method": "e1_own",
+          "partition": [
+            [
+              0,
+              1,
+              2
+            ]
+          ],
+          "splits": 64,
+          "block_n": 64
+        },
+        "record": {
+          "method": "e1_own",
+          "partition": [
+            [
+              0,
+              1,
+              2
+            ]
+          ],
+          "splits": 64,
+          "block_n": 64,
+          "candidate_name": "e1_own__p-0_1_2__splits-64__n-64",
+          "source_paths": [
+            "src/partition_baseline.py",
+            "src/branchtile/union.py"
+          ],
+          "source_sha256": {
+            "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92",
+            "src/branchtile/union.py": "5062b4729617252aa8fe17f7f80ee197b01efca497150b5ef3abc30afff4b55d"
+          },
+          "initialization_ms_including_jit": 195.51354087889194,
+          "max_abs_error_fp64": 0.00048345814252750974,
+          "max_lse_error_fp64": 3.8737793133236664e-06,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 8.43840017914772,
+            "cold": 18.400000408291817
+          },
+          "prepare_ms": 195.18077466636896,
+          "metadata_ms": 8.438440971076488,
+          "logical_kv_token_visits": 12818,
+          "workspace_bytes": 1609920
+        }
+      }
+    }
+  },
+  "measurements": [
+    {
+      "cache": "hot",
+      "block": 0,
+      "direction": "random",
+      "order": [
+        "dynamic_emptyguard",
+        "best_dynamic",
+        "full_union",
+        "best_control",
+        "e1_own",
+        "e0_native",
+        "dynamic_v3",
+        "dynamic_persistent_fixed",
+        "e4_native",
+        "best_e1",
+        "e1_native",
+        "dynamic_v2",
+        "full_union_AA",
+        "dynamic_fullcol_guard"
+      ],
+      "us": {
+        "dynamic_emptyguard": 16.838400065898895,
+        "best_dynamic": 14.846399426460266,
+        "full_union": 8.446399867534637,
+        "best_control": 8.479999750852585,
+        "e1_own": 8.476799726486206,
+        "e0_native": 9.976000338792801,
+        "dynamic_v3": 20.791999995708466,
+        "dynamic_persistent_fixed": 14.718399941921234,
+        "e4_native": 9.563200175762177,
+        "best_e1": 8.473599702119827,
+        "e1_native": 9.359999746084213,
+        "dynamic_v2": 15.727999806404114,
+        "full_union_AA": 8.403199911117554,
+        "dynamic_fullcol_guard": 16.952000558376312
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 0,
+      "direction": "reverse",
+      "order": [
+        "dynamic_fullcol_guard",
+        "full_union_AA",
+        "dynamic_v2",
+        "e1_native",
+        "best_e1",
+        "e4_native",
+        "dynamic_persistent_fixed",
+        "dynamic_v3",
+        "e0_native",
+        "e1_own",
+        "best_control",
+        "full_union",
+        "best_dynamic",
+        "dynamic_emptyguard"
+      ],
+      "us": {
+        "dynamic_fullcol_guard": 16.95840060710907,
+        "full_union_AA": 8.455999940633774,
+        "dynamic_v2": 15.71040004491806,
+        "e1_native": 9.249600023031235,
+        "best_e1": 8.455999940633774,
+        "e4_native": 9.550400078296661,
+        "dynamic_persistent_fixed": 14.707200229167938,
+        "dynamic_v3": 20.8079993724823,
+        "e0_native": 9.988799691200256,
+        "e1_own": 8.425600081682205,
+        "best_control": 8.427199721336365,
+        "full_union": 8.427199721336365,
+        "best_dynamic": 14.745600521564484,
+        "dynamic_emptyguard": 16.64160043001175
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 1,
+      "direction": "random",
+      "order": [
+        "dynamic_fullcol_guard",
+        "dynamic_emptyguard",
+        "dynamic_v3",
+        "e0_native",
+        "dynamic_persistent_fixed",
+        "best_e1",
+        "e1_own",
+        "best_dynamic",
+        "dynamic_v2",
+        "full_union_AA",
+        "best_control",
+        "full_union",
+        "e1_native",
+        "e4_native"
+      ],
+      "us": {
+        "dynamic_fullcol_guard": 17.03680008649826,
+        "dynamic_emptyguard": 16.64000004529953,
+        "dynamic_v3": 20.80480009317398,
+        "e0_native": 9.95360016822815,
+        "dynamic_persistent_fixed": 14.67680037021637,
+        "best_e1": 8.417599648237228,
+        "e1_own": 8.427199721336365,
+        "best_dynamic": 14.787200093269348,
+        "dynamic_v2": 15.702399611473083,
+        "full_union_AA": 8.419200032949448,
+        "best_control": 8.401600271463394,
+        "full_union": 8.422400057315826,
+        "e1_native": 9.524799883365631,
+        "e4_native": 9.547200053930283
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 1,
+      "direction": "reverse",
+      "order": [
+        "e4_native",
+        "e1_native",
+        "full_union",
+        "best_control",
+        "full_union_AA",
+        "dynamic_v2",
+        "best_dynamic",
+        "e1_own",
+        "best_e1",
+        "dynamic_persistent_fixed",
+        "e0_native",
+        "dynamic_v3",
+        "dynamic_emptyguard",
+        "dynamic_fullcol_guard"
+      ],
+      "us": {
+        "e4_native": 9.556800127029419,
+        "e1_native": 9.243199974298477,
+        "full_union": 8.396799862384796,
+        "best_control": 8.452799916267395,
+        "full_union_AA": 8.43999981880188,
+        "dynamic_v2": 15.659199655056,
+        "best_dynamic": 14.67519998550415,
+        "e1_own": 8.38719978928566,
+        "best_e1": 8.432000130414963,
+        "dynamic_persistent_fixed": 14.697599411010742,
+        "e0_native": 9.932799637317657,
+        "dynamic_v3": 20.80480009317398,
+        "dynamic_emptyguard": 16.633599996566772,
+        "dynamic_fullcol_guard": 16.920000314712524
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 2,
+      "direction": "random",
+      "order": [
+        "best_control",
+        "e4_native",
+        "e1_native",
+        "e0_native",
+        "e1_own",
+        "dynamic_emptyguard",
+        "best_e1",
+        "dynamic_persistent_fixed",
+        "dynamic_v3",
+        "best_dynamic",
+        "dynamic_fullcol_guard",
+        "full_union_AA",
+        "dynamic_v2",
+        "full_union"
+      ],
+      "us": {
+        "best_control": 8.396799862384796,
+        "e4_native": 9.564799815416336,
+        "e1_native": 9.259200096130371,
+        "e0_native": 9.929600358009338,
+        "e1_own": 8.444800227880478,
+        "dynamic_emptyguard": 16.700799763202667,
+        "best_e1": 8.399999886751175,
+        "dynamic_persistent_fixed": 14.657600224018097,
+        "dynamic_v3": 20.875200629234314,
+        "best_dynamic": 14.718399941921234,
+        "dynamic_fullcol_guard": 16.944000124931335,
+        "full_union_AA": 8.404800295829773,
+        "dynamic_v2": 15.688000619411469,
+        "full_union": 8.422400057315826
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 2,
+      "direction": "reverse",
+      "order": [
+        "full_union",
+        "dynamic_v2",
+        "full_union_AA",
+        "dynamic_fullcol_guard",
+        "best_dynamic",
+        "dynamic_v3",
+        "dynamic_persistent_fixed",
+        "best_e1",
+        "dynamic_emptyguard",
+        "e1_own",
+        "e0_native",
+        "e1_native",
+        "e4_native",
+        "best_control"
+      ],
+      "us": {
+        "full_union": 8.403199911117554,
+        "dynamic_v2": 15.688000619411469,
+        "full_union_AA": 8.430399745702744,
+        "dynamic_fullcol_guard": 16.916799545288086,
+        "best_dynamic": 14.636799693107605,
+        "dynamic_v3": 20.791999995708466,
+        "dynamic_persistent_fixed": 14.657600224018097,
+        "best_e1": 8.455999940633774,
+        "dynamic_emptyguard": 16.625599563121796,
+        "e1_own": 8.416000008583069,
+        "e0_native": 9.961599856615067,
+        "e1_native": 9.243199974298477,
+        "e4_native": 9.531199932098389,
+        "best_control": 8.38719978928566
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 3,
+      "direction": "random",
+      "order": [
+        "e0_native",
+        "dynamic_v3",
+        "e1_native",
+        "best_dynamic",
+        "best_control",
+        "full_union_AA",
+        "dynamic_fullcol_guard",
+        "full_union",
+        "dynamic_emptyguard",
+        "best_e1",
+        "dynamic_v2",
+        "e1_own",
+        "dynamic_persistent_fixed",
+        "e4_native"
+      ],
+      "us": {
+        "e0_native": 10.115200281143188,
+        "dynamic_v3": 20.78399956226349,
+        "e1_native": 9.321600198745728,
+        "best_dynamic": 14.744000136852264,
+        "best_control": 8.401600271463394,
+        "full_union_AA": 8.41279998421669,
+        "dynamic_fullcol_guard": 16.996799409389496,
+        "full_union": 8.43999981880188,
+        "dynamic_emptyguard": 16.628800332546234,
+        "best_e1": 8.406399935483932,
+        "dynamic_v2": 15.675200521945953,
+        "e1_own": 8.403199911117554,
+        "dynamic_persistent_fixed": 14.758400619029999,
+        "e4_native": 9.537599980831146
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 3,
+      "direction": "reverse",
+      "order": [
+        "e4_native",
+        "dynamic_persistent_fixed",
+        "e1_own",
+        "dynamic_v2",
+        "best_e1",
+        "dynamic_emptyguard",
+        "full_union",
+        "dynamic_fullcol_guard",
+        "full_union_AA",
+        "best_control",
+        "best_dynamic",
+        "e1_native",
+        "dynamic_v3",
+        "e0_native"
+      ],
+      "us": {
+        "e4_native": 9.520000219345093,
+        "dynamic_persistent_fixed": 14.735999703407288,
+        "e1_own": 8.404800295829773,
+        "dynamic_v2": 15.707199275493622,
+        "best_e1": 8.41120034456253,
+        "dynamic_emptyguard": 16.606399416923523,
+        "full_union": 8.409599959850311,
+        "dynamic_fullcol_guard": 16.894400119781494,
+        "full_union_AA": 8.433599770069122,
+        "best_control": 8.422400057315826,
+        "best_dynamic": 14.764800667762756,
+        "e1_native": 9.337600320577621,
+        "dynamic_v3": 20.78080028295517,
+        "e0_native": 9.92320030927658
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 4,
+      "direction": "random",
+      "order": [
+        "e4_native",
+        "dynamic_fullcol_guard",
+        "dynamic_v2",
+        "e1_native",
+        "best_dynamic",
+        "dynamic_v3",
+        "full_union_AA",
+        "full_union",
+        "dynamic_persistent_fixed",
+        "best_control",
+        "e0_native",
+        "best_e1",
+        "dynamic_emptyguard",
+        "e1_own"
+      ],
+      "us": {
+        "e4_native": 9.515199810266495,
+        "dynamic_fullcol_guard": 16.918399930000305,
+        "dynamic_v2": 15.644800662994385,
+        "e1_native": 9.219200164079666,
+        "best_dynamic": 14.73120003938675,
+        "dynamic_v3": 20.815999805927277,
+        "full_union_AA": 8.347199857234955,
+        "full_union": 8.417599648237228,
+        "dynamic_persistent_fixed": 14.747199416160583,
+        "best_control": 8.436799794435501,
+        "e0_native": 9.972800314426422,
+        "best_e1": 8.409599959850311,
+        "dynamic_emptyguard": 16.625599563121796,
+        "e1_own": 8.43840017914772
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 4,
+      "direction": "reverse",
+      "order": [
+        "e1_own",
+        "dynamic_emptyguard",
+        "best_e1",
+        "e0_native",
+        "best_control",
+        "dynamic_persistent_fixed",
+        "full_union",
+        "full_union_AA",
+        "dynamic_v3",
+        "best_dynamic",
+        "e1_native",
+        "dynamic_v2",
+        "dynamic_fullcol_guard",
+        "e4_native"
+      ],
+      "us": {
+        "e1_own": 8.35999995470047,
+        "dynamic_emptyguard": 16.678400337696075,
+        "best_e1": 8.409599959850311,
+        "e0_native": 9.967999905347824,
+        "best_control": 8.425600081682205,
+        "dynamic_persistent_fixed": 14.735999703407288,
+        "full_union": 8.422400057315826,
+        "full_union_AA": 8.416000008583069,
+        "dynamic_v3": 20.83040028810501,
+        "best_dynamic": 14.720000326633453,
+        "e1_native": 9.31679978966713,
+        "dynamic_v2": 15.673600137233734,
+        "dynamic_fullcol_guard": 16.915200650691986,
+        "e4_native": 9.52799990773201
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 5,
+      "direction": "random",
+      "order": [
+        "e4_native",
+        "e1_native",
+        "e1_own",
+        "e0_native",
+        "full_union_AA",
+        "best_control",
+        "dynamic_persistent_fixed",
+        "dynamic_v2",
+        "dynamic_fullcol_guard",
+        "best_e1",
+        "dynamic_v3",
+        "best_dynamic",
+        "dynamic_emptyguard",
+        "full_union"
+      ],
+      "us": {
+        "e4_native": 9.540800005197525,
+        "e1_native": 9.257599711418152,
+        "e1_own": 8.417599648237228,
+        "e0_native": 10.075200349092484,
+        "full_union_AA": 8.38719978928566,
+        "best_control": 8.401600271463394,
+        "dynamic_persistent_fixed": 14.772799611091614,
+        "dynamic_v2": 15.659199655056,
+        "dynamic_fullcol_guard": 16.90880060195923,
+        "best_e1": 8.41279998421669,
+        "dynamic_v3": 20.787200331687927,
+        "best_dynamic": 14.715200662612915,
+        "dynamic_emptyguard": 16.627199947834015,
+        "full_union": 8.420799672603607
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 5,
+      "direction": "reverse",
+      "order": [
+        "full_union",
+        "dynamic_emptyguard",
+        "best_dynamic",
+        "dynamic_v3",
+        "best_e1",
+        "dynamic_fullcol_guard",
+        "dynamic_v2",
+        "dynamic_persistent_fixed",
+        "best_control",
+        "full_union_AA",
+        "e0_native",
+        "e1_own",
+        "e1_native",
+        "e4_native"
+      ],
+      "us": {
+        "full_union": 8.43999981880188,
+        "dynamic_emptyguard": 16.607999801635742,
+        "best_dynamic": 14.73120003938675,
+        "dynamic_v3": 20.80480009317398,
+        "best_e1": 8.41440036892891,
+        "dynamic_fullcol_guard": 16.90080016851425,
+        "dynamic_v2": 15.649600327014923,
+        "dynamic_persistent_fixed": 14.721600711345673,
+        "best_control": 8.417599648237228,
+        "full_union_AA": 8.423999696969986,
+        "e0_native": 9.948799759149551,
+        "e1_own": 8.470399677753448,
+        "e1_native": 9.31679978966713,
+        "e4_native": 9.505599737167358
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 6,
+      "direction": "random",
+      "order": [
+        "e1_own",
+        "dynamic_emptyguard",
+        "e1_native",
+        "best_dynamic",
+        "e4_native",
+        "full_union",
+        "dynamic_fullcol_guard",
+        "dynamic_persistent_fixed",
+        "dynamic_v3",
+        "best_e1",
+        "e0_native",
+        "best_control",
+        "dynamic_v2",
+        "full_union_AA"
+      ],
+      "us": {
+        "e1_own": 8.41120034456253,
+        "dynamic_emptyguard": 16.6143998503685,
+        "e1_native": 9.246399998664856,
+        "best_dynamic": 14.769600331783295,
+        "e4_native": 9.548799693584442,
+        "full_union": 8.427199721336365,
+        "dynamic_fullcol_guard": 16.926400363445282,
+        "dynamic_persistent_fixed": 14.78080004453659,
+        "dynamic_v3": 20.814399421215057,
+        "best_e1": 8.41120034456253,
+        "e0_native": 10.028800368309021,
+        "best_control": 8.379200100898743,
+        "dynamic_v2": 15.660800039768219,
+        "full_union_AA": 8.423999696969986
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 6,
+      "direction": "reverse",
+      "order": [
+        "full_union_AA",
+        "dynamic_v2",
+        "best_control",
+        "e0_native",
+        "best_e1",
+        "dynamic_v3",
+        "dynamic_persistent_fixed",
+        "dynamic_fullcol_guard",
+        "full_union",
+        "e4_native",
+        "best_dynamic",
+        "e1_native",
+        "dynamic_emptyguard",
+        "e1_own"
+      ],
+      "us": {
+        "full_union_AA": 8.38719978928566,
+        "dynamic_v2": 15.654399991035461,
+        "best_control": 8.3856001496315,
+        "e0_native": 9.971199929714203,
+        "best_e1": 8.41279998421669,
+        "dynamic_v3": 20.791999995708466,
+        "dynamic_persistent_fixed": 14.772799611091614,
+        "dynamic_fullcol_guard": 16.90240055322647,
+        "full_union": 8.395200222730637,
+        "e4_native": 9.510400146245956,
+        "best_dynamic": 14.753599464893341,
+        "e1_native": 9.318400174379349,
+        "dynamic_emptyguard": 16.61600023508072,
+        "e1_own": 8.377599716186523
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 7,
+      "direction": "random",
+      "order": [
+        "e4_native",
+        "dynamic_emptyguard",
+        "e0_native",
+        "best_e1",
+        "full_union",
+        "best_control",
+        "dynamic_v2",
+        "dynamic_v3",
+        "e1_native",
+        "dynamic_fullcol_guard",
+        "e1_own",
+        "best_dynamic",
+        "full_union_AA",
+        "dynamic_persistent_fixed"
+      ],
+      "us": {
+        "e4_native": 9.556800127029419,
+        "dynamic_emptyguard": 16.700799763202667,
+        "e0_native": 9.940800070762634,
+        "best_e1": 8.41279998421669,
+        "full_union": 8.395200222730637,
+        "best_control": 8.430399745702744,
+        "dynamic_v2": 15.652799606323242,
+        "dynamic_v3": 20.793600380420685,
+        "e1_native": 9.307199716567993,
+        "dynamic_fullcol_guard": 16.88160002231598,
+        "e1_own": 8.433599770069122,
+        "best_dynamic": 14.67519998550415,
+        "full_union_AA": 8.425600081682205,
+        "dynamic_persistent_fixed": 14.65120017528534
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 7,
+      "direction": "reverse",
+      "order": [
+        "dynamic_persistent_fixed",
+        "full_union_AA",
+        "best_dynamic",
+        "e1_own",
+        "dynamic_fullcol_guard",
+        "e1_native",
+        "dynamic_v3",
+        "dynamic_v2",
+        "best_control",
+        "full_union",
+        "best_e1",
+        "e0_native",
+        "dynamic_emptyguard",
+        "e4_native"
+      ],
+      "us": {
+        "dynamic_persistent_fixed": 14.766399562358856,
+        "full_union_AA": 8.406399935483932,
+        "best_dynamic": 14.670400321483612,
+        "e1_own": 8.425600081682205,
+        "dynamic_fullcol_guard": 16.899199783802032,
+        "e1_native": 9.241600334644318,
+        "dynamic_v3": 20.78399956226349,
+        "dynamic_v2": 15.65600037574768,
+        "best_control": 8.380799740552902,
+        "full_union": 8.43840017914772,
+        "best_e1": 8.43999981880188,
+        "e0_native": 9.963200241327286,
+        "dynamic_emptyguard": 16.648000478744507,
+        "e4_native": 9.547200053930283
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 8,
+      "direction": "random",
+      "order": [
+        "dynamic_v2",
+        "e1_own",
+        "dynamic_persistent_fixed",
+        "full_union_AA",
+        "dynamic_v3",
+        "best_e1",
+        "best_control",
+        "dynamic_emptyguard",
+        "dynamic_fullcol_guard",
+        "e1_native",
+        "e4_native",
+        "best_dynamic",
+        "e0_native",
+        "full_union"
+      ],
+      "us": {
+        "dynamic_v2": 15.680000185966492,
+        "e1_own": 8.427199721336365,
+        "dynamic_persistent_fixed": 14.747199416160583,
+        "full_union_AA": 8.425600081682205,
+        "dynamic_v3": 20.88640034198761,
+        "best_e1": 8.43840017914772,
+        "best_control": 8.432000130414963,
+        "dynamic_emptyguard": 16.620799899101257,
+        "dynamic_fullcol_guard": 16.95840060710907,
+        "e1_native": 9.23679992556572,
+        "e4_native": 9.52960029244423,
+        "best_dynamic": 14.67519998550415,
+        "e0_native": 9.993600100278854,
+        "full_union": 8.446399867534637
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 8,
+      "direction": "reverse",
+      "order": [
+        "full_union",
+        "e0_native",
+        "best_dynamic",
+        "e4_native",
+        "e1_native",
+        "dynamic_fullcol_guard",
+        "dynamic_emptyguard",
+        "best_control",
+        "best_e1",
+        "dynamic_v3",
+        "full_union_AA",
+        "dynamic_persistent_fixed",
+        "e1_own",
+        "dynamic_v2"
+      ],
+      "us": {
+        "full_union": 8.374399691820145,
+        "e0_native": 9.955199807882309,
+        "best_dynamic": 14.67680037021637,
+        "e4_native": 9.560000151395798,
+        "e1_native": 9.225600212812424,
+        "dynamic_fullcol_guard": 16.945600509643555,
+        "dynamic_emptyguard": 16.700799763202667,
+        "best_control": 8.41440036892891,
+        "best_e1": 8.446399867534637,
+        "dynamic_v3": 20.814399421215057,
+        "full_union_AA": 8.435200154781342,
+        "dynamic_persistent_fixed": 14.772799611091614,
+        "e1_own": 8.420799672603607,
+        "dynamic_v2": 15.659199655056
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 9,
+      "direction": "random",
+      "order": [
+        "best_e1",
+        "e4_native",
+        "e1_native",
+        "dynamic_persistent_fixed",
+        "e0_native",
+        "dynamic_emptyguard",
+        "best_control",
+        "full_union_AA",
+        "dynamic_v3",
+        "full_union",
+        "dynamic_fullcol_guard",
+        "e1_own",
+        "dynamic_v2",
+        "best_dynamic"
+      ],
+      "us": {
+        "best_e1": 8.436799794435501,
+        "e4_native": 9.513600170612335,
+        "e1_native": 9.20960009098053,
+        "dynamic_persistent_fixed": 14.779199659824371,
+        "e0_native": 9.940800070762634,
+        "dynamic_emptyguard": 16.69120043516159,
+        "best_control": 8.41279998421669,
+        "full_union_AA": 8.356799930334091,
+        "dynamic_v3": 20.875200629234314,
+        "full_union": 8.435200154781342,
+        "dynamic_fullcol_guard": 16.93439930677414,
+        "e1_own": 8.398400247097015,
+        "dynamic_v2": 15.700800716876984,
+        "best_dynamic": 14.747199416160583
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 9,
+      "direction": "reverse",
+      "order": [
+        "best_dynamic",
+        "dynamic_v2",
+        "e1_own",
+        "dynamic_fullcol_guard",
+        "full_union",
+        "dynamic_v3",
+        "full_union_AA",
+        "best_control",
+        "dynamic_emptyguard",
+        "e0_native",
+        "dynamic_persistent_fixed",
+        "e1_native",
+        "e4_native",
+        "best_e1"
+      ],
+      "us": {
+        "best_dynamic": 14.774399995803833,
+        "dynamic_v2": 15.689599514007568,
+        "e1_own": 8.403199911117554,
+        "dynamic_fullcol_guard": 16.963200271129608,
+        "full_union": 8.656000345945358,
+        "dynamic_v3": 20.795199275016785,
+        "full_union_AA": 8.420799672603607,
+        "best_control": 8.409599959850311,
+        "dynamic_emptyguard": 16.684800386428833,
+        "e0_native": 9.921599924564362,
+        "dynamic_persistent_fixed": 14.769600331783295,
+        "e1_native": 9.256000071763992,
+        "e4_native": 9.556800127029419,
+        "best_e1": 8.425600081682205
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 10,
+      "direction": "random",
+      "order": [
+        "best_dynamic",
+        "full_union",
+        "e4_native",
+        "dynamic_v2",
+        "e1_own",
+        "dynamic_emptyguard",
+        "dynamic_v3",
+        "dynamic_fullcol_guard",
+        "dynamic_persistent_fixed",
+        "e1_native",
+        "full_union_AA",
+        "e0_native",
+        "best_control",
+        "best_e1"
+      ],
+      "us": {
+        "best_dynamic": 14.777599275112152,
+        "full_union": 8.41120034456253,
+        "e4_native": 9.515199810266495,
+        "dynamic_v2": 15.702399611473083,
+        "e1_own": 8.398400247097015,
+        "dynamic_emptyguard": 16.708800196647644,
+        "dynamic_v3": 20.83200067281723,
+        "dynamic_fullcol_guard": 16.90720021724701,
+        "dynamic_persistent_fixed": 14.75680023431778,
+        "e1_native": 9.232000261545181,
+        "full_union_AA": 8.380799740552902,
+        "e0_native": 9.92320030927658,
+        "best_control": 8.417599648237228,
+        "best_e1": 8.420799672603607
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 10,
+      "direction": "reverse",
+      "order": [
+        "best_e1",
+        "best_control",
+        "e0_native",
+        "full_union_AA",
+        "e1_native",
+        "dynamic_persistent_fixed",
+        "dynamic_fullcol_guard",
+        "dynamic_v3",
+        "dynamic_emptyguard",
+        "e1_own",
+        "dynamic_v2",
+        "e4_native",
+        "full_union",
+        "best_dynamic"
+      ],
+      "us": {
+        "best_e1": 8.393599838018417,
+        "best_control": 8.427199721336365,
+        "e0_native": 9.929600358009338,
+        "full_union_AA": 8.444800227880478,
+        "e1_native": 9.23679992556572,
+        "dynamic_persistent_fixed": 14.721600711345673,
+        "dynamic_fullcol_guard": 16.948799788951874,
+        "dynamic_v3": 20.880000293254852,
+        "dynamic_emptyguard": 16.61760061979294,
+        "e1_own": 8.395200222730637,
+        "dynamic_v2": 15.692800283432007,
+        "e4_native": 9.537599980831146,
+        "full_union": 8.432000130414963,
+        "best_dynamic": 14.750400185585022
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 11,
+      "direction": "random",
+      "order": [
+        "best_control",
+        "e0_native",
+        "full_union",
+        "e1_native",
+        "full_union_AA",
+        "best_dynamic",
+        "dynamic_v3",
+        "e4_native",
+        "e1_own",
+        "dynamic_fullcol_guard",
+        "dynamic_v2",
+        "dynamic_persistent_fixed",
+        "best_e1",
+        "dynamic_emptyguard"
+      ],
+      "us": {
+        "best_control": 8.473599702119827,
+        "e0_native": 10.017599910497665,
+        "full_union": 8.409599959850311,
+        "e1_native": 9.246399998664856,
+        "full_union_AA": 8.41279998421669,
+        "best_dynamic": 14.785599708557129,
+        "dynamic_v3": 20.772799849510193,
+        "e4_native": 9.540800005197525,
+        "e1_own": 8.428800106048584,
+        "dynamic_fullcol_guard": 16.944000124931335,
+        "dynamic_v2": 15.681600570678711,
+        "dynamic_persistent_fixed": 14.767999947071075,
+        "best_e1": 8.470399677753448,
+        "dynamic_emptyguard": 16.598400473594666
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 11,
+      "direction": "reverse",
+      "order": [
+        "dynamic_emptyguard",
+        "best_e1",
+        "dynamic_persistent_fixed",
+        "dynamic_v2",
+        "dynamic_fullcol_guard",
+        "e1_own",
+        "e4_native",
+        "dynamic_v3",
+        "best_dynamic",
+        "full_union_AA",
+        "e1_native",
+        "full_union",
+        "e0_native",
+        "best_control"
+      ],
+      "us": {
+        "dynamic_emptyguard": 16.633599996566772,
+        "best_e1": 8.401600271463394,
+        "dynamic_persistent_fixed": 14.667199552059174,
+        "dynamic_v2": 15.732799470424652,
+        "dynamic_fullcol_guard": 16.9295996427536,
+        "e1_own": 8.41120034456253,
+        "e4_native": 9.531199932098389,
+        "dynamic_v3": 20.77600061893463,
+        "best_dynamic": 14.846399426460266,
+        "full_union_AA": 8.396799862384796,
+        "e1_native": 9.331200271844864,
+        "full_union": 8.419200032949448,
+        "e0_native": 9.916800260543823,
+        "best_control": 8.4416002035141
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 12,
+      "direction": "random",
+      "order": [
+        "e4_native",
+        "dynamic_emptyguard",
+        "full_union",
+        "best_e1",
+        "dynamic_fullcol_guard",
+        "best_control",
+        "e1_own",
+        "dynamic_v2",
+        "full_union_AA",
+        "e0_native",
+        "dynamic_persistent_fixed",
+        "e1_native",
+        "best_dynamic",
+        "dynamic_v3"
+      ],
+      "us": {
+        "e4_native": 9.556800127029419,
+        "dynamic_emptyguard": 16.619199514389038,
+        "full_union": 8.388800173997879,
+        "best_e1": 8.406399935483932,
+        "dynamic_fullcol_guard": 16.90399944782257,
+        "best_control": 8.404800295829773,
+        "e1_own": 8.420799672603607,
+        "dynamic_v2": 15.673600137233734,
+        "full_union_AA": 8.404800295829773,
+        "e0_native": 10.022400319576263,
+        "dynamic_persistent_fixed": 14.752000570297241,
+        "e1_native": 9.28800031542778,
+        "best_dynamic": 14.777599275112152,
+        "dynamic_v3": 20.88319957256317
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 12,
+      "direction": "reverse",
+      "order": [
+        "dynamic_v3",
+        "best_dynamic",
+        "e1_native",
+        "dynamic_persistent_fixed",
+        "e0_native",
+        "full_union_AA",
+        "dynamic_v2",
+        "e1_own",
+        "best_control",
+        "dynamic_fullcol_guard",
+        "best_e1",
+        "full_union",
+        "dynamic_emptyguard",
+        "e4_native"
+      ],
+      "us": {
+        "dynamic_v3": 20.800000429153442,
+        "best_dynamic": 14.739200472831726,
+        "e1_native": 9.257599711418152,
+        "dynamic_persistent_fixed": 14.744000136852264,
+        "e0_native": 9.95199978351593,
+        "full_union_AA": 8.409599959850311,
+        "dynamic_v2": 15.585599839687347,
+        "e1_own": 8.38719978928566,
+        "best_control": 8.396799862384796,
+        "dynamic_fullcol_guard": 16.93599969148636,
+        "best_e1": 8.404800295829773,
+        "full_union": 8.4416002035141,
+        "dynamic_emptyguard": 16.64319932460785,
+        "e4_native": 9.52799990773201
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 13,
+      "direction": "random",
+      "order": [
+        "dynamic_v2",
+        "e1_native",
+        "best_e1",
+        "full_union_AA",
+        "e1_own",
+        "dynamic_fullcol_guard",
+        "e0_native",
+        "best_control",
+        "dynamic_emptyguard",
+        "e4_native",
+        "best_dynamic",
+        "dynamic_persistent_fixed",
+        "full_union",
+        "dynamic_v3"
+      ],
+      "us": {
+        "dynamic_v2": 15.695999562740326,
+        "e1_native": 9.31679978966713,
+        "best_e1": 8.403199911117554,
+        "full_union_AA": 8.428800106048584,
+        "e1_own": 8.417599648237228,
+        "dynamic_fullcol_guard": 16.892799735069275,
+        "e0_native": 9.955199807882309,
+        "best_control": 8.419200032949448,
+        "dynamic_emptyguard": 16.700799763202667,
+        "e4_native": 9.556800127029419,
+        "best_dynamic": 14.739200472831726,
+        "dynamic_persistent_fixed": 14.771200716495514,
+        "full_union": 8.425600081682205,
+        "dynamic_v3": 20.766399800777435
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 13,
+      "direction": "reverse",
+      "order": [
+        "dynamic_v3",
+        "full_union",
+        "dynamic_persistent_fixed",
+        "best_dynamic",
+        "e4_native",
+        "dynamic_emptyguard",
+        "best_control",
+        "e0_native",
+        "dynamic_fullcol_guard",
+        "e1_own",
+        "full_union_AA",
+        "best_e1",
+        "e1_native",
+        "dynamic_v2"
+      ],
+      "us": {
+        "dynamic_v3": 20.817600190639496,
+        "full_union": 8.401600271463394,
+        "dynamic_persistent_fixed": 14.72959965467453,
+        "best_dynamic": 14.667199552059174,
+        "e4_native": 9.521599858999252,
+        "dynamic_emptyguard": 16.61279946565628,
+        "best_control": 8.379200100898743,
+        "e0_native": 10.041599720716476,
+        "dynamic_fullcol_guard": 16.8272003531456,
+        "e1_own": 8.428800106048584,
+        "full_union_AA": 8.417599648237228,
+        "best_e1": 8.452799916267395,
+        "e1_native": 9.241600334644318,
+        "dynamic_v2": 15.68640023469925
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 14,
+      "direction": "random",
+      "order": [
+        "best_dynamic",
+        "dynamic_persistent_fixed",
+        "dynamic_fullcol_guard",
+        "e1_own",
+        "dynamic_v3",
+        "full_union_AA",
+        "best_control",
+        "dynamic_emptyguard",
+        "dynamic_v2",
+        "e4_native",
+        "e1_native",
+        "best_e1",
+        "e0_native",
+        "full_union"
+      ],
+      "us": {
+        "best_dynamic": 14.752000570297241,
+        "dynamic_persistent_fixed": 14.774399995803833,
+        "dynamic_fullcol_guard": 16.889600455760956,
+        "e1_own": 8.419200032949448,
+        "dynamic_v3": 20.80480009317398,
+        "full_union_AA": 8.392000198364258,
+        "best_control": 8.403199911117554,
+        "dynamic_emptyguard": 16.63520038127899,
+        "dynamic_v2": 15.700800716876984,
+        "e4_native": 9.531199932098389,
+        "e1_native": 9.256000071763992,
+        "best_e1": 8.408000320196152,
+        "e0_native": 9.969600290060043,
+        "full_union": 8.408000320196152
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 14,
+      "direction": "reverse",
+      "order": [
+        "full_union",
+        "e0_native",
+        "best_e1",
+        "e1_native",
+        "e4_native",
+        "dynamic_v2",
+        "dynamic_emptyguard",
+        "best_control",
+        "full_union_AA",
+        "dynamic_v3",
+        "e1_own",
+        "dynamic_fullcol_guard",
+        "dynamic_persistent_fixed",
+        "best_dynamic"
+      ],
+      "us": {
+        "full_union": 8.433599770069122,
+        "e0_native": 9.929600358009338,
+        "best_e1": 8.41279998421669,
+        "e1_native": 9.212800115346909,
+        "e4_native": 9.524799883365631,
+        "dynamic_v2": 15.660800039768219,
+        "dynamic_emptyguard": 16.61760061979294,
+        "best_control": 8.406399935483932,
+        "full_union_AA": 8.398400247097015,
+        "dynamic_v3": 20.820799469947815,
+        "e1_own": 8.422400057315826,
+        "dynamic_fullcol_guard": 16.93120002746582,
+        "dynamic_persistent_fixed": 14.771200716495514,
+        "best_dynamic": 14.752000570297241
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 15,
+      "direction": "random",
+      "order": [
+        "e4_native",
+        "full_union",
+        "best_e1",
+        "e1_own",
+        "dynamic_emptyguard",
+        "dynamic_fullcol_guard",
+        "e1_native",
+        "e0_native",
+        "dynamic_persistent_fixed",
+        "dynamic_v3",
+        "best_control",
+        "best_dynamic",
+        "full_union_AA",
+        "dynamic_v2"
+      ],
+      "us": {
+        "e4_native": 9.560000151395798,
+        "full_union": 8.380799740552902,
+        "best_e1": 8.339200168848038,
+        "e1_own": 8.35840031504631,
+        "dynamic_emptyguard": 16.72320067882538,
+        "dynamic_fullcol_guard": 16.915200650691986,
+        "e1_native": 9.251199662685394,
+        "e0_native": 9.969600290060043,
+        "dynamic_persistent_fixed": 14.75519984960556,
+        "dynamic_v3": 20.81120014190674,
+        "best_control": 8.427199721336365,
+        "best_dynamic": 14.763200283050537,
+        "full_union_AA": 8.395200222730637,
+        "dynamic_v2": 15.700800716876984
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 15,
+      "direction": "reverse",
+      "order": [
+        "dynamic_v2",
+        "full_union_AA",
+        "best_dynamic",
+        "best_control",
+        "dynamic_v3",
+        "dynamic_persistent_fixed",
+        "e0_native",
+        "e1_native",
+        "dynamic_fullcol_guard",
+        "dynamic_emptyguard",
+        "e1_own",
+        "best_e1",
+        "full_union",
+        "e4_native"
+      ],
+      "us": {
+        "dynamic_v2": 15.665599703788757,
+        "full_union_AA": 8.398400247097015,
+        "best_dynamic": 14.72959965467453,
+        "best_control": 8.430399745702744,
+        "dynamic_v3": 20.791999995708466,
+        "dynamic_persistent_fixed": 14.761599898338318,
+        "e0_native": 10.036800056695938,
+        "e1_native": 9.222400188446045,
+        "dynamic_fullcol_guard": 16.915200650691986,
+        "dynamic_emptyguard": 16.64319932460785,
+        "e1_own": 8.41279998421669,
+        "best_e1": 8.372800052165985,
+        "full_union": 8.399999886751175,
+        "e4_native": 9.540800005197525
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 16,
+      "direction": "random",
+      "order": [
+        "e1_native",
+        "best_control",
+        "dynamic_v2",
+        "dynamic_fullcol_guard",
+        "best_e1",
+        "dynamic_persistent_fixed",
+        "e4_native",
+        "e1_own",
+        "dynamic_emptyguard",
+        "best_dynamic",
+        "full_union_AA",
+        "dynamic_v3",
+        "full_union",
+        "e0_native"
+      ],
+      "us": {
+        "e1_native": 9.267199784517288,
+        "best_control": 8.422400057315826,
+        "dynamic_v2": 15.691199898719788,
+        "dynamic_fullcol_guard": 16.892799735069275,
+        "best_e1": 8.392000198364258,
+        "dynamic_persistent_fixed": 14.70080018043518,
+        "e4_native": 9.542399644851685,
+        "e1_own": 8.398400247097015,
+        "dynamic_emptyguard": 16.604800522327423,
+        "best_dynamic": 14.747199416160583,
+        "full_union_AA": 8.41120034456253,
+        "dynamic_v3": 20.81120014190674,
+        "full_union": 8.448000252246857,
+        "e0_native": 9.97759997844696
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 16,
+      "direction": "reverse",
+      "order": [
+        "e0_native",
+        "full_union",
+        "dynamic_v3",
+        "full_union_AA",
+        "best_dynamic",
+        "dynamic_emptyguard",
+        "e1_own",
+        "e4_native",
+        "dynamic_persistent_fixed",
+        "best_e1",
+        "dynamic_fullcol_guard",
+        "dynamic_v2",
+        "best_control",
+        "e1_native"
+      ],
+      "us": {
+        "e0_native": 9.935999661684036,
+        "full_union": 8.372800052165985,
+        "dynamic_v3": 20.77919989824295,
+        "full_union_AA": 8.393599838018417,
+        "best_dynamic": 14.688000082969666,
+        "dynamic_emptyguard": 16.607999801635742,
+        "e1_own": 8.416000008583069,
+        "e4_native": 9.520000219345093,
+        "dynamic_persistent_fixed": 14.776000380516052,
+        "best_e1": 8.419200032949448,
+        "dynamic_fullcol_guard": 16.921600699424744,
+        "dynamic_v2": 15.680000185966492,
+        "best_control": 8.444800227880478,
+        "e1_native": 9.31359976530075
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 17,
+      "direction": "random",
+      "order": [
+        "e0_native",
+        "dynamic_persistent_fixed",
+        "dynamic_emptyguard",
+        "full_union_AA",
+        "dynamic_fullcol_guard",
+        "best_control",
+        "e1_own",
+        "e4_native",
+        "e1_native",
+        "best_dynamic",
+        "best_e1",
+        "dynamic_v3",
+        "full_union",
+        "dynamic_v2"
+      ],
+      "us": {
+        "e0_native": 9.967999905347824,
+        "dynamic_persistent_fixed": 14.759999513626099,
+        "dynamic_emptyguard": 16.676799952983856,
+        "full_union_AA": 8.425600081682205,
+        "dynamic_fullcol_guard": 16.888000071048737,
+        "best_control": 8.43999981880188,
+        "e1_own": 8.433599770069122,
+        "e4_native": 9.52799990773201,
+        "e1_native": 9.31679978966713,
+        "best_dynamic": 14.737600088119507,
+        "best_e1": 8.38719978928566,
+        "dynamic_v3": 20.77600061893463,
+        "full_union": 8.41279998421669,
+        "dynamic_v2": 15.691199898719788
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 17,
+      "direction": "reverse",
+      "order": [
+        "dynamic_v2",
+        "full_union",
+        "dynamic_v3",
+        "best_e1",
+        "best_dynamic",
+        "e1_native",
+        "e4_native",
+        "e1_own",
+        "best_control",
+        "dynamic_fullcol_guard",
+        "full_union_AA",
+        "dynamic_emptyguard",
+        "dynamic_persistent_fixed",
+        "e0_native"
+      ],
+      "us": {
+        "dynamic_v2": 15.587200224399567,
+        "full_union": 8.383999764919281,
+        "dynamic_v3": 20.812800526618958,
+        "best_e1": 8.41120034456253,
+        "best_dynamic": 14.748799800872803,
+        "e1_native": 9.265600144863129,
+        "e4_native": 9.52799990773201,
+        "e1_own": 8.399999886751175,
+        "best_control": 8.395200222730637,
+        "dynamic_fullcol_guard": 16.90720021724701,
+        "full_union_AA": 8.380799740552902,
+        "dynamic_emptyguard": 16.697600483894348,
+        "dynamic_persistent_fixed": 14.739200472831726,
+        "e0_native": 10.014399886131287
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 18,
+      "direction": "random",
+      "order": [
+        "dynamic_emptyguard",
+        "e0_native",
+        "e1_own",
+        "dynamic_fullcol_guard",
+        "dynamic_v2",
+        "full_union_AA",
+        "best_control",
+        "e4_native",
+        "best_e1",
+        "dynamic_v3",
+        "dynamic_persistent_fixed",
+        "best_dynamic",
+        "e1_native",
+        "full_union"
+      ],
+      "us": {
+        "dynamic_emptyguard": 16.69120043516159,
+        "e0_native": 9.940800070762634,
+        "e1_own": 8.393599838018417,
+        "dynamic_fullcol_guard": 16.99039936065674,
+        "dynamic_v2": 15.611200034618378,
+        "full_union_AA": 8.406399935483932,
+        "best_control": 8.425600081682205,
+        "e4_native": 9.566400200128555,
+        "best_e1": 8.422400057315826,
+        "dynamic_v3": 20.814399421215057,
+        "dynamic_persistent_fixed": 14.734399318695068,
+        "best_dynamic": 14.739200472831726,
+        "e1_native": 9.26240012049675,
+        "full_union": 8.376000076532364
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 18,
+      "direction": "reverse",
+      "order": [
+        "full_union",
+        "e1_native",
+        "best_dynamic",
+        "dynamic_persistent_fixed",
+        "dynamic_v3",
+        "best_e1",
+        "e4_native",
+        "best_control",
+        "full_union_AA",
+        "dynamic_v2",
+        "dynamic_fullcol_guard",
+        "e1_own",
+        "e0_native",
+        "dynamic_emptyguard"
+      ],
+      "us": {
+        "full_union": 8.419200032949448,
+        "e1_native": 9.26079973578453,
+        "best_dynamic": 14.769600331783295,
+        "dynamic_persistent_fixed": 14.763200283050537,
+        "dynamic_v3": 20.78399956226349,
+        "best_e1": 8.41120034456253,
+        "e4_native": 9.52799990773201,
+        "best_control": 8.417599648237228,
+        "full_union_AA": 8.433599770069122,
+        "dynamic_v2": 15.646399557590485,
+        "dynamic_fullcol_guard": 16.944000124931335,
+        "e1_own": 8.403199911117554,
+        "e0_native": 10.03040000796318,
+        "dynamic_emptyguard": 16.69439971446991
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 19,
+      "direction": "random",
+      "order": [
+        "e1_native",
+        "dynamic_v2",
+        "best_e1",
+        "e4_native",
+        "best_control",
+        "full_union",
+        "dynamic_emptyguard",
+        "e0_native",
+        "dynamic_v3",
+        "e1_own",
+        "full_union_AA",
+        "best_dynamic",
+        "dynamic_persistent_fixed",
+        "dynamic_fullcol_guard"
+      ],
+      "us": {
+        "e1_native": 9.26240012049675,
+        "dynamic_v2": 15.694400668144226,
+        "best_e1": 8.427199721336365,
+        "e4_native": 9.478399902582169,
+        "best_control": 8.433599770069122,
+        "full_union": 8.423999696969986,
+        "dynamic_emptyguard": 16.729600727558136,
+        "e0_native": 9.97920036315918,
+        "dynamic_v3": 20.787200331687927,
+        "e1_own": 8.398400247097015,
+        "full_union_AA": 8.404800295829773,
+        "best_dynamic": 14.732800424098969,
+        "dynamic_persistent_fixed": 14.774399995803833,
+        "dynamic_fullcol_guard": 16.891199350357056
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 19,
+      "direction": "reverse",
+      "order": [
+        "dynamic_fullcol_guard",
+        "dynamic_persistent_fixed",
+        "best_dynamic",
+        "full_union_AA",
+        "e1_own",
+        "dynamic_v3",
+        "e0_native",
+        "dynamic_emptyguard",
+        "full_union",
+        "best_control",
+        "e4_native",
+        "best_e1",
+        "dynamic_v2",
+        "e1_native"
+      ],
+      "us": {
+        "dynamic_fullcol_guard": 16.923199594020844,
+        "dynamic_persistent_fixed": 14.75680023431778,
+        "best_dynamic": 14.791999757289886,
+        "full_union_AA": 8.401600271463394,
+        "e1_own": 8.427199721336365,
+        "dynamic_v3": 20.824000239372253,
+        "e0_native": 9.984000027179718,
+        "dynamic_emptyguard": 16.66560024023056,
+        "full_union": 8.455999940633774,
+        "best_control": 8.3856001496315,
+        "e4_native": 9.556800127029419,
+        "best_e1": 8.382400125265121,
+        "dynamic_v2": 15.671999752521515,
+        "e1_native": 9.23359990119934
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 0,
+      "direction": "random",
+      "order": [
+        "e1_own",
+        "full_union_AA",
+        "best_e1",
+        "full_union",
+        "best_control",
+        "e0_native",
+        "dynamic_persistent_fixed",
+        "e1_native",
+        "best_dynamic",
+        "dynamic_v3",
+        "e4_native",
+        "dynamic_v2",
+        "dynamic_emptyguard",
+        "dynamic_fullcol_guard"
+      ],
+      "us": {
+        "e1_own": 20.51199972629547,
+        "full_union_AA": 18.432000651955605,
+        "best_e1": 18.432000651955605,
+        "full_union": 18.400000408291817,
+        "best_control": 18.432000651955605,
+        "e0_native": 18.432000651955605,
+        "dynamic_persistent_fixed": 24.54400062561035,
+        "e1_native": 20.479999482631683,
+        "best_dynamic": 26.623999699950218,
+        "dynamic_v3": 32.76799991726875,
+        "e4_native": 20.479999482631683,
+        "dynamic_v2": 26.59199945628643,
+        "dynamic_emptyguard": 26.59199945628643,
+        "dynamic_fullcol_guard": 26.59199945628643
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 0,
+      "direction": "reverse",
+      "order": [
+        "dynamic_fullcol_guard",
+        "dynamic_emptyguard",
+        "dynamic_v2",
+        "e4_native",
+        "dynamic_v3",
+        "best_dynamic",
+        "e1_native",
+        "dynamic_persistent_fixed",
+        "e0_native",
+        "best_control",
+        "full_union",
+        "best_e1",
+        "full_union_AA",
+        "e1_own"
+      ],
+      "us": {
+        "dynamic_fullcol_guard": 26.623999699950218,
+        "dynamic_emptyguard": 26.59199945628643,
+        "dynamic_v2": 28.64000014960766,
+        "e4_native": 20.479999482631683,
+        "dynamic_v3": 32.76799991726875,
+        "best_dynamic": 26.623999699950218,
+        "e1_native": 20.479999482631683,
+        "dynamic_persistent_fixed": 24.57600086927414,
+        "e0_native": 20.51199972629547,
+        "best_control": 18.432000651955605,
+        "full_union": 18.432000651955605,
+        "best_e1": 18.432000651955605,
+        "full_union_AA": 18.432000651955605,
+        "e1_own": 18.400000408291817
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 1,
+      "direction": "random",
+      "order": [
+        "e1_own",
+        "dynamic_fullcol_guard",
+        "dynamic_persistent_fixed",
+        "best_e1",
+        "best_dynamic",
+        "full_union_AA",
+        "e0_native",
+        "e1_native",
+        "dynamic_emptyguard",
+        "dynamic_v3",
+        "full_union",
+        "best_control",
+        "dynamic_v2",
+        "e4_native"
+      ],
+      "us": {
+        "e1_own": 18.400000408291817,
+        "dynamic_fullcol_guard": 26.623999699950218,
+        "dynamic_persistent_fixed": 26.623999699950218,
+        "best_e1": 18.432000651955605,
+        "best_dynamic": 24.57600086927414,
+        "full_union_AA": 18.432000651955605,
+        "e0_native": 20.447999238967896,
+        "e1_native": 20.479999482631683,
+        "dynamic_emptyguard": 26.623999699950218,
+        "dynamic_v3": 34.78400036692619,
+        "full_union": 18.400000408291817,
+        "best_control": 18.432000651955605,
+        "dynamic_v2": 26.208000257611275,
+        "e4_native": 20.447999238967896
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 1,
+      "direction": "reverse",
+      "order": [
+        "e4_native",
+        "dynamic_v2",
+        "best_control",
+        "full_union",
+        "dynamic_v3",
+        "dynamic_emptyguard",
+        "e1_native",
+        "e0_native",
+        "full_union_AA",
+        "best_dynamic",
+        "best_e1",
+        "dynamic_persistent_fixed",
+        "dynamic_fullcol_guard",
+        "e1_own"
+      ],
+      "us": {
+        "e4_native": 20.479999482631683,
+        "dynamic_v2": 28.672000393271446,
+        "best_control": 18.400000408291817,
+        "full_union": 18.400000408291817,
+        "dynamic_v3": 32.735999673604965,
+        "dynamic_emptyguard": 26.655999943614006,
+        "e1_native": 18.464000895619392,
+        "e0_native": 20.479999482631683,
+        "full_union_AA": 18.432000651955605,
+        "best_dynamic": 24.57600086927414,
+        "best_e1": 18.400000408291817,
+        "dynamic_persistent_fixed": 24.54400062561035,
+        "dynamic_fullcol_guard": 26.59199945628643,
+        "e1_own": 18.400000408291817
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 2,
+      "direction": "random",
+      "order": [
+        "dynamic_persistent_fixed",
+        "e1_own",
+        "e4_native",
+        "dynamic_fullcol_guard",
+        "best_e1",
+        "dynamic_v2",
+        "best_control",
+        "e0_native",
+        "best_dynamic",
+        "dynamic_emptyguard",
+        "full_union_AA",
+        "full_union",
+        "e1_native",
+        "dynamic_v3"
+      ],
+      "us": {
+        "dynamic_persistent_fixed": 24.54400062561035,
+        "e1_own": 18.400000408291817,
+        "e4_native": 20.51199972629547,
+        "dynamic_fullcol_guard": 26.59199945628643,
+        "best_e1": 18.432000651955605,
+        "dynamic_v2": 26.59199945628643,
+        "best_control": 18.400000408291817,
+        "e0_native": 20.479999482631683,
+        "best_dynamic": 24.57600086927414,
+        "dynamic_emptyguard": 26.623999699950218,
+        "full_union_AA": 18.432000651955605,
+        "full_union": 18.400000408291817,
+        "e1_native": 20.51199972629547,
+        "dynamic_v3": 32.76799991726875
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 2,
+      "direction": "reverse",
+      "order": [
+        "dynamic_v3",
+        "e1_native",
+        "full_union",
+        "full_union_AA",
+        "dynamic_emptyguard",
+        "best_dynamic",
+        "e0_native",
+        "best_control",
+        "dynamic_v2",
+        "best_e1",
+        "dynamic_fullcol_guard",
+        "e4_native",
+        "e1_own",
+        "dynamic_persistent_fixed"
+      ],
+      "us": {
+        "dynamic_v3": 32.76799991726875,
+        "e1_native": 20.51199972629547,
+        "full_union": 18.400000408291817,
+        "full_union_AA": 18.432000651955605,
+        "dynamic_emptyguard": 26.59199945628643,
+        "best_dynamic": 24.57600086927414,
+        "e0_native": 20.479999482631683,
+        "best_control": 18.432000651955605,
+        "dynamic_v2": 28.64000014960766,
+        "best_e1": 18.432000651955605,
+        "dynamic_fullcol_guard": 26.623999699950218,
+        "e4_native": 20.479999482631683,
+        "e1_own": 18.400000408291817,
+        "dynamic_persistent_fixed": 24.54400062561035
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 3,
+      "direction": "random",
+      "order": [
+        "dynamic_persistent_fixed",
+        "dynamic_v3",
+        "full_union_AA",
+        "e0_native",
+        "full_union",
+        "dynamic_fullcol_guard",
+        "best_dynamic",
+        "dynamic_emptyguard",
+        "best_e1",
+        "dynamic_v2",
+        "e1_own",
+        "e1_native",
+        "e4_native",
+        "best_control"
+      ],
+      "us": {
+        "dynamic_persistent_fixed": 26.623999699950218,
+        "dynamic_v3": 32.3840007185936,
+        "full_union_AA": 18.400000408291817,
+        "e0_native": 20.479999482631683,
+        "full_union": 18.400000408291817,
+        "dynamic_fullcol_guard": 26.59199945628643,
+        "best_dynamic": 24.54400062561035,
+        "dynamic_emptyguard": 26.623999699950218,
+        "best_e1": 18.400000408291817,
+        "dynamic_v2": 28.672000393271446,
+        "e1_own": 18.400000408291817,
+        "e1_native": 20.479999482631683,
+        "e4_native": 20.447999238967896,
+        "best_control": 18.400000408291817
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 3,
+      "direction": "reverse",
+      "order": [
+        "best_control",
+        "e4_native",
+        "e1_native",
+        "e1_own",
+        "dynamic_v2",
+        "best_e1",
+        "dynamic_emptyguard",
+        "best_dynamic",
+        "dynamic_fullcol_guard",
+        "full_union",
+        "e0_native",
+        "full_union_AA",
+        "dynamic_v3",
+        "dynamic_persistent_fixed"
+      ],
+      "us": {
+        "best_control": 18.432000651955605,
+        "e4_native": 20.479999482631683,
+        "e1_native": 20.479999482631683,
+        "e1_own": 18.400000408291817,
+        "dynamic_v2": 26.623999699950218,
+        "best_e1": 18.432000651955605,
+        "dynamic_emptyguard": 26.623999699950218,
+        "best_dynamic": 24.54400062561035,
+        "dynamic_fullcol_guard": 26.623999699950218,
+        "full_union": 18.400000408291817,
+        "e0_native": 20.479999482631683,
+        "full_union_AA": 18.400000408291817,
+        "dynamic_v3": 32.735999673604965,
+        "dynamic_persistent_fixed": 24.57600086927414
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 4,
+      "direction": "random",
+      "order": [
+        "full_union",
+        "e4_native",
+        "full_union_AA",
+        "best_dynamic",
+        "e1_own",
+        "best_control",
+        "dynamic_persistent_fixed",
+        "dynamic_emptyguard",
+        "dynamic_v2",
+        "best_e1",
+        "dynamic_fullcol_guard",
+        "e1_native",
+        "dynamic_v3",
+        "e0_native"
+      ],
+      "us": {
+        "full_union": 18.464000895619392,
+        "e4_native": 20.479999482631683,
+        "full_union_AA": 18.432000651955605,
+        "best_dynamic": 24.54400062561035,
+        "e1_own": 18.400000408291817,
+        "best_control": 18.400000408291817,
+        "dynamic_persistent_fixed": 24.54400062561035,
+        "dynamic_emptyguard": 26.623999699950218,
+        "dynamic_v2": 26.623999699950218,
+        "best_e1": 18.400000408291817,
+        "dynamic_fullcol_guard": 26.623999699950218,
+        "e1_native": 20.51199972629547,
+        "dynamic_v3": 32.76799991726875,
+        "e0_native": 18.464000895619392
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 4,
+      "direction": "reverse",
+      "order": [
+        "e0_native",
+        "dynamic_v3",
+        "e1_native",
+        "dynamic_fullcol_guard",
+        "best_e1",
+        "dynamic_v2",
+        "dynamic_emptyguard",
+        "dynamic_persistent_fixed",
+        "best_control",
+        "e1_own",
+        "best_dynamic",
+        "full_union_AA",
+        "e4_native",
+        "full_union"
+      ],
+      "us": {
+        "e0_native": 20.479999482631683,
+        "dynamic_v3": 32.76799991726875,
+        "e1_native": 20.479999482631683,
+        "dynamic_fullcol_guard": 26.59199945628643,
+        "best_e1": 18.432000651955605,
+        "dynamic_v2": 28.672000393271446,
+        "dynamic_emptyguard": 26.59199945628643,
+        "dynamic_persistent_fixed": 24.54400062561035,
+        "best_control": 18.464000895619392,
+        "e1_own": 18.400000408291817,
+        "best_dynamic": 24.000000208616257,
+        "full_union_AA": 18.432000651955605,
+        "e4_native": 20.479999482631683,
+        "full_union": 18.400000408291817
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 5,
+      "direction": "random",
+      "order": [
+        "dynamic_fullcol_guard",
+        "e0_native",
+        "best_control",
+        "best_e1",
+        "e1_native",
+        "best_dynamic",
+        "full_union",
+        "full_union_AA",
+        "dynamic_persistent_fixed",
+        "e1_own",
+        "e4_native",
+        "dynamic_emptyguard",
+        "dynamic_v2",
+        "dynamic_v3"
+      ],
+      "us": {
+        "dynamic_fullcol_guard": 26.623999699950218,
+        "e0_native": 20.479999482631683,
+        "best_control": 18.432000651955605,
+        "best_e1": 18.464000895619392,
+        "e1_native": 18.432000651955605,
+        "best_dynamic": 24.54400062561035,
+        "full_union": 18.400000408291817,
+        "full_union_AA": 18.432000651955605,
+        "dynamic_persistent_fixed": 24.57600086927414,
+        "e1_own": 18.432000651955605,
+        "e4_native": 20.51199972629547,
+        "dynamic_emptyguard": 26.59199945628643,
+        "dynamic_v2": 28.64000014960766,
+        "dynamic_v3": 32.76799991726875
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 5,
+      "direction": "reverse",
+      "order": [
+        "dynamic_v3",
+        "dynamic_v2",
+        "dynamic_emptyguard",
+        "e4_native",
+        "e1_own",
+        "dynamic_persistent_fixed",
+        "full_union_AA",
+        "full_union",
+        "best_dynamic",
+        "e1_native",
+        "best_e1",
+        "best_control",
+        "e0_native",
+        "dynamic_fullcol_guard"
+      ],
+      "us": {
+        "dynamic_v3": 32.735999673604965,
+        "dynamic_v2": 26.59199945628643,
+        "dynamic_emptyguard": 26.59199945628643,
+        "e4_native": 20.447999238967896,
+        "e1_own": 17.983999103307724,
+        "dynamic_persistent_fixed": 24.54400062561035,
+        "full_union_AA": 18.432000651955605,
+        "full_union": 18.015999346971512,
+        "best_dynamic": 24.57600086927414,
+        "e1_native": 18.464000895619392,
+        "best_e1": 18.432000651955605,
+        "best_control": 18.432000651955605,
+        "e0_native": 18.432000651955605,
+        "dynamic_fullcol_guard": 26.623999699950218
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 6,
+      "direction": "random",
+      "order": [
+        "best_dynamic",
+        "e1_native",
+        "dynamic_persistent_fixed",
+        "full_union",
+        "dynamic_v2",
+        "full_union_AA",
+        "dynamic_emptyguard",
+        "e4_native",
+        "dynamic_fullcol_guard",
+        "e1_own",
+        "best_e1",
+        "best_control",
+        "dynamic_v3",
+        "e0_native"
+      ],
+      "us": {
+        "best_dynamic": 24.54400062561035,
+        "e1_native": 20.479999482631683,
+        "dynamic_persistent_fixed": 26.59199945628643,
+        "full_union": 18.400000408291817,
+        "dynamic_v2": 26.59199945628643,
+        "full_union_AA": 18.432000651955605,
+        "dynamic_emptyguard": 28.672000393271446,
+        "e4_native": 20.479999482631683,
+        "dynamic_fullcol_guard": 26.079999282956123,
+        "e1_own": 18.400000408291817,
+        "best_e1": 18.464000895619392,
+        "best_control": 18.432000651955605,
+        "dynamic_v3": 32.76799991726875,
+        "e0_native": 18.400000408291817
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 6,
+      "direction": "reverse",
+      "order": [
+        "e0_native",
+        "dynamic_v3",
+        "best_control",
+        "best_e1",
+        "e1_own",
+        "dynamic_fullcol_guard",
+        "e4_native",
+        "dynamic_emptyguard",
+        "full_union_AA",
+        "dynamic_v2",
+        "full_union",
+        "dynamic_persistent_fixed",
+        "e1_native",
+        "best_dynamic"
+      ],
+      "us": {
+        "e0_native": 18.432000651955605,
+        "dynamic_v3": 34.81600061058998,
+        "best_control": 18.432000651955605,
+        "best_e1": 18.464000895619392,
+        "e1_own": 18.400000408291817,
+        "dynamic_fullcol_guard": 26.59199945628643,
+        "e4_native": 20.479999482631683,
+        "dynamic_emptyguard": 26.623999699950218,
+        "full_union_AA": 18.432000651955605,
+        "dynamic_v2": 28.672000393271446,
+        "full_union": 18.400000408291817,
+        "dynamic_persistent_fixed": 24.54400062561035,
+        "e1_native": 20.447999238967896,
+        "best_dynamic": 24.54400062561035
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 7,
+      "direction": "random",
+      "order": [
+        "best_control",
+        "dynamic_fullcol_guard",
+        "best_dynamic",
+        "dynamic_v2",
+        "e1_native",
+        "full_union",
+        "dynamic_persistent_fixed",
+        "full_union_AA",
+        "best_e1",
+        "dynamic_emptyguard",
+        "dynamic_v3",
+        "e1_own",
+        "e0_native",
+        "e4_native"
+      ],
+      "us": {
+        "best_control": 16.35199971497059,
+        "dynamic_fullcol_guard": 26.623999699950218,
+        "best_dynamic": 26.623999699950218,
+        "dynamic_v2": 26.59199945628643,
+        "e1_native": 18.432000651955605,
+        "full_union": 18.432000651955605,
+        "dynamic_persistent_fixed": 26.623999699950218,
+        "full_union_AA": 17.983999103307724,
+        "best_e1": 18.432000651955605,
+        "dynamic_emptyguard": 26.623999699950218,
+        "dynamic_v3": 32.76799991726875,
+        "e1_own": 18.400000408291817,
+        "e0_native": 18.432000651955605,
+        "e4_native": 20.447999238967896
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 7,
+      "direction": "reverse",
+      "order": [
+        "e4_native",
+        "e0_native",
+        "e1_own",
+        "dynamic_v3",
+        "dynamic_emptyguard",
+        "best_e1",
+        "full_union_AA",
+        "dynamic_persistent_fixed",
+        "full_union",
+        "e1_native",
+        "dynamic_v2",
+        "best_dynamic",
+        "dynamic_fullcol_guard",
+        "best_control"
+      ],
+      "us": {
+        "e4_native": 20.479999482631683,
+        "e0_native": 17.920000478625298,
+        "e1_own": 18.432000651955605,
+        "dynamic_v3": 32.76799991726875,
+        "dynamic_emptyguard": 26.623999699950218,
+        "best_e1": 18.464000895619392,
+        "full_union_AA": 18.432000651955605,
+        "dynamic_persistent_fixed": 26.623999699950218,
+        "full_union": 18.432000651955605,
+        "e1_native": 20.479999482631683,
+        "dynamic_v2": 28.672000393271446,
+        "best_dynamic": 24.57600086927414,
+        "dynamic_fullcol_guard": 26.59199945628643,
+        "best_control": 18.432000651955605
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 8,
+      "direction": "random",
+      "order": [
+        "e1_native",
+        "dynamic_emptyguard",
+        "full_union_AA",
+        "best_e1",
+        "dynamic_fullcol_guard",
+        "dynamic_v3",
+        "e4_native",
+        "best_control",
+        "e0_native",
+        "e1_own",
+        "dynamic_v2",
+        "dynamic_persistent_fixed",
+        "best_dynamic",
+        "full_union"
+      ],
+      "us": {
+        "e1_native": 20.479999482631683,
+        "dynamic_emptyguard": 26.623999699950218,
+        "full_union_AA": 18.432000651955605,
+        "best_e1": 18.432000651955605,
+        "dynamic_fullcol_guard": 26.59199945628643,
+        "dynamic_v3": 32.735999673604965,
+        "e4_native": 20.479999482631683,
+        "best_control": 18.432000651955605,
+        "e0_native": 18.432000651955605,
+        "e1_own": 18.400000408291817,
+        "dynamic_v2": 26.623999699950218,
+        "dynamic_persistent_fixed": 24.54400062561035,
+        "best_dynamic": 24.54400062561035,
+        "full_union": 18.400000408291817
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 8,
+      "direction": "reverse",
+      "order": [
+        "full_union",
+        "best_dynamic",
+        "dynamic_persistent_fixed",
+        "dynamic_v2",
+        "e1_own",
+        "e0_native",
+        "best_control",
+        "e4_native",
+        "dynamic_v3",
+        "dynamic_fullcol_guard",
+        "best_e1",
+        "full_union_AA",
+        "dynamic_emptyguard",
+        "e1_native"
+      ],
+      "us": {
+        "full_union": 18.400000408291817,
+        "best_dynamic": 24.54400062561035,
+        "dynamic_persistent_fixed": 26.623999699950218,
+        "dynamic_v2": 26.59199945628643,
+        "e1_own": 18.432000651955605,
+        "e0_native": 18.432000651955605,
+        "best_control": 18.400000408291817,
+        "e4_native": 20.479999482631683,
+        "dynamic_v3": 32.76799991726875,
+        "dynamic_fullcol_guard": 26.623999699950218,
+        "best_e1": 18.400000408291817,
+        "full_union_AA": 18.400000408291817,
+        "dynamic_emptyguard": 26.59199945628643,
+        "e1_native": 20.479999482631683
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 9,
+      "direction": "random",
+      "order": [
+        "e4_native",
+        "e0_native",
+        "best_dynamic",
+        "full_union_AA",
+        "full_union",
+        "dynamic_v2",
+        "e1_native",
+        "dynamic_v3",
+        "best_control",
+        "dynamic_fullcol_guard",
+        "dynamic_emptyguard",
+        "e1_own",
+        "dynamic_persistent_fixed",
+        "best_e1"
+      ],
+      "us": {
+        "e4_native": 20.479999482631683,
+        "e0_native": 18.464000895619392,
+        "best_dynamic": 26.623999699950218,
+        "full_union_AA": 18.432000651955605,
+        "full_union": 18.400000408291817,
+        "dynamic_v2": 26.623999699950218,
+        "e1_native": 20.479999482631683,
+        "dynamic_v3": 32.735999673604965,
+        "best_control": 18.400000408291817,
+        "dynamic_fullcol_guard": 26.59199945628643,
+        "dynamic_emptyguard": 26.623999699950218,
+        "e1_own": 18.400000408291817,
+        "dynamic_persistent_fixed": 24.54400062561035,
+        "best_e1": 18.432000651955605
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 9,
+      "direction": "reverse",
+      "order": [
+        "best_e1",
+        "dynamic_persistent_fixed",
+        "e1_own",
+        "dynamic_emptyguard",
+        "dynamic_fullcol_guard",
+        "best_control",
+        "dynamic_v3",
+        "e1_native",
+        "dynamic_v2",
+        "full_union",
+        "full_union_AA",
+        "best_dynamic",
+        "e0_native",
+        "e4_native"
+      ],
+      "us": {
+        "best_e1": 18.400000408291817,
+        "dynamic_persistent_fixed": 24.57600086927414,
+        "e1_own": 18.015999346971512,
+        "dynamic_emptyguard": 26.59199945628643,
+        "dynamic_fullcol_guard": 26.59199945628643,
+        "best_control": 18.432000651955605,
+        "dynamic_v3": 32.76799991726875,
+        "e1_native": 20.479999482631683,
+        "dynamic_v2": 26.623999699950218,
+        "full_union": 18.400000408291817,
+        "full_union_AA": 18.432000651955605,
+        "best_dynamic": 26.623999699950218,
+        "e0_native": 18.432000651955605,
+        "e4_native": 20.479999482631683
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 10,
+      "direction": "random",
+      "order": [
+        "full_union",
+        "dynamic_v2",
+        "e1_own",
+        "dynamic_persistent_fixed",
+        "e4_native",
+        "best_control",
+        "dynamic_emptyguard",
+        "best_e1",
+        "best_dynamic",
+        "dynamic_v3",
+        "e0_native",
+        "dynamic_fullcol_guard",
+        "e1_native",
+        "full_union_AA"
+      ],
+      "us": {
+        "full_union": 18.400000408291817,
+        "dynamic_v2": 26.208000257611275,
+        "e1_own": 18.400000408291817,
+        "dynamic_persistent_fixed": 24.54400062561035,
+        "e4_native": 20.51199972629547,
+        "best_control": 18.432000651955605,
+        "dynamic_emptyguard": 26.623999699950218,
+        "best_e1": 20.479999482631683,
+        "best_dynamic": 24.54400062561035,
+        "dynamic_v3": 32.76799991726875,
+        "e0_native": 18.432000651955605,
+        "dynamic_fullcol_guard": 28.64000014960766,
+        "e1_native": 18.432000651955605,
+        "full_union_AA": 18.400000408291817
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 10,
+      "direction": "reverse",
+      "order": [
+        "full_union_AA",
+        "e1_native",
+        "dynamic_fullcol_guard",
+        "e0_native",
+        "dynamic_v3",
+        "best_dynamic",
+        "best_e1",
+        "dynamic_emptyguard",
+        "best_control",
+        "e4_native",
+        "dynamic_persistent_fixed",
+        "e1_own",
+        "dynamic_v2",
+        "full_union"
+      ],
+      "us": {
+        "full_union_AA": 18.400000408291817,
+        "e1_native": 20.479999482631683,
+        "dynamic_fullcol_guard": 26.59199945628643,
+        "e0_native": 18.400000408291817,
+        "dynamic_v3": 34.78400036692619,
+        "best_dynamic": 24.159999564290047,
+        "best_e1": 18.432000651955605,
+        "dynamic_emptyguard": 26.59199945628643,
+        "best_control": 18.432000651955605,
+        "e4_native": 20.479999482631683,
+        "dynamic_persistent_fixed": 26.623999699950218,
+        "e1_own": 18.015999346971512,
+        "dynamic_v2": 26.655999943614006,
+        "full_union": 18.464000895619392
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 11,
+      "direction": "random",
+      "order": [
+        "best_dynamic",
+        "e1_own",
+        "dynamic_emptyguard",
+        "full_union_AA",
+        "best_e1",
+        "e0_native",
+        "dynamic_v2",
+        "dynamic_v3",
+        "e4_native",
+        "dynamic_persistent_fixed",
+        "e1_native",
+        "dynamic_fullcol_guard",
+        "best_control",
+        "full_union"
+      ],
+      "us": {
+        "best_dynamic": 24.54400062561035,
+        "e1_own": 18.400000408291817,
+        "dynamic_emptyguard": 26.623999699950218,
+        "full_union_AA": 18.432000651955605,
+        "best_e1": 18.400000408291817,
+        "e0_native": 18.400000408291817,
+        "dynamic_v2": 28.672000393271446,
+        "dynamic_v3": 32.76799991726875,
+        "e4_native": 20.479999482631683,
+        "dynamic_persistent_fixed": 26.623999699950218,
+        "e1_native": 20.479999482631683,
+        "dynamic_fullcol_guard": 26.59199945628643,
+        "best_control": 18.400000408291817,
+        "full_union": 18.400000408291817
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 11,
+      "direction": "reverse",
+      "order": [
+        "full_union",
+        "best_control",
+        "dynamic_fullcol_guard",
+        "e1_native",
+        "dynamic_persistent_fixed",
+        "e4_native",
+        "dynamic_v3",
+        "dynamic_v2",
+        "e0_native",
+        "best_e1",
+        "full_union_AA",
+        "dynamic_emptyguard",
+        "e1_own",
+        "best_dynamic"
+      ],
+      "us": {
+        "full_union": 18.432000651955605,
+        "best_control": 18.432000651955605,
+        "dynamic_fullcol_guard": 26.623999699950218,
+        "e1_native": 20.51199972629547,
+        "dynamic_persistent_fixed": 24.57600086927414,
+        "e4_native": 20.479999482631683,
+        "dynamic_v3": 32.76799991726875,
+        "dynamic_v2": 28.672000393271446,
+        "e0_native": 18.432000651955605,
+        "best_e1": 18.432000651955605,
+        "full_union_AA": 18.432000651955605,
+        "dynamic_emptyguard": 28.672000393271446,
+        "e1_own": 18.400000408291817,
+        "best_dynamic": 24.54400062561035
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 12,
+      "direction": "random",
+      "order": [
+        "full_union",
+        "dynamic_fullcol_guard",
+        "e1_own",
+        "dynamic_emptyguard",
+        "e0_native",
+        "dynamic_v3",
+        "best_control",
+        "best_dynamic",
+        "best_e1",
+        "dynamic_persistent_fixed",
+        "e4_native",
+        "full_union_AA",
+        "e1_native",
+        "dynamic_v2"
+      ],
+      "us": {
+        "full_union": 18.432000651955605,
+        "dynamic_fullcol_guard": 26.59199945628643,
+        "e1_own": 18.400000408291817,
+        "dynamic_emptyguard": 26.623999699950218,
+        "e0_native": 18.432000651955605,
+        "dynamic_v3": 32.76799991726875,
+        "best_control": 18.432000651955605,
+        "best_dynamic": 26.623999699950218,
+        "best_e1": 18.432000651955605,
+        "dynamic_persistent_fixed": 24.57600086927414,
+        "e4_native": 20.479999482631683,
+        "full_union_AA": 18.432000651955605,
+        "e1_native": 20.479999482631683,
+        "dynamic_v2": 28.704000636935234
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 12,
+      "direction": "reverse",
+      "order": [
+        "dynamic_v2",
+        "e1_native",
+        "full_union_AA",
+        "e4_native",
+        "dynamic_persistent_fixed",
+        "best_e1",
+        "best_dynamic",
+        "best_control",
+        "dynamic_v3",
+        "e0_native",
+        "dynamic_emptyguard",
+        "e1_own",
+        "dynamic_fullcol_guard",
+        "full_union"
+      ],
+      "us": {
+        "dynamic_v2": 26.59199945628643,
+        "e1_native": 20.479999482631683,
+        "full_union_AA": 18.432000651955605,
+        "e4_native": 20.447999238967896,
+        "dynamic_persistent_fixed": 24.54400062561035,
+        "best_e1": 18.432000651955605,
+        "best_dynamic": 24.54400062561035,
+        "best_control": 18.432000651955605,
+        "dynamic_v3": 32.76799991726875,
+        "e0_native": 18.432000651955605,
+        "dynamic_emptyguard": 26.623999699950218,
+        "e1_own": 18.400000408291817,
+        "dynamic_fullcol_guard": 26.623999699950218,
+        "full_union": 18.400000408291817
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 13,
+      "direction": "random",
+      "order": [
+        "dynamic_fullcol_guard",
+        "e1_native",
+        "full_union_AA",
+        "dynamic_emptyguard",
+        "best_dynamic",
+        "best_e1",
+        "dynamic_v2",
+        "e4_native",
+        "e1_own",
+        "dynamic_v3",
+        "dynamic_persistent_fixed",
+        "full_union",
+        "e0_native",
+        "best_control"
+      ],
+      "us": {
+        "dynamic_fullcol_guard": 26.59199945628643,
+        "e1_native": 18.400000408291817,
+        "full_union_AA": 18.400000408291817,
+        "dynamic_emptyguard": 26.623999699950218,
+        "best_dynamic": 24.57600086927414,
+        "best_e1": 18.432000651955605,
+        "dynamic_v2": 28.672000393271446,
+        "e4_native": 20.479999482631683,
+        "e1_own": 18.400000408291817,
+        "dynamic_v3": 34.81600061058998,
+        "dynamic_persistent_fixed": 24.54400062561035,
+        "full_union": 18.432000651955605,
+        "e0_native": 20.479999482631683,
+        "best_control": 18.464000895619392
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 13,
+      "direction": "reverse",
+      "order": [
+        "best_control",
+        "e0_native",
+        "full_union",
+        "dynamic_persistent_fixed",
+        "dynamic_v3",
+        "e1_own",
+        "e4_native",
+        "dynamic_v2",
+        "best_e1",
+        "best_dynamic",
+        "dynamic_emptyguard",
+        "full_union_AA",
+        "e1_native",
+        "dynamic_fullcol_guard"
+      ],
+      "us": {
+        "best_control": 18.432000651955605,
+        "e0_native": 18.400000408291817,
+        "full_union": 18.432000651955605,
+        "dynamic_persistent_fixed": 24.54400062561035,
+        "dynamic_v3": 32.80000016093254,
+        "e1_own": 18.400000408291817,
+        "e4_native": 20.06400004029274,
+        "dynamic_v2": 28.672000393271446,
+        "best_e1": 18.432000651955605,
+        "best_dynamic": 24.57600086927414,
+        "dynamic_emptyguard": 26.655999943614006,
+        "full_union_AA": 18.432000651955605,
+        "e1_native": 18.015999346971512,
+        "dynamic_fullcol_guard": 26.59199945628643
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 14,
+      "direction": "random",
+      "order": [
+        "dynamic_fullcol_guard",
+        "best_dynamic",
+        "e1_native",
+        "dynamic_v2",
+        "best_control",
+        "full_union",
+        "full_union_AA",
+        "dynamic_emptyguard",
+        "best_e1",
+        "e4_native",
+        "dynamic_v3",
+        "e1_own",
+        "dynamic_persistent_fixed",
+        "e0_native"
+      ],
+      "us": {
+        "dynamic_fullcol_guard": 26.59199945628643,
+        "best_dynamic": 24.54400062561035,
+        "e1_native": 18.432000651955605,
+        "dynamic_v2": 26.208000257611275,
+        "best_control": 18.432000651955605,
+        "full_union": 18.432000651955605,
+        "full_union_AA": 18.432000651955605,
+        "dynamic_emptyguard": 26.623999699950218,
+        "best_e1": 18.400000408291817,
+        "e4_native": 22.52800017595291,
+        "dynamic_v3": 34.81600061058998,
+        "e1_own": 20.479999482631683,
+        "dynamic_persistent_fixed": 24.57600086927414,
+        "e0_native": 20.51199972629547
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 14,
+      "direction": "reverse",
+      "order": [
+        "e0_native",
+        "dynamic_persistent_fixed",
+        "e1_own",
+        "dynamic_v3",
+        "e4_native",
+        "best_e1",
+        "dynamic_emptyguard",
+        "full_union_AA",
+        "full_union",
+        "best_control",
+        "dynamic_v2",
+        "e1_native",
+        "best_dynamic",
+        "dynamic_fullcol_guard"
+      ],
+      "us": {
+        "e0_native": 18.400000408291817,
+        "dynamic_persistent_fixed": 24.54400062561035,
+        "e1_own": 18.400000408291817,
+        "dynamic_v3": 32.76799991726875,
+        "e4_native": 20.479999482631683,
+        "best_e1": 18.400000408291817,
+        "dynamic_emptyguard": 26.623999699950218,
+        "full_union_AA": 18.432000651955605,
+        "full_union": 18.400000408291817,
+        "best_control": 18.432000651955605,
+        "dynamic_v2": 26.623999699950218,
+        "e1_native": 18.432000651955605,
+        "best_dynamic": 24.54400062561035,
+        "dynamic_fullcol_guard": 26.623999699950218
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 15,
+      "direction": "random",
+      "order": [
+        "dynamic_emptyguard",
+        "full_union",
+        "best_control",
+        "best_e1",
+        "e1_native",
+        "full_union_AA",
+        "best_dynamic",
+        "dynamic_fullcol_guard",
+        "dynamic_v3",
+        "dynamic_persistent_fixed",
+        "e1_own",
+        "e4_native",
+        "dynamic_v2",
+        "e0_native"
+      ],
+      "us": {
+        "dynamic_emptyguard": 26.623999699950218,
+        "full_union": 18.400000408291817,
+        "best_control": 18.432000651955605,
+        "best_e1": 18.432000651955605,
+        "e1_native": 20.51199972629547,
+        "full_union_AA": 18.432000651955605,
+        "best_dynamic": 24.57600086927414,
+        "dynamic_fullcol_guard": 26.59199945628643,
+        "dynamic_v3": 32.735999673604965,
+        "dynamic_persistent_fixed": 24.57600086927414,
+        "e1_own": 17.983999103307724,
+        "e4_native": 20.479999482631683,
+        "dynamic_v2": 28.672000393271446,
+        "e0_native": 18.432000651955605
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 15,
+      "direction": "reverse",
+      "order": [
+        "e0_native",
+        "dynamic_v2",
+        "e4_native",
+        "e1_own",
+        "dynamic_persistent_fixed",
+        "dynamic_v3",
+        "dynamic_fullcol_guard",
+        "best_dynamic",
+        "full_union_AA",
+        "e1_native",
+        "best_e1",
+        "best_control",
+        "full_union",
+        "dynamic_emptyguard"
+      ],
+      "us": {
+        "e0_native": 18.464000895619392,
+        "dynamic_v2": 26.59199945628643,
+        "e4_native": 20.479999482631683,
+        "e1_own": 18.432000651955605,
+        "dynamic_persistent_fixed": 24.54400062561035,
+        "dynamic_v3": 32.76799991726875,
+        "dynamic_fullcol_guard": 24.57600086927414,
+        "best_dynamic": 24.57600086927414,
+        "full_union_AA": 18.015999346971512,
+        "e1_native": 20.479999482631683,
+        "best_e1": 16.35199971497059,
+        "best_control": 18.432000651955605,
+        "full_union": 18.400000408291817,
+        "dynamic_emptyguard": 26.59199945628643
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 16,
+      "direction": "random",
+      "order": [
+        "dynamic_v3",
+        "e1_native",
+        "e1_own",
+        "e0_native",
+        "e4_native",
+        "best_control",
+        "best_e1",
+        "best_dynamic",
+        "dynamic_persistent_fixed",
+        "dynamic_fullcol_guard",
+        "dynamic_emptyguard",
+        "full_union_AA",
+        "dynamic_v2",
+        "full_union"
+      ],
+      "us": {
+        "dynamic_v3": 32.76799991726875,
+        "e1_native": 20.479999482631683,
+        "e1_own": 18.400000408291817,
+        "e0_native": 20.479999482631683,
+        "e4_native": 20.479999482631683,
+        "best_control": 18.432000651955605,
+        "best_e1": 18.400000408291817,
+        "best_dynamic": 24.54400062561035,
+        "dynamic_persistent_fixed": 24.09599907696247,
+        "dynamic_fullcol_guard": 26.623999699950218,
+        "dynamic_emptyguard": 26.59199945628643,
+        "full_union_AA": 18.432000651955605,
+        "dynamic_v2": 26.59199945628643,
+        "full_union": 18.400000408291817
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 16,
+      "direction": "reverse",
+      "order": [
+        "full_union",
+        "dynamic_v2",
+        "full_union_AA",
+        "dynamic_emptyguard",
+        "dynamic_fullcol_guard",
+        "dynamic_persistent_fixed",
+        "best_dynamic",
+        "best_e1",
+        "best_control",
+        "e4_native",
+        "e0_native",
+        "e1_own",
+        "e1_native",
+        "dynamic_v3"
+      ],
+      "us": {
+        "full_union": 18.432000651955605,
+        "dynamic_v2": 26.623999699950218,
+        "full_union_AA": 18.400000408291817,
+        "dynamic_emptyguard": 26.623999699950218,
+        "dynamic_fullcol_guard": 26.59199945628643,
+        "dynamic_persistent_fixed": 24.54400062561035,
+        "best_dynamic": 24.57600086927414,
+        "best_e1": 18.432000651955605,
+        "best_control": 17.983999103307724,
+        "e4_native": 20.479999482631683,
+        "e0_native": 18.432000651955605,
+        "e1_own": 18.432000651955605,
+        "e1_native": 20.447999238967896,
+        "dynamic_v3": 32.76799991726875
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 17,
+      "direction": "random",
+      "order": [
+        "dynamic_fullcol_guard",
+        "dynamic_emptyguard",
+        "dynamic_v3",
+        "full_union_AA",
+        "e1_own",
+        "e0_native",
+        "best_dynamic",
+        "dynamic_v2",
+        "best_control",
+        "full_union",
+        "e4_native",
+        "best_e1",
+        "e1_native",
+        "dynamic_persistent_fixed"
+      ],
+      "us": {
+        "dynamic_fullcol_guard": 26.59199945628643,
+        "dynamic_emptyguard": 26.623999699950218,
+        "dynamic_v3": 32.76799991726875,
+        "full_union_AA": 18.432000651955605,
+        "e1_own": 18.400000408291817,
+        "e0_native": 18.432000651955605,
+        "best_dynamic": 24.57600086927414,
+        "dynamic_v2": 28.672000393271446,
+        "best_control": 18.432000651955605,
+        "full_union": 18.400000408291817,
+        "e4_native": 20.479999482631683,
+        "best_e1": 18.432000651955605,
+        "e1_native": 20.479999482631683,
+        "dynamic_persistent_fixed": 24.57600086927414
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 17,
+      "direction": "reverse",
+      "order": [
+        "dynamic_persistent_fixed",
+        "e1_native",
+        "best_e1",
+        "e4_native",
+        "full_union",
+        "best_control",
+        "dynamic_v2",
+        "best_dynamic",
+        "e0_native",
+        "e1_own",
+        "full_union_AA",
+        "dynamic_v3",
+        "dynamic_emptyguard",
+        "dynamic_fullcol_guard"
+      ],
+      "us": {
+        "dynamic_persistent_fixed": 24.54400062561035,
+        "e1_native": 17.88800023496151,
+        "best_e1": 18.432000651955605,
+        "e4_native": 20.479999482631683,
+        "full_union": 18.432000651955605,
+        "best_control": 18.432000651955605,
+        "dynamic_v2": 26.623999699950218,
+        "best_dynamic": 24.57600086927414,
+        "e0_native": 18.400000408291817,
+        "e1_own": 18.400000408291817,
+        "full_union_AA": 18.432000651955605,
+        "dynamic_v3": 34.78400036692619,
+        "dynamic_emptyguard": 26.655999943614006,
+        "dynamic_fullcol_guard": 26.59199945628643
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 18,
+      "direction": "random",
+      "order": [
+        "e4_native",
+        "full_union",
+        "dynamic_v2",
+        "dynamic_emptyguard",
+        "e0_native",
+        "dynamic_persistent_fixed",
+        "e1_native",
+        "full_union_AA",
+        "e1_own",
+        "dynamic_v3",
+        "best_dynamic",
+        "dynamic_fullcol_guard",
+        "best_e1",
+        "best_control"
+      ],
+      "us": {
+        "e4_native": 20.447999238967896,
+        "full_union": 20.479999482631683,
+        "dynamic_v2": 26.59199945628643,
+        "dynamic_emptyguard": 26.59199945628643,
+        "e0_native": 18.432000651955605,
+        "dynamic_persistent_fixed": 26.623999699950218,
+        "e1_native": 20.479999482631683,
+        "full_union_AA": 18.432000651955605,
+        "e1_own": 18.400000408291817,
+        "dynamic_v3": 32.76799991726875,
+        "best_dynamic": 24.54400062561035,
+        "dynamic_fullcol_guard": 26.623999699950218,
+        "best_e1": 18.400000408291817,
+        "best_control": 18.400000408291817
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 18,
+      "direction": "reverse",
+      "order": [
+        "best_control",
+        "best_e1",
+        "dynamic_fullcol_guard",
+        "best_dynamic",
+        "dynamic_v3",
+        "e1_own",
+        "full_union_AA",
+        "e1_native",
+        "dynamic_persistent_fixed",
+        "e0_native",
+        "dynamic_emptyguard",
+        "dynamic_v2",
+        "full_union",
+        "e4_native"
+      ],
+      "us": {
+        "best_control": 18.015999346971512,
+        "best_e1": 18.432000651955605,
+        "dynamic_fullcol_guard": 26.623999699950218,
+        "best_dynamic": 26.623999699950218,
+        "dynamic_v3": 34.78400036692619,
+        "e1_own": 18.400000408291817,
+        "full_union_AA": 17.983999103307724,
+        "e1_native": 18.432000651955605,
+        "dynamic_persistent_fixed": 24.54400062561035,
+        "e0_native": 20.447999238967896,
+        "dynamic_emptyguard": 26.623999699950218,
+        "dynamic_v2": 26.59199945628643,
+        "full_union": 18.432000651955605,
+        "e4_native": 20.447999238967896
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 19,
+      "direction": "random",
+      "order": [
+        "e0_native",
+        "dynamic_v2",
+        "full_union",
+        "e1_own",
+        "best_control",
+        "dynamic_v3",
+        "dynamic_persistent_fixed",
+        "best_e1",
+        "dynamic_emptyguard",
+        "e1_native",
+        "dynamic_fullcol_guard",
+        "best_dynamic",
+        "e4_native",
+        "full_union_AA"
+      ],
+      "us": {
+        "e0_native": 20.479999482631683,
+        "dynamic_v2": 26.623999699950218,
+        "full_union": 18.464000895619392,
+        "e1_own": 18.432000651955605,
+        "best_control": 18.432000651955605,
+        "dynamic_v3": 34.81600061058998,
+        "dynamic_persistent_fixed": 26.623999699950218,
+        "best_e1": 18.015999346971512,
+        "dynamic_emptyguard": 26.655999943614006,
+        "e1_native": 20.447999238967896,
+        "dynamic_fullcol_guard": 26.623999699950218,
+        "best_dynamic": 26.623999699950218,
+        "e4_native": 20.479999482631683,
+        "full_union_AA": 18.400000408291817
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 19,
+      "direction": "reverse",
+      "order": [
+        "full_union_AA",
+        "e4_native",
+        "best_dynamic",
+        "dynamic_fullcol_guard",
+        "e1_native",
+        "dynamic_emptyguard",
+        "best_e1",
+        "dynamic_persistent_fixed",
+        "dynamic_v3",
+        "best_control",
+        "e1_own",
+        "full_union",
+        "dynamic_v2",
+        "e0_native"
+      ],
+      "us": {
+        "full_union_AA": 18.432000651955605,
+        "e4_native": 20.479999482631683,
+        "best_dynamic": 24.607999250292778,
+        "dynamic_fullcol_guard": 26.623999699950218,
+        "e1_native": 18.432000651955605,
+        "dynamic_emptyguard": 28.672000393271446,
+        "best_e1": 18.400000408291817,
+        "dynamic_persistent_fixed": 26.623999699950218,
+        "dynamic_v3": 32.76799991726875,
+        "best_control": 18.015999346971512,
+        "e1_own": 18.432000651955605,
+        "full_union": 18.400000408291817,
+        "dynamic_v2": 28.672000393271446,
+        "e0_native": 18.432000651955605
+      }
+    }
+  ],
+  "summary": {
+    "hot": {
+      "median_us": {
+        "e0_native": 9.967999905347824,
+        "full_union": 8.419999852776527,
+        "e1_native": 9.257599711418152,
+        "e1_own": 8.416000008583069,
+        "e4_native": 9.537599980831146,
+        "dynamic_v2": 15.680000185966492,
+        "dynamic_v3": 20.80480009317398,
+        "dynamic_emptyguard": 16.64080023765564,
+        "dynamic_fullcol_guard": 16.919200122356415,
+        "dynamic_persistent_fixed": 14.7536002099514,
+        "best_e1": 8.41279998421669,
+        "best_dynamic": 14.744800329208374,
+        "best_control": 8.417599648237228,
+        "full_union_AA": 8.410400152206421
+      },
+      "paired_ratios": {
+        "full_union_over_best_e1": {
+          "median": 1.0007591462463603,
+          "paired_block_bootstrap95": [
+            0.999809731709309,
+            1.0015220816122796
+          ]
+        },
+        "full_union_over_e4_native": {
+          "median": 0.8828472063427888,
+          "paired_block_bootstrap95": [
+            0.8821704205228382,
+            0.8839691190859322
+          ]
+        },
+        "best_e1_over_e4_native": {
+          "median": 0.8824616767952096,
+          "paired_block_bootstrap95": [
+            0.8817024675633631,
+            0.8835146165035813
+          ]
+        },
+        "full_union_over_full_union_AA": {
+          "median": 1.000571145053398,
+          "paired_block_bootstrap95": [
+            0.9996203373669055,
+            1.002284337576675
+          ]
+        },
+        "best_control_over_best_dynamic": {
+          "median": 0.5711504282347339,
+          "paired_block_bootstrap95": [
+            0.5701429529340396,
+            0.5714130298774796
+          ]
+        },
+        "best_control_over_dynamic_v2": {
+          "median": 0.5367482019738345,
+          "paired_block_bootstrap95": [
+            0.5361551027379825,
+            0.537566354118388
+          ]
+        },
+        "best_control_over_dynamic_v3": {
+          "median": 0.4043298234797902,
+          "paired_block_bootstrap95": [
+            0.4037687860463169,
+            0.4049357876467118
+          ]
+        },
+        "best_control_over_dynamic_emptyguard": {
+          "median": 0.5048483988058129,
+          "paired_block_bootstrap95": [
+            0.5043578931009199,
+            0.5057283468167543
+          ]
+        },
+        "best_control_over_dynamic_fullcol_guard": {
+          "median": 0.4972159201365811,
+          "paired_block_bootstrap95": [
+            0.49667065391156384,
+            0.4981554801222277
+          ]
+        },
+        "dynamic_emptyguard_over_dynamic_fullcol_guard": {
+          "median": 0.983248916019459,
+          "paired_block_bootstrap95": [
+            0.9828696164144206,
+            0.9852022648270593
+          ]
+        },
+        "best_control_over_dynamic_persistent_fixed": {
+          "median": 0.5711188106327604,
+          "paired_block_bootstrap95": [
+            0.5695873896922873,
+            0.5718319355572078
+          ]
+        },
+        "dynamic_fullcol_guard_over_dynamic_persistent_fixed": {
+          "median": 1.1471593590816027,
+          "paired_block_bootstrap95": [
+            1.146140610797285,
+            1.148814389481116
+          ]
+        }
+      }
+    },
+    "cold": {
+      "median_us": {
+        "e0_native": 18.432000651955605,
+        "full_union": 18.400000408291817,
+        "e1_native": 20.479999482631683,
+        "e1_own": 18.400000408291817,
+        "e4_native": 20.479999482631683,
+        "dynamic_v2": 26.623999699950218,
+        "dynamic_v3": 32.76799991726875,
+        "dynamic_emptyguard": 26.623999699950218,
+        "dynamic_fullcol_guard": 26.59199945628643,
+        "dynamic_persistent_fixed": 24.560000747442245,
+        "best_e1": 18.432000651955605,
+        "best_dynamic": 24.57600086927414,
+        "best_control": 18.432000651955605,
+        "full_union_AA": 18.432000651955605
+      },
+      "paired_ratios": {
+        "full_union_over_best_e1": {
+          "median": 1.0,
+          "paired_block_bootstrap95": [
+            0.9982638757306905,
+            1.0
+          ]
+        },
+        "full_union_over_e4_native": {
+          "median": 0.8984375426325653,
+          "paired_block_bootstrap95": [
+            0.8984375426325653,
+            0.8999218067523118
+          ]
+        },
+        "best_e1_over_e4_native": {
+          "median": 0.9000000545696835,
+          "paired_block_bootstrap95": [
+            0.8999218067523118,
+            0.9000000545696835
+          ]
+        },
+        "full_union_over_full_union_AA": {
+          "median": 0.9991319378653453,
+          "paired_block_bootstrap95": [
+            0.9982638757306905,
+            1.0
+          ]
+        },
+        "best_control_over_best_dynamic": {
+          "median": 0.75,
+          "paired_block_bootstrap95": [
+            0.7496740522852008,
+            0.7504889215721988
+          ]
+        },
+        "best_control_over_dynamic_v2": {
+          "median": 0.6911057923549414,
+          "paired_block_bootstrap95": [
+            0.6435754383963614,
+            0.6921225894442476
+          ]
+        },
+        "best_control_over_dynamic_v3": {
+          "median": 0.5625000213162821,
+          "paired_block_bootstrap95": [
+            0.5615234513777878,
+            0.5625000213162821
+          ]
+        },
+        "best_control_over_dynamic_emptyguard": {
+          "median": 0.6923077245974454,
+          "paired_block_bootstrap95": [
+            0.6915216233229957,
+            0.6923077245974454
+          ]
+        },
+        "best_control_over_dynamic_fullcol_guard": {
+          "median": 0.6923077245974454,
+          "paired_block_bootstrap95": [
+            0.6923077245974454,
+            0.6931408329131198
+          ]
+        },
+        "dynamic_emptyguard_over_dynamic_fullcol_guard": {
+          "median": 1.0012026554322868,
+          "paired_block_bootstrap95": [
+            1.0,
+            1.0012033786220698
+          ]
+        },
+        "best_control_over_dynamic_persistent_fixed": {
+          "median": 0.75,
+          "paired_block_bootstrap95": [
+            0.74185134507504,
+            0.75
+          ]
+        },
+        "dynamic_fullcol_guard_over_dynamic_persistent_fixed": {
+          "median": 1.0833332828058517,
+          "paired_block_bootstrap95": [
+            1.0820311896038697,
+            1.083441931978241
+          ]
+        }
+      }
+    }
+  },
+  "planning": {
+    "hot": {
+      "full_union": {
+        "samples": [
+          {
+            "warm_prepare_ms": 8.714870549738407,
+            "prepare_plus_one_call_host_wall_us": 8844.53859180212
+          },
+          {
+            "warm_prepare_ms": 6.622119806706905,
+            "prepare_plus_one_call_host_wall_us": 6742.146797478199
+          },
+          {
+            "warm_prepare_ms": 6.71866349875927,
+            "prepare_plus_one_call_host_wall_us": 6838.617846369743
+          }
+        ],
+        "warm_prepare_median_us": 6718.66349875927,
+        "amortized_prepare_plus_gpu_call_us": {
+          "1": 6727.083498612046,
+          "16": 428.3364685252309,
+          "64": 113.39911702089012,
+          "256": 34.664779144804925
+        },
+        "note": "Static-plan amortization scenarios, not measured request lifetimes; oracle search cost is reported separately and is not free."
+      },
+      "best_e1": {
+        "samples": [
+          {
+            "warm_prepare_ms": 6.709561683237553,
+            "prepare_plus_one_call_host_wall_us": 6820.3844130039215
+          },
+          {
+            "warm_prepare_ms": 6.593459285795689,
+            "prepare_plus_one_call_host_wall_us": 6708.822213113308
+          },
+          {
+            "warm_prepare_ms": 6.538539193570614,
+            "prepare_plus_one_call_host_wall_us": 6649.3842750787735
+          }
+        ],
+        "warm_prepare_median_us": 6593.459285795689,
+        "amortized_prepare_plus_gpu_call_us": {
+          "1": 6601.872085779905,
+          "16": 420.50400534644723,
+          "64": 111.43560132477432,
+          "256": 34.1685003193561
+        },
+        "note": "Static-plan amortization scenarios, not measured request lifetimes; oracle search cost is reported separately and is not free."
+      },
+      "e4_native": {
+        "samples": [
+          {
+            "warm_prepare_ms": 5.630511790513992,
+            "prepare_plus_one_call_host_wall_us": 5831.207148730755
+          },
+          {
+            "warm_prepare_ms": 2.1806620061397552,
+            "prepare_plus_one_call_host_wall_us": 2361.156977713108
+          },
+          {
+            "warm_prepare_ms": 2.036706544458866,
+            "prepare_plus_one_call_host_wall_us": 2209.281548857689
+          }
+        ],
+        "warm_prepare_median_us": 2180.6620061397552,
+        "amortized_prepare_plus_gpu_call_us": {
+          "1": 2190.1996061205864,
+          "16": 145.82897536456585,
+          "64": 43.61044382676482,
+          "256": 18.055810942314565
+        },
+        "note": "Static-plan amortization scenarios, not measured request lifetimes; oracle search cost is reported separately and is not free."
+      },
+      "best_dynamic": {
+        "samples": [
+          {
+            "warm_prepare_ms": 6.000070832669735,
+            "prepare_plus_one_call_host_wall_us": 6244.85407024622
+          },
+          {
+            "warm_prepare_ms": 5.786784924566746,
+            "prepare_plus_one_call_host_wall_us": 6021.754816174507
+          },
+          {
+            "warm_prepare_ms": 5.66824059933424,
+            "prepare_plus_one_call_host_wall_us": 5902.833305299282
+          }
+        ],
+        "warm_prepare_median_us": 5786.784924566746,
+        "amortized_prepare_plus_gpu_call_us": {
+          "1": 5801.529724895954,
+          "16": 376.41885811463,
+          "64": 105.16331477556378,
+          "256": 37.349428940797225
+        },
+        "note": "Static-plan amortization scenarios, not measured request lifetimes; oracle search cost is reported separately and is not free."
+      },
+      "dynamic_fullcol_guard": {
+        "samples": [
+          {
+            "warm_prepare_ms": 5.4472703486680984,
+            "prepare_plus_one_call_host_wall_us": 5673.976615071297
+          },
+          {
+            "warm_prepare_ms": 5.600464530289173,
+            "prepare_plus_one_call_host_wall_us": 5818.856880068779
+          },
+          {
+            "warm_prepare_ms": 5.769018083810806,
+            "prepare_plus_one_call_host_wall_us": 5997.654981911182
+          }
+        ],
+        "warm_prepare_median_us": 5600.464530289173,
+        "amortized_prepare_plus_gpu_call_us": {
+          "1": 5617.3837304115295,
+          "16": 366.94823326542974,
+          "64": 104.42645840812474,
+          "256": 38.7960146937985
+        },
+        "note": "Static-plan amortization scenarios, not measured request lifetimes; oracle search cost is reported separately and is not free."
+      },
+      "dynamic_persistent_fixed": {
+        "samples": [
+          {
+            "warm_prepare_ms": 5.777785554528236,
+            "prepare_plus_one_call_host_wall_us": 6002.8936713933945
+          },
+          {
+            "warm_prepare_ms": 6.895110942423344,
+            "prepare_plus_one_call_host_wall_us": 7169.476710259914
+          },
+          {
+            "warm_prepare_ms": 5.8905621990561485,
+            "prepare_plus_one_call_host_wall_us": 6133.902817964554
+          }
+        ],
+        "warm_prepare_median_us": 5890.5621990561485,
+        "amortized_prepare_plus_gpu_call_us": {
+          "1": 5905.3157992661,
+          "16": 382.9137376509607,
+          "64": 106.79363457020372,
+          "256": 37.76360880001448
+        },
+        "note": "Static-plan amortization scenarios, not measured request lifetimes; oracle search cost is reported separately and is not free."
+      }
+    },
+    "cold": {
+      "full_union": {
+        "samples": [
+          {
+            "warm_prepare_ms": 8.13443586230278,
+            "prepare_plus_one_call_host_wall_us": 8257.90036469698
+          },
+          {
+            "warm_prepare_ms": 6.40728697180748,
+            "prepare_plus_one_call_host_wall_us": 6520.6605941057205
+          },
+          {
+            "warm_prepare_ms": 6.308874115347862,
+            "prepare_plus_one_call_host_wall_us": 6421.571597456932
+          }
+        ],
+        "warm_prepare_median_us": 6407.28697180748,
+        "amortized_prepare_plus_gpu_call_us": {
+          "1": 6425.686972215772,
+          "16": 418.8554361462593,
+          "64": 118.51385934278369,
+          "256": 43.428465141914785
+        },
+        "note": "Static-plan amortization scenarios, not measured request lifetimes; oracle search cost is reported separately and is not free."
+      },
+      "best_e1": {
+        "samples": [
+          {
+            "warm_prepare_ms": 6.643263623118401,
+            "prepare_plus_one_call_host_wall_us": 6754.239089787006
+          },
+          {
+            "warm_prepare_ms": 6.64589274674654,
+            "prepare_plus_one_call_host_wall_us": 6764.457561075687
+          },
+          {
+            "warm_prepare_ms": 6.071673706173897,
+            "prepare_plus_one_call_host_wall_us": 6183.916702866554
+          }
+        ],
+        "warm_prepare_median_us": 6643.263623118401,
+        "amortized_prepare_plus_gpu_call_us": {
+          "1": 6661.695623770356,
+          "16": 433.63597709685564,
+          "64": 122.23299476318061,
+          "256": 44.38224917976186
+        },
+        "note": "Static-plan amortization scenarios, not measured request lifetimes; oracle search cost is reported separately and is not free."
+      },
+      "e4_native": {
+        "samples": [
+          {
+            "warm_prepare_ms": 5.386156961321831,
+            "prepare_plus_one_call_host_wall_us": 5595.200695097446
+          },
+          {
+            "warm_prepare_ms": 2.147981896996498,
+            "prepare_plus_one_call_host_wall_us": 2325.9809240698814
+          },
+          {
+            "warm_prepare_ms": 2.1455734968185425,
+            "prepare_plus_one_call_host_wall_us": 2321.9184949994087
+          }
+        ],
+        "warm_prepare_median_us": 2147.981896996498,
+        "amortized_prepare_plus_gpu_call_us": {
+          "1": 2168.46189647913,
+          "16": 154.72886804491282,
+          "64": 54.042216623201966,
+          "256": 28.870553767774254
+        },
+        "note": "Static-plan amortization scenarios, not measured request lifetimes; oracle search cost is reported separately and is not free."
+      },
+      "best_dynamic": {
+        "samples": [
+          {
+            "warm_prepare_ms": 5.928017199039459,
+            "prepare_plus_one_call_host_wall_us": 6159.301847219467
+          },
+          {
+            "warm_prepare_ms": 5.734451115131378,
+            "prepare_plus_one_call_host_wall_us": 5959.459580481052
+          },
+          {
+            "warm_prepare_ms": 6.030205637216568,
+            "prepare_plus_one_call_host_wall_us": 6269.913166761398
+          }
+        ],
+        "warm_prepare_median_us": 5928.017199039459,
+        "amortized_prepare_plus_gpu_call_us": {
+          "1": 5952.593199908733,
+          "16": 395.07707580924034,
+          "64": 117.20126960426569,
+          "256": 47.73231805302203
+        },
+        "note": "Static-plan amortization scenarios, not measured request lifetimes; oracle search cost is reported separately and is not free."
+      },
+      "dynamic_fullcol_guard": {
+        "samples": [
+          {
+            "warm_prepare_ms": 5.585198290646076,
+            "prepare_plus_one_call_host_wall_us": 5815.558135509491
+          },
+          {
+            "warm_prepare_ms": 5.625289864838123,
+            "prepare_plus_one_call_host_wall_us": 5853.930488228798
+          },
+          {
+            "warm_prepare_ms": 5.7506682351231575,
+            "prepare_plus_one_call_host_wall_us": 5980.135872960091
+          }
+        ],
+        "warm_prepare_median_us": 5625.289864838123,
+        "amortized_prepare_plus_gpu_call_us": {
+          "1": 5651.88186429441,
+          "16": 378.17261600866914,
+          "64": 114.48715359438211,
+          "256": 48.56578799081035
+        },
+        "note": "Static-plan amortization scenarios, not measured request lifetimes; oracle search cost is reported separately and is not free."
+      },
+      "dynamic_persistent_fixed": {
+        "samples": [
+          {
+            "warm_prepare_ms": 5.710391327738762,
+            "prepare_plus_one_call_host_wall_us": 5937.004461884499
+          },
+          {
+            "warm_prepare_ms": 5.784539505839348,
+            "prepare_plus_one_call_host_wall_us": 6013.301201164722
+          },
+          {
+            "warm_prepare_ms": 5.546947009861469,
+            "prepare_plus_one_call_host_wall_us": 5767.052061855793
+          }
+        ],
+        "warm_prepare_median_us": 5710.391327738762,
+        "amortized_prepare_plus_gpu_call_us": {
+          "1": 5734.951328486204,
+          "16": 381.45945873111486,
+          "64": 113.7848652433604,
+          "256": 46.866216871421784
+        },
+        "note": "Static-plan amortization scenarios, not measured request lifetimes; oracle search cost is reported separately and is not free."
+      }
+    }
+  },
+  "limitations": [
+    "Hierarchical split partial output is native BF16 and merged with FP32 log2-LSE weights; every tested configuration is separately qualified.",
+    "E4 uses exact binary-tree intersection/residual decomposition with all nodes batched, not the original QUILT code/planner.",
+    "Only shared-source KV is zero-copy; query gathering, normalized output restoration and hierarchical merge are included in run().",
+    "Plan preparation and actual prepare+one-run wall time are measured; search is reported separately, not silently amortized away.",
+    "Same-capture hot/cold controls do not establish common-ready overlap, generation quality, full-model speedup or energy improvement.",
+    "Persistent fixed-M32 versus compact FullCol changes masked MMA work; do not attribute the whole difference solely to state transport."
+  ]
+}

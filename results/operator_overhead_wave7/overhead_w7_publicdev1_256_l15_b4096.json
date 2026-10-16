@@ -1,0 +1,6008 @@
+{
+  "scope": "Broad overhead screen: all fixed partitions/trees with a bounded split grid, not fully tuned strongest methods or an application claim",
+  "protocol_version": 3,
+  "candidate_set": "persistent",
+  "code_sha256": {
+    "scripts/bench_operator_overhead_v3.py": "f46d8a163334f02c1be254720e23f11ae517dc45babc0202f7059115f8e83783",
+    "scripts/compare_attention.py": "a23b40b1139e93fbb2bd7f5e8794b1885e4df8778bc83114e845829fb1a7e2e2",
+    "src/branchtile/attention.py": "2878475c1273f527f95f629090e275c5a99f9dbad6c67646c40657692c20673d",
+    "src/branchtile/attention_emptyguard.py": "a4eb400c270750522ab7ebee891d96df4076fd3cf7e28f47af12193068f2749c",
+    "src/branchtile/attention_fullcol_guard.py": "fa990cd439eeee4a27624b0c678b159c2f4759de6075f782fd347636895c07ff",
+    "src/branchtile/attention_persistent_fixed.py": "87ce11da7cd8339c589536ea9627db35c6b155ac23c9e7f3e6a546581b4c4d0c",
+    "src/branchtile/attention_v2.py": "f6a3ef3519ed96a5405afe92dfdadf064575d027aa05502fb9304e37abeed916",
+    "src/branchtile/attention_v3.py": "d2a11acd8ef0ece0b202e28fd9897ce501a312de2f0f857a09266a869ffddd0a",
+    "src/branchtile/tilelang_kernel.py": "8f1c5c73e6767c6231e13dfeca1ced455b0236b238ec100916fb67d74db5e6a0",
+    "src/branchtile/tilelang_kernel_emptyguard.py": "80b91f0812a0ddec97c047facb4023d0929af1f9ca24e1ce562f0fc8655562ad",
+    "src/branchtile/tilelang_kernel_fullcol_guard.py": "cc3f2ea59cf04515fac0e648afa0a65c2eee9e0ab1a4e51b7681c9be53a293ab",
+    "src/branchtile/tilelang_kernel_persistent_fixed.py": "4a4778d78fc7342829ce0d525872afb7795b137fa86b92928ad835e3e89d8873",
+    "src/branchtile/tilelang_kernel_v2.py": "7f36322f62d94d047788cce58cf6b4063e7e27b2cd6f96624f7e5f93c9f90525",
+    "src/branchtile/tilelang_kernel_v3.py": "d46f85e068fcbce98d509f5583de15ac6c6dae144d224ceb7f7c679bcddc55ea",
+    "src/branchtile/union.py": "5062b4729617252aa8fe17f7f80ee197b01efca497150b5ef3abc30afff4b55d",
+    "src/cascade_baseline.py": "245273b2a6915203cc2e0e77f82b31e7f7ef319d600c81c6c6124d47687898c7",
+    "src/dynamic_baseline.py": "d85f600a438953a3e508963a5269544c66c24c3470b3f40927d344704bd5a032",
+    "src/flashinfer_baseline.py": "942eb00c9442393871af9cdab140e83de00bb05c30d2c36fa04a1d0735bc50fa",
+    "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92"
+  },
+  "candidate_sources": {
+    "e0_native": [
+      "src/flashinfer_baseline.py"
+    ],
+    "e1_native": [
+      "src/partition_baseline.py"
+    ],
+    "e1_own": [
+      "src/partition_baseline.py",
+      "src/branchtile/union.py"
+    ],
+    "e4_native": [
+      "src/cascade_baseline.py",
+      "src/partition_baseline.py"
+    ],
+    "dynamic_v2": [
+      "src/dynamic_baseline.py",
+      "src/branchtile/attention_v2.py",
+      "src/branchtile/tilelang_kernel_v2.py"
+    ],
+    "dynamic_v3": [
+      "src/dynamic_baseline.py",
+      "src/branchtile/attention_v3.py",
+      "src/branchtile/tilelang_kernel_v3.py"
+    ],
+    "dynamic_emptyguard": [
+      "src/branchtile/attention_emptyguard.py",
+      "src/branchtile/tilelang_kernel_emptyguard.py"
+    ],
+    "dynamic_fullcol_guard": [
+      "src/branchtile/attention_fullcol_guard.py",
+      "src/branchtile/tilelang_kernel_fullcol_guard.py"
+    ],
+    "dynamic_persistent_fixed": [
+      "src/branchtile/attention_persistent_fixed.py",
+      "src/branchtile/tilelang_kernel_persistent_fixed.py"
+    ]
+  },
+  "persistent_fixed_ablation_definition": "Fixed M32 persistent rows retain extra masked MMA work versus compact dynamic rows; fullcol_guard/persistent is not a pure state-transport-only change.",
+  "best_layout_control_definition": null,
+  "uid": 1000,
+  "python": "/home/qcjz/iscas/.venv-latest/bin/python",
+  "gpu_uuid": "e1137499-0902-6746-a5eb-a9fc8e67b61b",
+  "packages": {
+    "torch": "2.11.0",
+    "flashinfer-python": "0.7.2",
+    "tilelang": "0.1.9",
+    "triton": "3.6.0"
+  },
+  "q_shape": [
+    2,
+    24,
+    128
+  ],
+  "k_shape": [
+    2,
+    90066,
+    128
+  ],
+  "provenance": {
+    "capture": "results/captures/main30b_tp2_publicdev1_256_suffix_v2/rank0",
+    "layer": 15,
+    "budget": 4096,
+    "step": 64,
+    "original_active_requests": [
+      0,
+      1,
+      2
+    ],
+    "selected_kv_heads": [
+      0,
+      1
+    ],
+    "model": "data/models/Qwen3-30B-A3B-Thinking-2507-FP8",
+    "model_revision": "60d80c83c53c3b611c642dbb8c942b3f90c5948a",
+    "document_sha256": "593ec0c33f45ea02d1139d061d3f5fcec367a50c2e44b7f29e815611bc65124b",
+    "includes_system_prefix_and_complete_private_suffix": true,
+    "ready_lifetime_measured": true,
+    "tensor_parallel_size": 2,
+    "actual_tp_rank": 0,
+    "document_token_range": [
+      34,
+      89770
+    ],
+    "actual_shared_document_token_range": [
+      34,
+      89760
+    ],
+    "private_protected_document_tail_tokens": 10,
+    "decode_step_definition": "s1 is each actual suffix-prefill query predicting first generated token (selector compatibility only); s16/s64/s256 are same-forward ready-group snapshots anchored on question0 prediction step, with each request's own actual position retained",
+    "mask_definition": "Budget applies to the full original document; protected partial-page document tail resides in private suffix and is omitted from common-source masks only. All original selected tokens remain in execution.",
+    "ready_group": {
+      "layer": 15,
+      "anchor": 64,
+      "B": 3,
+      "query_positions": [
+        [
+          89864
+        ],
+        [
+          89862
+        ],
+        [
+          89857
+        ]
+      ],
+      "actual_prediction_steps": [
+        64,
+        63,
+        62
+      ]
+    }
+  },
+  "numerical_contract": {
+    "output_atol": 0.006,
+    "output_rtol": 0.015,
+    "lse_atol": 0.0003,
+    "lse_rtol": 0.0001,
+    "lse_base": "natural",
+    "reference": "FP64"
+  },
+  "tuning_planned": 42,
+  "tuning_completed": 42,
+  "tuning_complete": true,
+  "batch": 3,
+  "gqa": 8,
+  "dynamic_included": true,
+  "partitions": [
+    [
+      [
+        0
+      ],
+      [
+        1
+      ],
+      [
+        2
+      ]
+    ],
+    [
+      [
+        0
+      ],
+      [
+        1,
+        2
+      ]
+    ],
+    [
+      [
+        0,
+        1
+      ],
+      [
+        2
+      ]
+    ],
+    [
+      [
+        0,
+        1,
+        2
+      ]
+    ],
+    [
+      [
+        0,
+        2
+      ],
+      [
+        1
+      ]
+    ]
+  ],
+  "hierarchies": [
+    [
+      0,
+      [
+        1,
+        2
+      ]
+    ],
+    [
+      [
+        0,
+        1
+      ],
+      2
+    ],
+    [
+      [
+        0,
+        2
+      ],
+      1
+    ]
+  ],
+  "search_seconds_including_jit_and_failures": 33.70756110269576,
+  "search_seconds_by_family": {
+    "e1_native": 0.4965544864535332,
+    "e1_own": 1.3395322868600488,
+    "dynamic_persistent_fixed": 26.362510510720313,
+    "e4_native": 0.23529031686484814,
+    "dynamic_v2": 1.531775537878275,
+    "dynamic_emptyguard": 1.4022205108776689,
+    "dynamic_v3": 0.726965063251555,
+    "dynamic_fullcol_guard": 1.4338119039312005,
+    "e0_native": 0.1718187490478158
+  },
+  "oracle_scope": "Per-capture hindsight latency oracle among the measured grid; not a deployed plan selector.",
+  "tuning": [
+    {
+      "method": "e1_native",
+      "partition": [
+        [
+          0
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "fixed_split_size": null,
+      "candidate_name": "e1_native__p-0-1_2__fixedsplit-None",
+      "source_paths": [
+        "src/partition_baseline.py"
+      ],
+      "source_sha256": {
+        "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92"
+      },
+      "initialization_ms_including_jit": 95.59521358460188,
+      "max_abs_error_fp64": 0.002282786979391438,
+      "max_lse_error_fp64": 0.0005476609780519226,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 8.89279991388321,
+        "cold": 18.432000651955605
+      },
+      "prepare_ms": 52.58375685662031,
+      "metadata_ms": 1.232014037668705,
+      "logical_kv_token_visits": 19213,
+      "workspace_bytes": 536870912,
+      "configuration_wall_seconds": 0.19532909616827965
+    },
+    {
+      "method": "e1_own",
+      "partition": [
+        [
+          0
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "splits": 64,
+      "block_n": 64,
+      "candidate_name": "e1_own__p-0-1_2__splits-64__n-64",
+      "source_paths": [
+        "src/partition_baseline.py",
+        "src/branchtile/union.py"
+      ],
+      "source_sha256": {
+        "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92",
+        "src/branchtile/union.py": "5062b4729617252aa8fe17f7f80ee197b01efca497150b5ef3abc30afff4b55d"
+      },
+      "initialization_ms_including_jit": 631.2148282304406,
+      "max_abs_error_fp64": 0.00040710233094204407,
+      "max_lse_error_fp64": 3.5090160572792684e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 17.151999473571777,
+        "cold": 32.76799991726875
+      },
+      "prepare_ms": 184.60187502205372,
+      "metadata_ms": 13.415968045592308,
+      "logical_kv_token_visits": 19213,
+      "workspace_bytes": 1609920,
+      "configuration_wall_seconds": 0.7031326480209827
+    },
+    {
+      "method": "dynamic_persistent_fixed",
+      "version": "persistent_fixed",
+      "splits": 128,
+      "block_n": 64,
+      "candidate_name": "dynamic_persistent_fixed__splits-128__n-64",
+      "source_paths": [
+        "src/branchtile/attention_persistent_fixed.py",
+        "src/branchtile/tilelang_kernel_persistent_fixed.py"
+      ],
+      "source_sha256": {
+        "src/branchtile/attention_persistent_fixed.py": "87ce11da7cd8339c589536ea9627db35c6b155ac23c9e7f3e6a546581b4c4d0c",
+        "src/branchtile/tilelang_kernel_persistent_fixed.py": "4a4778d78fc7342829ce0d525872afb7795b137fa86b92928ad835e3e89d8873"
+      },
+      "initialization_ms_including_jit": 6594.674970023334,
+      "max_abs_error_fp64": 0.00040710233094204407,
+      "max_lse_error_fp64": 3.5090160572792684e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 20.4367995262146,
+        "cold": 28.672000393271446
+      },
+      "prepare_ms": 6166.030451655388,
+      "metadata_ms": 7.18275923281908,
+      "logical_kv_token_visits": 13051,
+      "workspace_bytes": 3194880,
+      "configuration_wall_seconds": 6.665738544426858
+    },
+    {
+      "method": "e4_native",
+      "tree": [
+        [
+          0,
+          2
+        ],
+        1
+      ],
+      "fixed_split_size": null,
+      "candidate_name": "e4_native__tree-[[0,2],1]__fixedsplit-None",
+      "source_paths": [
+        "src/cascade_baseline.py",
+        "src/partition_baseline.py"
+      ],
+      "source_sha256": {
+        "src/cascade_baseline.py": "245273b2a6915203cc2e0e77f82b31e7f7ef319d600c81c6c6124d47687898c7",
+        "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92"
+      },
+      "initialization_ms_including_jit": 11.017080396413803,
+      "max_abs_error_fp64": 0.0009922933876827522,
+      "max_lse_error_fp64": 0.0005686418130128601,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 9.297599643468857,
+        "cold": 18.464000895619392
+      },
+      "prepare_ms": 7.176082581281662,
+      "metadata_ms": 2.9261382296681404,
+      "logical_kv_token_visits": 14517,
+      "workspace_bytes": 536870912,
+      "configuration_wall_seconds": 0.07989202998578548
+    },
+    {
+      "method": "dynamic_persistent_fixed",
+      "version": "persistent_fixed",
+      "splits": 32,
+      "block_n": 32,
+      "candidate_name": "dynamic_persistent_fixed__splits-32__n-32",
+      "source_paths": [
+        "src/branchtile/attention_persistent_fixed.py",
+        "src/branchtile/tilelang_kernel_persistent_fixed.py"
+      ],
+      "source_sha256": {
+        "src/branchtile/attention_persistent_fixed.py": "87ce11da7cd8339c589536ea9627db35c6b155ac23c9e7f3e6a546581b4c4d0c",
+        "src/branchtile/tilelang_kernel_persistent_fixed.py": "4a4778d78fc7342829ce0d525872afb7795b137fa86b92928ad835e3e89d8873"
+      },
+      "initialization_ms_including_jit": 6388.973288238049,
+      "max_abs_error_fp64": 0.00040710233094204407,
+      "max_lse_error_fp64": 3.5090160572792684e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 18.160000443458557,
+        "cold": 28.672000393271446
+      },
+      "prepare_ms": 5983.499024063349,
+      "metadata_ms": 7.432851009070873,
+      "logical_kv_token_visits": 13051,
+      "workspace_bytes": 798720,
+      "configuration_wall_seconds": 6.4598997831344604
+    },
+    {
+      "method": "dynamic_persistent_fixed",
+      "version": "persistent_fixed",
+      "splits": 64,
+      "block_n": 64,
+      "candidate_name": "dynamic_persistent_fixed__splits-64__n-64",
+      "source_paths": [
+        "src/branchtile/attention_persistent_fixed.py",
+        "src/branchtile/tilelang_kernel_persistent_fixed.py"
+      ],
+      "source_sha256": {
+        "src/branchtile/attention_persistent_fixed.py": "87ce11da7cd8339c589536ea9627db35c6b155ac23c9e7f3e6a546581b4c4d0c",
+        "src/branchtile/tilelang_kernel_persistent_fixed.py": "4a4778d78fc7342829ce0d525872afb7795b137fa86b92928ad835e3e89d8873"
+      },
+      "initialization_ms_including_jit": 93.86581555008888,
+      "max_abs_error_fp64": 0.00040710233094204407,
+      "max_lse_error_fp64": 3.5090160572792684e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 17.287999391555786,
+        "cold": 26.623999699950218
+      },
+      "prepare_ms": 91.78520366549492,
+      "metadata_ms": 7.842793129384518,
+      "logical_kv_token_visits": 13051,
+      "workspace_bytes": 1597440,
+      "configuration_wall_seconds": 0.16232839319854975
+    },
+    {
+      "method": "e1_native",
+      "partition": [
+        [
+          0,
+          1
+        ],
+        [
+          2
+        ]
+      ],
+      "fixed_split_size": null,
+      "candidate_name": "e1_native__p-0_1-2__fixedsplit-None",
+      "source_paths": [
+        "src/partition_baseline.py"
+      ],
+      "source_sha256": {
+        "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92"
+      },
+      "initialization_ms_including_jit": 7.865372113883495,
+      "max_abs_error_fp64": 0.001113347696768352,
+      "max_lse_error_fp64": 0.0005762712075441101,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 8.88959988951683,
+        "cold": 18.432000651955605
+      },
+      "prepare_ms": 7.644277065992355,
+      "metadata_ms": 2.0010042935609818,
+      "logical_kv_token_visits": 20031,
+      "workspace_bytes": 536870912,
+      "configuration_wall_seconds": 0.07523534912616014
+    },
+    {
+      "method": "dynamic_v2",
+      "version": "v2",
+      "splits": 128,
+      "block_n": 32,
+      "candidate_name": "dynamic_v2__splits-128__n-32",
+      "source_paths": [
+        "src/dynamic_baseline.py",
+        "src/branchtile/attention_v2.py",
+        "src/branchtile/tilelang_kernel_v2.py"
+      ],
+      "source_sha256": {
+        "src/dynamic_baseline.py": "d85f600a438953a3e508963a5269544c66c24c3470b3f40927d344704bd5a032",
+        "src/branchtile/attention_v2.py": "f6a3ef3519ed96a5405afe92dfdadf064575d027aa05502fb9304e37abeed916",
+        "src/branchtile/tilelang_kernel_v2.py": "7f36322f62d94d047788cce58cf6b4063e7e27b2cd6f96624f7e5f93c9f90525"
+      },
+      "initialization_ms_including_jit": 157.8294299542904,
+      "max_abs_error_fp64": 0.00040710233094204407,
+      "max_lse_error_fp64": 3.5090160572792684e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 16.655999422073364,
+        "cold": 26.623999699950218
+      },
+      "prepare_ms": 157.0340497419238,
+      "metadata_ms": 7.036912254989147,
+      "logical_kv_token_visits": 13051,
+      "workspace_bytes": 3194880,
+      "configuration_wall_seconds": 0.2282310649752617
+    },
+    {
+      "method": "dynamic_emptyguard",
+      "version": "emptyguard",
+      "splits": 128,
+      "block_n": 64,
+      "candidate_name": "dynamic_emptyguard__splits-128__n-64",
+      "source_paths": [
+        "src/branchtile/attention_emptyguard.py",
+        "src/branchtile/tilelang_kernel_emptyguard.py"
+      ],
+      "source_sha256": {
+        "src/branchtile/attention_emptyguard.py": "a4eb400c270750522ab7ebee891d96df4076fd3cf7e28f47af12193068f2749c",
+        "src/branchtile/tilelang_kernel_emptyguard.py": "80b91f0812a0ddec97c047facb4023d0929af1f9ca24e1ce562f0fc8655562ad"
+      },
+      "initialization_ms_including_jit": 162.7897247672081,
+      "max_abs_error_fp64": 0.00040710233094204407,
+      "max_lse_error_fp64": 3.5090160572792684e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 31.87359869480133,
+        "cold": 43.007999658584595
+      },
+      "prepare_ms": 161.9249014183879,
+      "metadata_ms": 6.746632046997547,
+      "logical_kv_token_visits": 13051,
+      "workspace_bytes": 3194880,
+      "configuration_wall_seconds": 0.2336558224633336
+    },
+    {
+      "method": "e4_native",
+      "tree": [
+        0,
+        [
+          1,
+          2
+        ]
+      ],
+      "fixed_split_size": null,
+      "candidate_name": "e4_native__tree-[0,[1,2]]__fixedsplit-None",
+      "source_paths": [
+        "src/cascade_baseline.py",
+        "src/partition_baseline.py"
+      ],
+      "source_sha256": {
+        "src/cascade_baseline.py": "245273b2a6915203cc2e0e77f82b31e7f7ef319d600c81c6c6124d47687898c7",
+        "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92"
+      },
+      "initialization_ms_including_jit": 7.8752608969807625,
+      "max_abs_error_fp64": 0.0009972159877257858,
+      "max_lse_error_fp64": 0.0005505220010011413,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 9.160000085830688,
+        "cold": 20.447999238967896
+      },
+      "prepare_ms": 7.61946476995945,
+      "metadata_ms": 3.365360200405121,
+      "logical_kv_token_visits": 14236,
+      "workspace_bytes": 536870912,
+      "configuration_wall_seconds": 0.07626373041421175
+    },
+    {
+      "method": "dynamic_v2",
+      "version": "v2",
+      "splits": 32,
+      "block_n": 64,
+      "candidate_name": "dynamic_v2__splits-32__n-64",
+      "source_paths": [
+        "src/dynamic_baseline.py",
+        "src/branchtile/attention_v2.py",
+        "src/branchtile/tilelang_kernel_v2.py"
+      ],
+      "source_sha256": {
+        "src/dynamic_baseline.py": "d85f600a438953a3e508963a5269544c66c24c3470b3f40927d344704bd5a032",
+        "src/branchtile/attention_v2.py": "f6a3ef3519ed96a5405afe92dfdadf064575d027aa05502fb9304e37abeed916",
+        "src/branchtile/tilelang_kernel_v2.py": "7f36322f62d94d047788cce58cf6b4063e7e27b2cd6f96624f7e5f93c9f90525"
+      },
+      "initialization_ms_including_jit": 157.08137024194002,
+      "max_abs_error_fp64": 0.00040710233094204407,
+      "max_lse_error_fp64": 3.5090160572792684e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 19.45279985666275,
+        "cold": 32.76799991726875
+      },
+      "prepare_ms": 156.39194380491972,
+      "metadata_ms": 7.1182288229465485,
+      "logical_kv_token_visits": 13051,
+      "workspace_bytes": 798720,
+      "configuration_wall_seconds": 0.2255488857626915
+    },
+    {
+      "method": "dynamic_v3",
+      "version": "v3",
+      "splits": 32,
+      "block_n": 64,
+      "candidate_name": "dynamic_v3__splits-32__n-64",
+      "source_paths": [
+        "src/dynamic_baseline.py",
+        "src/branchtile/attention_v3.py",
+        "src/branchtile/tilelang_kernel_v3.py"
+      ],
+      "source_sha256": {
+        "src/dynamic_baseline.py": "d85f600a438953a3e508963a5269544c66c24c3470b3f40927d344704bd5a032",
+        "src/branchtile/attention_v3.py": "d2a11acd8ef0ece0b202e28fd9897ce501a312de2f0f857a09266a869ffddd0a",
+        "src/branchtile/tilelang_kernel_v3.py": "d46f85e068fcbce98d509f5583de15ac6c6dae144d224ceb7f7c679bcddc55ea"
+      },
+      "initialization_ms_including_jit": 172.7010477334261,
+      "max_abs_error_fp64": 0.00040710233094204407,
+      "max_lse_error_fp64": 3.5090160572792684e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 22.7743998169899,
+        "cold": 34.81600061058998
+      },
+      "prepare_ms": 171.59317433834076,
+      "metadata_ms": 7.298039272427559,
+      "logical_kv_token_visits": 13051,
+      "workspace_bytes": 798720,
+      "configuration_wall_seconds": 0.24346572440117598
+    },
+    {
+      "method": "e1_own",
+      "partition": [
+        [
+          0,
+          1,
+          2
+        ]
+      ],
+      "splits": 64,
+      "block_n": 64,
+      "candidate_name": "e1_own__p-0_1_2__splits-64__n-64",
+      "source_paths": [
+        "src/partition_baseline.py",
+        "src/branchtile/union.py"
+      ],
+      "source_sha256": {
+        "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92",
+        "src/branchtile/union.py": "5062b4729617252aa8fe17f7f80ee197b01efca497150b5ef3abc30afff4b55d"
+      },
+      "initialization_ms_including_jit": 304.93966955691576,
+      "max_abs_error_fp64": 0.00040710233094204407,
+      "max_lse_error_fp64": 3.5090160572792684e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 8.57120007276535,
+        "cold": 18.432000651955605
+      },
+      "prepare_ms": 303.991517983377,
+      "metadata_ms": 8.78141075372696,
+      "logical_kv_token_visits": 13051,
+      "workspace_bytes": 1609920,
+      "configuration_wall_seconds": 0.3727059941738844
+    },
+    {
+      "method": "dynamic_fullcol_guard",
+      "version": "fullcol_guard",
+      "splits": 64,
+      "block_n": 64,
+      "candidate_name": "dynamic_fullcol_guard__splits-64__n-64",
+      "source_paths": [
+        "src/branchtile/attention_fullcol_guard.py",
+        "src/branchtile/tilelang_kernel_fullcol_guard.py"
+      ],
+      "source_sha256": {
+        "src/branchtile/attention_fullcol_guard.py": "fa990cd439eeee4a27624b0c678b159c2f4759de6075f782fd347636895c07ff",
+        "src/branchtile/tilelang_kernel_fullcol_guard.py": "cc3f2ea59cf04515fac0e648afa0a65c2eee9e0ab1a4e51b7681c9be53a293ab"
+      },
+      "initialization_ms_including_jit": 177.49676015228033,
+      "max_abs_error_fp64": 0.00040710233094204407,
+      "max_lse_error_fp64": 3.5090160572792684e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 17.24639981985092,
+        "cold": 28.672000393271446
+      },
+      "prepare_ms": 174.91607274860144,
+      "metadata_ms": 7.076677866280079,
+      "logical_kv_token_visits": 13051,
+      "workspace_bytes": 1597440,
+      "configuration_wall_seconds": 0.24679900333285332
+    },
+    {
+      "method": "e1_own",
+      "partition": [
+        [
+          0,
+          2
+        ],
+        [
+          1
+        ]
+      ],
+      "splits": 64,
+      "block_n": 64,
+      "candidate_name": "e1_own__p-0_2-1__splits-64__n-64",
+      "source_paths": [
+        "src/partition_baseline.py",
+        "src/branchtile/union.py"
+      ],
+      "source_sha256": {
+        "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92",
+        "src/branchtile/union.py": "5062b4729617252aa8fe17f7f80ee197b01efca497150b5ef3abc30afff4b55d"
+      },
+      "initialization_ms_including_jit": 16.060001216828823,
+      "max_abs_error_fp64": 0.00040710233094204407,
+      "max_lse_error_fp64": 3.5090160572792684e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 18.195199966430664,
+        "cold": 32.76799991726875
+      },
+      "prepare_ms": 15.658690594136715,
+      "metadata_ms": 14.948003925383091,
+      "logical_kv_token_visits": 19494,
+      "workspace_bytes": 1609920,
+      "configuration_wall_seconds": 0.08940763026475906
+    },
+    {
+      "method": "dynamic_fullcol_guard",
+      "version": "fullcol_guard",
+      "splits": 32,
+      "block_n": 64,
+      "candidate_name": "dynamic_fullcol_guard__splits-32__n-64",
+      "source_paths": [
+        "src/branchtile/attention_fullcol_guard.py",
+        "src/branchtile/tilelang_kernel_fullcol_guard.py"
+      ],
+      "source_sha256": {
+        "src/branchtile/attention_fullcol_guard.py": "fa990cd439eeee4a27624b0c678b159c2f4759de6075f782fd347636895c07ff",
+        "src/branchtile/tilelang_kernel_fullcol_guard.py": "cc3f2ea59cf04515fac0e648afa0a65c2eee9e0ab1a4e51b7681c9be53a293ab"
+      },
+      "initialization_ms_including_jit": 168.09832956641912,
+      "max_abs_error_fp64": 0.00040710233094204407,
+      "max_lse_error_fp64": 3.5090160572792684e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 18.836799263954163,
+        "cold": 30.719999223947525
+      },
+      "prepare_ms": 167.04281140118837,
+      "metadata_ms": 7.326992228627205,
+      "logical_kv_token_visits": 13051,
+      "workspace_bytes": 798720,
+      "configuration_wall_seconds": 0.24395060539245605
+    },
+    {
+      "method": "e0_native",
+      "tensor_cores": false,
+      "fixed_split_size": null,
+      "candidate_name": "e0_native__fixedsplit-None__tc-0",
+      "source_paths": [
+        "src/flashinfer_baseline.py"
+      ],
+      "source_sha256": {
+        "src/flashinfer_baseline.py": "942eb00c9442393871af9cdab140e83de00bb05c30d2c36fa04a1d0735bc50fa"
+      },
+      "initialization_ms_including_jit": 28.720072470605373,
+      "max_abs_error_fp64": 0.002282786979391438,
+      "max_lse_error_fp64": 3.877879382940819e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 13.460800051689148,
+        "cold": 20.479999482631683
+      },
+      "prepare_ms": 28.283270075917244,
+      "metadata_ms": null,
+      "logical_kv_token_visits": null,
+      "workspace_bytes": 536870912,
+      "configuration_wall_seconds": 0.09885917417705059
+    },
+    {
+      "method": "dynamic_fullcol_guard",
+      "version": "fullcol_guard",
+      "splits": 128,
+      "block_n": 32,
+      "candidate_name": "dynamic_fullcol_guard__splits-128__n-32",
+      "source_paths": [
+        "src/branchtile/attention_fullcol_guard.py",
+        "src/branchtile/tilelang_kernel_fullcol_guard.py"
+      ],
+      "source_sha256": {
+        "src/branchtile/attention_fullcol_guard.py": "fa990cd439eeee4a27624b0c678b159c2f4759de6075f782fd347636895c07ff",
+        "src/branchtile/tilelang_kernel_fullcol_guard.py": "cc3f2ea59cf04515fac0e648afa0a65c2eee9e0ab1a4e51b7681c9be53a293ab"
+      },
+      "initialization_ms_including_jit": 165.32960813492537,
+      "max_abs_error_fp64": 0.00040710233094204407,
+      "max_lse_error_fp64": 3.5090160572792684e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 17.569600045681,
+        "cold": 26.623999699950218
+      },
+      "prepare_ms": 164.37506582587957,
+      "metadata_ms": 7.341801188886166,
+      "logical_kv_token_visits": 13051,
+      "workspace_bytes": 3194880,
+      "configuration_wall_seconds": 0.23444856889545918
+    },
+    {
+      "method": "dynamic_v2",
+      "version": "v2",
+      "splits": 32,
+      "block_n": 32,
+      "candidate_name": "dynamic_v2__splits-32__n-32",
+      "source_paths": [
+        "src/dynamic_baseline.py",
+        "src/branchtile/attention_v2.py",
+        "src/branchtile/tilelang_kernel_v2.py"
+      ],
+      "source_sha256": {
+        "src/dynamic_baseline.py": "d85f600a438953a3e508963a5269544c66c24c3470b3f40927d344704bd5a032",
+        "src/branchtile/attention_v2.py": "f6a3ef3519ed96a5405afe92dfdadf064575d027aa05502fb9304e37abeed916",
+        "src/branchtile/tilelang_kernel_v2.py": "7f36322f62d94d047788cce58cf6b4063e7e27b2cd6f96624f7e5f93c9f90525"
+      },
+      "initialization_ms_including_jit": 165.8770190551877,
+      "max_abs_error_fp64": 0.00040710233094204407,
+      "max_lse_error_fp64": 3.5090160572792684e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 18.10079962015152,
+        "cold": 28.672000393271446
+      },
+      "prepare_ms": 164.87937700003386,
+      "metadata_ms": 7.10426177829504,
+      "logical_kv_token_visits": 13051,
+      "workspace_bytes": 798720,
+      "configuration_wall_seconds": 0.23616201058030128
+    },
+    {
+      "method": "e1_native",
+      "partition": [
+        [
+          0
+        ],
+        [
+          1
+        ],
+        [
+          2
+        ]
+      ],
+      "fixed_split_size": null,
+      "candidate_name": "e1_native__p-0-1-2__fixedsplit-None",
+      "source_paths": [
+        "src/partition_baseline.py"
+      ],
+      "source_sha256": {
+        "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92"
+      },
+      "initialization_ms_including_jit": 9.57950484007597,
+      "max_abs_error_fp64": 0.002282786979391438,
+      "max_lse_error_fp64": 0.0005762712075441101,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 10.390400141477585,
+        "cold": 18.432000651955605
+      },
+      "prepare_ms": 9.212334640324116,
+      "metadata_ms": 2.617047168314457,
+      "logical_kv_token_visits": 25332,
+      "workspace_bytes": 536870912,
+      "configuration_wall_seconds": 0.0761355934664607
+    },
+    {
+      "method": "dynamic_fullcol_guard",
+      "version": "fullcol_guard",
+      "splits": 32,
+      "block_n": 32,
+      "candidate_name": "dynamic_fullcol_guard__splits-32__n-32",
+      "source_paths": [
+        "src/branchtile/attention_fullcol_guard.py",
+        "src/branchtile/tilelang_kernel_fullcol_guard.py"
+      ],
+      "source_sha256": {
+        "src/branchtile/attention_fullcol_guard.py": "fa990cd439eeee4a27624b0c678b159c2f4759de6075f782fd347636895c07ff",
+        "src/branchtile/tilelang_kernel_fullcol_guard.py": "cc3f2ea59cf04515fac0e648afa0a65c2eee9e0ab1a4e51b7681c9be53a293ab"
+      },
+      "initialization_ms_including_jit": 173.27656038105488,
+      "max_abs_error_fp64": 0.00040710233094204407,
+      "max_lse_error_fp64": 3.5090160572792684e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 19.728000462055206,
+        "cold": 30.719999223947525
+      },
+      "prepare_ms": 170.58384604752064,
+      "metadata_ms": 6.836261600255966,
+      "logical_kv_token_visits": 13051,
+      "workspace_bytes": 798720,
+      "configuration_wall_seconds": 0.2459778282791376
+    },
+    {
+      "method": "dynamic_v3",
+      "version": "v3",
+      "splits": 64,
+      "block_n": 64,
+      "candidate_name": "dynamic_v3__splits-64__n-64",
+      "source_paths": [
+        "src/dynamic_baseline.py",
+        "src/branchtile/attention_v3.py",
+        "src/branchtile/tilelang_kernel_v3.py"
+      ],
+      "source_sha256": {
+        "src/dynamic_baseline.py": "d85f600a438953a3e508963a5269544c66c24c3470b3f40927d344704bd5a032",
+        "src/branchtile/attention_v3.py": "d2a11acd8ef0ece0b202e28fd9897ce501a312de2f0f857a09266a869ffddd0a",
+        "src/branchtile/tilelang_kernel_v3.py": "d46f85e068fcbce98d509f5583de15ac6c6dae144d224ceb7f7c679bcddc55ea"
+      },
+      "initialization_ms_including_jit": 172.24076110869646,
+      "max_abs_error_fp64": 0.00040710233094204407,
+      "max_lse_error_fp64": 3.5090160572792684e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 20.983999967575073,
+        "cold": 32.76799991726875
+      },
+      "prepare_ms": 171.03735078126192,
+      "metadata_ms": 7.17781949788332,
+      "logical_kv_token_visits": 13051,
+      "workspace_bytes": 1597440,
+      "configuration_wall_seconds": 0.24399259127676487
+    },
+    {
+      "method": "dynamic_emptyguard",
+      "version": "emptyguard",
+      "splits": 64,
+      "block_n": 64,
+      "candidate_name": "dynamic_emptyguard__splits-64__n-64",
+      "source_paths": [
+        "src/branchtile/attention_emptyguard.py",
+        "src/branchtile/tilelang_kernel_emptyguard.py"
+      ],
+      "source_sha256": {
+        "src/branchtile/attention_emptyguard.py": "a4eb400c270750522ab7ebee891d96df4076fd3cf7e28f47af12193068f2749c",
+        "src/branchtile/tilelang_kernel_emptyguard.py": "80b91f0812a0ddec97c047facb4023d0929af1f9ca24e1ce562f0fc8655562ad"
+      },
+      "initialization_ms_including_jit": 172.24425077438354,
+      "max_abs_error_fp64": 0.00040710233094204407,
+      "max_lse_error_fp64": 3.5090160572792684e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 18.695999681949615,
+        "cold": 30.719999223947525
+      },
+      "prepare_ms": 170.67096568644047,
+      "metadata_ms": 7.235419936478138,
+      "logical_kv_token_visits": 13051,
+      "workspace_bytes": 1597440,
+      "configuration_wall_seconds": 0.24497941322624683
+    },
+    {
+      "method": "dynamic_persistent_fixed",
+      "version": "persistent_fixed",
+      "splits": 64,
+      "block_n": 32,
+      "candidate_name": "dynamic_persistent_fixed__splits-64__n-32",
+      "source_paths": [
+        "src/branchtile/attention_persistent_fixed.py",
+        "src/branchtile/tilelang_kernel_persistent_fixed.py"
+      ],
+      "source_sha256": {
+        "src/branchtile/attention_persistent_fixed.py": "87ce11da7cd8339c589536ea9627db35c6b155ac23c9e7f3e6a546581b4c4d0c",
+        "src/branchtile/tilelang_kernel_persistent_fixed.py": "4a4778d78fc7342829ce0d525872afb7795b137fa86b92928ad835e3e89d8873"
+      },
+      "initialization_ms_including_jit": 122.8891359642148,
+      "max_abs_error_fp64": 0.00040710233094204407,
+      "max_lse_error_fp64": 3.877879382940819e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 15.036800503730774,
+        "cold": 24.57600086927414
+      },
+      "prepare_ms": 122.10061401128769,
+      "metadata_ms": 9.720079600811005,
+      "logical_kv_token_visits": 13051,
+      "workspace_bytes": 1597440,
+      "configuration_wall_seconds": 0.20692239049822092
+    },
+    {
+      "method": "dynamic_persistent_fixed",
+      "version": "persistent_fixed",
+      "splits": 32,
+      "block_n": 64,
+      "candidate_name": "dynamic_persistent_fixed__splits-32__n-64",
+      "source_paths": [
+        "src/branchtile/attention_persistent_fixed.py",
+        "src/branchtile/tilelang_kernel_persistent_fixed.py"
+      ],
+      "source_sha256": {
+        "src/branchtile/attention_persistent_fixed.py": "87ce11da7cd8339c589536ea9627db35c6b155ac23c9e7f3e6a546581b4c4d0c",
+        "src/branchtile/tilelang_kernel_persistent_fixed.py": "4a4778d78fc7342829ce0d525872afb7795b137fa86b92928ad835e3e89d8873"
+      },
+      "initialization_ms_including_jit": 6458.90022162348,
+      "max_abs_error_fp64": 0.00040710233094204407,
+      "max_lse_error_fp64": 3.5090160572792684e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 18.943999707698822,
+        "cold": 28.704000636935234
+      },
+      "prepare_ms": 6022.676084190607,
+      "metadata_ms": 6.935768760740757,
+      "logical_kv_token_visits": 13051,
+      "workspace_bytes": 798720,
+      "configuration_wall_seconds": 6.52891508769244
+    },
+    {
+      "method": "dynamic_v2",
+      "version": "v2",
+      "splits": 128,
+      "block_n": 64,
+      "candidate_name": "dynamic_v2__splits-128__n-64",
+      "source_paths": [
+        "src/dynamic_baseline.py",
+        "src/branchtile/attention_v2.py",
+        "src/branchtile/tilelang_kernel_v2.py"
+      ],
+      "source_sha256": {
+        "src/dynamic_baseline.py": "d85f600a438953a3e508963a5269544c66c24c3470b3f40927d344704bd5a032",
+        "src/branchtile/attention_v2.py": "f6a3ef3519ed96a5405afe92dfdadf064575d027aa05502fb9304e37abeed916",
+        "src/branchtile/tilelang_kernel_v2.py": "7f36322f62d94d047788cce58cf6b4063e7e27b2cd6f96624f7e5f93c9f90525"
+      },
+      "initialization_ms_including_jit": 162.4435856938362,
+      "max_abs_error_fp64": 0.00040710233094204407,
+      "max_lse_error_fp64": 3.5090160572792684e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 30.931198596954346,
+        "cold": 43.007999658584595
+      },
+      "prepare_ms": 161.247911863029,
+      "metadata_ms": 7.878521457314491,
+      "logical_kv_token_visits": 13051,
+      "workspace_bytes": 3194880,
+      "configuration_wall_seconds": 0.23217769712209702
+    },
+    {
+      "method": "dynamic_emptyguard",
+      "version": "emptyguard",
+      "splits": 32,
+      "block_n": 64,
+      "candidate_name": "dynamic_emptyguard__splits-32__n-64",
+      "source_paths": [
+        "src/branchtile/attention_emptyguard.py",
+        "src/branchtile/tilelang_kernel_emptyguard.py"
+      ],
+      "source_sha256": {
+        "src/branchtile/attention_emptyguard.py": "a4eb400c270750522ab7ebee891d96df4076fd3cf7e28f47af12193068f2749c",
+        "src/branchtile/tilelang_kernel_emptyguard.py": "80b91f0812a0ddec97c047facb4023d0929af1f9ca24e1ce562f0fc8655562ad"
+      },
+      "initialization_ms_including_jit": 161.5745620802045,
+      "max_abs_error_fp64": 0.00040710233094204407,
+      "max_lse_error_fp64": 3.5090160572792684e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 20.025600492954254,
+        "cold": 32.76799991726875
+      },
+      "prepare_ms": 160.81914212554693,
+      "metadata_ms": 7.2571467608213425,
+      "logical_kv_token_visits": 13051,
+      "workspace_bytes": 798720,
+      "configuration_wall_seconds": 0.23091518133878708
+    },
+    {
+      "method": "dynamic_emptyguard",
+      "version": "emptyguard",
+      "splits": 32,
+      "block_n": 32,
+      "candidate_name": "dynamic_emptyguard__splits-32__n-32",
+      "source_paths": [
+        "src/branchtile/attention_emptyguard.py",
+        "src/branchtile/tilelang_kernel_emptyguard.py"
+      ],
+      "source_sha256": {
+        "src/branchtile/attention_emptyguard.py": "a4eb400c270750522ab7ebee891d96df4076fd3cf7e28f47af12193068f2749c",
+        "src/branchtile/tilelang_kernel_emptyguard.py": "80b91f0812a0ddec97c047facb4023d0929af1f9ca24e1ce562f0fc8655562ad"
+      },
+      "initialization_ms_including_jit": 160.46561766415834,
+      "max_abs_error_fp64": 0.00040710233094204407,
+      "max_lse_error_fp64": 3.5090160572792684e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 19.19039934873581,
+        "cold": 30.719999223947525
+      },
+      "prepare_ms": 159.72258429974318,
+      "metadata_ms": 6.402726285159588,
+      "logical_kv_token_visits": 13051,
+      "workspace_bytes": 798720,
+      "configuration_wall_seconds": 0.22846520598977804
+    },
+    {
+      "method": "dynamic_v3",
+      "version": "v3",
+      "splits": 128,
+      "block_n": 64,
+      "candidate_name": "dynamic_v3__splits-128__n-64",
+      "source_paths": [
+        "src/dynamic_baseline.py",
+        "src/branchtile/attention_v3.py",
+        "src/branchtile/tilelang_kernel_v3.py"
+      ],
+      "source_sha256": {
+        "src/dynamic_baseline.py": "d85f600a438953a3e508963a5269544c66c24c3470b3f40927d344704bd5a032",
+        "src/branchtile/attention_v3.py": "d2a11acd8ef0ece0b202e28fd9897ce501a312de2f0f857a09266a869ffddd0a",
+        "src/branchtile/tilelang_kernel_v3.py": "d46f85e068fcbce98d509f5583de15ac6c6dae144d224ceb7f7c679bcddc55ea"
+      },
+      "initialization_ms_including_jit": 166.91026836633682,
+      "max_abs_error_fp64": 0.00040710233094204407,
+      "max_lse_error_fp64": 3.5090160572792684e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 24.676799774169922,
+        "cold": 32.76799991726875
+      },
+      "prepare_ms": 166.10526479780674,
+      "metadata_ms": 6.590294651687145,
+      "logical_kv_token_visits": 13051,
+      "workspace_bytes": 3194880,
+      "configuration_wall_seconds": 0.23950674757361412
+    },
+    {
+      "method": "e1_own",
+      "partition": [
+        [
+          0,
+          1
+        ],
+        [
+          2
+        ]
+      ],
+      "splits": 64,
+      "block_n": 64,
+      "candidate_name": "e1_own__p-0_1-2__splits-64__n-64",
+      "source_paths": [
+        "src/partition_baseline.py",
+        "src/branchtile/union.py"
+      ],
+      "source_sha256": {
+        "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92",
+        "src/branchtile/union.py": "5062b4729617252aa8fe17f7f80ee197b01efca497150b5ef3abc30afff4b55d"
+      },
+      "initialization_ms_including_jit": 13.895155861973763,
+      "max_abs_error_fp64": 0.00040710233094204407,
+      "max_lse_error_fp64": 3.5090160572792684e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 18.07679980993271,
+        "cold": 32.76799991726875
+      },
+      "prepare_ms": 13.453798368573189,
+      "metadata_ms": 12.928422540426254,
+      "logical_kv_token_visits": 20031,
+      "workspace_bytes": 1609920,
+      "configuration_wall_seconds": 0.08596996404230595
+    },
+    {
+      "method": "e1_own",
+      "partition": [
+        [
+          0
+        ],
+        [
+          1
+        ],
+        [
+          2
+        ]
+      ],
+      "splits": 64,
+      "block_n": 64,
+      "candidate_name": "e1_own__p-0-1-2__splits-64__n-64",
+      "source_paths": [
+        "src/partition_baseline.py",
+        "src/branchtile/union.py"
+      ],
+      "source_sha256": {
+        "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92",
+        "src/branchtile/union.py": "5062b4729617252aa8fe17f7f80ee197b01efca497150b5ef3abc30afff4b55d"
+      },
+      "initialization_ms_including_jit": 15.41933324187994,
+      "max_abs_error_fp64": 0.00040710233094204407,
+      "max_lse_error_fp64": 3.5090160572792684e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 26.19360089302063,
+        "cold": 43.007999658584595
+      },
+      "prepare_ms": 15.063588507473469,
+      "metadata_ms": 13.924230821430683,
+      "logical_kv_token_visits": 25332,
+      "workspace_bytes": 1609920,
+      "configuration_wall_seconds": 0.08831605035811663
+    },
+    {
+      "method": "dynamic_v2",
+      "version": "v2",
+      "splits": 64,
+      "block_n": 32,
+      "candidate_name": "dynamic_v2__splits-64__n-32",
+      "source_paths": [
+        "src/dynamic_baseline.py",
+        "src/branchtile/attention_v2.py",
+        "src/branchtile/tilelang_kernel_v2.py"
+      ],
+      "source_sha256": {
+        "src/dynamic_baseline.py": "d85f600a438953a3e508963a5269544c66c24c3470b3f40927d344704bd5a032",
+        "src/branchtile/attention_v2.py": "f6a3ef3519ed96a5405afe92dfdadf064575d027aa05502fb9304e37abeed916",
+        "src/branchtile/tilelang_kernel_v2.py": "7f36322f62d94d047788cce58cf6b4063e7e27b2cd6f96624f7e5f93c9f90525"
+      },
+      "initialization_ms_including_jit": 155.37852235138416,
+      "max_abs_error_fp64": 0.00040710233094204407,
+      "max_lse_error_fp64": 3.5090160572792684e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 15.846399962902069,
+        "cold": 26.623999699950218
+      },
+      "prepare_ms": 154.62436340749264,
+      "metadata_ms": 6.357377395033836,
+      "logical_kv_token_visits": 13051,
+      "workspace_bytes": 1597440,
+      "configuration_wall_seconds": 0.22399431839585304
+    },
+    {
+      "method": "e0_native",
+      "tensor_cores": true,
+      "fixed_split_size": null,
+      "candidate_name": "e0_native__fixedsplit-None__tc-1",
+      "source_paths": [
+        "src/flashinfer_baseline.py"
+      ],
+      "source_sha256": {
+        "src/flashinfer_baseline.py": "942eb00c9442393871af9cdab140e83de00bb05c30d2c36fa04a1d0735bc50fa"
+      },
+      "initialization_ms_including_jit": 5.36553468555212,
+      "max_abs_error_fp64": 0.002282786979391438,
+      "max_lse_error_fp64": 0.0005762712075441101,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 9.76480022072792,
+        "cold": 18.432000651955605
+      },
+      "prepare_ms": 5.106803961098194,
+      "metadata_ms": null,
+      "logical_kv_token_visits": null,
+      "workspace_bytes": 536870912,
+      "configuration_wall_seconds": 0.07295957487076521
+    },
+    {
+      "method": "e1_native",
+      "partition": [
+        [
+          0,
+          1,
+          2
+        ]
+      ],
+      "fixed_split_size": null,
+      "candidate_name": "e1_native__p-0_1_2__fixedsplit-None",
+      "source_paths": [
+        "src/partition_baseline.py"
+      ],
+      "source_sha256": {
+        "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92"
+      },
+      "initialization_ms_including_jit": 3.8106748834252357,
+      "max_abs_error_fp64": 0.0008463843907932367,
+      "max_lse_error_fp64": 0.0005238191201417663,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 11.604800075292587,
+        "cold": 20.479999482631683
+      },
+      "prepare_ms": 3.5507315769791603,
+      "metadata_ms": 1.314779743552208,
+      "logical_kv_token_visits": 13051,
+      "workspace_bytes": 536870912,
+      "configuration_wall_seconds": 0.07178557012230158
+    },
+    {
+      "method": "e4_native",
+      "tree": [
+        [
+          0,
+          1
+        ],
+        2
+      ],
+      "fixed_split_size": null,
+      "candidate_name": "e4_native__tree-[[0,1],2]__fixedsplit-None",
+      "source_paths": [
+        "src/cascade_baseline.py",
+        "src/partition_baseline.py"
+      ],
+      "source_sha256": {
+        "src/cascade_baseline.py": "245273b2a6915203cc2e0e77f82b31e7f7ef319d600c81c6c6124d47687898c7",
+        "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92"
+      },
+      "initialization_ms_including_jit": 8.481341414153576,
+      "max_abs_error_fp64": 0.001000452203931551,
+      "max_lse_error_fp64": 0.0003946987582921224,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 9.297599643468857,
+        "cold": 18.432000651955605
+      },
+      "prepare_ms": 8.213674649596214,
+      "metadata_ms": 3.880290314555168,
+      "logical_kv_token_visits": 15054,
+      "workspace_bytes": 536870912,
+      "configuration_wall_seconds": 0.0791345564648509
+    },
+    {
+      "method": "dynamic_emptyguard",
+      "version": "emptyguard",
+      "splits": 128,
+      "block_n": 32,
+      "candidate_name": "dynamic_emptyguard__splits-128__n-32",
+      "source_paths": [
+        "src/branchtile/attention_emptyguard.py",
+        "src/branchtile/tilelang_kernel_emptyguard.py"
+      ],
+      "source_sha256": {
+        "src/branchtile/attention_emptyguard.py": "a4eb400c270750522ab7ebee891d96df4076fd3cf7e28f47af12193068f2749c",
+        "src/branchtile/tilelang_kernel_emptyguard.py": "80b91f0812a0ddec97c047facb4023d0929af1f9ca24e1ce562f0fc8655562ad"
+      },
+      "initialization_ms_including_jit": 161.57531552016735,
+      "max_abs_error_fp64": 0.00040710233094204407,
+      "max_lse_error_fp64": 3.5090160572792684e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 17.718400061130524,
+        "cold": 26.623999699950218
+      },
+      "prepare_ms": 160.3963179513812,
+      "metadata_ms": 6.675963290035725,
+      "logical_kv_token_visits": 13051,
+      "workspace_bytes": 3194880,
+      "configuration_wall_seconds": 0.23319068737328053
+    },
+    {
+      "method": "dynamic_v2",
+      "version": "v2",
+      "splits": 64,
+      "block_n": 64,
+      "candidate_name": "dynamic_v2__splits-64__n-64",
+      "source_paths": [
+        "src/dynamic_baseline.py",
+        "src/branchtile/attention_v2.py",
+        "src/branchtile/tilelang_kernel_v2.py"
+      ],
+      "source_sha256": {
+        "src/dynamic_baseline.py": "d85f600a438953a3e508963a5269544c66c24c3470b3f40927d344704bd5a032",
+        "src/branchtile/attention_v2.py": "f6a3ef3519ed96a5405afe92dfdadf064575d027aa05502fb9304e37abeed916",
+        "src/branchtile/tilelang_kernel_v2.py": "7f36322f62d94d047788cce58cf6b4063e7e27b2cd6f96624f7e5f93c9f90525"
+      },
+      "initialization_ms_including_jit": 315.4358323663473,
+      "max_abs_error_fp64": 0.00040710233094204407,
+      "max_lse_error_fp64": 3.5090160572792684e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 18.251200020313263,
+        "cold": 30.688000842928886
+      },
+      "prepare_ms": 314.6494058892131,
+      "metadata_ms": 7.04516377300024,
+      "logical_kv_token_visits": 13051,
+      "workspace_bytes": 1597440,
+      "configuration_wall_seconds": 0.3856615610420704
+    },
+    {
+      "method": "dynamic_persistent_fixed",
+      "version": "persistent_fixed",
+      "splits": 128,
+      "block_n": 32,
+      "candidate_name": "dynamic_persistent_fixed__splits-128__n-32",
+      "source_paths": [
+        "src/branchtile/attention_persistent_fixed.py",
+        "src/branchtile/tilelang_kernel_persistent_fixed.py"
+      ],
+      "source_sha256": {
+        "src/branchtile/attention_persistent_fixed.py": "87ce11da7cd8339c589536ea9627db35c6b155ac23c9e7f3e6a546581b4c4d0c",
+        "src/branchtile/tilelang_kernel_persistent_fixed.py": "4a4778d78fc7342829ce0d525872afb7795b137fa86b92928ad835e3e89d8873"
+      },
+      "initialization_ms_including_jit": 6268.738056533039,
+      "max_abs_error_fp64": 0.00040710233094204407,
+      "max_lse_error_fp64": 3.5090160572792684e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 15.8720001578331,
+        "cold": 24.57600086927414
+      },
+      "prepare_ms": 5864.481796510518,
+      "metadata_ms": 6.866520270705223,
+      "logical_kv_token_visits": 13051,
+      "workspace_bytes": 3194880,
+      "configuration_wall_seconds": 6.3387063117697835
+    },
+    {
+      "method": "dynamic_emptyguard",
+      "version": "emptyguard",
+      "splits": 64,
+      "block_n": 32,
+      "candidate_name": "dynamic_emptyguard__splits-64__n-32",
+      "source_paths": [
+        "src/branchtile/attention_emptyguard.py",
+        "src/branchtile/tilelang_kernel_emptyguard.py"
+      ],
+      "source_sha256": {
+        "src/branchtile/attention_emptyguard.py": "a4eb400c270750522ab7ebee891d96df4076fd3cf7e28f47af12193068f2749c",
+        "src/branchtile/tilelang_kernel_emptyguard.py": "80b91f0812a0ddec97c047facb4023d0929af1f9ca24e1ce562f0fc8655562ad"
+      },
+      "initialization_ms_including_jit": 163.45080733299255,
+      "max_abs_error_fp64": 0.00040710233094204407,
+      "max_lse_error_fp64": 3.5090160572792684e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 17.025600373744965,
+        "cold": 28.672000393271446
+      },
+      "prepare_ms": 162.69077081233263,
+      "metadata_ms": 7.073796354234219,
+      "logical_kv_token_visits": 13051,
+      "workspace_bytes": 1597440,
+      "configuration_wall_seconds": 0.23101420048624277
+    },
+    {
+      "method": "dynamic_fullcol_guard",
+      "version": "fullcol_guard",
+      "splits": 64,
+      "block_n": 32,
+      "candidate_name": "dynamic_fullcol_guard__splits-64__n-32",
+      "source_paths": [
+        "src/branchtile/attention_fullcol_guard.py",
+        "src/branchtile/tilelang_kernel_fullcol_guard.py"
+      ],
+      "source_sha256": {
+        "src/branchtile/attention_fullcol_guard.py": "fa990cd439eeee4a27624b0c678b159c2f4759de6075f782fd347636895c07ff",
+        "src/branchtile/tilelang_kernel_fullcol_guard.py": "cc3f2ea59cf04515fac0e648afa0a65c2eee9e0ab1a4e51b7681c9be53a293ab"
+      },
+      "initialization_ms_including_jit": 161.08308732509613,
+      "max_abs_error_fp64": 0.00040710233094204407,
+      "max_lse_error_fp64": 3.877879382940819e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 17.071999609470367,
+        "cold": 28.672000393271446
+      },
+      "prepare_ms": 160.3885218501091,
+      "metadata_ms": 6.583680398762226,
+      "logical_kv_token_visits": 13051,
+      "workspace_bytes": 1597440,
+      "configuration_wall_seconds": 0.2288710456341505
+    },
+    {
+      "method": "dynamic_fullcol_guard",
+      "version": "fullcol_guard",
+      "splits": 128,
+      "block_n": 64,
+      "candidate_name": "dynamic_fullcol_guard__splits-128__n-64",
+      "source_paths": [
+        "src/branchtile/attention_fullcol_guard.py",
+        "src/branchtile/tilelang_kernel_fullcol_guard.py"
+      ],
+      "source_sha256": {
+        "src/branchtile/attention_fullcol_guard.py": "fa990cd439eeee4a27624b0c678b159c2f4759de6075f782fd347636895c07ff",
+        "src/branchtile/tilelang_kernel_fullcol_guard.py": "cc3f2ea59cf04515fac0e648afa0a65c2eee9e0ab1a4e51b7681c9be53a293ab"
+      },
+      "initialization_ms_including_jit": 160.07964499294758,
+      "max_abs_error_fp64": 0.00040710233094204407,
+      "max_lse_error_fp64": 3.5090160572792684e-06,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 29.4624000787735,
+        "cold": 43.007999658584595
+      },
+      "prepare_ms": 159.36644654721022,
+      "metadata_ms": 6.491987034678459,
+      "logical_kv_token_visits": 13051,
+      "workspace_bytes": 3194880,
+      "configuration_wall_seconds": 0.23376485239714384
+    },
+    {
+      "method": "e1_native",
+      "partition": [
+        [
+          0,
+          2
+        ],
+        [
+          1
+        ]
+      ],
+      "fixed_split_size": null,
+      "candidate_name": "e1_native__p-0_2-1__fixedsplit-None",
+      "source_paths": [
+        "src/partition_baseline.py"
+      ],
+      "source_sha256": {
+        "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92"
+      },
+      "initialization_ms_including_jit": 10.146957822144032,
+      "max_abs_error_fp64": 0.0008463843907932367,
+      "max_lse_error_fp64": 0.0006268159463136413,
+      "status": "ok",
+      "tuning_us_by_cache": {
+        "hot": 9.92479994893074,
+        "cold": 20.479999482631683
+      },
+      "prepare_ms": 8.274517953395844,
+      "metadata_ms": 2.2766664624214172,
+      "logical_kv_token_visits": 19494,
+      "workspace_bytes": 536870912,
+      "configuration_wall_seconds": 0.0780688775703311
+    }
+  ],
+  "missing_qualified_methods": {
+    "hot": [],
+    "cold": []
+  },
+  "selected": {
+    "hot": {
+      "e1_native": {
+        "config": {
+          "method": "e1_native",
+          "partition": [
+            [
+              0,
+              1
+            ],
+            [
+              2
+            ]
+          ],
+          "fixed_split_size": null
+        },
+        "record": {
+          "method": "e1_native",
+          "partition": [
+            [
+              0,
+              1
+            ],
+            [
+              2
+            ]
+          ],
+          "fixed_split_size": null,
+          "candidate_name": "e1_native__p-0_1-2__fixedsplit-None",
+          "source_paths": [
+            "src/partition_baseline.py"
+          ],
+          "source_sha256": {
+            "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92"
+          },
+          "initialization_ms_including_jit": 7.865372113883495,
+          "max_abs_error_fp64": 0.001113347696768352,
+          "max_lse_error_fp64": 0.0005762712075441101,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 8.88959988951683,
+            "cold": 18.432000651955605
+          },
+          "prepare_ms": 7.644277065992355,
+          "metadata_ms": 2.0010042935609818,
+          "logical_kv_token_visits": 20031,
+          "workspace_bytes": 536870912
+        }
+      },
+      "e1_own": {
+        "config": {
+          "method": "e1_own",
+          "partition": [
+            [
+              0,
+              1,
+              2
+            ]
+          ],
+          "splits": 64,
+          "block_n": 64
+        },
+        "record": {
+          "method": "e1_own",
+          "partition": [
+            [
+              0,
+              1,
+              2
+            ]
+          ],
+          "splits": 64,
+          "block_n": 64,
+          "candidate_name": "e1_own__p-0_1_2__splits-64__n-64",
+          "source_paths": [
+            "src/partition_baseline.py",
+            "src/branchtile/union.py"
+          ],
+          "source_sha256": {
+            "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92",
+            "src/branchtile/union.py": "5062b4729617252aa8fe17f7f80ee197b01efca497150b5ef3abc30afff4b55d"
+          },
+          "initialization_ms_including_jit": 304.93966955691576,
+          "max_abs_error_fp64": 0.00040710233094204407,
+          "max_lse_error_fp64": 3.5090160572792684e-06,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 8.57120007276535,
+            "cold": 18.432000651955605
+          },
+          "prepare_ms": 303.991517983377,
+          "metadata_ms": 8.78141075372696,
+          "logical_kv_token_visits": 13051,
+          "workspace_bytes": 1609920
+        }
+      },
+      "dynamic_persistent_fixed": {
+        "config": {
+          "method": "dynamic_persistent_fixed",
+          "version": "persistent_fixed",
+          "splits": 64,
+          "block_n": 32
+        },
+        "record": {
+          "method": "dynamic_persistent_fixed",
+          "version": "persistent_fixed",
+          "splits": 64,
+          "block_n": 32,
+          "candidate_name": "dynamic_persistent_fixed__splits-64__n-32",
+          "source_paths": [
+            "src/branchtile/attention_persistent_fixed.py",
+            "src/branchtile/tilelang_kernel_persistent_fixed.py"
+          ],
+          "source_sha256": {
+            "src/branchtile/attention_persistent_fixed.py": "87ce11da7cd8339c589536ea9627db35c6b155ac23c9e7f3e6a546581b4c4d0c",
+            "src/branchtile/tilelang_kernel_persistent_fixed.py": "4a4778d78fc7342829ce0d525872afb7795b137fa86b92928ad835e3e89d8873"
+          },
+          "initialization_ms_including_jit": 122.8891359642148,
+          "max_abs_error_fp64": 0.00040710233094204407,
+          "max_lse_error_fp64": 3.877879382940819e-06,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 15.036800503730774,
+            "cold": 24.57600086927414
+          },
+          "prepare_ms": 122.10061401128769,
+          "metadata_ms": 9.720079600811005,
+          "logical_kv_token_visits": 13051,
+          "workspace_bytes": 1597440
+        }
+      },
+      "e4_native": {
+        "config": {
+          "method": "e4_native",
+          "tree": [
+            0,
+            [
+              1,
+              2
+            ]
+          ],
+          "fixed_split_size": null
+        },
+        "record": {
+          "method": "e4_native",
+          "tree": [
+            0,
+            [
+              1,
+              2
+            ]
+          ],
+          "fixed_split_size": null,
+          "candidate_name": "e4_native__tree-[0,[1,2]]__fixedsplit-None",
+          "source_paths": [
+            "src/cascade_baseline.py",
+            "src/partition_baseline.py"
+          ],
+          "source_sha256": {
+            "src/cascade_baseline.py": "245273b2a6915203cc2e0e77f82b31e7f7ef319d600c81c6c6124d47687898c7",
+            "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92"
+          },
+          "initialization_ms_including_jit": 7.8752608969807625,
+          "max_abs_error_fp64": 0.0009972159877257858,
+          "max_lse_error_fp64": 0.0005505220010011413,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 9.160000085830688,
+            "cold": 20.447999238967896
+          },
+          "prepare_ms": 7.61946476995945,
+          "metadata_ms": 3.365360200405121,
+          "logical_kv_token_visits": 14236,
+          "workspace_bytes": 536870912
+        }
+      },
+      "dynamic_v2": {
+        "config": {
+          "method": "dynamic_v2",
+          "version": "v2",
+          "splits": 64,
+          "block_n": 32
+        },
+        "record": {
+          "method": "dynamic_v2",
+          "version": "v2",
+          "splits": 64,
+          "block_n": 32,
+          "candidate_name": "dynamic_v2__splits-64__n-32",
+          "source_paths": [
+            "src/dynamic_baseline.py",
+            "src/branchtile/attention_v2.py",
+            "src/branchtile/tilelang_kernel_v2.py"
+          ],
+          "source_sha256": {
+            "src/dynamic_baseline.py": "d85f600a438953a3e508963a5269544c66c24c3470b3f40927d344704bd5a032",
+            "src/branchtile/attention_v2.py": "f6a3ef3519ed96a5405afe92dfdadf064575d027aa05502fb9304e37abeed916",
+            "src/branchtile/tilelang_kernel_v2.py": "7f36322f62d94d047788cce58cf6b4063e7e27b2cd6f96624f7e5f93c9f90525"
+          },
+          "initialization_ms_including_jit": 155.37852235138416,
+          "max_abs_error_fp64": 0.00040710233094204407,
+          "max_lse_error_fp64": 3.5090160572792684e-06,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 15.846399962902069,
+            "cold": 26.623999699950218
+          },
+          "prepare_ms": 154.62436340749264,
+          "metadata_ms": 6.357377395033836,
+          "logical_kv_token_visits": 13051,
+          "workspace_bytes": 1597440
+        }
+      },
+      "dynamic_emptyguard": {
+        "config": {
+          "method": "dynamic_emptyguard",
+          "version": "emptyguard",
+          "splits": 64,
+          "block_n": 32
+        },
+        "record": {
+          "method": "dynamic_emptyguard",
+          "version": "emptyguard",
+          "splits": 64,
+          "block_n": 32,
+          "candidate_name": "dynamic_emptyguard__splits-64__n-32",
+          "source_paths": [
+            "src/branchtile/attention_emptyguard.py",
+            "src/branchtile/tilelang_kernel_emptyguard.py"
+          ],
+          "source_sha256": {
+            "src/branchtile/attention_emptyguard.py": "a4eb400c270750522ab7ebee891d96df4076fd3cf7e28f47af12193068f2749c",
+            "src/branchtile/tilelang_kernel_emptyguard.py": "80b91f0812a0ddec97c047facb4023d0929af1f9ca24e1ce562f0fc8655562ad"
+          },
+          "initialization_ms_including_jit": 163.45080733299255,
+          "max_abs_error_fp64": 0.00040710233094204407,
+          "max_lse_error_fp64": 3.5090160572792684e-06,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 17.025600373744965,
+            "cold": 28.672000393271446
+          },
+          "prepare_ms": 162.69077081233263,
+          "metadata_ms": 7.073796354234219,
+          "logical_kv_token_visits": 13051,
+          "workspace_bytes": 1597440
+        }
+      },
+      "dynamic_v3": {
+        "config": {
+          "method": "dynamic_v3",
+          "version": "v3",
+          "splits": 64,
+          "block_n": 64
+        },
+        "record": {
+          "method": "dynamic_v3",
+          "version": "v3",
+          "splits": 64,
+          "block_n": 64,
+          "candidate_name": "dynamic_v3__splits-64__n-64",
+          "source_paths": [
+            "src/dynamic_baseline.py",
+            "src/branchtile/attention_v3.py",
+            "src/branchtile/tilelang_kernel_v3.py"
+          ],
+          "source_sha256": {
+            "src/dynamic_baseline.py": "d85f600a438953a3e508963a5269544c66c24c3470b3f40927d344704bd5a032",
+            "src/branchtile/attention_v3.py": "d2a11acd8ef0ece0b202e28fd9897ce501a312de2f0f857a09266a869ffddd0a",
+            "src/branchtile/tilelang_kernel_v3.py": "d46f85e068fcbce98d509f5583de15ac6c6dae144d224ceb7f7c679bcddc55ea"
+          },
+          "initialization_ms_including_jit": 172.24076110869646,
+          "max_abs_error_fp64": 0.00040710233094204407,
+          "max_lse_error_fp64": 3.5090160572792684e-06,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 20.983999967575073,
+            "cold": 32.76799991726875
+          },
+          "prepare_ms": 171.03735078126192,
+          "metadata_ms": 7.17781949788332,
+          "logical_kv_token_visits": 13051,
+          "workspace_bytes": 1597440
+        }
+      },
+      "full_union": {
+        "config": {
+          "method": "e1_own",
+          "partition": [
+            [
+              0,
+              1,
+              2
+            ]
+          ],
+          "splits": 64,
+          "block_n": 64
+        },
+        "record": {
+          "method": "e1_own",
+          "partition": [
+            [
+              0,
+              1,
+              2
+            ]
+          ],
+          "splits": 64,
+          "block_n": 64,
+          "candidate_name": "e1_own__p-0_1_2__splits-64__n-64",
+          "source_paths": [
+            "src/partition_baseline.py",
+            "src/branchtile/union.py"
+          ],
+          "source_sha256": {
+            "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92",
+            "src/branchtile/union.py": "5062b4729617252aa8fe17f7f80ee197b01efca497150b5ef3abc30afff4b55d"
+          },
+          "initialization_ms_including_jit": 304.93966955691576,
+          "max_abs_error_fp64": 0.00040710233094204407,
+          "max_lse_error_fp64": 3.5090160572792684e-06,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 8.57120007276535,
+            "cold": 18.432000651955605
+          },
+          "prepare_ms": 303.991517983377,
+          "metadata_ms": 8.78141075372696,
+          "logical_kv_token_visits": 13051,
+          "workspace_bytes": 1609920
+        }
+      },
+      "dynamic_fullcol_guard": {
+        "config": {
+          "method": "dynamic_fullcol_guard",
+          "version": "fullcol_guard",
+          "splits": 64,
+          "block_n": 32
+        },
+        "record": {
+          "method": "dynamic_fullcol_guard",
+          "version": "fullcol_guard",
+          "splits": 64,
+          "block_n": 32,
+          "candidate_name": "dynamic_fullcol_guard__splits-64__n-32",
+          "source_paths": [
+            "src/branchtile/attention_fullcol_guard.py",
+            "src/branchtile/tilelang_kernel_fullcol_guard.py"
+          ],
+          "source_sha256": {
+            "src/branchtile/attention_fullcol_guard.py": "fa990cd439eeee4a27624b0c678b159c2f4759de6075f782fd347636895c07ff",
+            "src/branchtile/tilelang_kernel_fullcol_guard.py": "cc3f2ea59cf04515fac0e648afa0a65c2eee9e0ab1a4e51b7681c9be53a293ab"
+          },
+          "initialization_ms_including_jit": 161.08308732509613,
+          "max_abs_error_fp64": 0.00040710233094204407,
+          "max_lse_error_fp64": 3.877879382940819e-06,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 17.071999609470367,
+            "cold": 28.672000393271446
+          },
+          "prepare_ms": 160.3885218501091,
+          "metadata_ms": 6.583680398762226,
+          "logical_kv_token_visits": 13051,
+          "workspace_bytes": 1597440
+        }
+      },
+      "e0_native": {
+        "config": {
+          "method": "e0_native",
+          "tensor_cores": true,
+          "fixed_split_size": null
+        },
+        "record": {
+          "method": "e0_native",
+          "tensor_cores": true,
+          "fixed_split_size": null,
+          "candidate_name": "e0_native__fixedsplit-None__tc-1",
+          "source_paths": [
+            "src/flashinfer_baseline.py"
+          ],
+          "source_sha256": {
+            "src/flashinfer_baseline.py": "942eb00c9442393871af9cdab140e83de00bb05c30d2c36fa04a1d0735bc50fa"
+          },
+          "initialization_ms_including_jit": 5.36553468555212,
+          "max_abs_error_fp64": 0.002282786979391438,
+          "max_lse_error_fp64": 0.0005762712075441101,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 9.76480022072792,
+            "cold": 18.432000651955605
+          },
+          "prepare_ms": 5.106803961098194,
+          "metadata_ms": null,
+          "logical_kv_token_visits": null,
+          "workspace_bytes": 536870912
+        }
+      },
+      "best_e1": {
+        "config": {
+          "method": "e1_own",
+          "partition": [
+            [
+              0,
+              1,
+              2
+            ]
+          ],
+          "splits": 64,
+          "block_n": 64
+        },
+        "record": {
+          "method": "e1_own",
+          "partition": [
+            [
+              0,
+              1,
+              2
+            ]
+          ],
+          "splits": 64,
+          "block_n": 64,
+          "candidate_name": "e1_own__p-0_1_2__splits-64__n-64",
+          "source_paths": [
+            "src/partition_baseline.py",
+            "src/branchtile/union.py"
+          ],
+          "source_sha256": {
+            "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92",
+            "src/branchtile/union.py": "5062b4729617252aa8fe17f7f80ee197b01efca497150b5ef3abc30afff4b55d"
+          },
+          "initialization_ms_including_jit": 304.93966955691576,
+          "max_abs_error_fp64": 0.00040710233094204407,
+          "max_lse_error_fp64": 3.5090160572792684e-06,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 8.57120007276535,
+            "cold": 18.432000651955605
+          },
+          "prepare_ms": 303.991517983377,
+          "metadata_ms": 8.78141075372696,
+          "logical_kv_token_visits": 13051,
+          "workspace_bytes": 1609920
+        }
+      },
+      "best_dynamic": {
+        "config": {
+          "method": "dynamic_persistent_fixed",
+          "version": "persistent_fixed",
+          "splits": 64,
+          "block_n": 32
+        },
+        "record": {
+          "method": "dynamic_persistent_fixed",
+          "version": "persistent_fixed",
+          "splits": 64,
+          "block_n": 32,
+          "candidate_name": "dynamic_persistent_fixed__splits-64__n-32",
+          "source_paths": [
+            "src/branchtile/attention_persistent_fixed.py",
+            "src/branchtile/tilelang_kernel_persistent_fixed.py"
+          ],
+          "source_sha256": {
+            "src/branchtile/attention_persistent_fixed.py": "87ce11da7cd8339c589536ea9627db35c6b155ac23c9e7f3e6a546581b4c4d0c",
+            "src/branchtile/tilelang_kernel_persistent_fixed.py": "4a4778d78fc7342829ce0d525872afb7795b137fa86b92928ad835e3e89d8873"
+          },
+          "initialization_ms_including_jit": 122.8891359642148,
+          "max_abs_error_fp64": 0.00040710233094204407,
+          "max_lse_error_fp64": 3.877879382940819e-06,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 15.036800503730774,
+            "cold": 24.57600086927414
+          },
+          "prepare_ms": 122.10061401128769,
+          "metadata_ms": 9.720079600811005,
+          "logical_kv_token_visits": 13051,
+          "workspace_bytes": 1597440
+        }
+      },
+      "best_control": {
+        "config": {
+          "method": "e1_own",
+          "partition": [
+            [
+              0,
+              1,
+              2
+            ]
+          ],
+          "splits": 64,
+          "block_n": 64
+        },
+        "record": {
+          "method": "e1_own",
+          "partition": [
+            [
+              0,
+              1,
+              2
+            ]
+          ],
+          "splits": 64,
+          "block_n": 64,
+          "candidate_name": "e1_own__p-0_1_2__splits-64__n-64",
+          "source_paths": [
+            "src/partition_baseline.py",
+            "src/branchtile/union.py"
+          ],
+          "source_sha256": {
+            "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92",
+            "src/branchtile/union.py": "5062b4729617252aa8fe17f7f80ee197b01efca497150b5ef3abc30afff4b55d"
+          },
+          "initialization_ms_including_jit": 304.93966955691576,
+          "max_abs_error_fp64": 0.00040710233094204407,
+          "max_lse_error_fp64": 3.5090160572792684e-06,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 8.57120007276535,
+            "cold": 18.432000651955605
+          },
+          "prepare_ms": 303.991517983377,
+          "metadata_ms": 8.78141075372696,
+          "logical_kv_token_visits": 13051,
+          "workspace_bytes": 1609920
+        }
+      }
+    },
+    "cold": {
+      "e1_native": {
+        "config": {
+          "method": "e1_native",
+          "partition": [
+            [
+              0
+            ],
+            [
+              1,
+              2
+            ]
+          ],
+          "fixed_split_size": null
+        },
+        "record": {
+          "method": "e1_native",
+          "partition": [
+            [
+              0
+            ],
+            [
+              1,
+              2
+            ]
+          ],
+          "fixed_split_size": null,
+          "candidate_name": "e1_native__p-0-1_2__fixedsplit-None",
+          "source_paths": [
+            "src/partition_baseline.py"
+          ],
+          "source_sha256": {
+            "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92"
+          },
+          "initialization_ms_including_jit": 95.59521358460188,
+          "max_abs_error_fp64": 0.002282786979391438,
+          "max_lse_error_fp64": 0.0005476609780519226,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 8.89279991388321,
+            "cold": 18.432000651955605
+          },
+          "prepare_ms": 52.58375685662031,
+          "metadata_ms": 1.232014037668705,
+          "logical_kv_token_visits": 19213,
+          "workspace_bytes": 536870912
+        }
+      },
+      "e1_own": {
+        "config": {
+          "method": "e1_own",
+          "partition": [
+            [
+              0,
+              1,
+              2
+            ]
+          ],
+          "splits": 64,
+          "block_n": 64
+        },
+        "record": {
+          "method": "e1_own",
+          "partition": [
+            [
+              0,
+              1,
+              2
+            ]
+          ],
+          "splits": 64,
+          "block_n": 64,
+          "candidate_name": "e1_own__p-0_1_2__splits-64__n-64",
+          "source_paths": [
+            "src/partition_baseline.py",
+            "src/branchtile/union.py"
+          ],
+          "source_sha256": {
+            "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92",
+            "src/branchtile/union.py": "5062b4729617252aa8fe17f7f80ee197b01efca497150b5ef3abc30afff4b55d"
+          },
+          "initialization_ms_including_jit": 304.93966955691576,
+          "max_abs_error_fp64": 0.00040710233094204407,
+          "max_lse_error_fp64": 3.5090160572792684e-06,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 8.57120007276535,
+            "cold": 18.432000651955605
+          },
+          "prepare_ms": 303.991517983377,
+          "metadata_ms": 8.78141075372696,
+          "logical_kv_token_visits": 13051,
+          "workspace_bytes": 1609920
+        }
+      },
+      "dynamic_persistent_fixed": {
+        "config": {
+          "method": "dynamic_persistent_fixed",
+          "version": "persistent_fixed",
+          "splits": 64,
+          "block_n": 32
+        },
+        "record": {
+          "method": "dynamic_persistent_fixed",
+          "version": "persistent_fixed",
+          "splits": 64,
+          "block_n": 32,
+          "candidate_name": "dynamic_persistent_fixed__splits-64__n-32",
+          "source_paths": [
+            "src/branchtile/attention_persistent_fixed.py",
+            "src/branchtile/tilelang_kernel_persistent_fixed.py"
+          ],
+          "source_sha256": {
+            "src/branchtile/attention_persistent_fixed.py": "87ce11da7cd8339c589536ea9627db35c6b155ac23c9e7f3e6a546581b4c4d0c",
+            "src/branchtile/tilelang_kernel_persistent_fixed.py": "4a4778d78fc7342829ce0d525872afb7795b137fa86b92928ad835e3e89d8873"
+          },
+          "initialization_ms_including_jit": 122.8891359642148,
+          "max_abs_error_fp64": 0.00040710233094204407,
+          "max_lse_error_fp64": 3.877879382940819e-06,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 15.036800503730774,
+            "cold": 24.57600086927414
+          },
+          "prepare_ms": 122.10061401128769,
+          "metadata_ms": 9.720079600811005,
+          "logical_kv_token_visits": 13051,
+          "workspace_bytes": 1597440
+        }
+      },
+      "e4_native": {
+        "config": {
+          "method": "e4_native",
+          "tree": [
+            [
+              0,
+              1
+            ],
+            2
+          ],
+          "fixed_split_size": null
+        },
+        "record": {
+          "method": "e4_native",
+          "tree": [
+            [
+              0,
+              1
+            ],
+            2
+          ],
+          "fixed_split_size": null,
+          "candidate_name": "e4_native__tree-[[0,1],2]__fixedsplit-None",
+          "source_paths": [
+            "src/cascade_baseline.py",
+            "src/partition_baseline.py"
+          ],
+          "source_sha256": {
+            "src/cascade_baseline.py": "245273b2a6915203cc2e0e77f82b31e7f7ef319d600c81c6c6124d47687898c7",
+            "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92"
+          },
+          "initialization_ms_including_jit": 8.481341414153576,
+          "max_abs_error_fp64": 0.001000452203931551,
+          "max_lse_error_fp64": 0.0003946987582921224,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 9.297599643468857,
+            "cold": 18.432000651955605
+          },
+          "prepare_ms": 8.213674649596214,
+          "metadata_ms": 3.880290314555168,
+          "logical_kv_token_visits": 15054,
+          "workspace_bytes": 536870912
+        }
+      },
+      "dynamic_v2": {
+        "config": {
+          "method": "dynamic_v2",
+          "version": "v2",
+          "splits": 128,
+          "block_n": 32
+        },
+        "record": {
+          "method": "dynamic_v2",
+          "version": "v2",
+          "splits": 128,
+          "block_n": 32,
+          "candidate_name": "dynamic_v2__splits-128__n-32",
+          "source_paths": [
+            "src/dynamic_baseline.py",
+            "src/branchtile/attention_v2.py",
+            "src/branchtile/tilelang_kernel_v2.py"
+          ],
+          "source_sha256": {
+            "src/dynamic_baseline.py": "d85f600a438953a3e508963a5269544c66c24c3470b3f40927d344704bd5a032",
+            "src/branchtile/attention_v2.py": "f6a3ef3519ed96a5405afe92dfdadf064575d027aa05502fb9304e37abeed916",
+            "src/branchtile/tilelang_kernel_v2.py": "7f36322f62d94d047788cce58cf6b4063e7e27b2cd6f96624f7e5f93c9f90525"
+          },
+          "initialization_ms_including_jit": 157.8294299542904,
+          "max_abs_error_fp64": 0.00040710233094204407,
+          "max_lse_error_fp64": 3.5090160572792684e-06,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 16.655999422073364,
+            "cold": 26.623999699950218
+          },
+          "prepare_ms": 157.0340497419238,
+          "metadata_ms": 7.036912254989147,
+          "logical_kv_token_visits": 13051,
+          "workspace_bytes": 3194880
+        }
+      },
+      "dynamic_emptyguard": {
+        "config": {
+          "method": "dynamic_emptyguard",
+          "version": "emptyguard",
+          "splits": 128,
+          "block_n": 32
+        },
+        "record": {
+          "method": "dynamic_emptyguard",
+          "version": "emptyguard",
+          "splits": 128,
+          "block_n": 32,
+          "candidate_name": "dynamic_emptyguard__splits-128__n-32",
+          "source_paths": [
+            "src/branchtile/attention_emptyguard.py",
+            "src/branchtile/tilelang_kernel_emptyguard.py"
+          ],
+          "source_sha256": {
+            "src/branchtile/attention_emptyguard.py": "a4eb400c270750522ab7ebee891d96df4076fd3cf7e28f47af12193068f2749c",
+            "src/branchtile/tilelang_kernel_emptyguard.py": "80b91f0812a0ddec97c047facb4023d0929af1f9ca24e1ce562f0fc8655562ad"
+          },
+          "initialization_ms_including_jit": 161.57531552016735,
+          "max_abs_error_fp64": 0.00040710233094204407,
+          "max_lse_error_fp64": 3.5090160572792684e-06,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 17.718400061130524,
+            "cold": 26.623999699950218
+          },
+          "prepare_ms": 160.3963179513812,
+          "metadata_ms": 6.675963290035725,
+          "logical_kv_token_visits": 13051,
+          "workspace_bytes": 3194880
+        }
+      },
+      "dynamic_v3": {
+        "config": {
+          "method": "dynamic_v3",
+          "version": "v3",
+          "splits": 64,
+          "block_n": 64
+        },
+        "record": {
+          "method": "dynamic_v3",
+          "version": "v3",
+          "splits": 64,
+          "block_n": 64,
+          "candidate_name": "dynamic_v3__splits-64__n-64",
+          "source_paths": [
+            "src/dynamic_baseline.py",
+            "src/branchtile/attention_v3.py",
+            "src/branchtile/tilelang_kernel_v3.py"
+          ],
+          "source_sha256": {
+            "src/dynamic_baseline.py": "d85f600a438953a3e508963a5269544c66c24c3470b3f40927d344704bd5a032",
+            "src/branchtile/attention_v3.py": "d2a11acd8ef0ece0b202e28fd9897ce501a312de2f0f857a09266a869ffddd0a",
+            "src/branchtile/tilelang_kernel_v3.py": "d46f85e068fcbce98d509f5583de15ac6c6dae144d224ceb7f7c679bcddc55ea"
+          },
+          "initialization_ms_including_jit": 172.24076110869646,
+          "max_abs_error_fp64": 0.00040710233094204407,
+          "max_lse_error_fp64": 3.5090160572792684e-06,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 20.983999967575073,
+            "cold": 32.76799991726875
+          },
+          "prepare_ms": 171.03735078126192,
+          "metadata_ms": 7.17781949788332,
+          "logical_kv_token_visits": 13051,
+          "workspace_bytes": 1597440
+        }
+      },
+      "full_union": {
+        "config": {
+          "method": "e1_own",
+          "partition": [
+            [
+              0,
+              1,
+              2
+            ]
+          ],
+          "splits": 64,
+          "block_n": 64
+        },
+        "record": {
+          "method": "e1_own",
+          "partition": [
+            [
+              0,
+              1,
+              2
+            ]
+          ],
+          "splits": 64,
+          "block_n": 64,
+          "candidate_name": "e1_own__p-0_1_2__splits-64__n-64",
+          "source_paths": [
+            "src/partition_baseline.py",
+            "src/branchtile/union.py"
+          ],
+          "source_sha256": {
+            "src/partition_baseline.py": "ca47ebc097e8bb87e62cfecc16d764534eb5a6bd0edcef4f9b5b55596305df92",
+            "src/branchtile/union.py": "5062b4729617252aa8fe17f7f80ee197b01efca497150b5ef3abc30afff4b55d"
+          },
+          "initialization_ms_including_jit": 304.93966955691576,
+          "max_abs_error_fp64": 0.00040710233094204407,
+          "max_lse_error_fp64": 3.5090160572792684e-06,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 8.57120007276535,
+            "cold": 18.432000651955605
+          },
+          "prepare_ms": 303.991517983377,
+          "metadata_ms": 8.78141075372696,
+          "logical_kv_token_visits": 13051,
+          "workspace_bytes": 1609920
+        }
+      },
+      "dynamic_fullcol_guard": {
+        "config": {
+          "method": "dynamic_fullcol_guard",
+          "version": "fullcol_guard",
+          "splits": 128,
+          "block_n": 32
+        },
+        "record": {
+          "method": "dynamic_fullcol_guard",
+          "version": "fullcol_guard",
+          "splits": 128,
+          "block_n": 32,
+          "candidate_name": "dynamic_fullcol_guard__splits-128__n-32",
+          "source_paths": [
+            "src/branchtile/attention_fullcol_guard.py",
+            "src/branchtile/tilelang_kernel_fullcol_guard.py"
+          ],
+          "source_sha256": {
+            "src/branchtile/attention_fullcol_guard.py": "fa990cd439eeee4a27624b0c678b159c2f4759de6075f782fd347636895c07ff",
+            "src/branchtile/tilelang_kernel_fullcol_guard.py": "cc3f2ea59cf04515fac0e648afa0a65c2eee9e0ab1a4e51b7681c9be53a293ab"
+          },
+          "initialization_ms_including_jit": 165.32960813492537,
+          "max_abs_error_fp64": 0.00040710233094204407,
+          "max_lse_error_fp64": 3.5090160572792684e-06,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 17.569600045681,
+            "cold": 26.623999699950218
+          },
+          "prepare_ms": 164.37506582587957,
+          "metadata_ms": 7.341801188886166,
+          "logical_kv_token_visits": 13051,
+          "workspace_bytes": 3194880
+        }
+      },
+      "e0_native": {
+        "config": {
+          "method": "e0_native",
+          "tensor_cores": true,
+          "fixed_split_size": null
+        },
+        "record": {
+          "method": "e0_native",
+          "tensor_cores": true,
+          "fixed_split_size": null,
+          "candidate_name": "e0_native__fixedsplit-None__tc-1",
+          "source_paths": [
+            "src/flashinfer_baseline.py"
+          ],
+          "source_sha256": {
+            "src/flashinfer_baseline.py": "942eb00c9442393871af9cdab140e83de00bb05c30d2c36fa04a1d0735bc50fa"
+          },
+          "initialization_ms_including_jit": 5.36553468555212,
+          "max_abs_error_fp64": 0.002282786979391438,
+          "max_lse_error_fp64": 0.0005762712075441101,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 9.76480022072792,
+            "cold": 18.432000651955605
+          },
+          "prepare_ms": 5.106803961098194,
+          "metadata_ms": null,
+          "logical_kv_token_visits": null,
+          "workspace_bytes": 536870912
+        }
+      },
+      "best_e1": {
+        "config": {
+          "method": "e0_native",
+          "tensor_cores": true,
+          "fixed_split_size": null
+        },
+        "record": {
+          "method": "e0_native",
+          "tensor_cores": true,
+          "fixed_split_size": null,
+          "candidate_name": "e0_native__fixedsplit-None__tc-1",
+          "source_paths": [
+            "src/flashinfer_baseline.py"
+          ],
+          "source_sha256": {
+            "src/flashinfer_baseline.py": "942eb00c9442393871af9cdab140e83de00bb05c30d2c36fa04a1d0735bc50fa"
+          },
+          "initialization_ms_including_jit": 5.36553468555212,
+          "max_abs_error_fp64": 0.002282786979391438,
+          "max_lse_error_fp64": 0.0005762712075441101,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 9.76480022072792,
+            "cold": 18.432000651955605
+          },
+          "prepare_ms": 5.106803961098194,
+          "metadata_ms": null,
+          "logical_kv_token_visits": null,
+          "workspace_bytes": 536870912
+        }
+      },
+      "best_dynamic": {
+        "config": {
+          "method": "dynamic_persistent_fixed",
+          "version": "persistent_fixed",
+          "splits": 64,
+          "block_n": 32
+        },
+        "record": {
+          "method": "dynamic_persistent_fixed",
+          "version": "persistent_fixed",
+          "splits": 64,
+          "block_n": 32,
+          "candidate_name": "dynamic_persistent_fixed__splits-64__n-32",
+          "source_paths": [
+            "src/branchtile/attention_persistent_fixed.py",
+            "src/branchtile/tilelang_kernel_persistent_fixed.py"
+          ],
+          "source_sha256": {
+            "src/branchtile/attention_persistent_fixed.py": "87ce11da7cd8339c589536ea9627db35c6b155ac23c9e7f3e6a546581b4c4d0c",
+            "src/branchtile/tilelang_kernel_persistent_fixed.py": "4a4778d78fc7342829ce0d525872afb7795b137fa86b92928ad835e3e89d8873"
+          },
+          "initialization_ms_including_jit": 122.8891359642148,
+          "max_abs_error_fp64": 0.00040710233094204407,
+          "max_lse_error_fp64": 3.877879382940819e-06,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 15.036800503730774,
+            "cold": 24.57600086927414
+          },
+          "prepare_ms": 122.10061401128769,
+          "metadata_ms": 9.720079600811005,
+          "logical_kv_token_visits": 13051,
+          "workspace_bytes": 1597440
+        }
+      },
+      "best_control": {
+        "config": {
+          "method": "e0_native",
+          "tensor_cores": true,
+          "fixed_split_size": null
+        },
+        "record": {
+          "method": "e0_native",
+          "tensor_cores": true,
+          "fixed_split_size": null,
+          "candidate_name": "e0_native__fixedsplit-None__tc-1",
+          "source_paths": [
+            "src/flashinfer_baseline.py"
+          ],
+          "source_sha256": {
+            "src/flashinfer_baseline.py": "942eb00c9442393871af9cdab140e83de00bb05c30d2c36fa04a1d0735bc50fa"
+          },
+          "initialization_ms_including_jit": 5.36553468555212,
+          "max_abs_error_fp64": 0.002282786979391438,
+          "max_lse_error_fp64": 0.0005762712075441101,
+          "status": "ok",
+          "tuning_us_by_cache": {
+            "hot": 9.76480022072792,
+            "cold": 18.432000651955605
+          },
+          "prepare_ms": 5.106803961098194,
+          "metadata_ms": null,
+          "logical_kv_token_visits": null,
+          "workspace_bytes": 536870912
+        }
+      }
+    }
+  },
+  "measurements": [
+    {
+      "cache": "hot",
+      "block": 0,
+      "direction": "random",
+      "order": [
+        "dynamic_emptyguard",
+        "best_dynamic",
+        "full_union",
+        "best_control",
+        "e1_own",
+        "e0_native",
+        "dynamic_v3",
+        "dynamic_persistent_fixed",
+        "e4_native",
+        "best_e1",
+        "e1_native",
+        "dynamic_v2",
+        "full_union_AA",
+        "dynamic_fullcol_guard"
+      ],
+      "us": {
+        "dynamic_emptyguard": 17.16960072517395,
+        "best_dynamic": 15.011200308799744,
+        "full_union": 8.6496002972126,
+        "best_control": 8.615999668836594,
+        "e1_own": 8.617600053548813,
+        "e0_native": 10.37599965929985,
+        "dynamic_v3": 21.084800362586975,
+        "dynamic_persistent_fixed": 15.003199875354767,
+        "e4_native": 9.862399846315384,
+        "best_e1": 8.700799942016602,
+        "e1_native": 9.430400282144547,
+        "dynamic_v2": 15.863999724388123,
+        "full_union_AA": 8.638399839401245,
+        "dynamic_fullcol_guard": 17.161600291728973
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 0,
+      "direction": "reverse",
+      "order": [
+        "dynamic_fullcol_guard",
+        "full_union_AA",
+        "dynamic_v2",
+        "e1_native",
+        "best_e1",
+        "e4_native",
+        "dynamic_persistent_fixed",
+        "dynamic_v3",
+        "e0_native",
+        "e1_own",
+        "best_control",
+        "full_union",
+        "best_dynamic",
+        "dynamic_emptyguard"
+      ],
+      "us": {
+        "dynamic_fullcol_guard": 17.126399278640747,
+        "full_union_AA": 8.575999736785889,
+        "dynamic_v2": 15.807999670505524,
+        "e1_native": 9.398400038480759,
+        "best_e1": 8.563199639320374,
+        "e4_native": 9.830400347709656,
+        "dynamic_persistent_fixed": 15.113599598407745,
+        "dynamic_v3": 21.025599539279938,
+        "e0_native": 10.425599664449692,
+        "e1_own": 8.575999736785889,
+        "best_control": 8.568000048398972,
+        "full_union": 8.560000360012054,
+        "best_dynamic": 14.975999295711517,
+        "dynamic_emptyguard": 16.96159988641739
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 1,
+      "direction": "random",
+      "order": [
+        "dynamic_fullcol_guard",
+        "dynamic_emptyguard",
+        "dynamic_v3",
+        "e0_native",
+        "dynamic_persistent_fixed",
+        "best_e1",
+        "e1_own",
+        "best_dynamic",
+        "dynamic_v2",
+        "full_union_AA",
+        "best_control",
+        "full_union",
+        "e1_native",
+        "e4_native"
+      ],
+      "us": {
+        "dynamic_fullcol_guard": 17.09119975566864,
+        "dynamic_emptyguard": 17.033599317073822,
+        "dynamic_v3": 21.030400693416595,
+        "e0_native": 10.174400359392166,
+        "dynamic_persistent_fixed": 15.012800693511963,
+        "best_e1": 8.62559974193573,
+        "e1_own": 8.631999790668488,
+        "best_dynamic": 15.02079963684082,
+        "dynamic_v2": 15.800000727176666,
+        "full_union_AA": 8.604799956083298,
+        "best_control": 8.630400151014328,
+        "full_union": 8.659200370311737,
+        "e1_native": 9.363199770450592,
+        "e4_native": 9.772799909114838
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 1,
+      "direction": "reverse",
+      "order": [
+        "e4_native",
+        "e1_native",
+        "full_union",
+        "best_control",
+        "full_union_AA",
+        "dynamic_v2",
+        "best_dynamic",
+        "e1_own",
+        "best_e1",
+        "dynamic_persistent_fixed",
+        "e0_native",
+        "dynamic_v3",
+        "dynamic_emptyguard",
+        "dynamic_fullcol_guard"
+      ],
+      "us": {
+        "e4_native": 9.811200201511383,
+        "e1_native": 9.334400296211243,
+        "full_union": 8.548799902200699,
+        "best_control": 8.528000116348267,
+        "full_union_AA": 8.566399663686752,
+        "dynamic_v2": 15.801599621772766,
+        "best_dynamic": 14.971199631690979,
+        "e1_own": 8.593600243330002,
+        "best_e1": 8.57120007276535,
+        "dynamic_persistent_fixed": 15.027199685573578,
+        "e0_native": 10.177599638700485,
+        "dynamic_v3": 21.06720060110092,
+        "dynamic_emptyguard": 16.966399550437927,
+        "dynamic_fullcol_guard": 17.127999663352966
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 2,
+      "direction": "random",
+      "order": [
+        "best_control",
+        "e4_native",
+        "e1_native",
+        "e0_native",
+        "e1_own",
+        "dynamic_emptyguard",
+        "best_e1",
+        "dynamic_persistent_fixed",
+        "dynamic_v3",
+        "best_dynamic",
+        "dynamic_fullcol_guard",
+        "full_union_AA",
+        "dynamic_v2",
+        "full_union"
+      ],
+      "us": {
+        "best_control": 8.51999968290329,
+        "e4_native": 9.851200133562088,
+        "e1_native": 9.391999989748001,
+        "e0_native": 10.204800218343735,
+        "e1_own": 8.54720026254654,
+        "dynamic_emptyguard": 17.047999799251556,
+        "best_e1": 8.535999804735184,
+        "dynamic_persistent_fixed": 14.985600113868713,
+        "dynamic_v3": 21.062399446964264,
+        "best_dynamic": 15.065599977970123,
+        "dynamic_fullcol_guard": 17.129600048065186,
+        "full_union_AA": 8.566399663686752,
+        "dynamic_v2": 15.795199573040009,
+        "full_union": 8.636800199747086
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 2,
+      "direction": "reverse",
+      "order": [
+        "full_union",
+        "dynamic_v2",
+        "full_union_AA",
+        "dynamic_fullcol_guard",
+        "best_dynamic",
+        "dynamic_v3",
+        "dynamic_persistent_fixed",
+        "best_e1",
+        "dynamic_emptyguard",
+        "e1_own",
+        "e0_native",
+        "e1_native",
+        "e4_native",
+        "best_control"
+      ],
+      "us": {
+        "full_union": 8.54400023818016,
+        "dynamic_v2": 15.715199708938599,
+        "full_union_AA": 8.668799698352814,
+        "dynamic_fullcol_guard": 17.1424001455307,
+        "best_dynamic": 14.983999729156494,
+        "dynamic_v3": 21.040000021457672,
+        "dynamic_persistent_fixed": 14.96800035238266,
+        "best_e1": 8.577600121498108,
+        "dynamic_emptyguard": 17.046399414539337,
+        "e1_own": 8.524800091981888,
+        "e0_native": 10.155200213193893,
+        "e1_native": 9.425599873065948,
+        "e4_native": 9.756799787282944,
+        "best_control": 8.646400272846222
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 3,
+      "direction": "random",
+      "order": [
+        "e0_native",
+        "dynamic_v3",
+        "e1_native",
+        "best_dynamic",
+        "best_control",
+        "full_union_AA",
+        "dynamic_fullcol_guard",
+        "full_union",
+        "dynamic_emptyguard",
+        "best_e1",
+        "dynamic_v2",
+        "e1_own",
+        "dynamic_persistent_fixed",
+        "e4_native"
+      ],
+      "us": {
+        "e0_native": 10.257600247859955,
+        "dynamic_v3": 21.09600007534027,
+        "e1_native": 9.345600008964539,
+        "best_dynamic": 15.01920074224472,
+        "best_control": 8.62720012664795,
+        "full_union_AA": 8.622399717569351,
+        "dynamic_fullcol_guard": 17.049600183963776,
+        "full_union": 8.542399853467941,
+        "dynamic_emptyguard": 17.03519970178604,
+        "best_e1": 8.59680026769638,
+        "dynamic_v2": 15.812799334526062,
+        "e1_own": 8.528000116348267,
+        "dynamic_persistent_fixed": 15.067200362682343,
+        "e4_native": 9.782399982213974
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 3,
+      "direction": "reverse",
+      "order": [
+        "e4_native",
+        "dynamic_persistent_fixed",
+        "e1_own",
+        "dynamic_v2",
+        "best_e1",
+        "dynamic_emptyguard",
+        "full_union",
+        "dynamic_fullcol_guard",
+        "full_union_AA",
+        "best_control",
+        "best_dynamic",
+        "e1_native",
+        "dynamic_v3",
+        "e0_native"
+      ],
+      "us": {
+        "e4_native": 9.774400293827057,
+        "dynamic_persistent_fixed": 15.067200362682343,
+        "e1_own": 8.628799766302109,
+        "dynamic_v2": 15.81919938325882,
+        "best_e1": 8.553600311279297,
+        "dynamic_emptyguard": 16.969600319862366,
+        "full_union": 8.537600189447403,
+        "dynamic_fullcol_guard": 17.09599941968918,
+        "full_union_AA": 8.553600311279297,
+        "best_control": 8.615999668836594,
+        "best_dynamic": 14.99679982662201,
+        "e1_native": 9.340800344944,
+        "dynamic_v3": 20.947200059890747,
+        "e0_native": 10.201600193977356
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 4,
+      "direction": "random",
+      "order": [
+        "e4_native",
+        "dynamic_fullcol_guard",
+        "dynamic_v2",
+        "e1_native",
+        "best_dynamic",
+        "dynamic_v3",
+        "full_union_AA",
+        "full_union",
+        "dynamic_persistent_fixed",
+        "best_control",
+        "e0_native",
+        "best_e1",
+        "dynamic_emptyguard",
+        "e1_own"
+      ],
+      "us": {
+        "e4_native": 9.815999865531921,
+        "dynamic_fullcol_guard": 17.11519956588745,
+        "dynamic_v2": 15.825599431991577,
+        "e1_native": 9.34239998459816,
+        "best_dynamic": 14.979200065135956,
+        "dynamic_v3": 20.94080001115799,
+        "full_union_AA": 8.551999926567078,
+        "full_union": 8.575999736785889,
+        "dynamic_persistent_fixed": 14.971199631690979,
+        "best_control": 8.57440009713173,
+        "e0_native": 10.169599950313568,
+        "best_e1": 8.556800335645676,
+        "dynamic_emptyguard": 17.000000178813934,
+        "e1_own": 8.630400151014328
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 4,
+      "direction": "reverse",
+      "order": [
+        "e1_own",
+        "dynamic_emptyguard",
+        "best_e1",
+        "e0_native",
+        "best_control",
+        "dynamic_persistent_fixed",
+        "full_union",
+        "full_union_AA",
+        "dynamic_v3",
+        "best_dynamic",
+        "e1_native",
+        "dynamic_v2",
+        "dynamic_fullcol_guard",
+        "e4_native"
+      ],
+      "us": {
+        "e1_own": 8.532799780368805,
+        "dynamic_emptyguard": 16.913600265979767,
+        "best_e1": 8.57120007276535,
+        "e0_native": 10.265599936246872,
+        "best_control": 8.523199707269669,
+        "dynamic_persistent_fixed": 14.988799393177032,
+        "full_union": 8.59839990735054,
+        "full_union_AA": 8.630400151014328,
+        "dynamic_v3": 21.01919949054718,
+        "best_dynamic": 14.979200065135956,
+        "e1_native": 9.380800276994705,
+        "dynamic_v2": 15.800000727176666,
+        "dynamic_fullcol_guard": 17.12159961462021,
+        "e4_native": 9.775999933481216
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 5,
+      "direction": "random",
+      "order": [
+        "e4_native",
+        "e1_native",
+        "e1_own",
+        "e0_native",
+        "full_union_AA",
+        "best_control",
+        "dynamic_persistent_fixed",
+        "dynamic_v2",
+        "dynamic_fullcol_guard",
+        "best_e1",
+        "dynamic_v3",
+        "best_dynamic",
+        "dynamic_emptyguard",
+        "full_union"
+      ],
+      "us": {
+        "e4_native": 9.775999933481216,
+        "e1_native": 9.401600062847137,
+        "e1_own": 8.558399975299835,
+        "e0_native": 10.158400237560272,
+        "full_union_AA": 8.860799670219421,
+        "best_control": 8.671999722719193,
+        "dynamic_persistent_fixed": 14.975999295711517,
+        "dynamic_v2": 15.838399529457092,
+        "dynamic_fullcol_guard": 17.11840033531189,
+        "best_e1": 8.54559987783432,
+        "dynamic_v3": 21.01760059595108,
+        "best_dynamic": 15.09920060634613,
+        "dynamic_emptyguard": 16.944000124931335,
+        "full_union": 8.57440009713173
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 5,
+      "direction": "reverse",
+      "order": [
+        "full_union",
+        "dynamic_emptyguard",
+        "best_dynamic",
+        "dynamic_v3",
+        "best_e1",
+        "dynamic_fullcol_guard",
+        "dynamic_v2",
+        "dynamic_persistent_fixed",
+        "best_control",
+        "full_union_AA",
+        "e0_native",
+        "e1_own",
+        "e1_native",
+        "e4_native"
+      ],
+      "us": {
+        "full_union": 8.614400029182434,
+        "dynamic_emptyguard": 16.944000124931335,
+        "best_dynamic": 15.043200552463531,
+        "dynamic_v3": 21.04160040616989,
+        "best_e1": 8.54400023818016,
+        "dynamic_fullcol_guard": 17.16960072517395,
+        "dynamic_v2": 15.742400288581848,
+        "dynamic_persistent_fixed": 15.014399588108063,
+        "best_control": 8.647999912500381,
+        "full_union_AA": 8.555199950933456,
+        "e0_native": 10.2463997900486,
+        "e1_own": 8.539199829101562,
+        "e1_native": 9.339199960231781,
+        "e4_native": 9.755200147628784
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 6,
+      "direction": "random",
+      "order": [
+        "e1_own",
+        "dynamic_emptyguard",
+        "e1_native",
+        "best_dynamic",
+        "e4_native",
+        "full_union",
+        "dynamic_fullcol_guard",
+        "dynamic_persistent_fixed",
+        "dynamic_v3",
+        "best_e1",
+        "e0_native",
+        "best_control",
+        "dynamic_v2",
+        "full_union_AA"
+      ],
+      "us": {
+        "e1_own": 8.577600121498108,
+        "dynamic_emptyguard": 16.950400173664093,
+        "e1_native": 9.331200271844864,
+        "best_dynamic": 14.96960073709488,
+        "e4_native": 9.731200337409973,
+        "full_union": 8.647999912500381,
+        "dynamic_fullcol_guard": 17.086400091648102,
+        "dynamic_persistent_fixed": 14.987200498580933,
+        "dynamic_v3": 21.024000644683838,
+        "best_e1": 8.532799780368805,
+        "e0_native": 10.279999673366547,
+        "best_control": 8.550400286912918,
+        "dynamic_v2": 15.814399719238281,
+        "full_union_AA": 8.631999790668488
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 6,
+      "direction": "reverse",
+      "order": [
+        "full_union_AA",
+        "dynamic_v2",
+        "best_control",
+        "e0_native",
+        "best_e1",
+        "dynamic_v3",
+        "dynamic_persistent_fixed",
+        "dynamic_fullcol_guard",
+        "full_union",
+        "e4_native",
+        "best_dynamic",
+        "e1_native",
+        "dynamic_emptyguard",
+        "e1_own"
+      ],
+      "us": {
+        "full_union_AA": 8.607999980449677,
+        "dynamic_v2": 15.827199816703796,
+        "best_control": 8.584000170230865,
+        "e0_native": 10.18880009651184,
+        "best_e1": 8.630400151014328,
+        "dynamic_v3": 21.035200357437134,
+        "dynamic_persistent_fixed": 15.014399588108063,
+        "dynamic_fullcol_guard": 17.156800627708435,
+        "full_union": 8.614400029182434,
+        "e4_native": 9.743999689817429,
+        "best_dynamic": 14.974400401115417,
+        "e1_native": 9.462399780750275,
+        "dynamic_emptyguard": 17.033599317073822,
+        "e1_own": 8.615999668836594
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 7,
+      "direction": "random",
+      "order": [
+        "e4_native",
+        "dynamic_emptyguard",
+        "e0_native",
+        "best_e1",
+        "full_union",
+        "best_control",
+        "dynamic_v2",
+        "dynamic_v3",
+        "e1_native",
+        "dynamic_fullcol_guard",
+        "e1_own",
+        "best_dynamic",
+        "full_union_AA",
+        "dynamic_persistent_fixed"
+      ],
+      "us": {
+        "e4_native": 9.804800152778625,
+        "dynamic_emptyguard": 17.051200568675995,
+        "e0_native": 10.190399736166,
+        "best_e1": 8.615999668836594,
+        "full_union": 8.534400165081024,
+        "best_control": 8.553600311279297,
+        "dynamic_v2": 15.79200029373169,
+        "dynamic_v3": 21.04959934949875,
+        "e1_native": 9.371200203895569,
+        "dynamic_fullcol_guard": 17.03680008649826,
+        "e1_own": 8.526399731636047,
+        "best_dynamic": 14.979200065135956,
+        "full_union_AA": 8.558399975299835,
+        "dynamic_persistent_fixed": 14.963200688362122
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 7,
+      "direction": "reverse",
+      "order": [
+        "dynamic_persistent_fixed",
+        "full_union_AA",
+        "best_dynamic",
+        "e1_own",
+        "dynamic_fullcol_guard",
+        "e1_native",
+        "dynamic_v3",
+        "dynamic_v2",
+        "best_control",
+        "full_union",
+        "best_e1",
+        "e0_native",
+        "dynamic_emptyguard",
+        "e4_native"
+      ],
+      "us": {
+        "dynamic_persistent_fixed": 15.024000406265259,
+        "full_union_AA": 8.558399975299835,
+        "best_dynamic": 14.99679982662201,
+        "e1_own": 8.537600189447403,
+        "dynamic_fullcol_guard": 17.110399901866913,
+        "e1_native": 9.352000057697296,
+        "dynamic_v3": 21.036800742149353,
+        "dynamic_v2": 15.838399529457092,
+        "best_control": 8.550400286912918,
+        "full_union": 8.553600311279297,
+        "best_e1": 8.665599673986435,
+        "e0_native": 10.275200009346008,
+        "dynamic_emptyguard": 16.95680022239685,
+        "e4_native": 9.779199957847595
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 8,
+      "direction": "random",
+      "order": [
+        "dynamic_v2",
+        "e1_own",
+        "dynamic_persistent_fixed",
+        "full_union_AA",
+        "dynamic_v3",
+        "best_e1",
+        "best_control",
+        "dynamic_emptyguard",
+        "dynamic_fullcol_guard",
+        "e1_native",
+        "e4_native",
+        "best_dynamic",
+        "e0_native",
+        "full_union"
+      ],
+      "us": {
+        "dynamic_v2": 15.880000591278076,
+        "e1_own": 8.656000345945358,
+        "dynamic_persistent_fixed": 15.043200552463531,
+        "full_union_AA": 8.656000345945358,
+        "dynamic_v3": 21.055999398231506,
+        "best_e1": 8.659200370311737,
+        "best_control": 8.62720012664795,
+        "dynamic_emptyguard": 16.974399983882904,
+        "dynamic_fullcol_guard": 17.156800627708435,
+        "e1_native": 9.364800155162811,
+        "e4_native": 10.020799934864044,
+        "best_dynamic": 15.015999972820282,
+        "e0_native": 10.27199998497963,
+        "full_union": 8.553600311279297
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 8,
+      "direction": "reverse",
+      "order": [
+        "full_union",
+        "e0_native",
+        "best_dynamic",
+        "e4_native",
+        "e1_native",
+        "dynamic_fullcol_guard",
+        "dynamic_emptyguard",
+        "best_control",
+        "best_e1",
+        "dynamic_v3",
+        "full_union_AA",
+        "dynamic_persistent_fixed",
+        "e1_own",
+        "dynamic_v2"
+      ],
+      "us": {
+        "full_union": 8.646400272846222,
+        "e0_native": 10.18880009651184,
+        "best_dynamic": 14.961600303649902,
+        "e4_native": 9.758400171995163,
+        "e1_native": 9.455999732017517,
+        "dynamic_fullcol_guard": 17.110399901866913,
+        "dynamic_emptyguard": 16.920000314712524,
+        "best_control": 8.607999980449677,
+        "best_e1": 8.57120007276535,
+        "dynamic_v3": 21.024000644683838,
+        "full_union_AA": 8.604799956083298,
+        "dynamic_persistent_fixed": 14.974400401115417,
+        "e1_own": 8.577600121498108,
+        "dynamic_v2": 15.753600001335144
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 9,
+      "direction": "random",
+      "order": [
+        "best_e1",
+        "e4_native",
+        "e1_native",
+        "dynamic_persistent_fixed",
+        "e0_native",
+        "dynamic_emptyguard",
+        "best_control",
+        "full_union_AA",
+        "dynamic_v3",
+        "full_union",
+        "dynamic_fullcol_guard",
+        "e1_own",
+        "dynamic_v2",
+        "best_dynamic"
+      ],
+      "us": {
+        "best_e1": 8.615999668836594,
+        "e4_native": 9.772799909114838,
+        "e1_native": 9.359999746084213,
+        "dynamic_persistent_fixed": 15.000000596046448,
+        "e0_native": 10.255999863147736,
+        "dynamic_emptyguard": 17.03840047121048,
+        "best_control": 8.532799780368805,
+        "full_union_AA": 8.619199693202972,
+        "dynamic_v3": 21.025599539279938,
+        "full_union": 8.550400286912918,
+        "dynamic_fullcol_guard": 17.06880033016205,
+        "e1_own": 8.564800024032593,
+        "dynamic_v2": 15.828800201416016,
+        "best_dynamic": 14.959999918937683
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 9,
+      "direction": "reverse",
+      "order": [
+        "best_dynamic",
+        "dynamic_v2",
+        "e1_own",
+        "dynamic_fullcol_guard",
+        "full_union",
+        "dynamic_v3",
+        "full_union_AA",
+        "best_control",
+        "dynamic_emptyguard",
+        "e0_native",
+        "dynamic_persistent_fixed",
+        "e1_native",
+        "e4_native",
+        "best_e1"
+      ],
+      "us": {
+        "best_dynamic": 14.971199631690979,
+        "dynamic_v2": 15.84320068359375,
+        "e1_own": 8.630400151014328,
+        "dynamic_fullcol_guard": 17.12159961462021,
+        "full_union": 8.513599634170532,
+        "dynamic_v3": 20.99680006504059,
+        "full_union_AA": 8.656000345945358,
+        "best_control": 8.556800335645676,
+        "dynamic_emptyguard": 16.953599452972412,
+        "e0_native": 10.168000310659409,
+        "dynamic_persistent_fixed": 14.96639996767044,
+        "e1_native": 9.355200082063675,
+        "e4_native": 9.74079966545105,
+        "best_e1": 8.539199829101562
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 10,
+      "direction": "random",
+      "order": [
+        "best_dynamic",
+        "full_union",
+        "e4_native",
+        "dynamic_v2",
+        "e1_own",
+        "dynamic_emptyguard",
+        "dynamic_v3",
+        "dynamic_fullcol_guard",
+        "dynamic_persistent_fixed",
+        "e1_native",
+        "full_union_AA",
+        "e0_native",
+        "best_control",
+        "best_e1"
+      ],
+      "us": {
+        "best_dynamic": 14.985600113868713,
+        "full_union": 8.631999790668488,
+        "e4_native": 9.745600074529648,
+        "dynamic_v2": 15.785600244998932,
+        "e1_own": 8.537600189447403,
+        "dynamic_emptyguard": 17.03840047121048,
+        "dynamic_v3": 21.01600021123886,
+        "dynamic_fullcol_guard": 17.06240028142929,
+        "dynamic_persistent_fixed": 15.003199875354767,
+        "e1_native": 9.409599751234055,
+        "full_union_AA": 8.528000116348267,
+        "e0_native": 10.182400047779083,
+        "best_control": 8.612799644470215,
+        "best_e1": 8.615999668836594
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 10,
+      "direction": "reverse",
+      "order": [
+        "best_e1",
+        "best_control",
+        "e0_native",
+        "full_union_AA",
+        "e1_native",
+        "dynamic_persistent_fixed",
+        "dynamic_fullcol_guard",
+        "dynamic_v3",
+        "dynamic_emptyguard",
+        "e1_own",
+        "dynamic_v2",
+        "e4_native",
+        "full_union",
+        "best_dynamic"
+      ],
+      "us": {
+        "best_e1": 8.644799888134003,
+        "best_control": 8.611200004816055,
+        "e0_native": 10.19200012087822,
+        "full_union_AA": 8.563199639320374,
+        "e1_native": 9.363199770450592,
+        "dynamic_persistent_fixed": 14.985600113868713,
+        "dynamic_fullcol_guard": 17.078399658203125,
+        "dynamic_v3": 20.98720073699951,
+        "dynamic_emptyguard": 17.027199268341064,
+        "e1_own": 8.60000029206276,
+        "dynamic_v2": 15.8160001039505,
+        "e4_native": 9.780800342559814,
+        "full_union": 8.555199950933456,
+        "best_dynamic": 14.985600113868713
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 11,
+      "direction": "random",
+      "order": [
+        "best_control",
+        "e0_native",
+        "full_union",
+        "e1_native",
+        "full_union_AA",
+        "best_dynamic",
+        "dynamic_v3",
+        "e4_native",
+        "e1_own",
+        "dynamic_fullcol_guard",
+        "dynamic_v2",
+        "dynamic_persistent_fixed",
+        "best_e1",
+        "dynamic_emptyguard"
+      ],
+      "us": {
+        "best_control": 8.641599863767624,
+        "e0_native": 10.187199711799622,
+        "full_union": 8.524800091981888,
+        "e1_native": 9.384000301361084,
+        "full_union_AA": 8.553600311279297,
+        "best_dynamic": 14.99360054731369,
+        "dynamic_v3": 20.96959948539734,
+        "e4_native": 9.775999933481216,
+        "e1_own": 8.553600311279297,
+        "dynamic_fullcol_guard": 17.105600237846375,
+        "dynamic_v2": 15.820799767971039,
+        "dynamic_persistent_fixed": 15.003199875354767,
+        "best_e1": 8.640000224113464,
+        "dynamic_emptyguard": 17.01280027627945
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 11,
+      "direction": "reverse",
+      "order": [
+        "dynamic_emptyguard",
+        "best_e1",
+        "dynamic_persistent_fixed",
+        "dynamic_v2",
+        "dynamic_fullcol_guard",
+        "e1_own",
+        "e4_native",
+        "dynamic_v3",
+        "best_dynamic",
+        "full_union_AA",
+        "e1_native",
+        "full_union",
+        "e0_native",
+        "best_control"
+      ],
+      "us": {
+        "dynamic_emptyguard": 16.952000558376312,
+        "best_e1": 8.620800077915192,
+        "dynamic_persistent_fixed": 15.067200362682343,
+        "dynamic_v2": 15.800000727176666,
+        "dynamic_fullcol_guard": 17.056000232696533,
+        "e1_own": 8.550400286912918,
+        "e4_native": 9.780800342559814,
+        "dynamic_v3": 21.031999588012695,
+        "best_dynamic": 15.003199875354767,
+        "full_union_AA": 8.54400023818016,
+        "e1_native": 9.350399672985077,
+        "full_union": 8.631999790668488,
+        "e0_native": 10.29599979519844,
+        "best_control": 8.555199950933456
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 12,
+      "direction": "random",
+      "order": [
+        "e4_native",
+        "dynamic_emptyguard",
+        "full_union",
+        "best_e1",
+        "dynamic_fullcol_guard",
+        "best_control",
+        "e1_own",
+        "dynamic_v2",
+        "full_union_AA",
+        "e0_native",
+        "dynamic_persistent_fixed",
+        "e1_native",
+        "best_dynamic",
+        "dynamic_v3"
+      ],
+      "us": {
+        "e4_native": 9.759999811649323,
+        "dynamic_emptyguard": 17.032000422477722,
+        "full_union": 8.628799766302109,
+        "best_e1": 8.631999790668488,
+        "dynamic_fullcol_guard": 17.06719994544983,
+        "best_control": 8.534400165081024,
+        "e1_own": 8.54720026254654,
+        "dynamic_v2": 15.796799957752228,
+        "full_union_AA": 8.609600365161896,
+        "e0_native": 10.230399668216705,
+        "dynamic_persistent_fixed": 15.009599924087524,
+        "e1_native": 9.344000369310379,
+        "best_dynamic": 15.068799257278442,
+        "dynamic_v3": 20.953600108623505
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 12,
+      "direction": "reverse",
+      "order": [
+        "dynamic_v3",
+        "best_dynamic",
+        "e1_native",
+        "dynamic_persistent_fixed",
+        "e0_native",
+        "full_union_AA",
+        "dynamic_v2",
+        "e1_own",
+        "best_control",
+        "dynamic_fullcol_guard",
+        "best_e1",
+        "full_union",
+        "dynamic_emptyguard",
+        "e4_native"
+      ],
+      "us": {
+        "dynamic_v3": 21.003200113773346,
+        "best_dynamic": 14.974400401115417,
+        "e1_native": 9.375999867916107,
+        "dynamic_persistent_fixed": 14.99679982662201,
+        "e0_native": 10.198400169610977,
+        "full_union_AA": 8.566399663686752,
+        "dynamic_v2": 15.81760048866272,
+        "e1_own": 8.646400272846222,
+        "best_control": 8.563199639320374,
+        "dynamic_fullcol_guard": 17.139199376106262,
+        "best_e1": 8.59680026769638,
+        "full_union": 8.59839990735054,
+        "dynamic_emptyguard": 17.017599940299988,
+        "e4_native": 9.73920002579689
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 13,
+      "direction": "random",
+      "order": [
+        "dynamic_v2",
+        "e1_native",
+        "best_e1",
+        "full_union_AA",
+        "e1_own",
+        "dynamic_fullcol_guard",
+        "e0_native",
+        "best_control",
+        "dynamic_emptyguard",
+        "e4_native",
+        "best_dynamic",
+        "dynamic_persistent_fixed",
+        "full_union",
+        "dynamic_v3"
+      ],
+      "us": {
+        "dynamic_v2": 15.846399962902069,
+        "e1_native": 9.440000355243683,
+        "best_e1": 8.569599688053131,
+        "full_union_AA": 8.57440009713173,
+        "e1_own": 8.617600053548813,
+        "dynamic_fullcol_guard": 17.112000286579132,
+        "e0_native": 10.201600193977356,
+        "best_control": 8.57440009713173,
+        "dynamic_emptyguard": 17.043200135231018,
+        "e4_native": 9.808000177145004,
+        "best_dynamic": 14.963200688362122,
+        "dynamic_persistent_fixed": 15.000000596046448,
+        "full_union": 8.556800335645676,
+        "dynamic_v3": 21.06720060110092
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 13,
+      "direction": "reverse",
+      "order": [
+        "dynamic_v3",
+        "full_union",
+        "dynamic_persistent_fixed",
+        "best_dynamic",
+        "e4_native",
+        "dynamic_emptyguard",
+        "best_control",
+        "e0_native",
+        "dynamic_fullcol_guard",
+        "e1_own",
+        "full_union_AA",
+        "best_e1",
+        "e1_native",
+        "dynamic_v2"
+      ],
+      "us": {
+        "dynamic_v3": 20.960000157356262,
+        "full_union": 8.62400010228157,
+        "dynamic_persistent_fixed": 14.977599680423737,
+        "best_dynamic": 14.980800449848175,
+        "e4_native": 9.73920002579689,
+        "dynamic_emptyguard": 16.95840060710907,
+        "best_control": 8.617600053548813,
+        "e0_native": 10.262399911880493,
+        "dynamic_fullcol_guard": 17.136000096797943,
+        "e1_own": 8.612799644470215,
+        "full_union_AA": 8.555199950933456,
+        "best_e1": 8.614400029182434,
+        "e1_native": 9.404800087213516,
+        "dynamic_v2": 15.833599865436554
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 14,
+      "direction": "random",
+      "order": [
+        "best_dynamic",
+        "dynamic_persistent_fixed",
+        "dynamic_fullcol_guard",
+        "e1_own",
+        "dynamic_v3",
+        "full_union_AA",
+        "best_control",
+        "dynamic_emptyguard",
+        "dynamic_v2",
+        "e4_native",
+        "e1_native",
+        "best_e1",
+        "e0_native",
+        "full_union"
+      ],
+      "us": {
+        "best_dynamic": 14.971199631690979,
+        "dynamic_persistent_fixed": 14.964799582958221,
+        "dynamic_fullcol_guard": 17.17440038919449,
+        "e1_own": 8.54720026254654,
+        "dynamic_v3": 21.04640007019043,
+        "full_union_AA": 8.62559974193573,
+        "best_control": 8.622399717569351,
+        "dynamic_emptyguard": 16.98240041732788,
+        "dynamic_v2": 15.833599865436554,
+        "e4_native": 9.782399982213974,
+        "e1_native": 9.358400106430054,
+        "best_e1": 8.526399731636047,
+        "e0_native": 10.168000310659409,
+        "full_union": 8.531200140714645
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 14,
+      "direction": "reverse",
+      "order": [
+        "full_union",
+        "e0_native",
+        "best_e1",
+        "e1_native",
+        "e4_native",
+        "dynamic_v2",
+        "dynamic_emptyguard",
+        "best_control",
+        "full_union_AA",
+        "dynamic_v3",
+        "e1_own",
+        "dynamic_fullcol_guard",
+        "dynamic_persistent_fixed",
+        "best_dynamic"
+      ],
+      "us": {
+        "full_union": 8.57279971241951,
+        "e0_native": 10.199999809265137,
+        "best_e1": 8.54720026254654,
+        "e1_native": 9.345600008964539,
+        "e4_native": 9.763199836015701,
+        "dynamic_v2": 15.782399475574493,
+        "dynamic_emptyguard": 17.054399847984314,
+        "best_control": 8.555199950933456,
+        "full_union_AA": 8.644799888134003,
+        "dynamic_v3": 20.956799387931824,
+        "e1_own": 8.643200248479843,
+        "dynamic_fullcol_guard": 17.070400714874268,
+        "dynamic_persistent_fixed": 14.961600303649902,
+        "best_dynamic": 14.982399344444275
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 15,
+      "direction": "random",
+      "order": [
+        "e4_native",
+        "full_union",
+        "best_e1",
+        "e1_own",
+        "dynamic_emptyguard",
+        "dynamic_fullcol_guard",
+        "e1_native",
+        "e0_native",
+        "dynamic_persistent_fixed",
+        "dynamic_v3",
+        "best_control",
+        "best_dynamic",
+        "full_union_AA",
+        "dynamic_v2"
+      ],
+      "us": {
+        "e4_native": 9.799999743700027,
+        "full_union": 8.587200194597244,
+        "best_e1": 8.636800199747086,
+        "e1_own": 8.563199639320374,
+        "dynamic_emptyguard": 16.942399740219116,
+        "dynamic_fullcol_guard": 17.127999663352966,
+        "e1_native": 9.329599887132645,
+        "e0_native": 10.183999687433243,
+        "dynamic_persistent_fixed": 15.001599490642548,
+        "dynamic_v3": 21.057599782943726,
+        "best_control": 8.528000116348267,
+        "best_dynamic": 14.980800449848175,
+        "full_union_AA": 8.6496002972126,
+        "dynamic_v2": 15.811200439929962
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 15,
+      "direction": "reverse",
+      "order": [
+        "dynamic_v2",
+        "full_union_AA",
+        "best_dynamic",
+        "best_control",
+        "dynamic_v3",
+        "dynamic_persistent_fixed",
+        "e0_native",
+        "e1_native",
+        "dynamic_fullcol_guard",
+        "dynamic_emptyguard",
+        "e1_own",
+        "best_e1",
+        "full_union",
+        "e4_native"
+      ],
+      "us": {
+        "dynamic_v2": 15.73919951915741,
+        "full_union_AA": 8.622399717569351,
+        "best_dynamic": 14.99679982662201,
+        "best_control": 8.614400029182434,
+        "dynamic_v3": 20.93600034713745,
+        "dynamic_persistent_fixed": 14.992000162601471,
+        "e0_native": 10.172799974679947,
+        "e1_native": 9.321600198745728,
+        "dynamic_fullcol_guard": 17.156800627708435,
+        "dynamic_emptyguard": 16.93280041217804,
+        "e1_own": 8.558399975299835,
+        "best_e1": 8.62400010228157,
+        "full_union": 8.558399975299835,
+        "e4_native": 9.79359969496727
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 16,
+      "direction": "random",
+      "order": [
+        "e1_native",
+        "best_control",
+        "dynamic_v2",
+        "dynamic_fullcol_guard",
+        "best_e1",
+        "dynamic_persistent_fixed",
+        "e4_native",
+        "e1_own",
+        "dynamic_emptyguard",
+        "best_dynamic",
+        "full_union_AA",
+        "dynamic_v3",
+        "full_union",
+        "e0_native"
+      ],
+      "us": {
+        "e1_native": 9.384000301361084,
+        "best_control": 8.54559987783432,
+        "dynamic_v2": 15.801599621772766,
+        "dynamic_fullcol_guard": 17.099200189113617,
+        "best_e1": 8.568000048398972,
+        "dynamic_persistent_fixed": 15.000000596046448,
+        "e4_native": 9.808000177145004,
+        "e1_own": 8.619199693202972,
+        "dynamic_emptyguard": 17.022399604320526,
+        "best_dynamic": 14.96639996767044,
+        "full_union_AA": 8.532799780368805,
+        "dynamic_v3": 21.038399636745453,
+        "full_union": 8.633600175380707,
+        "e0_native": 10.174400359392166
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 16,
+      "direction": "reverse",
+      "order": [
+        "e0_native",
+        "full_union",
+        "dynamic_v3",
+        "full_union_AA",
+        "best_dynamic",
+        "dynamic_emptyguard",
+        "e1_own",
+        "e4_native",
+        "dynamic_persistent_fixed",
+        "best_e1",
+        "dynamic_fullcol_guard",
+        "dynamic_v2",
+        "best_control",
+        "e1_native"
+      ],
+      "us": {
+        "e0_native": 10.262399911880493,
+        "full_union": 8.899199962615967,
+        "dynamic_v3": 20.99680006504059,
+        "full_union_AA": 8.643200248479843,
+        "best_dynamic": 14.983999729156494,
+        "dynamic_emptyguard": 17.030400037765503,
+        "e1_own": 8.619199693202972,
+        "e4_native": 9.755200147628784,
+        "dynamic_persistent_fixed": 14.974400401115417,
+        "best_e1": 8.54559987783432,
+        "dynamic_fullcol_guard": 17.1424001455307,
+        "dynamic_v2": 15.860800445079803,
+        "best_control": 8.611200004816055,
+        "e1_native": 9.347199648618698
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 17,
+      "direction": "random",
+      "order": [
+        "e0_native",
+        "dynamic_persistent_fixed",
+        "dynamic_emptyguard",
+        "full_union_AA",
+        "dynamic_fullcol_guard",
+        "best_control",
+        "e1_own",
+        "e4_native",
+        "e1_native",
+        "best_dynamic",
+        "best_e1",
+        "dynamic_v3",
+        "full_union",
+        "dynamic_v2"
+      ],
+      "us": {
+        "e0_native": 10.19200012087822,
+        "dynamic_persistent_fixed": 15.035200119018555,
+        "dynamic_emptyguard": 17.361600697040558,
+        "full_union_AA": 8.534400165081024,
+        "dynamic_fullcol_guard": 17.14079976081848,
+        "best_control": 8.635199815034866,
+        "e1_own": 8.619199693202972,
+        "e4_native": 9.750399738550186,
+        "e1_native": 9.398400038480759,
+        "best_dynamic": 14.96639996767044,
+        "best_e1": 8.539199829101562,
+        "dynamic_v3": 21.055999398231506,
+        "full_union": 8.535999804735184,
+        "dynamic_v2": 15.812799334526062
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 17,
+      "direction": "reverse",
+      "order": [
+        "dynamic_v2",
+        "full_union",
+        "dynamic_v3",
+        "best_e1",
+        "best_dynamic",
+        "e1_native",
+        "e4_native",
+        "e1_own",
+        "best_control",
+        "dynamic_fullcol_guard",
+        "full_union_AA",
+        "dynamic_emptyguard",
+        "dynamic_persistent_fixed",
+        "e0_native"
+      ],
+      "us": {
+        "dynamic_v2": 15.81919938325882,
+        "full_union": 8.534400165081024,
+        "dynamic_v3": 21.063999831676483,
+        "best_e1": 8.529599756002426,
+        "best_dynamic": 14.923200011253357,
+        "e1_native": 9.387200325727463,
+        "e4_native": 9.743999689817429,
+        "e1_own": 8.628799766302109,
+        "best_control": 8.560000360012054,
+        "dynamic_fullcol_guard": 17.09119975566864,
+        "full_union_AA": 8.59839990735054,
+        "dynamic_emptyguard": 17.017599940299988,
+        "dynamic_persistent_fixed": 15.142400562763214,
+        "e0_native": 10.267200320959091
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 18,
+      "direction": "random",
+      "order": [
+        "dynamic_emptyguard",
+        "e0_native",
+        "e1_own",
+        "dynamic_fullcol_guard",
+        "dynamic_v2",
+        "full_union_AA",
+        "best_control",
+        "e4_native",
+        "best_e1",
+        "dynamic_v3",
+        "dynamic_persistent_fixed",
+        "best_dynamic",
+        "e1_native",
+        "full_union"
+      ],
+      "us": {
+        "dynamic_emptyguard": 16.972799599170685,
+        "e0_native": 10.208000242710114,
+        "e1_own": 8.601599931716919,
+        "dynamic_fullcol_guard": 17.06719994544983,
+        "dynamic_v2": 15.824000537395477,
+        "full_union_AA": 8.646400272846222,
+        "best_control": 8.62720012664795,
+        "e4_native": 9.785600006580353,
+        "best_e1": 8.555199950933456,
+        "dynamic_v3": 21.051199734210968,
+        "dynamic_persistent_fixed": 15.009599924087524,
+        "best_dynamic": 15.000000596046448,
+        "e1_native": 9.36800017952919,
+        "full_union": 8.57120007276535
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 18,
+      "direction": "reverse",
+      "order": [
+        "full_union",
+        "e1_native",
+        "best_dynamic",
+        "dynamic_persistent_fixed",
+        "dynamic_v3",
+        "best_e1",
+        "e4_native",
+        "best_control",
+        "full_union_AA",
+        "dynamic_v2",
+        "dynamic_fullcol_guard",
+        "e1_own",
+        "e0_native",
+        "dynamic_emptyguard"
+      ],
+      "us": {
+        "full_union": 8.588799834251404,
+        "e1_native": 9.363199770450592,
+        "best_dynamic": 14.96800035238266,
+        "dynamic_persistent_fixed": 14.963200688362122,
+        "dynamic_v3": 21.038399636745453,
+        "best_e1": 8.542399853467941,
+        "e4_native": 9.732799977064133,
+        "best_control": 8.553600311279297,
+        "full_union_AA": 8.521600067615509,
+        "dynamic_v2": 15.796799957752228,
+        "dynamic_fullcol_guard": 17.070400714874268,
+        "e1_own": 8.60000029206276,
+        "e0_native": 10.174400359392166,
+        "dynamic_emptyguard": 16.953599452972412
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 19,
+      "direction": "random",
+      "order": [
+        "e1_native",
+        "dynamic_v2",
+        "best_e1",
+        "e4_native",
+        "best_control",
+        "full_union",
+        "dynamic_emptyguard",
+        "e0_native",
+        "dynamic_v3",
+        "e1_own",
+        "full_union_AA",
+        "best_dynamic",
+        "dynamic_persistent_fixed",
+        "dynamic_fullcol_guard"
+      ],
+      "us": {
+        "e1_native": 9.388799965381622,
+        "dynamic_v2": 15.783999860286713,
+        "best_e1": 8.57440009713173,
+        "e4_native": 9.771200269460678,
+        "best_control": 8.662399649620056,
+        "full_union": 8.620800077915192,
+        "dynamic_emptyguard": 17.003199458122253,
+        "e0_native": 10.182400047779083,
+        "dynamic_v3": 21.04800045490265,
+        "e1_own": 8.628799766302109,
+        "full_union_AA": 8.646400272846222,
+        "best_dynamic": 14.979200065135956,
+        "dynamic_persistent_fixed": 14.992000162601471,
+        "dynamic_fullcol_guard": 17.188799381256104
+      }
+    },
+    {
+      "cache": "hot",
+      "block": 19,
+      "direction": "reverse",
+      "order": [
+        "dynamic_fullcol_guard",
+        "dynamic_persistent_fixed",
+        "best_dynamic",
+        "full_union_AA",
+        "e1_own",
+        "dynamic_v3",
+        "e0_native",
+        "dynamic_emptyguard",
+        "full_union",
+        "best_control",
+        "e4_native",
+        "best_e1",
+        "dynamic_v2",
+        "e1_native"
+      ],
+      "us": {
+        "dynamic_fullcol_guard": 17.127999663352966,
+        "dynamic_persistent_fixed": 15.012800693511963,
+        "best_dynamic": 15.012800693511963,
+        "full_union_AA": 8.542399853467941,
+        "e1_own": 8.67680013179779,
+        "dynamic_v3": 21.011200547218323,
+        "e0_native": 10.196799784898758,
+        "dynamic_emptyguard": 17.054399847984314,
+        "full_union": 8.54720026254654,
+        "best_control": 8.558399975299835,
+        "e4_native": 9.775999933481216,
+        "best_e1": 8.615999668836594,
+        "dynamic_v2": 15.79039990901947,
+        "e1_native": 9.352000057697296
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 0,
+      "direction": "random",
+      "order": [
+        "e1_own",
+        "full_union_AA",
+        "best_e1",
+        "full_union",
+        "best_control",
+        "e0_native",
+        "dynamic_persistent_fixed",
+        "e1_native",
+        "best_dynamic",
+        "dynamic_v3",
+        "e4_native",
+        "dynamic_v2",
+        "dynamic_emptyguard",
+        "dynamic_fullcol_guard"
+      ],
+      "us": {
+        "e1_own": 18.432000651955605,
+        "full_union_AA": 18.432000651955605,
+        "best_e1": 18.432000651955605,
+        "full_union": 18.432000651955605,
+        "best_control": 18.432000651955605,
+        "e0_native": 18.432000651955605,
+        "dynamic_persistent_fixed": 24.54400062561035,
+        "e1_native": 20.479999482631683,
+        "best_dynamic": 26.623999699950218,
+        "dynamic_v3": 32.76799991726875,
+        "e4_native": 20.479999482631683,
+        "dynamic_v2": 26.623999699950218,
+        "dynamic_emptyguard": 26.623999699950218,
+        "dynamic_fullcol_guard": 26.623999699950218
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 0,
+      "direction": "reverse",
+      "order": [
+        "dynamic_fullcol_guard",
+        "dynamic_emptyguard",
+        "dynamic_v2",
+        "e4_native",
+        "dynamic_v3",
+        "best_dynamic",
+        "e1_native",
+        "dynamic_persistent_fixed",
+        "e0_native",
+        "best_control",
+        "full_union",
+        "best_e1",
+        "full_union_AA",
+        "e1_own"
+      ],
+      "us": {
+        "dynamic_fullcol_guard": 26.623999699950218,
+        "dynamic_emptyguard": 26.59199945628643,
+        "dynamic_v2": 26.59199945628643,
+        "e4_native": 20.51199972629547,
+        "dynamic_v3": 32.76799991726875,
+        "best_dynamic": 24.54400062561035,
+        "e1_native": 20.479999482631683,
+        "dynamic_persistent_fixed": 24.57600086927414,
+        "e0_native": 20.479999482631683,
+        "best_control": 18.432000651955605,
+        "full_union": 18.400000408291817,
+        "best_e1": 20.479999482631683,
+        "full_union_AA": 18.432000651955605,
+        "e1_own": 18.432000651955605
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 1,
+      "direction": "random",
+      "order": [
+        "e1_own",
+        "dynamic_fullcol_guard",
+        "dynamic_persistent_fixed",
+        "best_e1",
+        "best_dynamic",
+        "full_union_AA",
+        "e0_native",
+        "e1_native",
+        "dynamic_emptyguard",
+        "dynamic_v3",
+        "full_union",
+        "best_control",
+        "dynamic_v2",
+        "e4_native"
+      ],
+      "us": {
+        "e1_own": 18.432000651955605,
+        "dynamic_fullcol_guard": 26.623999699950218,
+        "dynamic_persistent_fixed": 26.623999699950218,
+        "best_e1": 18.432000651955605,
+        "best_dynamic": 24.57600086927414,
+        "full_union_AA": 18.400000408291817,
+        "e0_native": 18.464000895619392,
+        "e1_native": 18.432000651955605,
+        "dynamic_emptyguard": 26.623999699950218,
+        "dynamic_v3": 34.81600061058998,
+        "full_union": 18.432000651955605,
+        "best_control": 20.479999482631683,
+        "dynamic_v2": 26.623999699950218,
+        "e4_native": 20.479999482631683
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 1,
+      "direction": "reverse",
+      "order": [
+        "e4_native",
+        "dynamic_v2",
+        "best_control",
+        "full_union",
+        "dynamic_v3",
+        "dynamic_emptyguard",
+        "e1_native",
+        "e0_native",
+        "full_union_AA",
+        "best_dynamic",
+        "best_e1",
+        "dynamic_persistent_fixed",
+        "dynamic_fullcol_guard",
+        "e1_own"
+      ],
+      "us": {
+        "e4_native": 20.479999482631683,
+        "dynamic_v2": 26.623999699950218,
+        "best_control": 18.432000651955605,
+        "full_union": 18.432000651955605,
+        "dynamic_v3": 34.81600061058998,
+        "dynamic_emptyguard": 26.623999699950218,
+        "e1_native": 20.479999482631683,
+        "e0_native": 18.432000651955605,
+        "full_union_AA": 18.464000895619392,
+        "best_dynamic": 26.623999699950218,
+        "best_e1": 18.432000651955605,
+        "dynamic_persistent_fixed": 26.655999943614006,
+        "dynamic_fullcol_guard": 26.623999699950218,
+        "e1_own": 18.400000408291817
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 2,
+      "direction": "random",
+      "order": [
+        "dynamic_persistent_fixed",
+        "e1_own",
+        "e4_native",
+        "dynamic_fullcol_guard",
+        "best_e1",
+        "dynamic_v2",
+        "best_control",
+        "e0_native",
+        "best_dynamic",
+        "dynamic_emptyguard",
+        "full_union_AA",
+        "full_union",
+        "e1_native",
+        "dynamic_v3"
+      ],
+      "us": {
+        "dynamic_persistent_fixed": 26.623999699950218,
+        "e1_own": 18.432000651955605,
+        "e4_native": 20.479999482631683,
+        "dynamic_fullcol_guard": 26.623999699950218,
+        "best_e1": 18.432000651955605,
+        "dynamic_v2": 26.623999699950218,
+        "best_control": 20.479999482631683,
+        "e0_native": 18.432000651955605,
+        "best_dynamic": 26.623999699950218,
+        "dynamic_emptyguard": 26.623999699950218,
+        "full_union_AA": 20.479999482631683,
+        "full_union": 18.432000651955605,
+        "e1_native": 18.464000895619392,
+        "dynamic_v3": 32.76799991726875
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 2,
+      "direction": "reverse",
+      "order": [
+        "dynamic_v3",
+        "e1_native",
+        "full_union",
+        "full_union_AA",
+        "dynamic_emptyguard",
+        "best_dynamic",
+        "e0_native",
+        "best_control",
+        "dynamic_v2",
+        "best_e1",
+        "dynamic_fullcol_guard",
+        "e4_native",
+        "e1_own",
+        "dynamic_persistent_fixed"
+      ],
+      "us": {
+        "dynamic_v3": 32.76799991726875,
+        "e1_native": 20.479999482631683,
+        "full_union": 18.400000408291817,
+        "full_union_AA": 18.432000651955605,
+        "dynamic_emptyguard": 26.623999699950218,
+        "best_dynamic": 24.57600086927414,
+        "e0_native": 18.432000651955605,
+        "best_control": 18.432000651955605,
+        "dynamic_v2": 26.623999699950218,
+        "best_e1": 18.432000651955605,
+        "dynamic_fullcol_guard": 26.623999699950218,
+        "e4_native": 20.479999482631683,
+        "e1_own": 18.432000651955605,
+        "dynamic_persistent_fixed": 26.623999699950218
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 3,
+      "direction": "random",
+      "order": [
+        "dynamic_persistent_fixed",
+        "dynamic_v3",
+        "full_union_AA",
+        "e0_native",
+        "full_union",
+        "dynamic_fullcol_guard",
+        "best_dynamic",
+        "dynamic_emptyguard",
+        "best_e1",
+        "dynamic_v2",
+        "e1_own",
+        "e1_native",
+        "e4_native",
+        "best_control"
+      ],
+      "us": {
+        "dynamic_persistent_fixed": 26.623999699950218,
+        "dynamic_v3": 32.76799991726875,
+        "full_union_AA": 18.432000651955605,
+        "e0_native": 18.432000651955605,
+        "full_union": 18.432000651955605,
+        "dynamic_fullcol_guard": 26.623999699950218,
+        "best_dynamic": 24.57600086927414,
+        "dynamic_emptyguard": 26.59199945628643,
+        "best_e1": 18.432000651955605,
+        "dynamic_v2": 26.623999699950218,
+        "e1_own": 18.432000651955605,
+        "e1_native": 20.479999482631683,
+        "e4_native": 20.479999482631683,
+        "best_control": 20.479999482631683
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 3,
+      "direction": "reverse",
+      "order": [
+        "best_control",
+        "e4_native",
+        "e1_native",
+        "e1_own",
+        "dynamic_v2",
+        "best_e1",
+        "dynamic_emptyguard",
+        "best_dynamic",
+        "dynamic_fullcol_guard",
+        "full_union",
+        "e0_native",
+        "full_union_AA",
+        "dynamic_v3",
+        "dynamic_persistent_fixed"
+      ],
+      "us": {
+        "best_control": 18.432000651955605,
+        "e4_native": 20.479999482631683,
+        "e1_native": 18.432000651955605,
+        "e1_own": 18.400000408291817,
+        "dynamic_v2": 26.623999699950218,
+        "best_e1": 18.432000651955605,
+        "dynamic_emptyguard": 26.623999699950218,
+        "best_dynamic": 26.623999699950218,
+        "dynamic_fullcol_guard": 26.623999699950218,
+        "full_union": 18.432000651955605,
+        "e0_native": 18.432000651955605,
+        "full_union_AA": 18.432000651955605,
+        "dynamic_v3": 32.76799991726875,
+        "dynamic_persistent_fixed": 24.57600086927414
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 4,
+      "direction": "random",
+      "order": [
+        "full_union",
+        "e4_native",
+        "full_union_AA",
+        "best_dynamic",
+        "e1_own",
+        "best_control",
+        "dynamic_persistent_fixed",
+        "dynamic_emptyguard",
+        "dynamic_v2",
+        "best_e1",
+        "dynamic_fullcol_guard",
+        "e1_native",
+        "dynamic_v3",
+        "e0_native"
+      ],
+      "us": {
+        "full_union": 18.432000651955605,
+        "e4_native": 20.479999482631683,
+        "full_union_AA": 18.432000651955605,
+        "best_dynamic": 26.623999699950218,
+        "e1_own": 18.432000651955605,
+        "best_control": 18.432000651955605,
+        "dynamic_persistent_fixed": 24.57600086927414,
+        "dynamic_emptyguard": 28.704000636935234,
+        "dynamic_v2": 26.59199945628643,
+        "best_e1": 18.464000895619392,
+        "dynamic_fullcol_guard": 26.655999943614006,
+        "e1_native": 18.464000895619392,
+        "dynamic_v3": 34.81600061058998,
+        "e0_native": 18.432000651955605
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 4,
+      "direction": "reverse",
+      "order": [
+        "e0_native",
+        "dynamic_v3",
+        "e1_native",
+        "dynamic_fullcol_guard",
+        "best_e1",
+        "dynamic_v2",
+        "dynamic_emptyguard",
+        "dynamic_persistent_fixed",
+        "best_control",
+        "e1_own",
+        "best_dynamic",
+        "full_union_AA",
+        "e4_native",
+        "full_union"
+      ],
+      "us": {
+        "e0_native": 18.432000651955605,
+        "dynamic_v3": 32.76799991726875,
+        "e1_native": 18.432000651955605,
+        "dynamic_fullcol_guard": 26.623999699950218,
+        "best_e1": 20.479999482631683,
+        "dynamic_v2": 26.623999699950218,
+        "dynamic_emptyguard": 26.623999699950218,
+        "dynamic_persistent_fixed": 26.623999699950218,
+        "best_control": 20.479999482631683,
+        "e1_own": 20.447999238967896,
+        "best_dynamic": 26.623999699950218,
+        "full_union_AA": 18.432000651955605,
+        "e4_native": 20.479999482631683,
+        "full_union": 18.432000651955605
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 5,
+      "direction": "random",
+      "order": [
+        "dynamic_fullcol_guard",
+        "e0_native",
+        "best_control",
+        "best_e1",
+        "e1_native",
+        "best_dynamic",
+        "full_union",
+        "full_union_AA",
+        "dynamic_persistent_fixed",
+        "e1_own",
+        "e4_native",
+        "dynamic_emptyguard",
+        "dynamic_v2",
+        "dynamic_v3"
+      ],
+      "us": {
+        "dynamic_fullcol_guard": 28.64000014960766,
+        "e0_native": 18.432000651955605,
+        "best_control": 18.432000651955605,
+        "best_e1": 18.432000651955605,
+        "e1_native": 18.432000651955605,
+        "best_dynamic": 26.623999699950218,
+        "full_union": 18.432000651955605,
+        "full_union_AA": 18.464000895619392,
+        "dynamic_persistent_fixed": 24.57600086927414,
+        "e1_own": 18.432000651955605,
+        "e4_native": 20.479999482631683,
+        "dynamic_emptyguard": 26.623999699950218,
+        "dynamic_v2": 26.623999699950218,
+        "dynamic_v3": 34.81600061058998
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 5,
+      "direction": "reverse",
+      "order": [
+        "dynamic_v3",
+        "dynamic_v2",
+        "dynamic_emptyguard",
+        "e4_native",
+        "e1_own",
+        "dynamic_persistent_fixed",
+        "full_union_AA",
+        "full_union",
+        "best_dynamic",
+        "e1_native",
+        "best_e1",
+        "best_control",
+        "e0_native",
+        "dynamic_fullcol_guard"
+      ],
+      "us": {
+        "dynamic_v3": 32.76799991726875,
+        "dynamic_v2": 26.623999699950218,
+        "dynamic_emptyguard": 26.655999943614006,
+        "e4_native": 20.51199972629547,
+        "e1_own": 18.432000651955605,
+        "dynamic_persistent_fixed": 26.623999699950218,
+        "full_union_AA": 18.432000651955605,
+        "full_union": 18.432000651955605,
+        "best_dynamic": 26.623999699950218,
+        "e1_native": 20.479999482631683,
+        "best_e1": 18.432000651955605,
+        "best_control": 18.432000651955605,
+        "e0_native": 20.51199972629547,
+        "dynamic_fullcol_guard": 26.59199945628643
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 6,
+      "direction": "random",
+      "order": [
+        "best_dynamic",
+        "e1_native",
+        "dynamic_persistent_fixed",
+        "full_union",
+        "dynamic_v2",
+        "full_union_AA",
+        "dynamic_emptyguard",
+        "e4_native",
+        "dynamic_fullcol_guard",
+        "e1_own",
+        "best_e1",
+        "best_control",
+        "dynamic_v3",
+        "e0_native"
+      ],
+      "us": {
+        "best_dynamic": 26.623999699950218,
+        "e1_native": 20.479999482631683,
+        "dynamic_persistent_fixed": 24.57600086927414,
+        "full_union": 18.432000651955605,
+        "dynamic_v2": 26.59199945628643,
+        "full_union_AA": 18.400000408291817,
+        "dynamic_emptyguard": 26.655999943614006,
+        "e4_native": 20.479999482631683,
+        "dynamic_fullcol_guard": 26.623999699950218,
+        "e1_own": 18.400000408291817,
+        "best_e1": 18.464000895619392,
+        "best_control": 18.432000651955605,
+        "dynamic_v3": 32.76799991726875,
+        "e0_native": 18.432000651955605
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 6,
+      "direction": "reverse",
+      "order": [
+        "e0_native",
+        "dynamic_v3",
+        "best_control",
+        "best_e1",
+        "e1_own",
+        "dynamic_fullcol_guard",
+        "e4_native",
+        "dynamic_emptyguard",
+        "full_union_AA",
+        "dynamic_v2",
+        "full_union",
+        "dynamic_persistent_fixed",
+        "e1_native",
+        "best_dynamic"
+      ],
+      "us": {
+        "e0_native": 18.464000895619392,
+        "dynamic_v3": 32.76799991726875,
+        "best_control": 18.400000408291817,
+        "best_e1": 18.432000651955605,
+        "e1_own": 18.400000408291817,
+        "dynamic_fullcol_guard": 28.64000014960766,
+        "e4_native": 20.447999238967896,
+        "dynamic_emptyguard": 26.623999699950218,
+        "full_union_AA": 18.432000651955605,
+        "dynamic_v2": 26.655999943614006,
+        "full_union": 18.400000408291817,
+        "dynamic_persistent_fixed": 26.623999699950218,
+        "e1_native": 20.479999482631683,
+        "best_dynamic": 24.57600086927414
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 7,
+      "direction": "random",
+      "order": [
+        "best_control",
+        "dynamic_fullcol_guard",
+        "best_dynamic",
+        "dynamic_v2",
+        "e1_native",
+        "full_union",
+        "dynamic_persistent_fixed",
+        "full_union_AA",
+        "best_e1",
+        "dynamic_emptyguard",
+        "dynamic_v3",
+        "e1_own",
+        "e0_native",
+        "e4_native"
+      ],
+      "us": {
+        "best_control": 20.479999482631683,
+        "dynamic_fullcol_guard": 26.623999699950218,
+        "best_dynamic": 26.655999943614006,
+        "dynamic_v2": 26.623999699950218,
+        "e1_native": 20.479999482631683,
+        "full_union": 18.432000651955605,
+        "dynamic_persistent_fixed": 24.57600086927414,
+        "full_union_AA": 18.432000651955605,
+        "best_e1": 18.432000651955605,
+        "dynamic_emptyguard": 26.623999699950218,
+        "dynamic_v3": 32.76799991726875,
+        "e1_own": 18.432000651955605,
+        "e0_native": 20.479999482631683,
+        "e4_native": 20.51199972629547
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 7,
+      "direction": "reverse",
+      "order": [
+        "e4_native",
+        "e0_native",
+        "e1_own",
+        "dynamic_v3",
+        "dynamic_emptyguard",
+        "best_e1",
+        "full_union_AA",
+        "dynamic_persistent_fixed",
+        "full_union",
+        "e1_native",
+        "dynamic_v2",
+        "best_dynamic",
+        "dynamic_fullcol_guard",
+        "best_control"
+      ],
+      "us": {
+        "e4_native": 20.479999482631683,
+        "e0_native": 18.432000651955605,
+        "e1_own": 18.432000651955605,
+        "dynamic_v3": 32.76799991726875,
+        "dynamic_emptyguard": 26.623999699950218,
+        "best_e1": 20.479999482631683,
+        "full_union_AA": 18.432000651955605,
+        "dynamic_persistent_fixed": 24.57600086927414,
+        "full_union": 18.432000651955605,
+        "e1_native": 20.447999238967896,
+        "dynamic_v2": 26.59199945628643,
+        "best_dynamic": 24.57600086927414,
+        "dynamic_fullcol_guard": 26.59199945628643,
+        "best_control": 20.479999482631683
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 8,
+      "direction": "random",
+      "order": [
+        "e1_native",
+        "dynamic_emptyguard",
+        "full_union_AA",
+        "best_e1",
+        "dynamic_fullcol_guard",
+        "dynamic_v3",
+        "e4_native",
+        "best_control",
+        "e0_native",
+        "e1_own",
+        "dynamic_v2",
+        "dynamic_persistent_fixed",
+        "best_dynamic",
+        "full_union"
+      ],
+      "us": {
+        "e1_native": 20.479999482631683,
+        "dynamic_emptyguard": 26.623999699950218,
+        "full_union_AA": 18.400000408291817,
+        "best_e1": 18.432000651955605,
+        "dynamic_fullcol_guard": 26.623999699950218,
+        "dynamic_v3": 32.76799991726875,
+        "e4_native": 20.479999482631683,
+        "best_control": 18.432000651955605,
+        "e0_native": 18.432000651955605,
+        "e1_own": 18.432000651955605,
+        "dynamic_v2": 26.655999943614006,
+        "dynamic_persistent_fixed": 24.607999250292778,
+        "best_dynamic": 26.623999699950218,
+        "full_union": 18.432000651955605
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 8,
+      "direction": "reverse",
+      "order": [
+        "full_union",
+        "best_dynamic",
+        "dynamic_persistent_fixed",
+        "dynamic_v2",
+        "e1_own",
+        "e0_native",
+        "best_control",
+        "e4_native",
+        "dynamic_v3",
+        "dynamic_fullcol_guard",
+        "best_e1",
+        "full_union_AA",
+        "dynamic_emptyguard",
+        "e1_native"
+      ],
+      "us": {
+        "full_union": 18.432000651955605,
+        "best_dynamic": 24.57600086927414,
+        "dynamic_persistent_fixed": 26.655999943614006,
+        "dynamic_v2": 24.54400062561035,
+        "e1_own": 18.464000895619392,
+        "e0_native": 18.432000651955605,
+        "best_control": 18.400000408291817,
+        "e4_native": 20.51199972629547,
+        "dynamic_v3": 32.76799991726875,
+        "dynamic_fullcol_guard": 26.623999699950218,
+        "best_e1": 18.432000651955605,
+        "full_union_AA": 18.432000651955605,
+        "dynamic_emptyguard": 26.655999943614006,
+        "e1_native": 20.479999482631683
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 9,
+      "direction": "random",
+      "order": [
+        "e4_native",
+        "e0_native",
+        "best_dynamic",
+        "full_union_AA",
+        "full_union",
+        "dynamic_v2",
+        "e1_native",
+        "dynamic_v3",
+        "best_control",
+        "dynamic_fullcol_guard",
+        "dynamic_emptyguard",
+        "e1_own",
+        "dynamic_persistent_fixed",
+        "best_e1"
+      ],
+      "us": {
+        "e4_native": 20.479999482631683,
+        "e0_native": 20.479999482631683,
+        "best_dynamic": 24.607999250292778,
+        "full_union_AA": 18.432000651955605,
+        "full_union": 18.400000408291817,
+        "dynamic_v2": 26.623999699950218,
+        "e1_native": 20.447999238967896,
+        "dynamic_v3": 32.76799991726875,
+        "best_control": 18.464000895619392,
+        "dynamic_fullcol_guard": 26.59199945628643,
+        "dynamic_emptyguard": 26.623999699950218,
+        "e1_own": 20.479999482631683,
+        "dynamic_persistent_fixed": 26.623999699950218,
+        "best_e1": 20.479999482631683
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 9,
+      "direction": "reverse",
+      "order": [
+        "best_e1",
+        "dynamic_persistent_fixed",
+        "e1_own",
+        "dynamic_emptyguard",
+        "dynamic_fullcol_guard",
+        "best_control",
+        "dynamic_v3",
+        "e1_native",
+        "dynamic_v2",
+        "full_union",
+        "full_union_AA",
+        "best_dynamic",
+        "e0_native",
+        "e4_native"
+      ],
+      "us": {
+        "best_e1": 18.432000651955605,
+        "dynamic_persistent_fixed": 24.57600086927414,
+        "e1_own": 18.432000651955605,
+        "dynamic_emptyguard": 26.623999699950218,
+        "dynamic_fullcol_guard": 26.655999943614006,
+        "best_control": 20.479999482631683,
+        "dynamic_v3": 32.735999673604965,
+        "e1_native": 20.51199972629547,
+        "dynamic_v2": 26.623999699950218,
+        "full_union": 18.432000651955605,
+        "full_union_AA": 18.400000408291817,
+        "best_dynamic": 24.57600086927414,
+        "e0_native": 18.432000651955605,
+        "e4_native": 20.51199972629547
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 10,
+      "direction": "random",
+      "order": [
+        "full_union",
+        "dynamic_v2",
+        "e1_own",
+        "dynamic_persistent_fixed",
+        "e4_native",
+        "best_control",
+        "dynamic_emptyguard",
+        "best_e1",
+        "best_dynamic",
+        "dynamic_v3",
+        "e0_native",
+        "dynamic_fullcol_guard",
+        "e1_native",
+        "full_union_AA"
+      ],
+      "us": {
+        "full_union": 20.447999238967896,
+        "dynamic_v2": 26.623999699950218,
+        "e1_own": 18.432000651955605,
+        "dynamic_persistent_fixed": 26.623999699950218,
+        "e4_native": 20.479999482631683,
+        "best_control": 18.432000651955605,
+        "dynamic_emptyguard": 26.623999699950218,
+        "best_e1": 18.432000651955605,
+        "best_dynamic": 26.623999699950218,
+        "dynamic_v3": 32.76799991726875,
+        "e0_native": 18.432000651955605,
+        "dynamic_fullcol_guard": 26.623999699950218,
+        "e1_native": 20.479999482631683,
+        "full_union_AA": 20.447999238967896
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 10,
+      "direction": "reverse",
+      "order": [
+        "full_union_AA",
+        "e1_native",
+        "dynamic_fullcol_guard",
+        "e0_native",
+        "dynamic_v3",
+        "best_dynamic",
+        "best_e1",
+        "dynamic_emptyguard",
+        "best_control",
+        "e4_native",
+        "dynamic_persistent_fixed",
+        "e1_own",
+        "dynamic_v2",
+        "full_union"
+      ],
+      "us": {
+        "full_union_AA": 18.464000895619392,
+        "e1_native": 20.51199972629547,
+        "dynamic_fullcol_guard": 26.623999699950218,
+        "e0_native": 18.432000651955605,
+        "dynamic_v3": 34.81600061058998,
+        "best_dynamic": 24.57600086927414,
+        "best_e1": 18.015999346971512,
+        "dynamic_emptyguard": 26.623999699950218,
+        "best_control": 20.479999482631683,
+        "e4_native": 20.479999482631683,
+        "dynamic_persistent_fixed": 26.623999699950218,
+        "e1_own": 18.432000651955605,
+        "dynamic_v2": 26.623999699950218,
+        "full_union": 18.464000895619392
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 11,
+      "direction": "random",
+      "order": [
+        "best_dynamic",
+        "e1_own",
+        "dynamic_emptyguard",
+        "full_union_AA",
+        "best_e1",
+        "e0_native",
+        "dynamic_v2",
+        "dynamic_v3",
+        "e4_native",
+        "dynamic_persistent_fixed",
+        "e1_native",
+        "dynamic_fullcol_guard",
+        "best_control",
+        "full_union"
+      ],
+      "us": {
+        "best_dynamic": 26.623999699950218,
+        "e1_own": 18.400000408291817,
+        "dynamic_emptyguard": 26.623999699950218,
+        "full_union_AA": 20.479999482631683,
+        "best_e1": 20.479999482631683,
+        "e0_native": 18.400000408291817,
+        "dynamic_v2": 26.623999699950218,
+        "dynamic_v3": 32.76799991726875,
+        "e4_native": 20.447999238967896,
+        "dynamic_persistent_fixed": 24.57600086927414,
+        "e1_native": 20.479999482631683,
+        "dynamic_fullcol_guard": 26.623999699950218,
+        "best_control": 18.432000651955605,
+        "full_union": 18.432000651955605
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 11,
+      "direction": "reverse",
+      "order": [
+        "full_union",
+        "best_control",
+        "dynamic_fullcol_guard",
+        "e1_native",
+        "dynamic_persistent_fixed",
+        "e4_native",
+        "dynamic_v3",
+        "dynamic_v2",
+        "e0_native",
+        "best_e1",
+        "full_union_AA",
+        "dynamic_emptyguard",
+        "e1_own",
+        "best_dynamic"
+      ],
+      "us": {
+        "full_union": 18.400000408291817,
+        "best_control": 18.432000651955605,
+        "dynamic_fullcol_guard": 26.623999699950218,
+        "e1_native": 18.432000651955605,
+        "dynamic_persistent_fixed": 26.655999943614006,
+        "e4_native": 20.479999482631683,
+        "dynamic_v3": 32.76799991726875,
+        "dynamic_v2": 26.623999699950218,
+        "e0_native": 20.479999482631683,
+        "best_e1": 18.432000651955605,
+        "full_union_AA": 18.432000651955605,
+        "dynamic_emptyguard": 26.655999943614006,
+        "e1_own": 18.432000651955605,
+        "best_dynamic": 26.623999699950218
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 12,
+      "direction": "random",
+      "order": [
+        "full_union",
+        "dynamic_fullcol_guard",
+        "e1_own",
+        "dynamic_emptyguard",
+        "e0_native",
+        "dynamic_v3",
+        "best_control",
+        "best_dynamic",
+        "best_e1",
+        "dynamic_persistent_fixed",
+        "e4_native",
+        "full_union_AA",
+        "e1_native",
+        "dynamic_v2"
+      ],
+      "us": {
+        "full_union": 18.432000651955605,
+        "dynamic_fullcol_guard": 26.623999699950218,
+        "e1_own": 18.432000651955605,
+        "dynamic_emptyguard": 26.59199945628643,
+        "e0_native": 20.51199972629547,
+        "dynamic_v3": 32.76799991726875,
+        "best_control": 20.479999482631683,
+        "best_dynamic": 26.623999699950218,
+        "best_e1": 20.479999482631683,
+        "dynamic_persistent_fixed": 24.54400062561035,
+        "e4_native": 20.479999482631683,
+        "full_union_AA": 18.432000651955605,
+        "e1_native": 20.479999482631683,
+        "dynamic_v2": 26.623999699950218
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 12,
+      "direction": "reverse",
+      "order": [
+        "dynamic_v2",
+        "e1_native",
+        "full_union_AA",
+        "e4_native",
+        "dynamic_persistent_fixed",
+        "best_e1",
+        "best_dynamic",
+        "best_control",
+        "dynamic_v3",
+        "e0_native",
+        "dynamic_emptyguard",
+        "e1_own",
+        "dynamic_fullcol_guard",
+        "full_union"
+      ],
+      "us": {
+        "dynamic_v2": 26.623999699950218,
+        "e1_native": 20.479999482631683,
+        "full_union_AA": 18.432000651955605,
+        "e4_native": 20.51199972629547,
+        "dynamic_persistent_fixed": 24.57600086927414,
+        "best_e1": 18.432000651955605,
+        "best_dynamic": 26.623999699950218,
+        "best_control": 18.432000651955605,
+        "dynamic_v3": 32.76799991726875,
+        "e0_native": 18.432000651955605,
+        "dynamic_emptyguard": 26.59199945628643,
+        "e1_own": 18.464000895619392,
+        "dynamic_fullcol_guard": 26.623999699950218,
+        "full_union": 18.432000651955605
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 13,
+      "direction": "random",
+      "order": [
+        "dynamic_fullcol_guard",
+        "e1_native",
+        "full_union_AA",
+        "dynamic_emptyguard",
+        "best_dynamic",
+        "best_e1",
+        "dynamic_v2",
+        "e4_native",
+        "e1_own",
+        "dynamic_v3",
+        "dynamic_persistent_fixed",
+        "full_union",
+        "e0_native",
+        "best_control"
+      ],
+      "us": {
+        "dynamic_fullcol_guard": 26.623999699950218,
+        "e1_native": 20.479999482631683,
+        "full_union_AA": 18.432000651955605,
+        "dynamic_emptyguard": 26.623999699950218,
+        "best_dynamic": 24.57600086927414,
+        "best_e1": 18.400000408291817,
+        "dynamic_v2": 26.623999699950218,
+        "e4_native": 20.479999482631683,
+        "e1_own": 18.400000408291817,
+        "dynamic_v3": 32.76799991726875,
+        "dynamic_persistent_fixed": 24.57600086927414,
+        "full_union": 18.432000651955605,
+        "e0_native": 18.432000651955605,
+        "best_control": 18.432000651955605
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 13,
+      "direction": "reverse",
+      "order": [
+        "best_control",
+        "e0_native",
+        "full_union",
+        "dynamic_persistent_fixed",
+        "dynamic_v3",
+        "e1_own",
+        "e4_native",
+        "dynamic_v2",
+        "best_e1",
+        "best_dynamic",
+        "dynamic_emptyguard",
+        "full_union_AA",
+        "e1_native",
+        "dynamic_fullcol_guard"
+      ],
+      "us": {
+        "best_control": 18.432000651955605,
+        "e0_native": 18.432000651955605,
+        "full_union": 18.432000651955605,
+        "dynamic_persistent_fixed": 26.623999699950218,
+        "dynamic_v3": 32.76799991726875,
+        "e1_own": 18.432000651955605,
+        "e4_native": 20.479999482631683,
+        "dynamic_v2": 26.623999699950218,
+        "best_e1": 18.432000651955605,
+        "best_dynamic": 26.623999699950218,
+        "dynamic_emptyguard": 26.623999699950218,
+        "full_union_AA": 18.432000651955605,
+        "e1_native": 18.432000651955605,
+        "dynamic_fullcol_guard": 26.623999699950218
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 14,
+      "direction": "random",
+      "order": [
+        "dynamic_fullcol_guard",
+        "best_dynamic",
+        "e1_native",
+        "dynamic_v2",
+        "best_control",
+        "full_union",
+        "full_union_AA",
+        "dynamic_emptyguard",
+        "best_e1",
+        "e4_native",
+        "dynamic_v3",
+        "e1_own",
+        "dynamic_persistent_fixed",
+        "e0_native"
+      ],
+      "us": {
+        "dynamic_fullcol_guard": 26.623999699950218,
+        "best_dynamic": 26.59199945628643,
+        "e1_native": 20.479999482631683,
+        "dynamic_v2": 26.623999699950218,
+        "best_control": 18.432000651955605,
+        "full_union": 20.479999482631683,
+        "full_union_AA": 18.432000651955605,
+        "dynamic_emptyguard": 26.623999699950218,
+        "best_e1": 18.432000651955605,
+        "e4_native": 20.479999482631683,
+        "dynamic_v3": 32.76799991726875,
+        "e1_own": 18.432000651955605,
+        "dynamic_persistent_fixed": 26.623999699950218,
+        "e0_native": 20.479999482631683
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 14,
+      "direction": "reverse",
+      "order": [
+        "e0_native",
+        "dynamic_persistent_fixed",
+        "e1_own",
+        "dynamic_v3",
+        "e4_native",
+        "best_e1",
+        "dynamic_emptyguard",
+        "full_union_AA",
+        "full_union",
+        "best_control",
+        "dynamic_v2",
+        "e1_native",
+        "best_dynamic",
+        "dynamic_fullcol_guard"
+      ],
+      "us": {
+        "e0_native": 18.400000408291817,
+        "dynamic_persistent_fixed": 24.57600086927414,
+        "e1_own": 18.432000651955605,
+        "dynamic_v3": 32.76799991726875,
+        "e4_native": 20.479999482631683,
+        "best_e1": 18.432000651955605,
+        "dynamic_emptyguard": 26.623999699950218,
+        "full_union_AA": 18.432000651955605,
+        "full_union": 18.464000895619392,
+        "best_control": 20.479999482631683,
+        "dynamic_v2": 26.623999699950218,
+        "e1_native": 18.432000651955605,
+        "best_dynamic": 26.623999699950218,
+        "dynamic_fullcol_guard": 26.655999943614006
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 15,
+      "direction": "random",
+      "order": [
+        "dynamic_emptyguard",
+        "full_union",
+        "best_control",
+        "best_e1",
+        "e1_native",
+        "full_union_AA",
+        "best_dynamic",
+        "dynamic_fullcol_guard",
+        "dynamic_v3",
+        "dynamic_persistent_fixed",
+        "e1_own",
+        "e4_native",
+        "dynamic_v2",
+        "e0_native"
+      ],
+      "us": {
+        "dynamic_emptyguard": 26.623999699950218,
+        "full_union": 18.432000651955605,
+        "best_control": 18.464000895619392,
+        "best_e1": 18.432000651955605,
+        "e1_native": 18.432000651955605,
+        "full_union_AA": 18.432000651955605,
+        "best_dynamic": 26.623999699950218,
+        "dynamic_fullcol_guard": 26.623999699950218,
+        "dynamic_v3": 32.76799991726875,
+        "dynamic_persistent_fixed": 26.623999699950218,
+        "e1_own": 18.432000651955605,
+        "e4_native": 20.447999238967896,
+        "dynamic_v2": 26.623999699950218,
+        "e0_native": 20.479999482631683
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 15,
+      "direction": "reverse",
+      "order": [
+        "e0_native",
+        "dynamic_v2",
+        "e4_native",
+        "e1_own",
+        "dynamic_persistent_fixed",
+        "dynamic_v3",
+        "dynamic_fullcol_guard",
+        "best_dynamic",
+        "full_union_AA",
+        "e1_native",
+        "best_e1",
+        "best_control",
+        "full_union",
+        "dynamic_emptyguard"
+      ],
+      "us": {
+        "e0_native": 18.400000408291817,
+        "dynamic_v2": 26.59199945628643,
+        "e4_native": 20.479999482631683,
+        "e1_own": 18.432000651955605,
+        "dynamic_persistent_fixed": 24.57600086927414,
+        "dynamic_v3": 32.76799991726875,
+        "dynamic_fullcol_guard": 26.655999943614006,
+        "best_dynamic": 26.655999943614006,
+        "full_union_AA": 18.432000651955605,
+        "e1_native": 20.479999482631683,
+        "best_e1": 18.432000651955605,
+        "best_control": 20.479999482631683,
+        "full_union": 18.432000651955605,
+        "dynamic_emptyguard": 26.623999699950218
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 16,
+      "direction": "random",
+      "order": [
+        "dynamic_v3",
+        "e1_native",
+        "e1_own",
+        "e0_native",
+        "e4_native",
+        "best_control",
+        "best_e1",
+        "best_dynamic",
+        "dynamic_persistent_fixed",
+        "dynamic_fullcol_guard",
+        "dynamic_emptyguard",
+        "full_union_AA",
+        "dynamic_v2",
+        "full_union"
+      ],
+      "us": {
+        "dynamic_v3": 32.76799991726875,
+        "e1_native": 18.432000651955605,
+        "e1_own": 18.464000895619392,
+        "e0_native": 18.464000895619392,
+        "e4_native": 20.447999238967896,
+        "best_control": 18.400000408291817,
+        "best_e1": 18.432000651955605,
+        "best_dynamic": 24.57600086927414,
+        "dynamic_persistent_fixed": 26.623999699950218,
+        "dynamic_fullcol_guard": 26.623999699950218,
+        "dynamic_emptyguard": 26.623999699950218,
+        "full_union_AA": 18.432000651955605,
+        "dynamic_v2": 26.623999699950218,
+        "full_union": 18.432000651955605
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 16,
+      "direction": "reverse",
+      "order": [
+        "full_union",
+        "dynamic_v2",
+        "full_union_AA",
+        "dynamic_emptyguard",
+        "dynamic_fullcol_guard",
+        "dynamic_persistent_fixed",
+        "best_dynamic",
+        "best_e1",
+        "best_control",
+        "e4_native",
+        "e0_native",
+        "e1_own",
+        "e1_native",
+        "dynamic_v3"
+      ],
+      "us": {
+        "full_union": 18.432000651955605,
+        "dynamic_v2": 26.623999699950218,
+        "full_union_AA": 18.432000651955605,
+        "dynamic_emptyguard": 26.623999699950218,
+        "dynamic_fullcol_guard": 26.623999699950218,
+        "dynamic_persistent_fixed": 26.623999699950218,
+        "best_dynamic": 26.59199945628643,
+        "best_e1": 18.400000408291817,
+        "best_control": 18.432000651955605,
+        "e4_native": 20.479999482631683,
+        "e0_native": 18.464000895619392,
+        "e1_own": 18.432000651955605,
+        "e1_native": 20.447999238967896,
+        "dynamic_v3": 32.76799991726875
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 17,
+      "direction": "random",
+      "order": [
+        "dynamic_fullcol_guard",
+        "dynamic_emptyguard",
+        "dynamic_v3",
+        "full_union_AA",
+        "e1_own",
+        "e0_native",
+        "best_dynamic",
+        "dynamic_v2",
+        "best_control",
+        "full_union",
+        "e4_native",
+        "best_e1",
+        "e1_native",
+        "dynamic_persistent_fixed"
+      ],
+      "us": {
+        "dynamic_fullcol_guard": 26.623999699950218,
+        "dynamic_emptyguard": 26.623999699950218,
+        "dynamic_v3": 32.80000016093254,
+        "full_union_AA": 20.479999482631683,
+        "e1_own": 18.432000651955605,
+        "e0_native": 18.432000651955605,
+        "best_dynamic": 26.623999699950218,
+        "dynamic_v2": 26.59199945628643,
+        "best_control": 18.432000651955605,
+        "full_union": 18.432000651955605,
+        "e4_native": 20.479999482631683,
+        "best_e1": 18.432000651955605,
+        "e1_native": 18.432000651955605,
+        "dynamic_persistent_fixed": 26.623999699950218
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 17,
+      "direction": "reverse",
+      "order": [
+        "dynamic_persistent_fixed",
+        "e1_native",
+        "best_e1",
+        "e4_native",
+        "full_union",
+        "best_control",
+        "dynamic_v2",
+        "best_dynamic",
+        "e0_native",
+        "e1_own",
+        "full_union_AA",
+        "dynamic_v3",
+        "dynamic_emptyguard",
+        "dynamic_fullcol_guard"
+      ],
+      "us": {
+        "dynamic_persistent_fixed": 24.57600086927414,
+        "e1_native": 20.479999482631683,
+        "best_e1": 18.432000651955605,
+        "e4_native": 20.479999482631683,
+        "full_union": 20.51199972629547,
+        "best_control": 20.51199972629547,
+        "dynamic_v2": 26.623999699950218,
+        "best_dynamic": 26.623999699950218,
+        "e0_native": 18.432000651955605,
+        "e1_own": 18.464000895619392,
+        "full_union_AA": 18.432000651955605,
+        "dynamic_v3": 32.76799991726875,
+        "dynamic_emptyguard": 26.623999699950218,
+        "dynamic_fullcol_guard": 26.623999699950218
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 18,
+      "direction": "random",
+      "order": [
+        "e4_native",
+        "full_union",
+        "dynamic_v2",
+        "dynamic_emptyguard",
+        "e0_native",
+        "dynamic_persistent_fixed",
+        "e1_native",
+        "full_union_AA",
+        "e1_own",
+        "dynamic_v3",
+        "best_dynamic",
+        "dynamic_fullcol_guard",
+        "best_e1",
+        "best_control"
+      ],
+      "us": {
+        "e4_native": 20.479999482631683,
+        "full_union": 18.432000651955605,
+        "dynamic_v2": 26.623999699950218,
+        "dynamic_emptyguard": 26.623999699950218,
+        "e0_native": 18.432000651955605,
+        "dynamic_persistent_fixed": 26.623999699950218,
+        "e1_native": 20.447999238967896,
+        "full_union_AA": 18.432000651955605,
+        "e1_own": 18.432000651955605,
+        "dynamic_v3": 32.80000016093254,
+        "best_dynamic": 24.57600086927414,
+        "dynamic_fullcol_guard": 26.623999699950218,
+        "best_e1": 18.432000651955605,
+        "best_control": 18.432000651955605
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 18,
+      "direction": "reverse",
+      "order": [
+        "best_control",
+        "best_e1",
+        "dynamic_fullcol_guard",
+        "best_dynamic",
+        "dynamic_v3",
+        "e1_own",
+        "full_union_AA",
+        "e1_native",
+        "dynamic_persistent_fixed",
+        "e0_native",
+        "dynamic_emptyguard",
+        "dynamic_v2",
+        "full_union",
+        "e4_native"
+      ],
+      "us": {
+        "best_control": 20.479999482631683,
+        "best_e1": 18.432000651955605,
+        "dynamic_fullcol_guard": 26.623999699950218,
+        "best_dynamic": 26.623999699950218,
+        "dynamic_v3": 32.735999673604965,
+        "e1_own": 18.464000895619392,
+        "full_union_AA": 18.432000651955605,
+        "e1_native": 20.447999238967896,
+        "dynamic_persistent_fixed": 26.623999699950218,
+        "e0_native": 18.432000651955605,
+        "dynamic_emptyguard": 26.623999699950218,
+        "dynamic_v2": 26.623999699950218,
+        "full_union": 20.479999482631683,
+        "e4_native": 20.479999482631683
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 19,
+      "direction": "random",
+      "order": [
+        "e0_native",
+        "dynamic_v2",
+        "full_union",
+        "e1_own",
+        "best_control",
+        "dynamic_v3",
+        "dynamic_persistent_fixed",
+        "best_e1",
+        "dynamic_emptyguard",
+        "e1_native",
+        "dynamic_fullcol_guard",
+        "best_dynamic",
+        "e4_native",
+        "full_union_AA"
+      ],
+      "us": {
+        "e0_native": 18.432000651955605,
+        "dynamic_v2": 26.655999943614006,
+        "full_union": 18.432000651955605,
+        "e1_own": 18.432000651955605,
+        "best_control": 20.479999482631683,
+        "dynamic_v3": 32.76799991726875,
+        "dynamic_persistent_fixed": 24.607999250292778,
+        "best_e1": 18.432000651955605,
+        "dynamic_emptyguard": 28.672000393271446,
+        "e1_native": 20.479999482631683,
+        "dynamic_fullcol_guard": 26.623999699950218,
+        "best_dynamic": 24.57600086927414,
+        "e4_native": 20.51199972629547,
+        "full_union_AA": 18.432000651955605
+      }
+    },
+    {
+      "cache": "cold",
+      "block": 19,
+      "direction": "reverse",
+      "order": [
+        "full_union_AA",
+        "e4_native",
+        "best_dynamic",
+        "dynamic_fullcol_guard",
+        "e1_native",
+        "dynamic_emptyguard",
+        "best_e1",
+        "dynamic_persistent_fixed",
+        "dynamic_v3",
+        "best_control",
+        "e1_own",
+        "full_union",
+        "dynamic_v2",
+        "e0_native"
+      ],
+      "us": {
+        "full_union_AA": 18.400000408291817,
+        "e4_native": 20.479999482631683,
+        "best_dynamic": 26.623999699950218,
+        "dynamic_fullcol_guard": 26.623999699950218,
+        "e1_native": 20.479999482631683,
+        "dynamic_emptyguard": 26.623999699950218,
+        "best_e1": 18.400000408291817,
+        "dynamic_persistent_fixed": 26.655999943614006,
+        "dynamic_v3": 32.76799991726875,
+        "best_control": 18.432000651955605,
+        "e1_own": 18.464000895619392,
+        "full_union": 18.432000651955605,
+        "dynamic_v2": 26.623999699950218,
+        "e0_native": 18.432000651955605
+      }
+    }
+  ],
+  "summary": {
+    "hot": {
+      "median_us": {
+        "e0_native": 10.197599977254868,
+        "full_union": 8.57359990477562,
+        "e1_native": 9.363999962806702,
+        "e1_own": 8.59680026769638,
+        "e4_native": 9.775999933481216,
+        "dynamic_v2": 15.812799334526062,
+        "dynamic_v3": 21.031200140714645,
+        "dynamic_emptyguard": 17.00799986720085,
+        "dynamic_fullcol_guard": 17.11679995059967,
+        "dynamic_persistent_fixed": 15.000000596046448,
+        "best_e1": 8.57280008494854,
+        "best_dynamic": 14.981599897146225,
+        "best_control": 8.579200133681297,
+        "full_union_AA": 8.601599931716919
+      },
+      "paired_ratios": {
+        "full_union_over_best_e1": {
+          "median": 0.9999076786932115,
+          "paired_block_bootstrap95": [
+            0.9973865770983661,
+            1.0020503919098265
+          ]
+        },
+        "full_union_over_e4_native": {
+          "median": 0.8760721140775156,
+          "paired_block_bootstrap95": [
+            0.8746932409719759,
+            0.879901372385157
+          ]
+        },
+        "best_e1_over_e4_native": {
+          "median": 0.877604751914953,
+          "paired_block_bootstrap95": [
+            0.8758405884944316,
+            0.8809406365917537
+          ]
+        },
+        "full_union_over_full_union_AA": {
+          "median": 0.9986001035640188,
+          "paired_block_bootstrap95": [
+            0.996665678036301,
+            1.0012965894169739
+          ]
+        },
+        "best_control_over_best_dynamic": {
+          "median": 0.5734242705923834,
+          "paired_block_bootstrap95": [
+            0.5715507471781134,
+            0.5744748620141653
+          ]
+        },
+        "best_control_over_dynamic_v2": {
+          "median": 0.5422148370924544,
+          "paired_block_bootstrap95": [
+            0.5414767759391449,
+            0.5444613017336261
+          ]
+        },
+        "best_control_over_dynamic_v3": {
+          "median": 0.40843292790323127,
+          "paired_block_bootstrap95": [
+            0.40742719302063013,
+            0.40972646149356123
+          ]
+        },
+        "best_control_over_dynamic_emptyguard": {
+          "median": 0.5046010207743681,
+          "paired_block_bootstrap95": [
+            0.5036488620749381,
+            0.5064337535029565
+          ]
+        },
+        "best_control_over_dynamic_fullcol_guard": {
+          "median": 0.5018221356568188,
+          "paired_block_bootstrap95": [
+            0.5004214018781163,
+            0.5028944914139625
+          ]
+        },
+        "dynamic_emptyguard_over_dynamic_fullcol_guard": {
+          "median": 0.9933678313652572,
+          "paired_block_bootstrap95": [
+            0.9913028038799006,
+            0.9952363015724441
+          ]
+        },
+        "best_control_over_dynamic_persistent_fixed": {
+          "median": 0.5718243079714943,
+          "paired_block_bootstrap95": [
+            0.5716424239322007,
+            0.5740641807097538
+          ]
+        },
+        "dynamic_fullcol_guard_over_dynamic_persistent_fixed": {
+          "median": 1.1408127304703437,
+          "paired_block_bootstrap95": [
+            1.1397998310887025,
+            1.1426434076513934
+          ]
+        }
+      }
+    },
+    "cold": {
+      "median_us": {
+        "e0_native": 18.432000651955605,
+        "full_union": 18.432000651955605,
+        "e1_native": 20.479999482631683,
+        "e1_own": 18.432000651955605,
+        "e4_native": 20.479999482631683,
+        "dynamic_v2": 26.623999699950218,
+        "dynamic_v3": 32.76799991726875,
+        "dynamic_emptyguard": 26.623999699950218,
+        "dynamic_fullcol_guard": 26.623999699950218,
+        "dynamic_persistent_fixed": 26.623999699950218,
+        "best_e1": 18.432000651955605,
+        "best_dynamic": 26.623999699950218,
+        "best_control": 18.432000651955605,
+        "full_union_AA": 18.432000651955605
+      },
+      "paired_ratios": {
+        "full_union_over_best_e1": {
+          "median": 1.0,
+          "paired_block_bootstrap95": [
+            1.0,
+            1.0
+          ]
+        },
+        "full_union_over_e4_native": {
+          "median": 0.9000000545696835,
+          "paired_block_bootstrap95": [
+            0.9000000545696835,
+            0.9000000545696835
+          ]
+        },
+        "best_e1_over_e4_native": {
+          "median": 0.9000000545696835,
+          "paired_block_bootstrap95": [
+            0.9000000545696835,
+            0.9000000545696835
+          ]
+        },
+        "full_union_over_full_union_AA": {
+          "median": 1.0,
+          "paired_block_bootstrap95": [
+            1.0,
+            1.0
+          ]
+        },
+        "best_control_over_best_dynamic": {
+          "median": 0.748697906798018,
+          "paired_block_bootstrap95": [
+            0.6927242787552825,
+            0.750651499964258
+          ]
+        },
+        "best_control_over_dynamic_v2": {
+          "median": 0.6931408329131198,
+          "paired_block_bootstrap95": [
+            0.6923077245974454,
+            0.7215918545625751
+          ]
+        },
+        "best_control_over_dynamic_v3": {
+          "median": 0.5625000213162821,
+          "paired_block_bootstrap95": [
+            0.5625000213162821,
+            0.5634765912547764
+          ]
+        },
+        "best_control_over_dynamic_emptyguard": {
+          "median": 0.6923077245974454,
+          "paired_block_bootstrap95": [
+            0.6923077245974454,
+            0.6935096568399495
+          ]
+        },
+        "best_control_over_dynamic_fullcol_guard": {
+          "median": 0.6923077245974454,
+          "paired_block_bootstrap95": [
+            0.6923077245974454,
+            0.6943442115351897
+          ]
+        },
+        "dynamic_emptyguard_over_dynamic_fullcol_guard": {
+          "median": 1.0,
+          "paired_block_bootstrap95": [
+            1.0,
+            1.0
+          ]
+        },
+        "best_control_over_dynamic_persistent_fixed": {
+          "median": 0.75,
+          "paired_block_bootstrap95": [
+            0.7212672067828013,
+            0.7504889215721988
+          ]
+        },
+        "dynamic_fullcol_guard_over_dynamic_persistent_fixed": {
+          "median": 1.0,
+          "paired_block_bootstrap95": [
+            1.0,
+            1.0826822362048607
+          ]
+        }
+      }
+    }
+  },
+  "planning": {
+    "hot": {
+      "full_union": {
+        "samples": [
+          {
+            "warm_prepare_ms": 9.620673023164272,
+            "prepare_plus_one_call_host_wall_us": 9824.412874877453
+          },
+          {
+            "warm_prepare_ms": 7.195536978542805,
+            "prepare_plus_one_call_host_wall_us": 7318.832911550999
+          },
+          {
+            "warm_prepare_ms": 7.37430527806282,
+            "prepare_plus_one_call_host_wall_us": 7495.5979362130165
+          }
+        ],
+        "warm_prepare_median_us": 7374.30527806282,
+        "amortized_prepare_plus_gpu_call_us": {
+          "1": 7382.878877967596,
+          "16": 469.4676797837019,
+          "64": 123.79711987450719,
+          "256": 37.37947989720851
+        },
+        "note": "Static-plan amortization scenarios, not measured request lifetimes; oracle search cost is reported separately and is not free."
+      },
+      "best_e1": {
+        "samples": [
+          {
+            "warm_prepare_ms": 6.877394393086433,
+            "prepare_plus_one_call_host_wall_us": 6992.172449827194
+          },
+          {
+            "warm_prepare_ms": 7.093120366334915,
+            "prepare_plus_one_call_host_wall_us": 7209.8383679986
+          },
+          {
+            "warm_prepare_ms": 7.186301052570343,
+            "prepare_plus_one_call_host_wall_us": 7301.929406821728
+          }
+        ],
+        "warm_prepare_median_us": 7093.120366334915,
+        "amortized_prepare_plus_gpu_call_us": {
+          "1": 7101.693166419864,
+          "16": 451.89282298088074,
+          "64": 119.40280580893159,
+          "256": 36.2803015159443
+        },
+        "note": "Static-plan amortization scenarios, not measured request lifetimes; oracle search cost is reported separately and is not free."
+      },
+      "e4_native": {
+        "samples": [
+          {
+            "warm_prepare_ms": 6.067856214940548,
+            "prepare_plus_one_call_host_wall_us": 6302.662193775177
+          },
+          {
+            "warm_prepare_ms": 2.423739992082119,
+            "prepare_plus_one_call_host_wall_us": 2618.4022426605225
+          },
+          {
+            "warm_prepare_ms": 2.5118859484791756,
+            "prepare_plus_one_call_host_wall_us": 2695.930190384388
+          }
+        ],
+        "warm_prepare_median_us": 2511.8859484791756,
+        "amortized_prepare_plus_gpu_call_us": {
+          "1": 2521.661948412657,
+          "16": 166.7688717134297,
+          "64": 49.024217878468335,
+          "256": 19.588054419727996
+        },
+        "note": "Static-plan amortization scenarios, not measured request lifetimes; oracle search cost is reported separately and is not free."
+      },
+      "best_dynamic": {
+        "samples": [
+          {
+            "warm_prepare_ms": 6.335648708045483,
+            "prepare_plus_one_call_host_wall_us": 6637.2426226735115
+          },
+          {
+            "warm_prepare_ms": 6.215051747858524,
+            "prepare_plus_one_call_host_wall_us": 6494.734436273575
+          },
+          {
+            "warm_prepare_ms": 5.814541131258011,
+            "prepare_plus_one_call_host_wall_us": 6088.929250836372
+          }
+        ],
+        "warm_prepare_median_us": 6215.051747858524,
+        "amortized_prepare_plus_gpu_call_us": {
+          "1": 6230.033347755671,
+          "16": 403.422334138304,
+          "64": 112.09178345743567,
+          "256": 39.259145787218586
+        },
+        "note": "Static-plan amortization scenarios, not measured request lifetimes; oracle search cost is reported separately and is not free."
+      },
+      "dynamic_fullcol_guard": {
+        "samples": [
+          {
+            "warm_prepare_ms": 6.184352561831474,
+            "prepare_plus_one_call_host_wall_us": 6468.961946666241
+          },
+          {
+            "warm_prepare_ms": 6.899707950651646,
+            "prepare_plus_one_call_host_wall_us": 7178.288884460926
+          },
+          {
+            "warm_prepare_ms": 5.936848931014538,
+            "prepare_plus_one_call_host_wall_us": 6227.690726518631
+          }
+        ],
+        "warm_prepare_median_us": 6184.352561831474,
+        "amortized_prepare_plus_gpu_call_us": {
+          "1": 6201.469361782074,
+          "16": 403.6388350650668,
+          "64": 113.74730872921646,
+          "256": 41.27442714525387
+        },
+        "note": "Static-plan amortization scenarios, not measured request lifetimes; oracle search cost is reported separately and is not free."
+      },
+      "dynamic_persistent_fixed": {
+        "samples": [
+          {
+            "warm_prepare_ms": 7.490671239793301,
+            "prepare_plus_one_call_host_wall_us": 7819.949649274349
+          },
+          {
+            "warm_prepare_ms": 8.26330203562975,
+            "prepare_plus_one_call_host_wall_us": 8557.171560823917
+          },
+          {
+            "warm_prepare_ms": 7.4290260672569275,
+            "prepare_plus_one_call_host_wall_us": 7732.233963906765
+          }
+        ],
+        "warm_prepare_median_us": 7490.671239793301,
+        "amortized_prepare_plus_gpu_call_us": {
+          "1": 7505.671240389347,
+          "16": 483.16695308312774,
+          "64": 132.04173871781677,
+          "256": 44.26043512648903
+        },
+        "note": "Static-plan amortization scenarios, not measured request lifetimes; oracle search cost is reported separately and is not free."
+      }
+    },
+    "cold": {
+      "full_union": {
+        "samples": [
+          {
+            "warm_prepare_ms": 8.679316379129887,
+            "prepare_plus_one_call_host_wall_us": 8806.303143501282
+          },
+          {
+            "warm_prepare_ms": 7.464151829481125,
+            "prepare_plus_one_call_host_wall_us": 7584.298960864544
+          },
+          {
+            "warm_prepare_ms": 7.114124484360218,
+            "prepare_plus_one_call_host_wall_us": 7230.2427142858505
+          }
+        ],
+        "warm_prepare_median_us": 7464.151829481125,
+        "amortized_prepare_plus_gpu_call_us": {
+          "1": 7482.5838301330805,
+          "16": 484.9414899945259,
+          "64": 135.05937298759818,
+          "256": 47.58884373586625
+        },
+        "note": "Static-plan amortization scenarios, not measured request lifetimes; oracle search cost is reported separately and is not free."
+      },
+      "best_e1": {
+        "samples": [
+          {
+            "warm_prepare_ms": 4.508531652390957,
+            "prepare_plus_one_call_host_wall_us": 4662.171937525272
+          },
+          {
+            "warm_prepare_ms": 0.9177150204777718,
+            "prepare_plus_one_call_host_wall_us": 1038.26355189085
+          },
+          {
+            "warm_prepare_ms": 0.8399253711104393,
+            "prepare_plus_one_call_host_wall_us": 969.0737351775169
+          }
+        ],
+        "warm_prepare_median_us": 917.7150204777718,
+        "amortized_prepare_plus_gpu_call_us": {
+          "1": 936.1470211297274,
+          "16": 75.78918943181634,
+          "64": 32.77129784692079,
+          "256": 22.0168249506969
+        },
+        "note": "Static-plan amortization scenarios, not measured request lifetimes; oracle search cost is reported separately and is not free."
+      },
+      "e4_native": {
+        "samples": [
+          {
+            "warm_prepare_ms": 2.5102440267801285,
+            "prepare_plus_one_call_host_wall_us": 2702.1951973438263
+          },
+          {
+            "warm_prepare_ms": 2.302017994225025,
+            "prepare_plus_one_call_host_wall_us": 2482.323907315731
+          },
+          {
+            "warm_prepare_ms": 2.4044672027230263,
+            "prepare_plus_one_call_host_wall_us": 2580.38192987442
+          }
+        ],
+        "warm_prepare_median_us": 2404.4672027230263,
+        "amortized_prepare_plus_gpu_call_us": {
+          "1": 2424.947202205658,
+          "16": 170.75919965282083,
+          "64": 58.04979952517897,
+          "256": 29.872449493268505
+        },
+        "note": "Static-plan amortization scenarios, not measured request lifetimes; oracle search cost is reported separately and is not free."
+      },
+      "best_dynamic": {
+        "samples": [
+          {
+            "warm_prepare_ms": 6.434746086597443,
+            "prepare_plus_one_call_host_wall_us": 6763.584911823273
+          },
+          {
+            "warm_prepare_ms": 6.281438283622265,
+            "prepare_plus_one_call_host_wall_us": 6555.783562362194
+          },
+          {
+            "warm_prepare_ms": 5.916417576372623,
+            "prepare_plus_one_call_host_wall_us": 6191.771477460861
+          }
+        ],
+        "warm_prepare_median_us": 6281.438283622265,
+        "amortized_prepare_plus_gpu_call_us": {
+          "1": 6308.062283322215,
+          "16": 419.2138924263418,
+          "64": 124.7714728815481,
+          "256": 51.16086799534969
+        },
+        "note": "Static-plan amortization scenarios, not measured request lifetimes; oracle search cost is reported separately and is not free."
+      },
+      "dynamic_fullcol_guard": {
+        "samples": [
+          {
+            "warm_prepare_ms": 6.2144845724105835,
+            "prepare_plus_one_call_host_wall_us": 6527.903489768505
+          },
+          {
+            "warm_prepare_ms": 5.771287716925144,
+            "prepare_plus_one_call_host_wall_us": 6057.445891201496
+          },
+          {
+            "warm_prepare_ms": 5.872570909559727,
+            "prepare_plus_one_call_host_wall_us": 6157.072260975838
+          }
+        ],
+        "warm_prepare_median_us": 5872.570909559727,
+        "amortized_prepare_plus_gpu_call_us": {
+          "1": 5899.194909259677,
+          "16": 393.65968154743314,
+          "64": 118.38292016182095,
+          "256": 49.5637298154179
+        },
+        "note": "Static-plan amortization scenarios, not measured request lifetimes; oracle search cost is reported separately and is not free."
+      },
+      "dynamic_persistent_fixed": {
+        "samples": [
+          {
+            "warm_prepare_ms": 5.797897465527058,
+            "prepare_plus_one_call_host_wall_us": 6096.098572015762
+          },
+          {
+            "warm_prepare_ms": 6.299151107668877,
+            "prepare_plus_one_call_host_wall_us": 6573.626771569252
+          },
+          {
+            "warm_prepare_ms": 6.05433527380228,
+            "prepare_plus_one_call_host_wall_us": 6320.7680359482765
+          }
+        ],
+        "warm_prepare_median_us": 6054.33527380228,
+        "amortized_prepare_plus_gpu_call_us": {
+          "1": 6080.959273502231,
+          "16": 405.01995431259274,
+          "64": 121.22298835311085,
+          "256": 50.273746863240376
+        },
+        "note": "Static-plan amortization scenarios, not measured request lifetimes; oracle search cost is reported separately and is not free."
+      }
+    }
+  },
+  "limitations": [
+    "Hierarchical split partial output is native BF16 and merged with FP32 log2-LSE weights; every tested configuration is separately qualified.",
+    "E4 uses exact binary-tree intersection/residual decomposition with all nodes batched, not the original QUILT code/planner.",
+    "Only shared-source KV is zero-copy; query gathering, normalized output restoration and hierarchical merge are included in run().",
+    "Plan preparation and actual prepare+one-run wall time are measured; search is reported separately, not silently amortized away.",
+    "Same-capture hot/cold controls do not establish common-ready overlap, generation quality, full-model speedup or energy improvement.",
+    "Persistent fixed-M32 versus compact FullCol changes masked MMA work; do not attribute the whole difference solely to state transport."
+  ]
+}

@@ -1,0 +1,1116 @@
+{
+  "schema": "static-bank-qualification-v1",
+  "status": "running",
+  "uid": 1000,
+  "python": "/home/qcjz/iscas/.venv-latest/bin/python",
+  "CUDA_VISIBLE_DEVICES": "0",
+  "started_utc": "2026-10-16T13:16:36.738779+00:00",
+  "arguments": {
+    "batch": 3,
+    "splits": 3,
+    "block_n": 32,
+    "threads": 128,
+    "tokens": 259,
+    "fixtures": "all_masks,unequal,empty,one_token",
+    "module": "branchtile.attention_v4",
+    "capture": "results/captures/main30b_tp2_docfinqa256_suffix_v2/rank0",
+    "layer": 15,
+    "budget": 32768,
+    "step": 64,
+    "heads": 2,
+    "output": "results/static_bank_v4_qualification/wave4/staticbank_w4_v4_b3_n32_s3.json",
+    "cpu_check": false
+  },
+  "code_sha256": {
+    "scripts/qualify_static_bank.py": "9dc8fda1604b80960bcc194def824acdbae3000a32fe16b7ce2a84adf3d85df8",
+    "src/branchtile/attention.py": "2878475c1273f527f95f629090e275c5a99f9dbad6c67646c40657692c20673d",
+    "src/branchtile/resources.py": "b08fc87f2f690c84d450f7b1ea2c704d73cd2ac2dd66b2f7431791013e761c58",
+    "scripts/compare_attention.py": "a23b40b1139e93fbb2bd7f5e8794b1885e4df8778bc83114e845829fb1a7e2e2",
+    "src/branchtile/attention_v4.py": "b94c60d30d653aa16934081f838f2229f8f38ab84657d5e1e3d98baeaeac9272",
+    "src/branchtile/tilelang_kernel_v4.py": "afa47ed8aca50923e7426096d6c17be0c0830bbfd8687b3d0fb99aee17ec5a85",
+    "src/branchtile/attention_fullcol_guard.py": "fa990cd439eeee4a27624b0c678b159c2f4759de6075f782fd347636895c07ff",
+    "src/branchtile/tilelang_kernel_fullcol_guard.py": "cc3f2ea59cf04515fac0e648afa0a65c2eee9e0ab1a4e51b7681c9be53a293ab",
+    "src/branchtile/attention_emptyguard.py": "a4eb400c270750522ab7ebee891d96df4076fd3cf7e28f47af12193068f2749c",
+    "src/branchtile/tilelang_kernel_emptyguard.py": "80b91f0812a0ddec97c047facb4023d0929af1f9ca24e1ce562f0fc8655562ad",
+    "src/branchtile/tilelang_kernel_v2.py": "7f36322f62d94d047788cce58cf6b4063e7e27b2cd6f96624f7e5f93c9f90525"
+  },
+  "contracts": {
+    "O": {
+      "atol": 0.006,
+      "rtol": 0.015
+    },
+    "natural_log_LSE": {
+      "atol": 0.0003,
+      "rtol": 0.0001
+    }
+  },
+  "scope": "Numerical and graph qualification only; no performance result.",
+  "cases": [
+    {
+      "name": "all_masks",
+      "status": "passed_numerical_and_mutable_graph",
+      "q_shape": [
+        2,
+        24,
+        128
+      ],
+      "k_shape": [
+        2,
+        259,
+        128
+      ],
+      "batch": 3,
+      "provenance": {
+        "kind": "synthetic",
+        "seed": 20261016
+      },
+      "checks": [
+        {
+          "phase": "eager",
+          "status": "passed",
+          "O_max_abs_fp64": 0.001458038144707463,
+          "O_relative_l2_fp64": 0.002011908027214121,
+          "LSE_max_abs_fp64_finite_rows": 4.713848378301577e-07,
+          "empty_rows": 0,
+          "O_sha256": "d5cb05ded12d0a1399e12a2ec87ab37a00fb860a61936c4b08b35ef42581b731",
+          "Q_sha256": "fdfb16978492efff16dc215dba0fd8af65f35b9136892d51eba037219ef76073",
+          "K_sha256": "e8572f6efe4ad2f3bce41240fb0b148a7882d5629fa1935870f2a1bace239afb",
+          "V_sha256": "9519e18bbc5f96b26c89faf09abb09e9853fdac6a675f13d422bf3b515bfb75b",
+          "owner_sha256": "3b0e9d0750ed837b33d7c28b038cdeb64a24068699ec7216bd6542b6b43555c8"
+        },
+        {
+          "phase": "graph_baseline",
+          "status": "passed",
+          "O_max_abs_fp64": 0.001458038144707463,
+          "O_relative_l2_fp64": 0.002011908027214121,
+          "LSE_max_abs_fp64_finite_rows": 4.713848378301577e-07,
+          "empty_rows": 0,
+          "O_sha256": "d5cb05ded12d0a1399e12a2ec87ab37a00fb860a61936c4b08b35ef42581b731",
+          "Q_sha256": "fdfb16978492efff16dc215dba0fd8af65f35b9136892d51eba037219ef76073",
+          "K_sha256": "e8572f6efe4ad2f3bce41240fb0b148a7882d5629fa1935870f2a1bace239afb",
+          "V_sha256": "9519e18bbc5f96b26c89faf09abb09e9853fdac6a675f13d422bf3b515bfb75b",
+          "owner_sha256": "3b0e9d0750ed837b33d7c28b038cdeb64a24068699ec7216bd6542b6b43555c8"
+        },
+        {
+          "phase": "graph_changed_Q",
+          "status": "passed",
+          "O_max_abs_fp64": 0.0018115266749714198,
+          "O_relative_l2_fp64": 0.001960411256927842,
+          "LSE_max_abs_fp64_finite_rows": 5.256122808106056e-07,
+          "empty_rows": 0,
+          "O_sha256": "aeddfdccd69d704b84e0f9a786c9f819e833800518f6fbed36818635b26f9c72",
+          "Q_sha256": "919102ddf77097adc4c127f63c0bbd61b5f8403e6e427825d7c3442c33dfb02d",
+          "K_sha256": "e8572f6efe4ad2f3bce41240fb0b148a7882d5629fa1935870f2a1bace239afb",
+          "V_sha256": "9519e18bbc5f96b26c89faf09abb09e9853fdac6a675f13d422bf3b515bfb75b",
+          "owner_sha256": "3b0e9d0750ed837b33d7c28b038cdeb64a24068699ec7216bd6542b6b43555c8"
+        },
+        {
+          "phase": "graph_changed_KV",
+          "status": "passed",
+          "O_max_abs_fp64": 0.0018062475116997767,
+          "O_relative_l2_fp64": 0.001916780377898867,
+          "LSE_max_abs_fp64_finite_rows": 4.512671880618768e-07,
+          "empty_rows": 0,
+          "O_sha256": "69e2b68722fa111a34add0f192851928f1c5358bc50b11404fbac4338c5830af",
+          "Q_sha256": "919102ddf77097adc4c127f63c0bbd61b5f8403e6e427825d7c3442c33dfb02d",
+          "K_sha256": "7c67fd4b24bb75d5a81e55ce55c36b5d430bed5986824c05a48cbf59812fe454",
+          "V_sha256": "51242d40bd64473e5601d1a2832772518c99258bc45d8f69a589c6be0de4ae5c",
+          "owner_sha256": "3b0e9d0750ed837b33d7c28b038cdeb64a24068699ec7216bd6542b6b43555c8"
+        },
+        {
+          "phase": "graph_changed_indices",
+          "status": "passed",
+          "O_max_abs_fp64": 0.0017964345541489068,
+          "O_relative_l2_fp64": 0.0018900749284805256,
+          "LSE_max_abs_fp64_finite_rows": 4.4757641148862604e-07,
+          "empty_rows": 0,
+          "O_sha256": "902137cb80a6b2661d04ec7b3cfe7c791d9a9191a448bd35a7337ce18e3686bd",
+          "Q_sha256": "919102ddf77097adc4c127f63c0bbd61b5f8403e6e427825d7c3442c33dfb02d",
+          "K_sha256": "7c67fd4b24bb75d5a81e55ce55c36b5d430bed5986824c05a48cbf59812fe454",
+          "V_sha256": "51242d40bd64473e5601d1a2832772518c99258bc45d8f69a589c6be0de4ae5c",
+          "owner_sha256": "5afe19d665769ab173996104ce22d740c55f8f6ad4bfad2f1511d82c60b490db"
+        },
+        {
+          "phase": "graph_changed_offsets_and_indices",
+          "offset_values_changed": true,
+          "status": "passed",
+          "O_max_abs_fp64": 0.0013698888417127963,
+          "O_relative_l2_fp64": 0.0019123206489185065,
+          "LSE_max_abs_fp64_finite_rows": 4.3514354963747337e-07,
+          "empty_rows": 0,
+          "O_sha256": "fd5f654c02b4e230b6d18b8deded42502fda2411c0ff6f6e77cf9623b527c644",
+          "Q_sha256": "919102ddf77097adc4c127f63c0bbd61b5f8403e6e427825d7c3442c33dfb02d",
+          "K_sha256": "7c67fd4b24bb75d5a81e55ce55c36b5d430bed5986824c05a48cbf59812fe454",
+          "V_sha256": "51242d40bd64473e5601d1a2832772518c99258bc45d8f69a589c6be0de4ae5c",
+          "owner_sha256": "9f42e11ece4f2e3f8b13df128c0d4f5f647c1a41d2714ffc5f84b33babdf79c2"
+        }
+      ],
+      "owner_labels": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "region_lengths_by_head": [
+        [
+          33,
+          33,
+          32,
+          32,
+          32,
+          32,
+          32
+        ],
+        [
+          33,
+          32,
+          32,
+          33,
+          32,
+          32,
+          33
+        ]
+      ],
+      "initialization_and_first_call_seconds": 84.73986693006009,
+      "resources": {
+        "cubin_sha256": "45c95140249d676e4068d8d1a21b723ee5cec93c4519b3e6df161a628ea100fe",
+        "cubin_resources": {
+          "reg": 182,
+          "stack": 0,
+          "shared": 1024,
+          "local": 0
+        },
+        "launch_grid": [
+          2,
+          2,
+          3
+        ],
+        "launch_block": [
+          128,
+          1,
+          1
+        ],
+        "dynamic_smem_bytes": 34048,
+        "total_smem_bytes": 35072,
+        "generated_source_sha256": "c57c44d1561bdf5593acb4e77abda7cc30eb1c0f18bc9810966d282e49a7f2f3",
+        "sass_sha256": "c8e0006cbf0d0b54f6c97735ea89bb5933ad5671ac69fb32966b1f8f3ec8574e",
+        "sass_local_load_store_count": 0,
+        "resource_spill_free": true
+      },
+      "generated_source_audit": {
+        "canonical_u_lines": [
+          {
+            "line": 16,
+            "text": "float cu[32];"
+          },
+          {
+            "line": 114,
+            "text": "out[i_3] = cu[(((i_3 >> 2) * 2) + (i_3 & 1))];"
+          },
+          {
+            "line": 258,
+            "text": "cu[i_15] = out[(((i_15 >> 1) * 4) + (i_15 & 1))];"
+          },
+          {
+            "line": 298,
+            "text": "out_1[i_19] = cu[((((i_19 >> 2) * 2) + (i_19 & 1)) + 8)];"
+          },
+          {
+            "line": 441,
+            "text": "cu[(i_31 + 8)] = out_1[(((i_31 >> 1) * 4) + (i_31 & 1))];"
+          },
+          {
+            "line": 498,
+            "text": "out_2[i_35] = cu[(((i_35 >> 2) * 2) + (i_35 & 1))];"
+          },
+          {
+            "line": 503,
+            "text": "out_2[((((i_36 >> 1) * 4) + (i_36 & 1)) + 2)] = cu[(i_36 + 8)];"
+          },
+          {
+            "line": 648,
+            "text": "cu[i_48] = out_2[(((i_48 >> 1) * 4) + (i_48 & 1))];"
+          },
+          {
+            "line": 653,
+            "text": "cu[(i_49 + 8)] = out_2[((((i_49 >> 1) * 4) + (i_49 & 1)) + 2)];"
+          },
+          {
+            "line": 694,
+            "text": "out_3[i_53] = cu[((((i_53 >> 2) * 2) + (i_53 & 1)) + 16)];"
+          },
+          {
+            "line": 837,
+            "text": "cu[(i_65 + 16)] = out_3[(((i_65 >> 1) * 4) + (i_65 & 1))];"
+          },
+          {
+            "line": 894,
+            "text": "out_4[i_69] = cu[(((i_69 >> 2) * 2) + (i_69 & 1))];"
+          },
+          {
+            "line": 899,
+            "text": "out_4[((((i_70 >> 1) * 4) + (i_70 & 1)) + 2)] = cu[(i_70 + 16)];"
+          },
+          {
+            "line": 1044,
+            "text": "cu[i_82] = out_4[(((i_82 >> 1) * 4) + (i_82 & 1))];"
+          },
+          {
+            "line": 1049,
+            "text": "cu[(i_83 + 16)] = out_4[((((i_83 >> 1) * 4) + (i_83 & 1)) + 2)];"
+          },
+          {
+            "line": 1109,
+            "text": "out_5[i_87] = cu[((((i_87 >> 2) * 2) + (i_87 & 1)) + 8)];"
+          },
+          {
+            "line": 1114,
+            "text": "out_5[((((i_88 >> 1) * 4) + (i_88 & 1)) + 2)] = cu[(i_88 + 16)];"
+          },
+          {
+            "line": 1258,
+            "text": "cu[(i_100 + 8)] = out_5[(((i_100 >> 1) * 4) + (i_100 & 1))];"
+          },
+          {
+            "line": 1262,
+            "text": "cu[(i_101 + 16)] = out_5[((((i_101 >> 1) * 4) + (i_101 & 1)) + 2)];"
+          },
+          {
+            "line": 1340,
+            "text": "out_6[i_105] = cu[(((((i_105 >> 4) * 16) + (((i_105 & 3) >> 1) * 8)) + (((i_105 & 15) >> 2) * 2)) + (i_105 & 1))];"
+          },
+          {
+            "line": 1345,
+            "text": "out_6[((((i_106 >> 1) * 4) + (i_106 & 1)) + 2)] = cu[(i_106 + 8)];"
+          },
+          {
+            "line": 1349,
+            "text": "out_6[((((i_107 >> 1) * 4) + (i_107 & 1)) + 16)] = cu[(i_107 + 16)];"
+          },
+          {
+            "line": 1499,
+            "text": "cu[i_123] = out_6[(((i_123 >> 1) * 4) + (i_123 & 1))];"
+          },
+          {
+            "line": 1504,
+            "text": "cu[(i_124 + 8)] = out_6[((((i_124 >> 1) * 4) + (i_124 & 1)) + 2)];"
+          },
+          {
+            "line": 1508,
+            "text": "cu[(i_125 + 16)] = out_6[((((i_125 >> 1) * 4) + (i_125 & 1)) + 16)];"
+          }
+        ],
+        "barrier_text_count": 52,
+        "U_shared_traffic_proof": "requires_manual_generated_source_review",
+        "compiled_array_copy_evidence_only": true
+      }
+    },
+    {
+      "name": "unequal",
+      "status": "passed_numerical_and_mutable_graph",
+      "q_shape": [
+        2,
+        24,
+        128
+      ],
+      "k_shape": [
+        2,
+        259,
+        128
+      ],
+      "batch": 3,
+      "provenance": {
+        "kind": "synthetic",
+        "seed": 20261016
+      },
+      "checks": [
+        {
+          "phase": "eager",
+          "status": "passed",
+          "O_max_abs_fp64": 0.007635120382704752,
+          "O_relative_l2_fp64": 0.0017814772312049608,
+          "LSE_max_abs_fp64_finite_rows": 6.674026007402745e-07,
+          "empty_rows": 0,
+          "O_sha256": "0f6be8e66d3b48a223275dbc3afa2837cb4935f2dcf8271202690fcb26093511",
+          "Q_sha256": "c9483ac97e646b033f7d758c8b2dd3411ce4e7314a77467d9e18eedc7b6bf561",
+          "K_sha256": "c8499d9b74b95e54160cbe626db6b348b12d95cd9f2b4faf21b8378f26247314",
+          "V_sha256": "48ae44e5d6d16024d21f3bb49d6fda8a7778c1625afe178505ce968ab8a82322",
+          "owner_sha256": "29d5cf35eba19dc1d786c223ab739dc91b952b4ba9f97620a2f97f2bc9e05b31"
+        },
+        {
+          "phase": "graph_baseline",
+          "status": "passed",
+          "O_max_abs_fp64": 0.007635120382704752,
+          "O_relative_l2_fp64": 0.0017814772312049608,
+          "LSE_max_abs_fp64_finite_rows": 6.674026007402745e-07,
+          "empty_rows": 0,
+          "O_sha256": "0f6be8e66d3b48a223275dbc3afa2837cb4935f2dcf8271202690fcb26093511",
+          "Q_sha256": "c9483ac97e646b033f7d758c8b2dd3411ce4e7314a77467d9e18eedc7b6bf561",
+          "K_sha256": "c8499d9b74b95e54160cbe626db6b348b12d95cd9f2b4faf21b8378f26247314",
+          "V_sha256": "48ae44e5d6d16024d21f3bb49d6fda8a7778c1625afe178505ce968ab8a82322",
+          "owner_sha256": "29d5cf35eba19dc1d786c223ab739dc91b952b4ba9f97620a2f97f2bc9e05b31"
+        },
+        {
+          "phase": "graph_changed_Q",
+          "status": "passed",
+          "O_max_abs_fp64": 0.00465670683703201,
+          "O_relative_l2_fp64": 0.0017855228801243257,
+          "LSE_max_abs_fp64_finite_rows": 2.4426973688207454e-07,
+          "empty_rows": 0,
+          "O_sha256": "140a5f644b6690157abb529cd0fd1c6e593ac9cb90865d7fcd81fa42b98fc1bd",
+          "Q_sha256": "66bc3a60c67c48ee989d32cbfaf2c88f3971615d4890c13309b0fb0492070721",
+          "K_sha256": "c8499d9b74b95e54160cbe626db6b348b12d95cd9f2b4faf21b8378f26247314",
+          "V_sha256": "48ae44e5d6d16024d21f3bb49d6fda8a7778c1625afe178505ce968ab8a82322",
+          "owner_sha256": "29d5cf35eba19dc1d786c223ab739dc91b952b4ba9f97620a2f97f2bc9e05b31"
+        },
+        {
+          "phase": "graph_changed_KV",
+          "status": "passed",
+          "O_max_abs_fp64": 0.005170777326392928,
+          "O_relative_l2_fp64": 0.0018123689490019807,
+          "LSE_max_abs_fp64_finite_rows": 2.8843475163853327e-07,
+          "empty_rows": 0,
+          "O_sha256": "ea7af6a5afb67d0dc50c8c0b6a35317e2fef29c3d196e9b6238baf9c24ec38aa",
+          "Q_sha256": "66bc3a60c67c48ee989d32cbfaf2c88f3971615d4890c13309b0fb0492070721",
+          "K_sha256": "0953f0010e9915be31a499b94fb0a4c8518fb1dd987affe2df3a492be0caeb50",
+          "V_sha256": "2c32ee8daab488a7eea28a77a035e96c3368f8f7c6330dc63a08f5c6162e7b24",
+          "owner_sha256": "29d5cf35eba19dc1d786c223ab739dc91b952b4ba9f97620a2f97f2bc9e05b31"
+        },
+        {
+          "phase": "graph_changed_indices",
+          "status": "passed",
+          "O_max_abs_fp64": 0.00578217528306979,
+          "O_relative_l2_fp64": 0.001762181204213758,
+          "LSE_max_abs_fp64_finite_rows": 2.9422002878476405e-07,
+          "empty_rows": 0,
+          "O_sha256": "ef88e231d9815b94c222301d57e638a86179429a580d847e46874a75f83176c5",
+          "Q_sha256": "66bc3a60c67c48ee989d32cbfaf2c88f3971615d4890c13309b0fb0492070721",
+          "K_sha256": "0953f0010e9915be31a499b94fb0a4c8518fb1dd987affe2df3a492be0caeb50",
+          "V_sha256": "2c32ee8daab488a7eea28a77a035e96c3368f8f7c6330dc63a08f5c6162e7b24",
+          "owner_sha256": "ffaa7f71eaa14798484ff4136c5ab064ab617d8a0f6b9781b9aa192b9f2235fb"
+        },
+        {
+          "phase": "graph_changed_offsets_and_indices",
+          "offset_values_changed": true,
+          "status": "passed",
+          "O_max_abs_fp64": 0.007435854188920121,
+          "O_relative_l2_fp64": 0.0018449359381188845,
+          "LSE_max_abs_fp64_finite_rows": 3.001616324382894e-07,
+          "empty_rows": 8,
+          "O_sha256": "7544ea80a8c90ba078a79dc82b3062f93befa7f61db0fb4045107cf6aa7d2527",
+          "Q_sha256": "66bc3a60c67c48ee989d32cbfaf2c88f3971615d4890c13309b0fb0492070721",
+          "K_sha256": "0953f0010e9915be31a499b94fb0a4c8518fb1dd987affe2df3a492be0caeb50",
+          "V_sha256": "2c32ee8daab488a7eea28a77a035e96c3368f8f7c6330dc63a08f5c6162e7b24",
+          "owner_sha256": "70737638144ebb876861110e7fab930c943f39d0f0466a3e4b49745e3e14ab47"
+        }
+      ],
+      "owner_labels": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "region_lengths_by_head": [
+        [
+          253,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        [
+          12,
+          0,
+          0,
+          0,
+          0,
+          0,
+          7
+        ]
+      ],
+      "initialization_and_first_call_seconds": 0.00020720995962619781,
+      "resources": {
+        "cubin_sha256": "45c95140249d676e4068d8d1a21b723ee5cec93c4519b3e6df161a628ea100fe",
+        "cubin_resources": {
+          "reg": 182,
+          "stack": 0,
+          "shared": 1024,
+          "local": 0
+        },
+        "launch_grid": [
+          2,
+          2,
+          3
+        ],
+        "launch_block": [
+          128,
+          1,
+          1
+        ],
+        "dynamic_smem_bytes": 34048,
+        "total_smem_bytes": 35072,
+        "generated_source_sha256": "c57c44d1561bdf5593acb4e77abda7cc30eb1c0f18bc9810966d282e49a7f2f3",
+        "sass_sha256": "c8e0006cbf0d0b54f6c97735ea89bb5933ad5671ac69fb32966b1f8f3ec8574e",
+        "sass_local_load_store_count": 0,
+        "resource_spill_free": true
+      },
+      "generated_source_audit": {
+        "canonical_u_lines": [
+          {
+            "line": 16,
+            "text": "float cu[32];"
+          },
+          {
+            "line": 114,
+            "text": "out[i_3] = cu[(((i_3 >> 2) * 2) + (i_3 & 1))];"
+          },
+          {
+            "line": 258,
+            "text": "cu[i_15] = out[(((i_15 >> 1) * 4) + (i_15 & 1))];"
+          },
+          {
+            "line": 298,
+            "text": "out_1[i_19] = cu[((((i_19 >> 2) * 2) + (i_19 & 1)) + 8)];"
+          },
+          {
+            "line": 441,
+            "text": "cu[(i_31 + 8)] = out_1[(((i_31 >> 1) * 4) + (i_31 & 1))];"
+          },
+          {
+            "line": 498,
+            "text": "out_2[i_35] = cu[(((i_35 >> 2) * 2) + (i_35 & 1))];"
+          },
+          {
+            "line": 503,
+            "text": "out_2[((((i_36 >> 1) * 4) + (i_36 & 1)) + 2)] = cu[(i_36 + 8)];"
+          },
+          {
+            "line": 648,
+            "text": "cu[i_48] = out_2[(((i_48 >> 1) * 4) + (i_48 & 1))];"
+          },
+          {
+            "line": 653,
+            "text": "cu[(i_49 + 8)] = out_2[((((i_49 >> 1) * 4) + (i_49 & 1)) + 2)];"
+          },
+          {
+            "line": 694,
+            "text": "out_3[i_53] = cu[((((i_53 >> 2) * 2) + (i_53 & 1)) + 16)];"
+          },
+          {
+            "line": 837,
+            "text": "cu[(i_65 + 16)] = out_3[(((i_65 >> 1) * 4) + (i_65 & 1))];"
+          },
+          {
+            "line": 894,
+            "text": "out_4[i_69] = cu[(((i_69 >> 2) * 2) + (i_69 & 1))];"
+          },
+          {
+            "line": 899,
+            "text": "out_4[((((i_70 >> 1) * 4) + (i_70 & 1)) + 2)] = cu[(i_70 + 16)];"
+          },
+          {
+            "line": 1044,
+            "text": "cu[i_82] = out_4[(((i_82 >> 1) * 4) + (i_82 & 1))];"
+          },
+          {
+            "line": 1049,
+            "text": "cu[(i_83 + 16)] = out_4[((((i_83 >> 1) * 4) + (i_83 & 1)) + 2)];"
+          },
+          {
+            "line": 1109,
+            "text": "out_5[i_87] = cu[((((i_87 >> 2) * 2) + (i_87 & 1)) + 8)];"
+          },
+          {
+            "line": 1114,
+            "text": "out_5[((((i_88 >> 1) * 4) + (i_88 & 1)) + 2)] = cu[(i_88 + 16)];"
+          },
+          {
+            "line": 1258,
+            "text": "cu[(i_100 + 8)] = out_5[(((i_100 >> 1) * 4) + (i_100 & 1))];"
+          },
+          {
+            "line": 1262,
+            "text": "cu[(i_101 + 16)] = out_5[((((i_101 >> 1) * 4) + (i_101 & 1)) + 2)];"
+          },
+          {
+            "line": 1340,
+            "text": "out_6[i_105] = cu[(((((i_105 >> 4) * 16) + (((i_105 & 3) >> 1) * 8)) + (((i_105 & 15) >> 2) * 2)) + (i_105 & 1))];"
+          },
+          {
+            "line": 1345,
+            "text": "out_6[((((i_106 >> 1) * 4) + (i_106 & 1)) + 2)] = cu[(i_106 + 8)];"
+          },
+          {
+            "line": 1349,
+            "text": "out_6[((((i_107 >> 1) * 4) + (i_107 & 1)) + 16)] = cu[(i_107 + 16)];"
+          },
+          {
+            "line": 1499,
+            "text": "cu[i_123] = out_6[(((i_123 >> 1) * 4) + (i_123 & 1))];"
+          },
+          {
+            "line": 1504,
+            "text": "cu[(i_124 + 8)] = out_6[((((i_124 >> 1) * 4) + (i_124 & 1)) + 2)];"
+          },
+          {
+            "line": 1508,
+            "text": "cu[(i_125 + 16)] = out_6[((((i_125 >> 1) * 4) + (i_125 & 1)) + 16)];"
+          }
+        ],
+        "barrier_text_count": 52,
+        "U_shared_traffic_proof": "requires_manual_generated_source_review",
+        "compiled_array_copy_evidence_only": true
+      }
+    },
+    {
+      "name": "empty",
+      "status": "passed_numerical_and_mutable_graph",
+      "q_shape": [
+        2,
+        24,
+        128
+      ],
+      "k_shape": [
+        2,
+        259,
+        128
+      ],
+      "batch": 3,
+      "provenance": {
+        "kind": "synthetic",
+        "seed": 20261016
+      },
+      "checks": [
+        {
+          "phase": "eager",
+          "status": "passed",
+          "O_max_abs_fp64": 0.0,
+          "O_relative_l2_fp64": 0.0,
+          "LSE_max_abs_fp64_finite_rows": 0.0,
+          "empty_rows": 48,
+          "O_sha256": "f3cc103136423a57975750907ebc1d367e2985ac6338976d4d5a439f50323f4a",
+          "Q_sha256": "07dd75325eeb56671c6d48eb58713f885389fd480756c741fd7226e4114cf421",
+          "K_sha256": "49080fce8d5235509b3767a0215279e69c8b0a59beb0a16ae418a72ef81e837d",
+          "V_sha256": "97d99c3c7cdbf764b5c42cb46cae08fa839a8f9dac2b3623c33d961ed4510a80",
+          "owner_sha256": "4eebc85577cab5fbd03cbade8bff81821d1f1d01cce6c1bf1f804325df41a949"
+        },
+        {
+          "phase": "graph_baseline",
+          "status": "passed",
+          "O_max_abs_fp64": 0.0,
+          "O_relative_l2_fp64": 0.0,
+          "LSE_max_abs_fp64_finite_rows": 0.0,
+          "empty_rows": 48,
+          "O_sha256": "f3cc103136423a57975750907ebc1d367e2985ac6338976d4d5a439f50323f4a",
+          "Q_sha256": "07dd75325eeb56671c6d48eb58713f885389fd480756c741fd7226e4114cf421",
+          "K_sha256": "49080fce8d5235509b3767a0215279e69c8b0a59beb0a16ae418a72ef81e837d",
+          "V_sha256": "97d99c3c7cdbf764b5c42cb46cae08fa839a8f9dac2b3623c33d961ed4510a80",
+          "owner_sha256": "4eebc85577cab5fbd03cbade8bff81821d1f1d01cce6c1bf1f804325df41a949"
+        },
+        {
+          "phase": "graph_changed_Q",
+          "status": "passed",
+          "O_max_abs_fp64": 0.0,
+          "O_relative_l2_fp64": 0.0,
+          "LSE_max_abs_fp64_finite_rows": 0.0,
+          "empty_rows": 48,
+          "O_sha256": "f3cc103136423a57975750907ebc1d367e2985ac6338976d4d5a439f50323f4a",
+          "Q_sha256": "af15638871ffaaadab17f29ec1bf9afcd0c063e322b86a54721c84a08334d289",
+          "K_sha256": "49080fce8d5235509b3767a0215279e69c8b0a59beb0a16ae418a72ef81e837d",
+          "V_sha256": "97d99c3c7cdbf764b5c42cb46cae08fa839a8f9dac2b3623c33d961ed4510a80",
+          "owner_sha256": "4eebc85577cab5fbd03cbade8bff81821d1f1d01cce6c1bf1f804325df41a949"
+        },
+        {
+          "phase": "graph_changed_KV",
+          "status": "passed",
+          "O_max_abs_fp64": 0.0,
+          "O_relative_l2_fp64": 0.0,
+          "LSE_max_abs_fp64_finite_rows": 0.0,
+          "empty_rows": 48,
+          "O_sha256": "f3cc103136423a57975750907ebc1d367e2985ac6338976d4d5a439f50323f4a",
+          "Q_sha256": "af15638871ffaaadab17f29ec1bf9afcd0c063e322b86a54721c84a08334d289",
+          "K_sha256": "d1062fb0bfde559fb04e35381bd313e1f034c75b4ea96134dfe79406112fc27b",
+          "V_sha256": "149083baafd821c45ab9f4e4813768a1eb47c8df4a1c1972d85e346cacabea17",
+          "owner_sha256": "4eebc85577cab5fbd03cbade8bff81821d1f1d01cce6c1bf1f804325df41a949"
+        },
+        {
+          "phase": "graph_changed_indices",
+          "status": "passed",
+          "O_max_abs_fp64": 0.0,
+          "O_relative_l2_fp64": 0.0,
+          "LSE_max_abs_fp64_finite_rows": 0.0,
+          "empty_rows": 48,
+          "O_sha256": "f3cc103136423a57975750907ebc1d367e2985ac6338976d4d5a439f50323f4a",
+          "Q_sha256": "af15638871ffaaadab17f29ec1bf9afcd0c063e322b86a54721c84a08334d289",
+          "K_sha256": "d1062fb0bfde559fb04e35381bd313e1f034c75b4ea96134dfe79406112fc27b",
+          "V_sha256": "149083baafd821c45ab9f4e4813768a1eb47c8df4a1c1972d85e346cacabea17",
+          "owner_sha256": "4eebc85577cab5fbd03cbade8bff81821d1f1d01cce6c1bf1f804325df41a949"
+        },
+        {
+          "phase": "graph_changed_offsets_and_indices",
+          "offset_values_changed": false,
+          "status": "passed",
+          "O_max_abs_fp64": 0.0,
+          "O_relative_l2_fp64": 0.0,
+          "LSE_max_abs_fp64_finite_rows": 0.0,
+          "empty_rows": 48,
+          "O_sha256": "f3cc103136423a57975750907ebc1d367e2985ac6338976d4d5a439f50323f4a",
+          "Q_sha256": "af15638871ffaaadab17f29ec1bf9afcd0c063e322b86a54721c84a08334d289",
+          "K_sha256": "d1062fb0bfde559fb04e35381bd313e1f034c75b4ea96134dfe79406112fc27b",
+          "V_sha256": "149083baafd821c45ab9f4e4813768a1eb47c8df4a1c1972d85e346cacabea17",
+          "owner_sha256": "4eebc85577cab5fbd03cbade8bff81821d1f1d01cce6c1bf1f804325df41a949"
+        }
+      ],
+      "owner_labels": [
+        1
+      ],
+      "region_lengths_by_head": [
+        [
+          0
+        ],
+        [
+          0
+        ]
+      ],
+      "initialization_and_first_call_seconds": 84.41267385333776,
+      "resources": {
+        "cubin_sha256": "eb5875405aa2f50445aff494cd79efb2e7fa6b8ddbb41006742e1a44da497b2d",
+        "cubin_resources": {
+          "reg": 120,
+          "stack": 0,
+          "shared": 1024,
+          "local": 0
+        },
+        "launch_grid": [
+          2,
+          2,
+          3
+        ],
+        "launch_block": [
+          128,
+          1,
+          1
+        ],
+        "dynamic_smem_bytes": 27904,
+        "total_smem_bytes": 28928,
+        "generated_source_sha256": "7623458e138620fcd57c3fe37c54fec6d28dfdd3bb9399d8f61a080cbfd4b47a",
+        "sass_sha256": "853d4e98f8a228fe91539101a6e5184698f4c7b5eb077f6364950c8f55ed47a0",
+        "sass_local_load_store_count": 0,
+        "resource_spill_free": true
+      },
+      "generated_source_audit": {
+        "canonical_u_lines": [
+          {
+            "line": 16,
+            "text": "float cu[32];"
+          },
+          {
+            "line": 113,
+            "text": "out[i_3] = cu[(((i_3 >> 2) * 2) + (i_3 & 1))];"
+          },
+          {
+            "line": 257,
+            "text": "cu[i_15] = out[(((i_15 >> 1) * 4) + (i_15 & 1))];"
+          },
+          {
+            "line": 297,
+            "text": "out_1[i_19] = cu[((((i_19 >> 2) * 2) + (i_19 & 1)) + 8)];"
+          },
+          {
+            "line": 440,
+            "text": "cu[(i_31 + 8)] = out_1[(((i_31 >> 1) * 4) + (i_31 & 1))];"
+          },
+          {
+            "line": 497,
+            "text": "out_2[i_35] = cu[(((i_35 >> 2) * 2) + (i_35 & 1))];"
+          },
+          {
+            "line": 502,
+            "text": "out_2[((((i_36 >> 1) * 4) + (i_36 & 1)) + 2)] = cu[(i_36 + 8)];"
+          },
+          {
+            "line": 647,
+            "text": "cu[i_48] = out_2[(((i_48 >> 1) * 4) + (i_48 & 1))];"
+          },
+          {
+            "line": 652,
+            "text": "cu[(i_49 + 8)] = out_2[((((i_49 >> 1) * 4) + (i_49 & 1)) + 2)];"
+          },
+          {
+            "line": 693,
+            "text": "out_3[i_53] = cu[((((i_53 >> 2) * 2) + (i_53 & 1)) + 16)];"
+          },
+          {
+            "line": 836,
+            "text": "cu[(i_65 + 16)] = out_3[(((i_65 >> 1) * 4) + (i_65 & 1))];"
+          },
+          {
+            "line": 893,
+            "text": "out_4[i_69] = cu[(((i_69 >> 2) * 2) + (i_69 & 1))];"
+          },
+          {
+            "line": 898,
+            "text": "out_4[((((i_70 >> 1) * 4) + (i_70 & 1)) + 2)] = cu[(i_70 + 16)];"
+          },
+          {
+            "line": 1043,
+            "text": "cu[i_82] = out_4[(((i_82 >> 1) * 4) + (i_82 & 1))];"
+          },
+          {
+            "line": 1048,
+            "text": "cu[(i_83 + 16)] = out_4[((((i_83 >> 1) * 4) + (i_83 & 1)) + 2)];"
+          },
+          {
+            "line": 1108,
+            "text": "out_5[i_87] = cu[((((i_87 >> 2) * 2) + (i_87 & 1)) + 8)];"
+          },
+          {
+            "line": 1113,
+            "text": "out_5[((((i_88 >> 1) * 4) + (i_88 & 1)) + 2)] = cu[(i_88 + 16)];"
+          },
+          {
+            "line": 1257,
+            "text": "cu[(i_100 + 8)] = out_5[(((i_100 >> 1) * 4) + (i_100 & 1))];"
+          },
+          {
+            "line": 1261,
+            "text": "cu[(i_101 + 16)] = out_5[((((i_101 >> 1) * 4) + (i_101 & 1)) + 2)];"
+          },
+          {
+            "line": 1339,
+            "text": "out_6[i_105] = cu[(((((i_105 >> 4) * 16) + (((i_105 & 3) >> 1) * 8)) + (((i_105 & 15) >> 2) * 2)) + (i_105 & 1))];"
+          },
+          {
+            "line": 1344,
+            "text": "out_6[((((i_106 >> 1) * 4) + (i_106 & 1)) + 2)] = cu[(i_106 + 8)];"
+          },
+          {
+            "line": 1348,
+            "text": "out_6[((((i_107 >> 1) * 4) + (i_107 & 1)) + 16)] = cu[(i_107 + 16)];"
+          },
+          {
+            "line": 1498,
+            "text": "cu[i_123] = out_6[(((i_123 >> 1) * 4) + (i_123 & 1))];"
+          },
+          {
+            "line": 1503,
+            "text": "cu[(i_124 + 8)] = out_6[((((i_124 >> 1) * 4) + (i_124 & 1)) + 2)];"
+          },
+          {
+            "line": 1507,
+            "text": "cu[(i_125 + 16)] = out_6[((((i_125 >> 1) * 4) + (i_125 & 1)) + 16)];"
+          }
+        ],
+        "barrier_text_count": 52,
+        "U_shared_traffic_proof": "requires_manual_generated_source_review",
+        "compiled_array_copy_evidence_only": true
+      }
+    },
+    {
+      "name": "one_token",
+      "status": "passed_numerical_and_mutable_graph",
+      "q_shape": [
+        2,
+        24,
+        128
+      ],
+      "k_shape": [
+        2,
+        259,
+        128
+      ],
+      "batch": 3,
+      "provenance": {
+        "kind": "synthetic",
+        "seed": 20261016
+      },
+      "checks": [
+        {
+          "phase": "eager",
+          "status": "passed",
+          "O_max_abs_fp64": 0.0,
+          "O_relative_l2_fp64": 0.0,
+          "LSE_max_abs_fp64_finite_rows": 1.5793544894115996e-07,
+          "empty_rows": 32,
+          "O_sha256": "83e760b02d8cd4da07e4458e2cbd9cb663c07134b3b566bedf1a9c6bc46d62bb",
+          "Q_sha256": "819cc6211cdb50ffd6dc12d2556250d13247e32056e568d556cdd37da2a0d51a",
+          "K_sha256": "7e4b8922fbf08fa3786491e31c704f7da5cc2526d3d8631c97b9d12621397b3e",
+          "V_sha256": "f3afdb931d38d5d060e693f1e96f26d2b1fb0618b3d389cb2f8ba99d16f3de03",
+          "owner_sha256": "77e93b2dfb50461ff0020e44e6cc8ef654979a8fee052ef85bba6356666d6345"
+        },
+        {
+          "phase": "graph_baseline",
+          "status": "passed",
+          "O_max_abs_fp64": 0.0,
+          "O_relative_l2_fp64": 0.0,
+          "LSE_max_abs_fp64_finite_rows": 1.5793544894115996e-07,
+          "empty_rows": 32,
+          "O_sha256": "83e760b02d8cd4da07e4458e2cbd9cb663c07134b3b566bedf1a9c6bc46d62bb",
+          "Q_sha256": "819cc6211cdb50ffd6dc12d2556250d13247e32056e568d556cdd37da2a0d51a",
+          "K_sha256": "7e4b8922fbf08fa3786491e31c704f7da5cc2526d3d8631c97b9d12621397b3e",
+          "V_sha256": "f3afdb931d38d5d060e693f1e96f26d2b1fb0618b3d389cb2f8ba99d16f3de03",
+          "owner_sha256": "77e93b2dfb50461ff0020e44e6cc8ef654979a8fee052ef85bba6356666d6345"
+        },
+        {
+          "phase": "graph_changed_Q",
+          "status": "passed",
+          "O_max_abs_fp64": 0.0,
+          "O_relative_l2_fp64": 0.0,
+          "LSE_max_abs_fp64_finite_rows": 1.3903651197022526e-07,
+          "empty_rows": 32,
+          "O_sha256": "83e760b02d8cd4da07e4458e2cbd9cb663c07134b3b566bedf1a9c6bc46d62bb",
+          "Q_sha256": "6e6e9f7cdf82560cb2bd820fcc120bd812c9fd6f9b599dc16397bab55d9ae8db",
+          "K_sha256": "7e4b8922fbf08fa3786491e31c704f7da5cc2526d3d8631c97b9d12621397b3e",
+          "V_sha256": "f3afdb931d38d5d060e693f1e96f26d2b1fb0618b3d389cb2f8ba99d16f3de03",
+          "owner_sha256": "77e93b2dfb50461ff0020e44e6cc8ef654979a8fee052ef85bba6356666d6345"
+        },
+        {
+          "phase": "graph_changed_KV",
+          "status": "passed",
+          "O_max_abs_fp64": 0.0,
+          "O_relative_l2_fp64": 0.0,
+          "LSE_max_abs_fp64_finite_rows": 7.034116666915224e-08,
+          "empty_rows": 32,
+          "O_sha256": "578c7f7caacf5bd5dce7185b391a5c40e080d4c1ffeb934a98a7ca875efe2aa7",
+          "Q_sha256": "6e6e9f7cdf82560cb2bd820fcc120bd812c9fd6f9b599dc16397bab55d9ae8db",
+          "K_sha256": "dcc4502a8678e868ed5218adf3d73842a1dcc11d8fb4e8e4600b83b3b3785a0c",
+          "V_sha256": "0587838bcfb681f3127242d586eb86241ca593880638387fcec721eb7d17e7c0",
+          "owner_sha256": "77e93b2dfb50461ff0020e44e6cc8ef654979a8fee052ef85bba6356666d6345"
+        },
+        {
+          "phase": "graph_changed_indices",
+          "status": "passed",
+          "O_max_abs_fp64": 0.0,
+          "O_relative_l2_fp64": 0.0,
+          "LSE_max_abs_fp64_finite_rows": 1.605984225605539e-07,
+          "empty_rows": 32,
+          "O_sha256": "8d5a7a4e9e2121419208b1389b2daf016e3ff23780426216a3472dc36dd97ef9",
+          "Q_sha256": "6e6e9f7cdf82560cb2bd820fcc120bd812c9fd6f9b599dc16397bab55d9ae8db",
+          "K_sha256": "dcc4502a8678e868ed5218adf3d73842a1dcc11d8fb4e8e4600b83b3b3785a0c",
+          "V_sha256": "0587838bcfb681f3127242d586eb86241ca593880638387fcec721eb7d17e7c0",
+          "owner_sha256": "2df5df06decd3d1b310096c6a0ed3bd9e56f5d4e190711ce1287541c0b30ff7f"
+        },
+        {
+          "phase": "graph_changed_offsets_and_indices",
+          "offset_values_changed": true,
+          "status": "passed",
+          "O_max_abs_fp64": 0.0,
+          "O_relative_l2_fp64": 0.0,
+          "LSE_max_abs_fp64_finite_rows": 1.55295656334431e-07,
+          "empty_rows": 32,
+          "O_sha256": "7697b8e31781489a5bb338a1b7f34c72fab2c8edda96b7e4f8c097fbbade9142",
+          "Q_sha256": "6e6e9f7cdf82560cb2bd820fcc120bd812c9fd6f9b599dc16397bab55d9ae8db",
+          "K_sha256": "dcc4502a8678e868ed5218adf3d73842a1dcc11d8fb4e8e4600b83b3b3785a0c",
+          "V_sha256": "0587838bcfb681f3127242d586eb86241ca593880638387fcec721eb7d17e7c0",
+          "owner_sha256": "c903e2aa2cb4e782dd4fa8f834231feacbd59881240b8b888fae3015d4dc36b2"
+        }
+      ],
+      "owner_labels": [
+        1,
+        4
+      ],
+      "region_lengths_by_head": [
+        [
+          1,
+          0
+        ],
+        [
+          0,
+          1
+        ]
+      ],
+      "initialization_and_first_call_seconds": 84.24047563783824,
+      "resources": {
+        "cubin_sha256": "f80d7d46f3b6c5bc96f07a952505efea7b83fabdf29289bfd192765768680379",
+        "cubin_resources": {
+          "reg": 182,
+          "stack": 0,
+          "shared": 1024,
+          "local": 0
+        },
+        "launch_grid": [
+          2,
+          2,
+          3
+        ],
+        "launch_block": [
+          128,
+          1,
+          1
+        ],
+        "dynamic_smem_bytes": 34048,
+        "total_smem_bytes": 35072,
+        "generated_source_sha256": "26bdf2f2346e927a9d4448373f919c9967c31e74b241d2817ad358316fe46643",
+        "sass_sha256": "56a5378def3eaf965d5addb51731a08e2624adb95464cfcdcc3c30a19fe6b369",
+        "sass_local_load_store_count": 0,
+        "resource_spill_free": true
+      },
+      "generated_source_audit": {
+        "canonical_u_lines": [
+          {
+            "line": 16,
+            "text": "float cu[32];"
+          },
+          {
+            "line": 114,
+            "text": "out[i_3] = cu[(((i_3 >> 2) * 2) + (i_3 & 1))];"
+          },
+          {
+            "line": 258,
+            "text": "cu[i_15] = out[(((i_15 >> 1) * 4) + (i_15 & 1))];"
+          },
+          {
+            "line": 298,
+            "text": "out_1[i_19] = cu[((((i_19 >> 2) * 2) + (i_19 & 1)) + 8)];"
+          },
+          {
+            "line": 441,
+            "text": "cu[(i_31 + 8)] = out_1[(((i_31 >> 1) * 4) + (i_31 & 1))];"
+          },
+          {
+            "line": 498,
+            "text": "out_2[i_35] = cu[(((i_35 >> 2) * 2) + (i_35 & 1))];"
+          },
+          {
+            "line": 503,
+            "text": "out_2[((((i_36 >> 1) * 4) + (i_36 & 1)) + 2)] = cu[(i_36 + 8)];"
+          },
+          {
+            "line": 648,
+            "text": "cu[i_48] = out_2[(((i_48 >> 1) * 4) + (i_48 & 1))];"
+          },
+          {
+            "line": 653,
+            "text": "cu[(i_49 + 8)] = out_2[((((i_49 >> 1) * 4) + (i_49 & 1)) + 2)];"
+          },
+          {
+            "line": 694,
+            "text": "out_3[i_53] = cu[((((i_53 >> 2) * 2) + (i_53 & 1)) + 16)];"
+          },
+          {
+            "line": 837,
+            "text": "cu[(i_65 + 16)] = out_3[(((i_65 >> 1) * 4) + (i_65 & 1))];"
+          },
+          {
+            "line": 894,
+            "text": "out_4[i_69] = cu[(((i_69 >> 2) * 2) + (i_69 & 1))];"
+          },
+          {
+            "line": 899,
+            "text": "out_4[((((i_70 >> 1) * 4) + (i_70 & 1)) + 2)] = cu[(i_70 + 16)];"
+          },
+          {
+            "line": 1044,
+            "text": "cu[i_82] = out_4[(((i_82 >> 1) * 4) + (i_82 & 1))];"
+          },
+          {
+            "line": 1049,
+            "text": "cu[(i_83 + 16)] = out_4[((((i_83 >> 1) * 4) + (i_83 & 1)) + 2)];"
+          },
+          {
+            "line": 1109,
+            "text": "out_5[i_87] = cu[((((i_87 >> 2) * 2) + (i_87 & 1)) + 8)];"
+          },
+          {
+            "line": 1114,
+            "text": "out_5[((((i_88 >> 1) * 4) + (i_88 & 1)) + 2)] = cu[(i_88 + 16)];"
+          },
+          {
+            "line": 1258,
+            "text": "cu[(i_100 + 8)] = out_5[(((i_100 >> 1) * 4) + (i_100 & 1))];"
+          },
+          {
+            "line": 1262,
+            "text": "cu[(i_101 + 16)] = out_5[((((i_101 >> 1) * 4) + (i_101 & 1)) + 2)];"
+          },
+          {
+            "line": 1340,
+            "text": "out_6[i_105] = cu[(((((i_105 >> 4) * 16) + (((i_105 & 3) >> 1) * 8)) + (((i_105 & 15) >> 2) * 2)) + (i_105 & 1))];"
+          },
+          {
+            "line": 1345,
+            "text": "out_6[((((i_106 >> 1) * 4) + (i_106 & 1)) + 2)] = cu[(i_106 + 8)];"
+          },
+          {
+            "line": 1349,
+            "text": "out_6[((((i_107 >> 1) * 4) + (i_107 & 1)) + 16)] = cu[(i_107 + 16)];"
+          },
+          {
+            "line": 1499,
+            "text": "cu[i_123] = out_6[(((i_123 >> 1) * 4) + (i_123 & 1))];"
+          },
+          {
+            "line": 1504,
+            "text": "cu[(i_124 + 8)] = out_6[((((i_124 >> 1) * 4) + (i_124 & 1)) + 2)];"
+          },
+          {
+            "line": 1508,
+            "text": "cu[(i_125 + 16)] = out_6[((((i_125 >> 1) * 4) + (i_125 & 1)) + 16)];"
+          }
+        ],
+        "barrier_text_count": 52,
+        "U_shared_traffic_proof": "requires_manual_generated_source_review",
+        "compiled_array_copy_evidence_only": true
+      }
+    },
+    {
+      "name": "real_capture",
+      "status": "initializing",
+      "q_shape": [
+        2,
+        24,
+        128
+      ],
+      "k_shape": [
+        2,
+        87083,
+        128
+      ],
+      "batch": 3,
+      "provenance": {
+        "capture": "/home/qcjz/iscas/results/captures/main30b_tp2_docfinqa256_suffix_v2/rank0",
+        "layer": 15,
+        "budget": 32768,
+        "step": 64,
+        "original_active_requests": [
+          0,
+          1,
+          2
+        ],
+        "selected_kv_heads": [
+          0,
+          1
+        ],
+        "model": "data/models/Qwen3-30B-A3B-Thinking-2507-FP8",
+        "model_revision": "60d80c83c53c3b611c642dbb8c942b3f90c5948a",
+        "document_sha256": "c0f11a67aae850fc423d60b5c3839769c083888b4d2e73c6d47b359547f44e46",
+        "includes_system_prefix_and_complete_private_suffix": true,
+        "ready_lifetime_measured": true,
+        "files_sha256": {
+          "results/captures/main30b_tp2_docfinqa256_suffix_v2/rank0/metadata.json": "c8edc90d6751ed8cef30b7cc4a38151d0bfbce900aea1d2429c366d177123da6",
+          "results/captures/main30b_tp2_docfinqa256_suffix_v2/rank0/source_l15.pt": "69f573933c7ad55e3d0206a086e0b0d52cfd6d7cb9c8dab76dc4bbfa4948fa60",
+          "results/captures/main30b_tp2_docfinqa256_suffix_v2/rank0/masks_l15_b32768.pt": "c39dc97d085a2a13e1ef40ab20701ca519ea17457815ff3797906c6b111499bc",
+          "results/captures/main30b_tp2_docfinqa256_suffix_v2/rank0/decode_q0_l15_s64.pt": "93dec2055abcfb2b10a0266d52748f35f85e471dc8499d2dc53b6f7fab0190d6",
+          "results/captures/main30b_tp2_docfinqa256_suffix_v2/rank0/decode_q1_l15_s64.pt": "6a7c57c711ffd70f08ce3408aaf1c89b77cf5fef655cb2ffcc79d85d6cef1cbf",
+          "results/captures/main30b_tp2_docfinqa256_suffix_v2/rank0/decode_q2_l15_s64.pt": "6803762ce5640f2936e7be1b9e61ca7432be9682b76a36cb2e77ea6487d169f3"
+        }
+      },
+      "checks": []
+    }
+  ],
+  "gpu_uuid": "a968eb06-fbdc-36af-d507-50240e0e50a3",
+  "gpu_name": "NVIDIA GeForce RTX 5090",
+  "packages": {
+    "torch": "2.11.0",
+    "tilelang": "0.1.9",
+    "triton": "3.6.0"
+  }
+}
