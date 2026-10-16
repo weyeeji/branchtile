@@ -17,3 +17,18 @@ train1 FP8（120528-token公共prefix）完成15个B8 decode步、每步48层、
 train1 BF16在rank1、layer47的原定same-Q比较失败，记录max_abs 0.03125。绝对最大误差并不直接表示失败坐标的误差；门槛含相对项，需保存失败元素再判断。worker错误后原engine未干净返回，root终止进程，账本exit -15；summary残留initializing，不能当成仍运行或已完成。原始日志 `logs/dense_cascade_model_qual_train1_bf16_v1.log` 保留。后续独立失败快照将检验candidate/native各自对FP64的误差，而非用二者互相不一致直接判定谁错。
 
 CPU审计工具 `scripts/audit_dense_cascade_model.py` 核对源哈希、48层覆盖、实际共享页资格、完整tail与图topology、两rank轨迹、固定token数、anchor账目、额外准备成本及ABBA/APC一致性。自然结果同时输出每种B实际存活步数和caps，避免把初始B8收益外推全部请求。
+
+## FP8 两文档完整生成与自然结束结果
+
+后续两个TP2作业均完成。固定128输出tokens、native/cascade各两次的完整生成，train1 ready-group比值1.17036，train7为1.16521；包含cold anchor后仅1.01401和1.01158。native AA耗时比max/min分别1.00076和1.00104。同方法两次输出tokens完全相同，两方法间tokens不同；四个phase的APC命中数、实际调度batch、question和position轨迹一致。因模型含MoE、token变化可改变路由，这只能称**固定输出长度的完整生成**，不称严格相同工作量或相同模型轨迹。
+
+| 文档 | 自然native/cascade ready wall | 自然native/cascade cold文档wall | 总输出tokens native→cascade | ready比值 |
+| --- | --- | --- | --- | ---: |
+| train1 | 33.702 / 31.986 s | 54.805 / 53.074 s | 12999→10750 | 1.05364 |
+| train7 | 20.841 / 59.570 s | 49.764 / 88.476 s | 7317→13915 | 0.34986 |
+
+四次自然组共32个请求均正常EOS，无8192tokens截断。train1候选虽然总tokens减少，最长请求从3022增到3473，单请求尾部B1占2063步；train7最长请求从1854增到5643，候选B2占2803步、B1占1840步。B1按预定策略回退native；自然输出长度和batch存活分布变动可以抵消算子收益，甚至使完整任务明显更慢。不得隐藏train7负结果，也不得把train1单次正结果视为稳健自然任务加速。自然答案仍需独立打分。
+
+额外图/plan初始化分别2.469和2.389秒，以上cold文档wall未含这项；首次使用须另加。生产阶段prepare记录elapsed约9–10ms包含 `.item()` 等待前一GPU步的时间，不能直接把它称为9–10ms新增CPU计算开销或从wall中再次扣除；资格阶段同步后的约0.4ms也不构成严格因果overhead分解。下一步应在同一真实decode快照内直接比较native与真实cascade完整模型图，分离prefill和逐步CPU准备，保留实际算法计算而非预知O。
+
+CPU审计结果：`results/dense_cascade_natural_v1/train1_fp8/analysis.json`、`train7_fp8/analysis.json`。逐rank记录覆盖B8自然收缩至B1、全部完整tail/实际共享页和图topology检查，未发生遗漏private suffix或越界plan变化。
