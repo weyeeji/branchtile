@@ -12,7 +12,7 @@ import tilelang.language as T
 @lru_cache(maxsize=128)
 def producer(heads, tokens, rows, dim, regions, splits=1, block_n=64,
              threads=128, compact=True, region_partials=False):
-    assert rows in (8, 16, 24, 32) and dim == 128
+    assert rows in (4, 8, 12, 16, 24, 32) and dim == 128
     output_splits = splits * regions if region_partials else splits
     fixed_m = 16 if rows <= 16 else 32
     scale = 1 / math.sqrt(dim)

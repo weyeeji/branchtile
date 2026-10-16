@@ -33,7 +33,9 @@ class NativeSparseDecode:
         self.indices = torch.cat(indices).to(q.device)
         self.last = torch.tensor([int(pointers[i + 1] > pointers[i]) for i in range(h * b)],
                                  dtype=torch.int32, device=q.device)
-        self.workspace = torch.empty(128 * 1024 * 1024, dtype=torch.uint8, device=q.device)
+        # Page-size-one + small fixed splits can require >256 MiB even for B4.
+        # Capacity is reported rather than silently excluding legal split choices.
+        self.workspace = torch.empty(512 * 1024 * 1024, dtype=torch.uint8, device=q.device)
         self.wrapper = flashinfer.BatchDecodeWithPagedKVCacheWrapper(
             self.workspace, kv_layout="NHD", use_tensor_cores=use_tensor_cores,
             backend="auto")

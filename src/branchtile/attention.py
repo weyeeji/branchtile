@@ -49,7 +49,7 @@ def make_plan(owners: torch.Tensor, batch: int = 4, gqa: int = 8, device=None):
     row maps are one-to-one, in range, and every source-token appears once.
     """
     start = time.perf_counter()
-    assert 1 <= batch <= 4 and batch * gqa in (8, 16, 24, 32)
+    assert 1 <= batch <= 4 and gqa in (4, 8) and batch * gqa <= 32
     destination = device or owners.device
     owners = owners.to(device="cpu", dtype=torch.int64)
     assert owners.ndim == 2 and owners.numel() > 0
