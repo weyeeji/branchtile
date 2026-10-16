@@ -27,3 +27,15 @@ The independent GPU qualification and timing runner is now frozen. Suggested fir
 ```
 
 Allow 180 seconds for a normal case, 300 seconds for compute-sanitizer (`--tool memcheck --error-exitcode 99`) on B7. First actual O/FP64 qualification precedes any model integration. The runner verifies capture summary/worker/file SHA provenance, preserves original B8 O parity, recomputes all subset native outputs, checks graph replay after Q/length changes and reversed cohort membership, poisons raw state, rejects foreign physical prefix and retains original native PDL-on as the performance baseline. Thirty randomized paired blocks report hot and eviction-controlled measurements. No timing winner is selected as a per-input policy.
+
+## Independent whole-model qualification
+
+The new TP1 bank/worker uses Hq32/Hkv8, all 36 actual layer views and a single shared arena across B4..8. Each layer aliases the native contiguous Q/O pointers, full-width native page table and int32 device lengths. The fingerprint includes the TP1 native worker, independent runtime/bank and independent qualification scope; actual TP2 direct-quad receipts are rejected. CPU checks exercise all 180 layer/batch pointer selections and reject noncontiguous Q/O. The new B4..8/P120528/private<=8192 scope is a bounded qualification region, not a copied TP2 performance policy.
+
+After TP1 actual-state operator and memcheck gates pass, root can run one GPU (initial timeout900s):
+
+```bash
+.venv-engine/bin/python scripts/qualify_thinking_tp1_quad_model.py --document-id docfinqa-680456070a0a0714 --output results/thinking_tp1_quad_model_qual_v1
+```
+
+This driver is qualification-only: it retains the original native generation trajectory and checks up to eight naturally observed states for each B4..8 against native AA, a native witness graph, checked candidate and production candidate. It verifies every layer Q/O, full hidden/logit output, current KV slots, original inputs/positions/table and native metadata aliases. It restores native slots before continuing. Missing states remain unqualified; a successful first set is not a proof for all later states. No fixed/natural performance arms are launched by this driver. The whole-model receipt must pass before a separate matched TP1 production experiment can support a speed claim.
