@@ -85,7 +85,9 @@ def main():
     assert os.geteuid() != 0, "No root execution"
     assert sys.prefix != sys.base_prefix, "Project virtual environment required"
     assert a.splits > 0 and a.tokens >= (1 << a.batch)
-    assert a.block_n in (32, 64) and a.threads == 128
+    assert a.block_n in (32, 64) and a.threads in (128, 256)
+    if a.threads == 256:
+        assert a.module == "branchtile.attention_fullcol_guard" and a.block_n == 64, "Wide CTA qualification scope"
     names = [name for name in a.fixtures.split(",") if name]
     for name in names:
         rows = fixture_lists(a.batch, name, a.tokens)
