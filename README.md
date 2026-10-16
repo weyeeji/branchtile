@@ -39,6 +39,21 @@ Different natural output lengths are retained. No formal paper-success claim.
 
 Recent evidence:
 
+- **2026-10-17, complete natural-task check:** the existing full-history
+  shared-prefix cascade does not yet deliver net task gains. Across four fixed
+  sampling seeds per document/precision condition, native/cascade summed
+  cold-task time ratios are 0.966/0.974/0.982/0.771; all 256 answers reach EOS.
+  These are two training documents, not a general quality evaluation. See the
+  [four-seed audit](results/dense_cascade_four_seed_audit_v1/audit.json).
+  On the same actual B8 input/history, both algorithms computing the entire
+  model graph, BF16 decreases from 14.33 to 10.10 ms and FP8 from 11.40 to
+  8.31 ms. This excludes per-step preparation and prefill; candidate logits
+  may differ. [BF16](results/dense_cascade_snapshot_v1/train1_bf16/analysis.json)
+  / [FP8](results/dense_cascade_snapshot_v1/train1_fp8/analysis.json).
+  Thus real compute opportunity remains, but neither natural-task benefits
+  nor a new paper contribution are established. Original-page Q-component
+  and Q+PV-component prototypes fail to beat the mature FA2 shared-prefix
+  control and are closed; their negative results remain available.
 - [Real whole-model opportunity intervention](docs/cached_o_opportunity_first_result_20261017.md):
   fixed actual decode states, with all-layer Q/O, hidden/logits and written KV
   slots checked bitwise. Replacing attention with its already known output
