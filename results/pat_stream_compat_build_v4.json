@@ -1,0 +1,77 @@
+{
+  "status": "built_unqualified_stream_compat",
+  "prior": "https://github.com/flashserve/PAT",
+  "commit": "8cb067f0a31dabe800958f657093f17ac5d7366d",
+  "scope": "Explicit caller-stream fork/join compatibility hypothesis, not an established root-cause fix or numerical qualification.",
+  "environment": {
+    "CUDA_VISIBLE_DEVICES": "",
+    "TORCH_CUDA_ARCH_LIST": "12.0",
+    "FLASHINFER_CUDA_ARCH_LIST": "12.0",
+    "CUDA_HOME": "/usr/local/cuda-13.2",
+    "MAX_JOBS": "2"
+  },
+  "source_changes": [
+    "Remove one unused obsolete Thrust include for CUDA13 CCCL.",
+    "Use current PyTorch CUDA stream as caller for all launches and gather.",
+    "Record ready event on caller; each child waits before launch.",
+    "Record done event on each child; caller waits for all children before gather.",
+    "Check stream/event API return values and destroy per-call events/streams after enqueueing joins."
+  ],
+  "unchanged": [
+    "Mathematics",
+    "MMA/reduction kernels",
+    "Tile choices",
+    "Tree scheduler",
+    "Metadata layout",
+    "Allocation strategy"
+  ],
+  "source_sha256": {
+    "csrc/api.h": "e5271906b38e0dfccd29042f0d5b7cc181183f6355654bec70ae6d722cefb142",
+    "csrc/bindings.cpp": "ae329e70834ec79c498e5e1c898f6e7e5e20582db7f25aff26da0860d302535c",
+    "csrc/block_info.h": "18005e2f08053defe2d5429d028e82ba8133425ff6fb252111a8bf97ee268a9c",
+    "csrc/kernel_traits.h": "48a6274a3d973dfe3bc25a2a6be896a7c3b36010c1c808f9bc89688da1be475b",
+    "csrc/namespace_config.h": "743973d9b421a376ae0588e88fb6571be7225e9e473a33311676dfa3a190a92a",
+    "csrc/pat.h": "522ff2729729ab48ca0fe4efce1003af6e2723ea702121e09a13f6da16415d72",
+    "csrc/pat_fwd_kernel.h": "a0b35ead271182f18d9a3e2d97256ea14619a4531b1a06d861d37a127266facb",
+    "csrc/pat_fwd_launch_template.h": "b3e16a657e5c0588071c93d82a64e6403a872cec689b3d0b85f586b6e9df74a7",
+    "csrc/pat_fwd_split_hdim128_bf16_sm80.cu": "da5240cf575f76324533218c5156e504fbbd3c81b9ac53deacb986a4cfef9867",
+    "csrc/pat_fwd_split_hdim128_fp16_sm80.cu": "66525b1ebde63d31ed33bca3ba1bb5063b829ecc3096c8e04b7de59f997d6b45",
+    "csrc/pat_fwd_split_hdim64_bf16_sm80.cu": "73c016b4fc8c5b14f63ed442589d4c5c8a601d27dbfd0b59d205d3e433183388",
+    "csrc/pat_fwd_split_hdim64_fp16_sm80.cu": "5c77e74fdfaecb0f32a64e2ae81af2e78ff053ecdf2443ff1c9174501abad1ab",
+    "csrc/prefix_tree.h": "34668a5faf62b8fafb6c9af9318972a9d984719faf212148903e2601faf4d0c8",
+    "csrc/softmax.h": "e4c8691401092feeee5157666da5c618c6913b40dae760e3dd9fc4be23614e9c",
+    "csrc/static_switch.h": "0a1391a36e46df61aa8f1d5a860840ae8983ee0ff9240d60ba57c29f2498afdb",
+    "csrc/utils.h": "af883559e7386d4a8203638673a5fd4dd63b4f3995a5daed1a062693508dd732"
+  },
+  "stream_patch": "results/pat_stream_compat_v4.patch",
+  "stream_patch_sha256": "908646e2ef5237bedbf41e45c4c93569eb4bf41de76d093bbdc37ff965e61074",
+  "generated_sha256": {
+    "api.h": "e5271906b38e0dfccd29042f0d5b7cc181183f6355654bec70ae6d722cefb142",
+    "bindings.cpp": "ae329e70834ec79c498e5e1c898f6e7e5e20582db7f25aff26da0860d302535c",
+    "block_info.h": "18005e2f08053defe2d5429d028e82ba8133425ff6fb252111a8bf97ee268a9c",
+    "kernel_traits.h": "48a6274a3d973dfe3bc25a2a6be896a7c3b36010c1c808f9bc89688da1be475b",
+    "namespace_config.h": "743973d9b421a376ae0588e88fb6571be7225e9e473a33311676dfa3a190a92a",
+    "pat.h": "522ff2729729ab48ca0fe4efce1003af6e2723ea702121e09a13f6da16415d72",
+    "pat_fwd_kernel.h": "a79c772961a1597ee3910fb238098b94555f5e9d4189f6137b35a0846042a74c",
+    "pat_fwd_launch_template.h": "d2811ffb5a1b5cf2c77c4002b10f81b5366366055ca11370779631d9a7afeb9a",
+    "pat_fwd_split_hdim128_bf16_sm80.cu": "da5240cf575f76324533218c5156e504fbbd3c81b9ac53deacb986a4cfef9867",
+    "pat_fwd_split_hdim128_fp16_sm80.cu": "66525b1ebde63d31ed33bca3ba1bb5063b829ecc3096c8e04b7de59f997d6b45",
+    "pat_fwd_split_hdim64_bf16_sm80.cu": "73c016b4fc8c5b14f63ed442589d4c5c8a601d27dbfd0b59d205d3e433183388",
+    "pat_fwd_split_hdim64_fp16_sm80.cu": "5c77e74fdfaecb0f32a64e2ae81af2e78ff053ecdf2443ff1c9174501abad1ab",
+    "prefix_tree.h": "34668a5faf62b8fafb6c9af9318972a9d984719faf212148903e2601faf4d0c8",
+    "softmax.h": "e4c8691401092feeee5157666da5c618c6913b40dae760e3dd9fc4be23614e9c",
+    "static_switch.h": "0a1391a36e46df61aa8f1d5a860840ae8983ee0ff9240d60ba57c29f2498afdb",
+    "utils.h": "af883559e7386d4a8203638673a5fd4dd63b4f3995a5daed1a062693508dd732"
+  },
+  "changed_files": [
+    "pat_fwd_kernel.h",
+    "pat_fwd_launch_template.h"
+  ],
+  "module": "/home/qcjz/iscas/build/pat_stream_extension_v4/_prefix_attn.so",
+  "module_sha256": "58e3a1e058265b34b19b65ffdbba2067a0575db45afaba7ada9223b35b5dba95",
+  "CUDA_initialized": false,
+  "torch": "2.13.0+cu130",
+  "cuda": "13.0",
+  "flashinfer_imported": false,
+  "CPU_build_wall_seconds": 342.3101363647729
+}
