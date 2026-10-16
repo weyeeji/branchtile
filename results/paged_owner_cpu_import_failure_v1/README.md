@@ -1,0 +1,3 @@
+The first CPU-only constructor audit exited at its `not torch.cuda.is_initialized()` guard immediately after importing `src.vllm_paged_owner_plan`. Its transitive `src.vllm_sparse_executor` / FlashInfer import initialized CUDA in `.venv-engine`. No explicit GPU kernel, constructor, numerical qualification or benchmark was called. The failing process exited.
+
+The corrected CPU audit stubs only `cache_views` before importing the actual planner, and is launched with `CUDA_VISIBLE_DEVICES=''`. V1 then passed before adding noncontiguous query support; V2 passes the current noncontiguous-query ABI. This incident is not GPU qualification or performance evidence.
