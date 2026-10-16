@@ -13,18 +13,18 @@
 | 要求 | 当前权威证据 | 当前判定 | 尚需取得的证据 |
 |---|---|---|---|
 | 主模型身份、TP2 FP8 MoE、BF16 KV | `results/platform/engine_main30b_tp2_docfinqa.json`；官方权重/后端校验 | 单完整文档部署通过 | 其余长度与显存覆盖、正式数据的可服务性；当前不是全数据容量证明 |
-| DocFinQA 公开来源冻结划分 | 替代 v3 manifest 和身份/泄漏审计；用户明确不采用旧数据 | 已获新协议授权，审计待完成 | 公开冻结版本、身份歧义与 label 冲突处理和适合实际独立单位的统计，不冒称旧公司分布 |
+| DocFinQA 公开来源冻结划分 | public v1 的 development8/evaluation100/training167、身份/泄漏审计 | 新协议已冻结 | 正式统计使用推断身份组件并做敏感性分析，不冒称验证公司或旧公司分布 |
 | QMSum train 开发/test35 边界 | 官方来源及冻结 manifest | 输入准备完成、评价未完成 | test35 的冻结配置自然输出、全部失败分母、质量与完整成本 |
-| DocFinQA 官方答案解析和独立 fixture | 原始数据及冲突审计 | 未完成 | 数字/单位/百分比/舍入/FINAL 规则，不能事后挑数字或修 gold |
+| DocFinQA 答案解析和独立 fixture | 自定义严格 FINAL 规则，68个独立fixture通过，train/dev格式审计 | 自定义指标已冻结 | 原文执行指标不可等同自由答案精确匹配；正式同时报告精确主指标、固定舍入敏感性和标签冲突 |
 | A0 一次多问、A1 Dense+APC | `results/application_screen_v2/`，train8 两臂共64个自然结束答案 | 开发筛查完成，正式未完成 | 图优化原生强基线、三 seed/正式质量、冷暖成本及模板冻结 |
 | A2 KVzip/FastKVzip | 文献与适配线索 | 未完成 | 合法 gate 或诚实兼容性判定、共享压缩实际质量与成本 |
 | A3 强 RAG | `results/application_calibrated/`：两个4B模型各八配置，512个RAG自然回答；检索准备/重排单独计费 | QMSum开发网格完成 | 事实核查、配置冻结、正式完整费用与DocFinQA覆盖 |
-| A4 query-aware 原生及共享源 | QC-SnapKV capture；无 sparse 自由生成 | 未完成 | 真正执行稀疏生成，full-budget/Dense、质量预算冻结、准备成本 |
+| A4 query-aware 原生及共享源 | HF同栈四预算train8共128自然EOS回答；full-budget16步logits/token与dense精确一致 | 参考生成完成，引擎集成进行中 | 正式预算冻结、主模型共享源实现、完整准备成本；HF/vLLM sampling与后端不同不得跨栈归因 |
 | 自然 opportunity 与共同 ready | 原1024快照；官方FP8 TP2的200个cache核对快照、24个同forward ready组 | 部分完成 | 多自然文档及完整EOS生命周期、连续补入/取消，不把cap256当任务输出 |
 | E0/E2 强执行 | 原生 separate/joint 和固定 union，31 组配对 | 部分完成 | 主模型自然矩阵、轮转 capture 缓存、准备摊销、第二卡/卡对复核 |
-| E1 全部固定 partition | `results/partition_cascade/summary.json`，全部15划分、原生/自写、准备和第二卡 | 初始4形状执行完成 | 官方主模型与多文档自然矩阵、部署选择与事后 oracle 分开 |
+| E1 全部固定 partition | 初始B4全部15划分；官方主模型B3全部5划分、原生/自写、准备、第二卡 | 两模型初始自然矩阵完成 | 多文档覆盖、部署选择与事后 oracle 分开 |
 | E3 及 2×2 | 当前全 canonical partial 的 48 点消融 | 部分完成 | packed-active partial、合理 split/直接输出、局部固定组融合强控制 |
-| E4 精确层次共享 | 同上，15棵精确二叉树，含gather/LSE/merge/准备 | 机制移植完成 | 不是完整QUILT；主模型自然矩阵与完整应用适用性仍待验证 |
+| E4 精确层次共享 | B4全部15棵、主模型B3全部3棵精确二叉树，含gather/LSE/merge/准备 | 初始自然矩阵完成 | 不是完整QUILT；多文档与完整应用适用性仍待验证 |
 | E5/PAT/PageWeaver/Fused3S/BSA | 文献与部分源码审查 | 未完成 | 逐项适用性和强兼容实现；移植不得称作者完整复现 |
 | 候选独立数据流贡献 | v1/v2/v3 没有目标性能收益 | 未满足 | 新增量的可证伪预测、相对所有适用强对照稳定约15%完整 call 信号 |
 | 全 alive 子集、数值、logit、full-budget | 当前算子 FP64/内存检查；native 小形状 LSE 失败保留 | 部分完成 | 全子集和生命周期、层/logit、稀疏自然生成；开发冻结原生校准容差 |
@@ -39,14 +39,14 @@
 任何“部分完成”都不能在最终完成审计中当作完成。算子计时、逻辑机会、
 任务质量和实际应用费用分别提供证据，不用一个范围代替另一个。
 
-## 当前并行工作与预算（14:56 更新）
+## 当前并行工作与预算（15:29 更新）
 
-- GPU0/1：官方30B FP8真实TP2的post-RoPE Q/K/V和同forward共同ready捕获，逐位核对真实分页cache。
-- GPU2：开启CUDA Graph的原生引擎A/A；GPU3：官方4B Instruct自然EOS开发筛查。
-- GPU4/6/7：QMSum train8的八配置RAG开发生成，8192/题cap、无min_tokens，检索成本单列。
-- GPU5：原生TopK资格及selector强基线；长CUB首次编译改为无GPU可见的CPU准备，等待期间释放GPU。
-- CPU/文献：恢复或审计历史划分、核查新颖性、评分 fixture；已找到 MiniKV
-  的 LSE 复用先例，因此该路径只作为强 selector baseline，不冒充新机制。
+- GPU0/1：主模型真实分页KV的full-budget稀疏引擎输出/logit/greedy资格。
+- GPU2/5：主模型DocFinQA公开dev8的预指定1024-token块、8192-token上下文hybrid+rerank基线。
+- GPU3：4B Instruct的DocFinQA八配置RAG开发网格。
+- GPU4：2026-10-14发布的FA4 b35原生任意token同源mask与必要gather强对照资格/计时。
+- GPU6/7：主模型DocFinQA公开dev8完整报告dense/joint自然生成，262K容量，超限项保留分母。
+- CPU：校准评分、重复性审计、匿名事实审阅队列、最新源码和统计协议。
 
 沿用首轮 P1/P2 累计预算24/8 GPUh，所有新作业、加载、编译、失败和重试
 仍写入 `results/job_ledger.jsonl`。前轮台账分别0.937/3.093 GPUh，早期不完整
@@ -71,3 +71,10 @@ top_k20、min_p0，seed按文档/题目确定，尚不作三 seed 非劣结论�
 
 2026-10-16 用户澄清：“没有，不管里面提的旧数据”。旧 manifest 不再是待用户解决的
 依赖；以官方公开来源的新冻结协议推进，保留所有来源和泄漏审计。
+
+2026-10-16 15:29：Instruct图模式train8三次冷缓存重复的40个请求均逐token一致；
+热缓存仅18/32个dense请求、3/8个joint请求与冷缓存相同，不能把冷暖JCT比例
+当作相同工作量加速。steady cold统一采用repeat1/2中位数，首轮与初始化单列。
+官方主模型B3动态行v2/v3在四个自然capture均慢于强固定union；后续不通过重复
+搜索同一布局回避此结果。FA4 b35通过原冻结容差的任意token联合mask资格，加入
+适用强对照。新的稀疏HF参考四预算保持同栈比较，尚不作正式非劣结论。

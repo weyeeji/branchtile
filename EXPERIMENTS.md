@@ -252,3 +252,33 @@ attempts and allocated compilation time are charged. Long native CUB AOT was
 subsequently performed with no visible GPU and its706.5s CPU cost recorded
 separately. Current parallel work also includes genuine sparse natural-generation
 qualification; the full-paper goal remains active and incomplete.
+
+
+## 2026-10-16 15:29 — repeatability and complete sparse development cohort
+
+The graph Instruct4B A/A cohort contains eight full documents, three cold
+repeats and one warm repeat per dense/joint arm. All40 cold request sequences
+are identical across repeats. Only18/32 dense and3/8 joint warm sequences
+match cold, so warm/cold latency ratios are not same-workload speedups.
+Uniform steady cold totals across eight documents are21.659s dense and30.991s
+joint, excluding separately recorded initialization and first-call overhead.
+Calibrated cold0 ROUGE-L is29.791/29.512; these are development results, not
+factual correctness or formal test noninferiority. Raw Perl output names now
+include the report stem to prevent eager/graph collisions; the four overwritten
+eager raw files were restored from git before isolated graph rescoring.
+
+The genuine HF QC-SnapKV reference finished all128 train8 answers at10/25/50/
+100% document budgets with natural EOS. Its sampling/backend differs from the
+vLLM application experiments; only the four HF arms are paired compression
+comparisons. Main-model paged sparse execution qualification is proceeding
+independently. Exact output and LSE tests remain separate and LSE failures
+are retained; a good attention output does not certify the LSE contract.
+
+All8 public DocFinQA development reports now have full-source RAG plans,
+including reports too long for dense generation. The main-model RAG arm is
+pre-specified as1024-token chunk target/8192-token context/hybrid reranker before
+its answers; the boundary Instruct model runs all eight grid variants. This
+is exploratory development, not a claim that one variant is already optimal
+for financial QA. The complete full-report main-model dense/joint run continues
+on a separate TP2 pair. Both use the frozen strict-FINAL metric with all failure
+and unserviceable questions kept in the denominator.

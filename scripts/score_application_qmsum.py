@@ -56,7 +56,7 @@ def main():
         rows.sort(key=lambda x: (x["group_index"], x["question_index"]))
         assert len({(r["document_id"], r["question_id"]) for r in rows}) == len(rows)
         measured = score_pairs([r["prediction"] for r in rows], [r["reference"] for r in rows],
-                               output_prefix=output.parent / "perl" / key)
+                               output_prefix=output.parent / "perl" / output.stem / key)
         for row, score in zip(rows, measured["per_example"]):
             row["rouge"] = {k: v for k, v in score.items() if k != "index"}
         docs = {}

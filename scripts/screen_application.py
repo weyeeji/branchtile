@@ -117,6 +117,7 @@ def main():
     parser.add_argument("--warm-repeats", type=int, default=0)
     parser.add_argument("--cold-repeats", type=int, default=1)
     parser.add_argument("--retrieval-plans", nargs="+", default=[])
+    parser.add_argument("--retrieval-variants", nargs="+", default=None)
     parser.add_argument("--enforce-eager", action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--observe-step", action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--thinking", action=argparse.BooleanOptionalAction, default=True)
@@ -216,6 +217,10 @@ def main():
             retrieval = retrieval_groups[group_index]
             assert retrieval["document_sha256"] == group["document_sha256"]
             variants = {"rag_" + v["key"]: v for v in retrieval["variants"]}
+            if args.retrieval_variants is not None:
+                requested = {"rag_" + key for key in args.retrieval_variants}
+                assert requested <= variants.keys(), "Unknown frozen retrieval variant"
+                variants = {key: value for key, value in variants.items() if key in requested}
             order.remove("rag")
             order.extend(variants)
         random.Random(args.seed + group_index).shuffle(order)
