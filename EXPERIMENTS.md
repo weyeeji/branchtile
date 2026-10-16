@@ -483,7 +483,7 @@ separate costs. The historical4K first-dense sampler-JIT caveat is retained.
 Official native FLASHINFER actually selects BF16 XQA, page16/LBNHC, with native
 B1/B2/B3 FULL graphs. Two cold repetitions match all3066 output tokens and actual
 step sequences, finish all questions, and score1/3 exact,2/3 rounded. Generation takes
-12.954/12.879s (23.684/23.620s including the cold anchor), faster than the prior default FLASH_ATTN baseline. Any32K benefit
+12.954/12.879s (23.684/23.649s including the cold anchor), faster than the prior default FLASH_ATTN baseline. Any32K benefit
 must be assessed against this strong control, with full costs and quality.
 
 A separately frozen CPU-only joint support exchange screen keeps each request's

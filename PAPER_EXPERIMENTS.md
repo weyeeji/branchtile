@@ -205,7 +205,7 @@ full-budget所有方法三题都自然结束，数值答案相同但token轨迹�
 
 官方独立FLASHINFER基线确认BF16 KV、page16、LBNHC、decode XQA以及实际B1/B2/B3
 FULL图执行；两次冷生成均3066tokens、全部EOS，逐token和实际step序列完全相同。
-generation为12.954/12.879s，另加冷anchor后为23.684/23.620s，严格1/3、舍入2/3。它强于此前默认FLASH_ATTN；
+generation为12.954/12.879s，另加冷anchor后为23.684/23.649s，严格1/3、舍入2/3。它强于此前默认FLASH_ATTN；
 32K结果必须相对这条强控制重新评估，不能宣称相对无限定“原生”约30%改善。
 
 联合选择CPU探针先冻协议再计算，在三份corrected capture的4096/16384预算、
