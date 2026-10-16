@@ -1,0 +1,18 @@
+[
+  {
+    "name": "branchtile_v3_qualify_bench",
+    "category": "P2",
+    "gpus": [
+      7
+    ],
+    "timeout_seconds": 1200,
+    "env": {
+      "PYTHONPATH": "src"
+    },
+    "argv": [
+      ".venv/bin/python",
+      "-c",
+      "import subprocess,sys\ncommands=[['compute-sanitizer', '--tool', 'racecheck', '--error-exitcode', '99', '.venv/bin/python', '-m', 'pytest', 'tests/test_attention_v3.py', '-xq', '-k', 'runtime_change'], ['.venv/bin/python', 'scripts/compare_v3_bounded.py', '--tokens', '16384', '--pattern', 'cross', '--gqa', '8', '--splits', '16,32,64,128', '--threads', '128', '--blocks', '30', '--output', 'results/kernel_ablation_v3/paired_cross_n16384_g8.json'], ['.venv/bin/python', 'scripts/compare_v3_bounded.py', '--tokens', '131072', '--pattern', 'cross', '--gqa', '8', '--splits', '16,32,64,128', '--threads', '128', '--blocks', '30', '--output', 'results/kernel_ablation_v3/paired_cross_n131072_g8.json']]\nfor command in commands:\n code=subprocess.call(command)\n if code: sys.exit(code)\n"
+    ]
+  }
+]

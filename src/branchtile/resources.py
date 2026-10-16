@@ -25,6 +25,8 @@ def kernel_resources(kernel, artifact_prefix=None):
     assert len(cuda_modules) == 1, 'Expected exactly one producer CUDA module'
     source = kernel.get_kernel_source()
     host = kernel.adapter.host_kernel_source
+    if host is None:
+        host = kernel.adapter.rt_mod.inspect_source()
     # This specific generated host wrapper passes no scalar tensor arguments.
     # Its int64 casts therefore end in precisely the seven launch parameters.
     values = re.findall(r'v_int64\) = \(\(int64_t\)(\d+)\);', host)
@@ -36,6 +38,7 @@ def kernel_resources(kernel, artifact_prefix=None):
         cuda_modules[0].write_to_file(str(cubin), 'cubin')
         output = subprocess.run(['/usr/local/cuda-13.2/bin/cuobjdump', '--dump-resource-usage', str(cubin)],
                                 check=True, capture_output=True, text=True).stdout
+        cubin_sha256 = hashlib.sha256(cubin.read_bytes()).hexdigest()
         if artifact_prefix:
             dest = Path(artifact_prefix)
             dest.parent.mkdir(parents=True, exist_ok=True)
@@ -43,6 +46,6 @@ def kernel_resources(kernel, artifact_prefix=None):
             dest.with_suffix('.cu').write_text(source)
             dest.with_suffix('.resources.txt').write_text(output)
     fields = {k.lower(): int(v) for k, v in re.findall(r'\b(REG|STACK|SHARED|LOCAL):([0-9]+)', output)}
-    return dict(cubin_resources=fields, launch_grid=launch[:3], launch_block=launch[3:6],
+    return dict(cubin_sha256=cubin_sha256, cubin_resources=fields, launch_grid=launch[:3], launch_block=launch[3:6],
                 dynamic_smem_bytes=launch[6], total_smem_bytes=launch[6]+fields.get('shared', 0),
                 generated_source_sha256=hashlib.sha256(source.encode()).hexdigest())
