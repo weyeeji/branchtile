@@ -89,7 +89,7 @@ def main():
               "virtual_environment": sys.prefix, "ledger": str(path.relative_to(ROOT)),
               "ledger_sha256": hashlib.sha256(raw).hexdigest(), "ledger_bytes": len(raw),
               "ledger_event_count": len(raw.decode().splitlines()), "unique_name_pid_pairs": len(grouped),
-              "matching_rule": "exact (name,pid); only two legacy P2 backfill jobs have pid=null and unique names; one end charge per pair",
+              "matching_rule": "exact (name,pid); two legacy P2 backfill jobs have pid=null and unique names; later visibility-guard backfills retain known process IDs; one end charge per pair",
               "counting_rule": "allocated GPU count times monotonic process wall time; initialization, compilation, CPU portions while allocated, and failures count; no utilization discount; backfill kept separate",
               "anomalies": anomalies, "active_jobs_excluded_from_completed_totals": active,
               "absent_processes_without_end": absent_without_end,
