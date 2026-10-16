@@ -17,12 +17,15 @@ def main():
     assert os.geteuid()!=0 and sys.prefix!=sys.base_prefix
     torch.set_num_threads(4);torch.manual_seed(2028)
     layers,heads,questions=4,2,3
-    prompt=1024 if args.history_tokens<=96 else 65536
+    prompt=1024 if args.history_tokens<=96 else (65536 if args.history_tokens<=65536 else 98304)
+    assert 16<=args.history_tokens<=prompt
     common_end=prompt-16;common_pages=common_end//16
-    physical_shift=3600 if prompt==1024 else 8000
-    backing=torch.randn(7200 if prompt==1024 else 16000,layers,heads,16,256,device='cuda',dtype=torch.bfloat16)
+    physical_shift=3600 if prompt==1024 else (8000 if prompt==65536 else 14000)
+    backing=torch.randn(7200 if prompt==1024 else (16000 if prompt==65536 else 26000),layers,heads,16,256,device='cuda',dtype=torch.bfloat16)
     caches=[backing[:,l] for l in range(layers)]
     histories=[[[torch.cat((torch.randperm(common_end)[:args.history_tokens-16].sort().values,torch.arange(common_end,prompt))) for h in range(heads)] for q in range(questions)] for l in range(layers)]
+    if args.history_tokens==prompt:
+        assert all(torch.equal(ids,torch.arange(prompt)) for row in histories for by_head in row for ids in by_head)
     tables=torch.stack([torch.cat((torch.arange(common_pages),torch.arange(common_pages+1+q*1024,common_pages+1+(q+1)*1024))) for q in range(questions)])
     workspace=torch.zeros(256*1024*1024,device='cuda',dtype=torch.uint8)
     ops={b:(LayerSharedUnionPlan(caches,histories,[prompt]*3,'epoch0',b,common_end,max_generated=12289,workspace=workspace)
@@ -81,7 +84,7 @@ def main():
         if item['status']=='failed':break
     passed=len(records)==len(cases) and all(r['status']=='qualified' for r in records)
     path.write_text(json.dumps({'status':'qualified' if passed else 'failed','records':records,'uid':os.geteuid(),'python':sys.executable,
-        'method':args.method,'history_tokens':args.history_tokens,'source_sha256':{p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in ['src/vllm_shared_union_plan.py','src/vllm_shared_decode_plan.py','scripts/qualify_shared_union_plan.py']},
+        'method':args.method,'history_tokens':args.history_tokens,'exact_full_history_mask':args.history_tokens==prompt,'source_sha256':{p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in ['src/vllm_shared_union_plan.py','src/vllm_shared_decode_plan.py','scripts/qualify_shared_union_plan.py']},
         'frozen_output_tolerance':{'atol':.006,'rtol':.015},'source_cache_shape':list(caches[0].shape),'source_cache_stride':list(caches[0].stride()),
         'scope':'Existing selected native method with one length/native plan across layers, original-cache FP64 reference. Changing Q/KV, byte/page/split boundaries, generated suffix up to12289, B3/B1/reorder, physical remap and explicit invalidation. No application speed/quality claim.'},indent=2)+'\n')
     print(json.dumps({'status':'qualified' if passed else 'failed','cases':len(records),'checks':sum(len(r.get('checks',[])) for r in records)}))
