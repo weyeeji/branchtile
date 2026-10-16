@@ -168,7 +168,7 @@ def main():
         fields=["fraction","group_index","question_index","natural_eos","hit_cap","generated_tokens","budget_tokens",
                 "decode_seconds","gather_seconds","topk_and_support_seconds","selector_observer_seconds",
                 "rouge1_f1_percent","rouge2_f1_percent","rougeL_f1_percent"]
-        writer=csv.DictWriter(file,fieldnames=fields);writer.writeheader()
+        writer=csv.DictWriter(file,fieldnames=fields,lineterminator="\n");writer.writeheader()
         for row in all_rows:
             flat={k:row[k] for k in fields if k in row}
             flat.update({f"rouge{m}_f1_percent":100*row["rouge"][m]["f1"] for m in ["1","2","L"]})
