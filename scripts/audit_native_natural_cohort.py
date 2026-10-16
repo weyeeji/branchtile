@@ -83,7 +83,9 @@ def audit(path):
     for answer in answers:
         final,_,parse=extract_final(answer['text'],thinking=True)
         predictions.append(final if answer['finish_reason']=='stop' and parse=='closed_thinking' else '')
-    assert score_pairs(predictions,[q['answer'] for q in group['questions']])==run['quality']['score']
+    # Metric internals contain tuples, which JSON receipts serialize as lists.
+    rescored=json.loads(json.dumps(score_pairs(predictions,[q['answer'] for q in group['questions']])))
+    assert rescored==run['quality']['score']
     capacity=[]
     for before,after in zip(report['native_before'],report['native_after'],strict=True):
         assert before['rank']==after['rank']
