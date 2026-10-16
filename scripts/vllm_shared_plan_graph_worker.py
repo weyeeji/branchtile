@@ -9,6 +9,7 @@ import torch
 
 from scripts.vllm_sparse_graph_worker import SparseGraphWorkerExtension
 from src.vllm_shared_decode_plan import LayerSharedDecodePlan
+from src.vllm_shared_union_plan import LayerSharedUnionPlan
 from src.vllm_sparse_executor import physical_supports
 
 
@@ -16,12 +17,13 @@ class SharedPlanGraphWorkerExtension(SparseGraphWorkerExtension):
     def _sparse_forward(self,layer,original,attn_layer,query,key,value,cache,meta,
                         output,output_scale,output_block_scale):
         state=self.sparse_state
-        if state.get('graph_capturing')=='e0' and 'shared_decode_plans' in state:
+        if state.get('graph_capturing') is not None and 'shared_plans' in state:
+            method=state['graph_capturing']
             batch=query.shape[0]
-            state['graph_queries']['e0',layer,batch]=query
-            counter=f'e0:B{batch}:L{layer}'
+            state['graph_queries'][method,layer,batch]=query
+            counter=f'{method}:B{batch}:L{layer}'
             state['graph_capture_calls'][counter]=state['graph_capture_calls'].get(counter,0)+1
-            return state['shared_decode_plans'][batch].run_layer(layer,query,output=output)
+            return state['shared_plans'][method,batch].run_layer(layer,query,output=output)
         return super()._sparse_forward(layer,original,attn_layer,query,key,value,cache,meta,output,output_scale,output_block_scale)
 
     def _prepare_sparse_graph(self,metadata):
@@ -31,10 +33,10 @@ class SharedPlanGraphWorkerExtension(SparseGraphWorkerExtension):
         infos=[self._sparse_request_info(i) for i in range(b)]
         if not all(stop-start==1 and p>=row['prompt_length'] for start,stop,p,row in zip(starts,starts[1:],positions,infos)):
             return
-        assert state['method']=='e0' and batch.num_tokens_after_padding==b
+        assert batch.num_tokens_after_padding==b
         meta=next(iter(metadata.values()))
         questions=[r['question_index'] for r in infos]
-        plan=state['shared_decode_plans'][b]
+        plan=state['shared_plans'][state['method'],b]
         prepared=plan.prepare(meta.block_table[:b],questions,positions,state['shared_history_id'])
         if prepared['plan_topology_changed_requires_recapture']:
             raise RuntimeError('Native topology changed; existing engine graph must not replay until explicitly recaptured')
@@ -54,7 +56,7 @@ class SharedPlanGraphWorkerExtension(SparseGraphWorkerExtension):
     @torch.inference_mode()
     def capture_sparse_graphs(self,methods=('e0',)):
         from vllm.v1.worker.gpu.cudagraph_utils import ModelCudaGraphManager
-        assert tuple(methods)==('e0',)
+        assert methods and all(m in ('e0','union') for m in methods)
         state=self.sparse_state;runner=self.model_runner
         assert len(state['selector'].masks)==48*len(state['config']['prompt_tokens'])
         before=torch.cuda.memory_allocated();started=time.perf_counter()
@@ -65,35 +67,47 @@ class SharedPlanGraphWorkerExtension(SparseGraphWorkerExtension):
         state['shared_history_id']=identity
         workspace=torch.zeros(256*1024*1024,device=runner.device,dtype=torch.uint8)
         state['graph_workspace']=workspace
-        state['shared_decode_plans']={}
+        state['shared_plans']={}
         tables=state['table_cpu'].to(runner.device)
         assert tables.shape[0]>=3,'Warm the complete ready B3 group before capture'
         state['graph_enabled']=False
-        for b in (1,2,3):
-            plan=LayerSharedDecodePlan([state['graph_caches'][l] for l in range(48)],histories,prompts,identity,b,
-                max_per_request=16384,workspace=workspace)
-            plan.prepare(tables[:b],list(range(b)),[p-1 for p in prompts[:b]],identity)
-            state['shared_decode_plans'][b]=plan
-            for layer in range(48):
-                state['graph_ops']['e0',layer,b]=SimpleNamespace(out=plan.outputs[layer])
-        native=runner.cudagraph_manager
-        manager=ModelCudaGraphManager(runner.vllm_config,runner.device,native.cudagraph_mode,
-            decode_query_len=runner.decode_query_len,lora_capture_cases=runner.lora_capture_cases,
-            varlen_decode=False,ubatch_runner=None)
-        state['graph_capturing']='e0'
-        manager.capture(runner.model,runner.model_state,runner.input_buffers,runner.intermediate_tensors,
-            runner.block_tables,runner.attn_groups,runner.kv_cache_config,pcp_manager=runner.pcp_manager,
-            has_lora=False,use_aux_hidden_state_outputs=runner.use_aux_hidden_state_outputs,
-            progress_bar_desc='Capturing shared native plan E0')
-        state['graph_capturing']=None;state['graph_managers']['e0']=manager
+        for method in methods:
+            for b in (1,2,3):
+                caches=[state['graph_caches'][l] for l in range(48)]
+                if method=='e0':
+                    plan=LayerSharedDecodePlan(caches,histories,prompts,identity,b,max_per_request=16384,workspace=workspace)
+                else:
+                    plan=LayerSharedUnionPlan(caches,histories,prompts,identity,b,
+                        common_end=(selector.doc_end//16)*16,max_generated=8192,workspace=workspace)
+                plan.prepare(tables[:b],list(range(b)),[p-1 for p in prompts[:b]],identity)
+                state['shared_plans'][method,b]=plan
+                for layer in range(48):
+                    state['graph_ops'][method,layer,b]=SimpleNamespace(out=(plan.native_outputs[layer] if method=='union' else plan.outputs[layer]))
+            native=runner.cudagraph_manager
+            manager=ModelCudaGraphManager(runner.vllm_config,runner.device,native.cudagraph_mode,
+                decode_query_len=runner.decode_query_len,lora_capture_cases=runner.lora_capture_cases,
+                varlen_decode=False,ubatch_runner=None)
+            state['graph_capturing']=method
+            manager.capture(runner.model,runner.model_state,runner.input_buffers,runner.intermediate_tensors,
+                runner.block_tables,runner.attn_groups,runner.kv_cache_config,pcp_manager=runner.pcp_manager,
+                has_lora=False,use_aux_hidden_state_outputs=runner.use_aux_hidden_state_outputs,
+                progress_bar_desc=f'Capturing shared native plan {method}')
+            state['graph_capturing']=None;state['graph_managers'][method]=manager
         torch.cuda.synchronize();state['graph_enabled']=True
         result={'rank':state['rank'],'capture_seconds':time.perf_counter()-started,
             'additional_torch_allocated_bytes':torch.cuda.memory_allocated()-before,
             'memory_includes_shared_workspace_and_histories':True,
             'candidate_attention_capture_calls':state['graph_capture_calls'],
-            'descriptors':{'e0':[str(d) for d in manager.graphs]},
+            'descriptors':{m:[str(d) for d in manager.graphs] for m,manager in state['graph_managers'].items()},
             'frozen_history_identity':identity,
-            'shared_native_plan':'Each B1/B2/B3 graph owns one native length plan shared by all48 layers; one GPU kernel maps all layer indices through the current physical block table.',
+            'shared_native_plan':'Each method/B graph owns one native length plan shared by all48 layers. E0 maps indices on GPU; union also packs exact masks and validates shared complete-page physical identity. Union histories are padded to equal lengths across layers/heads.',
             'scope':'Existing native cached/incremental planning control, not a novel method.'}
         (state['output']/'graph_capture.json').write_text(json.dumps(result,indent=2)+'\n')
         return result
+
+    def set_graph_validation(self, enabled):
+        state=self.sparse_state
+        state['config']['graph_shadow_check']=bool(enabled)
+        state['config']['check_sparse_reference']=bool(enabled)
+        state['config']['capture_layer_outputs']=bool(enabled)
+        return {'rank':state['rank'],'graph_shadow_check':bool(enabled),'mixed_sparse_reference':bool(enabled),'layer_output_capture':bool(enabled)}
