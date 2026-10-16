@@ -109,7 +109,7 @@ def main():
                   "additional_reserve_gpu_hours": {"P1": 1.0, "P2": 1.0},
                   "reserve_interpretation": "explicit management contingency for incompletely bounded early probes; not measured spend and not a proven upper bound; replace with exact charges if intervals are recovered"},
               "manual_evidence_files": manual_evidence,
-              "budget_interpretation": "24 and 8 GPUh are proposal limits, never actual consumption. Ledger totals plus stated reserves are below those limits; incomplete early probes prevent claiming a mathematically proven total-cost bound.",
+              "budget_interpretation": "24 and 8 GPUh are the original proposal planning budgets, never actual consumption. The user subsequently authorized continued exploration and mechanism/scenario changes until paper-worthy evidence is obtained. Compare each current planning_total_including_reserves_gpu_hours against its original budget explicitly; do not assume it remains below budget. Incomplete early probes prevent claiming a mathematically proven total-cost bound.",
               "ledger_unchanged_during_audit": path.read_bytes() == raw,
               "shared_ledger_was_modified_by_this_script": False}
     output = ROOT / "results/budget_audit.json"
