@@ -384,3 +384,28 @@ pure-decode calls. CPU metadata preparation is80–181ms/step and added graph me
 is explicit. This is successful integration qualification with a severe cost
 bottleneck, not production speedup. Native plan reuse and GPU metadata updates
 will be tested as engineering controls; ordinary caching is not claimed novel.
+
+
+## 2026-10-16 16:47 — broader negative evidence and absolute-budget audit
+
+Main-model RAG graph repeats match all24 cold token sequences, including one
+capped answer retained as failure. Exact/rounded FINAL is4/24 and12/24; steady
+cold JCT230.503s. Eager output differs, preventing a same-workload speedup claim.
+Two further full financial reports provide true B3/B4 captures,456 bitwise cache
+checks and48 same-forward ready groups. All680 operator configurations qualify;
+dynamic v2 loses all8 hot/cold points at4K/16K (best-control/dynamic0.324–0.832).
+
+Shared native plans across48 layers plus one GPU metadata mapping pass1344
+actual graph shadow checks with exact E0 A/A logits. Main preparation host cost
+is0.325–0.609ms/step; additional validation still costs about45ms/step. This is
+baseline engineering, not a new method or uninstrumented production speedup.
+
+Absolute4K/8K/16K/32K/full factual-pass counts are14/14/14/13/13, adequate
+coverage14/16/17/18/18, and both9/9/10/9/9, each over32 questions.56 novel
+reviews are separate from104 nominal reused references to32 full outputs.
+Four identical outputs independently reviewed in different batches by the same
+judge agree on all three answer-level fields; this is not inter-rater evidence.
+A verdict-independent32-answer second assisted judge sample is now frozen.
+
+Completed allocation totals are8.39856 P1 and4.09085 P2 GPUh, with all starts
+matched and no anomalies; historical uncertainty reserves remain separate.
